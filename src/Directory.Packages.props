@@ -1,0 +1,7 @@
+<Project>
+    <PropertyGroup>
+        <AvaloniaVersion>12.0.*</AvaloniaVersion>
+        <IrihiUrsaVersion>2.0.0</IrihiUrsaVersion>
+        <CommunityToolkit>8.4.2</CommunityToolkit>
+    </PropertyGroup>
+</Project>
