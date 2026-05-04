@@ -8,7 +8,7 @@ using Avalonia.UI.ViewModels;
 using Avalonia.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Avalonia.Desktop;
+namespace Avalonia.Launcher.Desktop;
 
 public partial class App : Application
 {

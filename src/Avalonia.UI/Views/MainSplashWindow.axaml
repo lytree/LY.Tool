@@ -5,39 +5,161 @@
     xmlns:iri="https://irihi.tech/shared"
     xmlns:u="https://irihi.tech/ursa"
     Title="MainSplashWindow"
-    Width="400"
-    Height="400">
-    <Grid
-        HorizontalAlignment="Center"
-        VerticalAlignment="Center"
-        ColumnDefinitions="Auto, Auto"
-        RowDefinitions="Auto, Auto">
-        <iri:IrihiLogo
-            Grid.Row="0"
-            Grid.Column="0"
-            Width="64"
-            Margin="0,0,16,0"
-            Fill="{DynamicResource SemiColorText2}" />
-        <StackPanel Grid.Row="0" Grid.Column="1">
-            <TextBlock
-                Classes="H2"
-                Text="铱泓科技"
-                Theme="{DynamicResource TitleTextBlock}" />
-            <TextBlock FontWeight="Bold" Text="IRIHI Technology" />
-        </StackPanel>
-        <StackPanel
-            Grid.Row="1"
-            Grid.Column="0"
-            Grid.ColumnSpan="2">
-            <TextBlock
-                Margin="0,12,0,0"
-                HorizontalAlignment="Center"
-                FontSize="14"
-                Text="聚焦生产力的美学进化" />
-            <TextBlock
-                HorizontalAlignment="Center"
-                FontSize="14"
-                Text="Aesthetic Evolution of Productivity" />
-        </StackPanel>
+    Width="520"
+    Height="460"
+    CanResize="False"
+    WindowDecorations="None">
+    <u:SplashWindow.Styles>
+        <Style Selector="Border#Backdrop">
+            <Setter Property="Opacity" Value="0" />
+            <Style.Animations>
+                <Animation Duration="0:0:0.7" FillMode="Forward">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="Opacity" Value="0" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="1" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+
+        <Style Selector="Border#HeroImagePanel">
+            <Setter Property="Opacity" Value="0" />
+            <Style.Animations>
+                <Animation Duration="0:0:0.95" FillMode="Forward">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="Opacity" Value="0" />
+                        <Setter Property="RenderTransform" Value="translate(0, -14) scale(0.97)" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="1" />
+                        <Setter Property="RenderTransform" Value="translate(0, 0) scale(1)" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+
+        <Style Selector="Grid#BrandContent">
+            <Setter Property="Opacity" Value="0" />
+            <Style.Animations>
+                <Animation Duration="0:0:0.85" Delay="0:0:0.18" FillMode="Forward">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="Opacity" Value="0" />
+                        <Setter Property="RenderTransform" Value="translate(0, 16)" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="1" />
+                        <Setter Property="RenderTransform" Value="translate(0, 0)" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+
+        <Style Selector="Border#HaloPulse">
+            <Style.Animations>
+                <Animation Duration="0:0:2" IterationCount="INFINITE" PlaybackDirection="Alternate">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="Opacity" Value="0.28" />
+                        <Setter Property="RenderTransform" Value="scale(0.94)" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="0.72" />
+                        <Setter Property="RenderTransform" Value="scale(1.08)" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+
+        <Style Selector="iri|IrihiLogo#BrandLogo">
+            <Style.Animations>
+                <Animation Duration="0:0:2.4" IterationCount="INFINITE">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="RenderTransform" Value="rotate(0deg)" />
+                    </KeyFrame>
+                    <KeyFrame Cue="50%">
+                        <Setter Property="RenderTransform" Value="rotate(5deg)" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="RenderTransform" Value="rotate(0deg)" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+    </u:SplashWindow.Styles>
+
+    <Grid>
+        <Border
+            Name="Backdrop"
+            Margin="18"
+            Padding="24"
+            CornerRadius="26"
+            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{DynamicResource ControlAltFillColorSecondaryBrush}"
+            BorderThickness="1">
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="14">
+                <Border
+                    Name="HeroImagePanel"
+                    Grid.Row="0"
+                    Height="150"
+                    CornerRadius="16"
+                    ClipToBounds="True"
+                    Background="{DynamicResource SubtleFillColorSecondaryBrush}">
+                    <Grid>
+                        <Image Source="/Assets/jk-girl.jpg" Stretch="UniformToFill" Opacity="0.82" />
+                        <Border Background="#55000000" />
+                        <TextBlock
+                            Margin="16"
+                            VerticalAlignment="Bottom"
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Text="Welcome to IRIHI"
+                            Foreground="White" />
+                    </Grid>
+                </Border>
+
+                <Grid
+                    Name="BrandContent"
+                    Grid.Row="1"
+                    ColumnDefinitions="Auto,*"
+                    RowDefinitions="Auto,Auto"
+                    ColumnSpacing="14">
+                    <Grid Grid.RowSpan="2" Width="82" Height="82" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Border Name="HaloPulse" Background="{DynamicResource InfoBackgroundBrush}" CornerRadius="41" />
+                        <iri:IrihiLogo
+                            Name="BrandLogo"
+                            Width="56"
+                            Height="56"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Fill="{DynamicResource SemiColorText2}" />
+                    </Grid>
+
+                    <TextBlock
+                        Grid.Column="1"
+                        Classes="H2"
+                        VerticalAlignment="Bottom"
+                        Text="铱泓科技"
+                        Theme="{DynamicResource TitleTextBlock}" />
+                    <TextBlock
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Opacity="0.82"
+                        Text="IRIHI Technology" />
+                </Grid>
+
+                <StackPanel Grid.Row="2" Spacing="4">
+                    <TextBlock HorizontalAlignment="Center" FontSize="15" FontWeight="Medium" Text="聚焦生产力的美学进化" />
+                    <TextBlock HorizontalAlignment="Center" FontSize="13" Opacity="0.72" Text="Aesthetic Evolution of Productivity" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" Spacing="8">
+                    <ProgressBar IsIndeterminate="True" Height="5" CornerRadius="999" />
+                    <TextBlock HorizontalAlignment="Center" FontSize="12" Opacity="0.68" Text="正在加载组件... / Initializing modules..." />
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </u:SplashWindow>

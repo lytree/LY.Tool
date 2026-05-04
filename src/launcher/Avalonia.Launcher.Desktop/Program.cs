@@ -1,7 +1,7 @@
 using Avalonia.Dialogs;
 using System;
 
-namespace Avalonia.Desktop;
+namespace Avalonia.Launcher.Desktop;
 
 sealed class Program
 {
