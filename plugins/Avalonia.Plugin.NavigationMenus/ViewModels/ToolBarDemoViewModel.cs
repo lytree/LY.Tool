@@ -51,7 +51,7 @@ public class ToolBarButtonItemViewModel : ToolBarItemViewModel
 
     public ToolBarButtonItemViewModel()
     {
-        Command = new AsyncRelayCommand(async () => { await MessageBox.ShowOverlayAsync(Content ?? string.Empty); });
+        Command = new AsyncRelayCommand(async () => { await OverlayMessageBox.ShowAsync(Content ?? string.Empty); });
     }
 }
 
@@ -63,7 +63,7 @@ public class ToolBarCheckBoxItemViweModel : ToolBarItemViewModel
 
     public ToolBarCheckBoxItemViweModel()
     {
-        Command = new AsyncRelayCommand(async () => { await MessageBox.ShowOverlayAsync(Content ?? string.Empty); });
+        Command = new AsyncRelayCommand(async () => { await OverlayMessageBox.ShowAsync(Content ?? string.Empty); });
     }
 }
 
@@ -80,7 +80,7 @@ public class ToolBarComboBoxItemViewModel : ToolBarItemViewModel
         set
         {
             SetProperty(ref _selectedItem, value);
-            _ = MessageBox.ShowOverlayAsync(value ?? string.Empty);
+            _ = OverlayMessageBox.ShowAsync(value ?? string.Empty);
         }
     }
 }
