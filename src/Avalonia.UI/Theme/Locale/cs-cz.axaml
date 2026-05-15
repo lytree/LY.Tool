@@ -1,5 +1,5 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    x:Class="Ursa.Themes.Semi.Locale.cs_cz"
+                    x:Class="Avalonia.UI.Theme.Locale.cs_cz"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <x:String x:Key="STRING_MENU_BRING_TO_FRONT">Přenést do popředí</x:String>
     <x:String x:Key="STRING_MENU_BRING_FORWARD">Přenést blíž</x:String>

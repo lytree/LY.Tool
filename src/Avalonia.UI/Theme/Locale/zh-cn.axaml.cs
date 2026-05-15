@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace Ursa.Themes.Semi.Locale;
+namespace Avalonia.UI.Theme.Locale;
 
 public class zh_cn: ResourceDictionary
 {

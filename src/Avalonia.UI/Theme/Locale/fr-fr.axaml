@@ -1,5 +1,5 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    x:Class="Ursa.Themes.Semi.Locale.fr_fr"
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    x:Class="Avalonia.UI.Theme.Locale.fr_fr"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <x:String x:Key="STRING_MENU_BRING_TO_FRONT">Mettre au premier plan</x:String>
     <x:String x:Key="STRING_MENU_BRING_FORWARD">Avancer</x:String>

@@ -1,5 +1,5 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    x:Class="Ursa.Themes.Semi.Locale.zh_cn"
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    x:Class="Avalonia.UI.Theme.Locale.zh_cn"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <x:String x:Key="STRING_MENU_BRING_TO_FRONT">置于顶层</x:String>
     <x:String x:Key="STRING_MENU_BRING_FORWARD">上移一层</x:String>

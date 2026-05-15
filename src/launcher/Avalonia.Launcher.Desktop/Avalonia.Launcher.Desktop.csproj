@@ -21,8 +21,8 @@
   <ItemGroup>
     <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
-    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(MicrosoftExtensionsDI)" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="$(AvaloniaDiagnosticsSupport)" />
   </ItemGroup>
 
   <ItemGroup>

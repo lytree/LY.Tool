@@ -1,8 +1,8 @@
-﻿<ResourceDictionary
+<ResourceDictionary
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:u="https://irihi.tech/ursa"
-    xmlns:converters="using:Ursa.Themes.Semi.Converters">
+    xmlns:converters="using:Avalonia.UI.Theme.Converters">
     <Design.PreviewWith>
         <ThemeVariantScope RequestedThemeVariant="Dark">
             <StackPanel Spacing="16" Background="{DynamicResource SemiColorBackground0}">

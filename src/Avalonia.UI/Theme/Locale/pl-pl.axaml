@@ -1,5 +1,5 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    x:Class="Ursa.Themes.Semi.Locale.pl_pl"
+                    x:Class="Avalonia.UI.Theme.Locale.pl_pl"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <x:String x:Key="STRING_MENU_BRING_TO_FRONT">Przenieś na wierzch</x:String>
     <x:String x:Key="STRING_MENU_BRING_FORWARD">Przenieś do przodu</x:String>

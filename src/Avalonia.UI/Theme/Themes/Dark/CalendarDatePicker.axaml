@@ -1,0 +1,17 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StaticResource x:Key="CalendarDatePickerIconForeground" ResourceKey="SemiColorText2" />
+    <StaticResource x:Key="CalendarDatePickerForeground" ResourceKey="SemiColorText0" />
+    <StaticResource x:Key="CalendarDatePickerIconPointeroverForeground" ResourceKey="SemiColorText0" />
+    <StaticResource x:Key="CalendarDatePickerBackground" ResourceKey="SemiColorFill0" />
+    <SolidColorBrush x:Key="CalendarDatePickerBorderBrush" Color="Transparent" />
+    <StaticResource x:Key="CalendarDatePickerPointeroverBackground" ResourceKey="SemiColorFill1" />
+    <SolidColorBrush x:Key="CalendarDatePickerPointeroverBorderBrush" Color="Transparent" />
+    <StaticResource x:Key="CalendarDatePickerFocusBorderBrush" ResourceKey="SemiColorPrimary" />
+    <StaticResource x:Key="CalendarDatePickerDisabledBackground" ResourceKey="SemiColorDisabledFill" />
+    <StaticResource x:Key="CalendarDatePickerDisabledIconForeground" ResourceKey="SemiColorDisabledText" />
+    <StaticResource x:Key="CalendarDatePickerPopupBoxShadows" ResourceKey="SemiShadowElevated" />
+    <SolidColorBrush x:Key="CalendarDatePickerBorderedDefaultBackground" Color="Transparent" />
+    <StaticResource x:Key="CalendarDatePickerBorderedDefaultBorderBrush" ResourceKey="SemiColorBorder" />
+    <SolidColorBrush x:Key="CalendarDatePickerBorderedPointeroverBackground" Color="Transparent" />
+    <StaticResource x:Key="CalendarDatePickerBorderedPointeroverBorderBrush" ResourceKey="SemiColorPrimaryPointerover" />
+</ResourceDictionary>

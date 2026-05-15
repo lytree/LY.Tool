@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace Ursa.Themes.Semi.Locale;
+namespace Avalonia.UI.Theme.Locale;
 
 public class fr_fr: ResourceDictionary
 {

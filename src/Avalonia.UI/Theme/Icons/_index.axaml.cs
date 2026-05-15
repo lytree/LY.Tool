@@ -1,5 +1,5 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 
-namespace Semi.Avalonia;
+namespace Avalonia.UI.Theme;
 
 public class Icons : ResourceDictionary;

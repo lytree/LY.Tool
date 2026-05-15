@@ -1,10 +1,10 @@
-﻿using System.Globalization;
+using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using Avalonia.UI.Theme.Animations;
-using Ursa.Themes.Semi.Locale;
+using Avalonia.UI.Theme.Locale;
 
 namespace Avalonia.UI.Theme;
 
