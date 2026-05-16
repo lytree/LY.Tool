@@ -96,6 +96,7 @@
                         <StackPanel Spacing="4">
                             <u:IconButton
                                 HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
                                 Classes="Tertiary"
                                 Icon="{StaticResource SemiIconSetting}"
                                 Content="{Binding SettingText}"
@@ -107,8 +108,9 @@
                                 CommandParameter="Settings" />
                             <u:IconButton
                                 HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
                                 Classes="Tertiary"
-                                Icon="{StaticResource SemiIconSetting}"
+                                Icon="{StaticResource SemiIconPuzzle}"
                                 Content="{Binding PluginText}"
                                 RenderTransform="{x:Null}"
                                 ToolTip.Tip="Plugin Management"
