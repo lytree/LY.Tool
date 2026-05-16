@@ -6,7 +6,6 @@ xmlns:fluent="using:Avalonia.Themes.Fluent"
 xmlns:sizeanimations="using:Avalonia.UI.Theme.SizeAnimations"
 xmlns:theme="using:Avalonia.UI.Theme"
 xmlns:u="https://irihi.tech/ursa"
-RequestedThemeVariant="Light"
 xmlns:viewmodels="using:Avalonia.UI.ViewModels"
 x:DataType="viewmodels:ApplicationViewModel">
 	<Application.Styles>

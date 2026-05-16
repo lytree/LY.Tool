@@ -14,15 +14,9 @@
     x:CompileBindings="True"
     x:DataType="viewModels:MainWindowViewModel"
     WindowStartupLocation="CenterScreen"
+    MinWidth="640"
+    MinHeight="480"
     Icon="/Assets/irihi.ico"
     mc:Ignorable="d">
-    <u:UrsaWindow.Styles>
-        <Style Selector="u|StandardDialogControl.Custom">
-            <Style Selector="^ /template/ Button#PART_OKButton">
-                <Setter Property="Content" Value="CUSTOM" />
-                <Setter Property="iri:ClassHelper.Classes" Value="Warning" />
-            </Style>
-        </Style>
-    </u:UrsaWindow.Styles>
     <views:MainView />
 </u:UrsaWindow>

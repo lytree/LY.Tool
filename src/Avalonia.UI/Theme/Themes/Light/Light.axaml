@@ -1,184 +1,183 @@
 <ResourceDictionary
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!--  Color Resources  -->
     <Color x:Key="SemiWhiteColor">White</Color>
     <Color x:Key="SemiBlackColor">Black</Color>
-    <Color x:Key="SemiRed0Color">#FEF2ED</Color>
-    <Color x:Key="SemiRed1Color">#FEDDD2</Color>
-    <Color x:Key="SemiRed2Color">#FDB7A5</Color>
-    <Color x:Key="SemiRed3Color">#FB9078</Color>
-    <Color x:Key="SemiRed4Color">#FA664C</Color>
-    <Color x:Key="SemiRed5Color">#F93920</Color>
-    <Color x:Key="SemiRed6Color">#D52515</Color>
-    <Color x:Key="SemiRed7Color">#B2140C</Color>
-    <Color x:Key="SemiRed8Color">#8E0805</Color>
-    <Color x:Key="SemiRed9Color">#6A0103</Color>
-    <Color x:Key="SemiPink0Color">#FDECEF</Color>
-    <Color x:Key="SemiPink1Color">#FBCFD8</Color>
-    <Color x:Key="SemiPink2Color">#F6A0B5</Color>
-    <Color x:Key="SemiPink3Color">#F27396</Color>
-    <Color x:Key="SemiPink4Color">#ED487B</Color>
-    <Color x:Key="SemiPink5Color">#E91E63</Color>
-    <Color x:Key="SemiPink6Color">#C51356</Color>
-    <Color x:Key="SemiPink7Color">#A20B48</Color>
-    <Color x:Key="SemiPink8Color">#7E053A</Color>
-    <Color x:Key="SemiPink9Color">#5A012B</Color>
-    <Color x:Key="SemiPurple0Color">#F7E9F7</Color>
-    <Color x:Key="SemiPurple1Color">#EFCAF0</Color>
-    <Color x:Key="SemiPurple2Color">#DD9BE0</Color>
-    <Color x:Key="SemiPurple3Color">#C96FD1</Color>
-    <Color x:Key="SemiPurple4Color">#B449C2</Color>
-    <Color x:Key="SemiPurple5Color">#9E28B3</Color>
-    <Color x:Key="SemiPurple6Color">#871E9E</Color>
-    <Color x:Key="SemiPurple7Color">#71168A</Color>
-    <Color x:Key="SemiPurple8Color">#5C0F75</Color>
-    <Color x:Key="SemiPurple9Color">#490A61</Color>
-    <Color x:Key="SemiViolet0Color">#F3EDF9</Color>
-    <Color x:Key="SemiViolet1Color">#E2D1F4</Color>
-    <Color x:Key="SemiViolet2Color">#C4A7E9</Color>
-    <Color x:Key="SemiViolet3Color">#A67FDD</Color>
-    <Color x:Key="SemiViolet4Color">#885BD2</Color>
-    <Color x:Key="SemiViolet5Color">#6A3AC7</Color>
-    <Color x:Key="SemiViolet6Color">#572FB3</Color>
-    <Color x:Key="SemiViolet7Color">#46259E</Color>
-    <Color x:Key="SemiViolet8Color">#361C8A</Color>
-    <Color x:Key="SemiViolet9Color">#281475</Color>
-    <Color x:Key="SemiIndigo0Color">#ECEFF8</Color>
-    <Color x:Key="SemiIndigo1Color">#D1D8F0</Color>
-    <Color x:Key="SemiIndigo2Color">#A7B3E1</Color>
-    <Color x:Key="SemiIndigo3Color">#8090D3</Color>
-    <Color x:Key="SemiIndigo4Color">#5E6FC4</Color>
-    <Color x:Key="SemiIndigo5Color">#3F51B5</Color>
-    <Color x:Key="SemiIndigo6Color">#3342A1</Color>
-    <Color x:Key="SemiIndigo7Color">#28348C</Color>
-    <Color x:Key="SemiIndigo8Color">#1F2878</Color>
-    <Color x:Key="SemiIndigo9Color">#171D63</Color>
-    <Color x:Key="SemiBlue0Color">#EAF5FF</Color>
-    <Color x:Key="SemiBlue1Color">#CBE7FE</Color>
-    <Color x:Key="SemiBlue2Color">#98CDFD</Color>
-    <Color x:Key="SemiBlue3Color">#65B2FC</Color>
-    <Color x:Key="SemiBlue4Color">#3295FB</Color>
-    <Color x:Key="SemiBlue5Color">#0064FA</Color>
-    <Color x:Key="SemiBlue6Color">#0062D6</Color>
-    <Color x:Key="SemiBlue7Color">#004FB3</Color>
-    <Color x:Key="SemiBlue8Color">#003D8F</Color>
-    <Color x:Key="SemiBlue9Color">#002C6B</Color>
-    <Color x:Key="SemiLightBlue0Color">#E9F7FD</Color>
-    <Color x:Key="SemiLightBlue1Color">#C9ECFC</Color>
-    <Color x:Key="SemiLightBlue2Color">#95D8F8</Color>
-    <Color x:Key="SemiLightBlue3Color">#62C3F5</Color>
-    <Color x:Key="SemiLightBlue4Color">#30ACF1</Color>
-    <Color x:Key="SemiLightBlue5Color">#0095EE</Color>
-    <Color x:Key="SemiLightBlue6Color">#007BCA</Color>
-    <Color x:Key="SemiLightBlue7Color">#0063A7</Color>
-    <Color x:Key="SemiLightBlue8Color">#004B83</Color>
-    <Color x:Key="SemiLightBlue9Color">#00355F</Color>
-    <Color x:Key="SemiCyan0Color">#E5F7F8</Color>
-    <Color x:Key="SemiCyan1Color">#C2EFF0</Color>
-    <Color x:Key="SemiCyan2Color">#8ADDE2</Color>
-    <Color x:Key="SemiCyan3Color">#58CBD3</Color>
-    <Color x:Key="SemiCyan4Color">#2CB8C5</Color>
-    <Color x:Key="SemiCyan5Color">#05A4B6</Color>
-    <Color x:Key="SemiCyan6Color">#038698</Color>
-    <Color x:Key="SemiCyan7Color">#016979</Color>
-    <Color x:Key="SemiCyan8Color">#004D5B</Color>
-    <Color x:Key="SemiCyan9Color">#00323D</Color>
-    <Color x:Key="SemiTeal0Color">#E4F7F4</Color>
-    <Color x:Key="SemiTeal1Color">#C0F0E8</Color>
-    <Color x:Key="SemiTeal2Color">#87E0D3</Color>
-    <Color x:Key="SemiTeal3Color">#54D1C1</Color>
-    <Color x:Key="SemiTeal4Color">#27C2B0</Color>
-    <Color x:Key="SemiTeal5Color">#00B3A1</Color>
-    <Color x:Key="SemiTeal6Color">#009589</Color>
-    <Color x:Key="SemiTeal7Color">#00776F</Color>
-    <Color x:Key="SemiTeal8Color">#005955</Color>
-    <Color x:Key="SemiTeal9Color">#003C3A</Color>
-    <Color x:Key="SemiGreen0Color">#ECF7EC</Color>
-    <Color x:Key="SemiGreen1Color">#D0F0D1</Color>
-    <Color x:Key="SemiGreen2Color">#A4E0A7</Color>
-    <Color x:Key="SemiGreen3Color">#7DD182</Color>
-    <Color x:Key="SemiGreen4Color">#5AC262</Color>
-    <Color x:Key="SemiGreen5Color">#3BB346</Color>
-    <Color x:Key="SemiGreen6Color">#30953B</Color>
-    <Color x:Key="SemiGreen7Color">#25772F</Color>
-    <Color x:Key="SemiGreen8Color">#1B5924</Color>
-    <Color x:Key="SemiGreen9Color">#113C18</Color>
-    <Color x:Key="SemiLightGreen0Color">#F3F8EC</Color>
-    <Color x:Key="SemiLightGreen1Color">#E3F0D0</Color>
-    <Color x:Key="SemiLightGreen2Color">#C8E2A5</Color>
-    <Color x:Key="SemiLightGreen3Color">#ADD37E</Color>
-    <Color x:Key="SemiLightGreen4Color">#93C55B</Color>
-    <Color x:Key="SemiLightGreen5Color">#7BB63C</Color>
-    <Color x:Key="SemiLightGreen6Color">#649830</Color>
-    <Color x:Key="SemiLightGreen7Color">#4E7926</Color>
-    <Color x:Key="SemiLightGreen8Color">#395B1B</Color>
-    <Color x:Key="SemiLightGreen9Color">#253D12</Color>
-    <Color x:Key="SemiLime0Color">#F2FAE6</Color>
-    <Color x:Key="SemiLime1Color">#E3F6C5</Color>
-    <Color x:Key="SemiLime2Color">#CBED8E</Color>
-    <Color x:Key="SemiLime3Color">#B7E35B</Color>
-    <Color x:Key="SemiLime4Color">#A7DA2C</Color>
-    <Color x:Key="SemiLime5Color">#9BD100</Color>
-    <Color x:Key="SemiLime6Color">#7EAE00</Color>
-    <Color x:Key="SemiLime7Color">#638B00</Color>
-    <Color x:Key="SemiLime8Color">#486800</Color>
-    <Color x:Key="SemiLime9Color">#2F4600</Color>
-    <Color x:Key="SemiYellow0Color">#FFFDEA</Color>
-    <Color x:Key="SemiYellow1Color">#FEFBCB</Color>
-    <Color x:Key="SemiYellow2Color">#FDF398</Color>
-    <Color x:Key="SemiYellow3Color">#FCE865</Color>
-    <Color x:Key="SemiYellow4Color">#FBDA32</Color>
-    <Color x:Key="SemiYellow5Color">#FAC800</Color>
-    <Color x:Key="SemiYellow6Color">#D0AA00</Color>
-    <Color x:Key="SemiYellow7Color">#A78B00</Color>
-    <Color x:Key="SemiYellow8Color">#7D6A00</Color>
-    <Color x:Key="SemiYellow9Color">#534800</Color>
-    <Color x:Key="SemiAmber0Color">#FEFBEB</Color>
-    <Color x:Key="SemiAmber1Color">#FCF5CE</Color>
-    <Color x:Key="SemiAmber2Color">#F9E89E</Color>
-    <Color x:Key="SemiAmber3Color">#F6D86F</Color>
-    <Color x:Key="SemiAmber4Color">#F3C641</Color>
-    <Color x:Key="SemiAmber5Color">#F0B114</Color>
-    <Color x:Key="SemiAmber6Color">#C88A0F</Color>
-    <Color x:Key="SemiAmber7Color">#A0660A</Color>
-    <Color x:Key="SemiAmber8Color">#784606</Color>
-    <Color x:Key="SemiAmber9Color">#502B03</Color>
-    <Color x:Key="SemiOrange0Color">#FFF8EA</Color>
-    <Color x:Key="SemiOrange1Color">#FEEECC</Color>
-    <Color x:Key="SemiOrange2Color">#FED998</Color>
-    <Color x:Key="SemiOrange3Color">#FDC165</Color>
-    <Color x:Key="SemiOrange4Color">#FDA633</Color>
-    <Color x:Key="SemiOrange5Color">#FC8800</Color>
-    <Color x:Key="SemiOrange6Color">#D26700</Color>
-    <Color x:Key="SemiOrange7Color">#A84A00</Color>
-    <Color x:Key="SemiOrange8Color">#7E3100</Color>
-    <Color x:Key="SemiOrange9Color">#541D00</Color>
-    <Color x:Key="SemiGrey0Color">#F9F9F9</Color>
-    <Color x:Key="SemiGrey1Color">#E6E8EA</Color>
-    <Color x:Key="SemiGrey2Color">#C6CACD</Color>
-    <Color x:Key="SemiGrey3Color">#A7ABB0</Color>
-    <Color x:Key="SemiGrey4Color">#888D92</Color>
-    <Color x:Key="SemiGrey5Color">#6B7075</Color>
-    <Color x:Key="SemiGrey6Color">#555B61</Color>
-    <Color x:Key="SemiGrey7Color">#41464C</Color>
-    <Color x:Key="SemiGrey8Color">#2E3238</Color>
-    <Color x:Key="SemiGrey9Color">#1C1F23</Color>
-    <Color x:Key="SemiBackground0Color">White</Color>
-    <Color x:Key="SemiBackground1Color">White</Color>
-    <Color x:Key="SemiBackground2Color">White</Color>
-    <Color x:Key="SemiBackground3Color">White</Color>
-    <Color x:Key="SemiBackground4Color">White</Color>
-    <Color x:Key="SemiAIPurple0Color">#F8EDFF</Color>
-    <Color x:Key="SemiAIPurple1Color">#F2DAFF</Color>
-    <Color x:Key="SemiAIPurple2Color">#E3B5FF</Color>
-    <Color x:Key="SemiAIPurple3Color">#D191FF</Color>
-    <Color x:Key="SemiAIPurple4Color">#BD6CFF</Color>
-    <Color x:Key="SemiAIPurple5Color">#A647FF</Color>
-    <Color x:Key="SemiAIPurple6Color">#8636DB</Color>
-    <Color x:Key="SemiAIPurple7Color">#6928B8</Color>
-    <Color x:Key="SemiAIPurple8Color">#4E1C94</Color>
-    <Color x:Key="SemiAIPurple9Color">#361270</Color>
+    <Color x:Key="SemiRed0Color">#FDE7E9</Color>
+    <Color x:Key="SemiRed1Color">#F8C6CB</Color>
+    <Color x:Key="SemiRed2Color">#F1A2AA</Color>
+    <Color x:Key="SemiRed3Color">#E87D87</Color>
+    <Color x:Key="SemiRed4Color">#D13438</Color>
+    <Color x:Key="SemiRed5Color">#C42B1C</Color>
+    <Color x:Key="SemiRed6Color">#A4262A</Color>
+    <Color x:Key="SemiRed7Color">#8A1A1E</Color>
+    <Color x:Key="SemiRed8Color">#6E1316</Color>
+    <Color x:Key="SemiRed9Color">#4F0D10</Color>
+    <Color x:Key="SemiPink0Color">#FBD8E8</Color>
+    <Color x:Key="SemiPink1Color">#F6B4D0</Color>
+    <Color x:Key="SemiPink2Color">#EE8FB5</Color>
+    <Color x:Key="SemiPink3Color">#E56A9B</Color>
+    <Color x:Key="SemiPink4Color">#D94882</Color>
+    <Color x:Key="SemiPink5Color">#C23A6B</Color>
+    <Color x:Key="SemiPink6Color">#A52F58</Color>
+    <Color x:Key="SemiPink7Color">#882546</Color>
+    <Color x:Key="SemiPink8Color">#6B1C35</Color>
+    <Color x:Key="SemiPink9Color">#4E1326</Color>
+    <Color x:Key="SemiPurple0Color">#E8D5F5</Color>
+    <Color x:Key="SemiPurple1Color">#D5B0EC</Color>
+    <Color x:Key="SemiPurple2Color">#C18AE2</Color>
+    <Color x:Key="SemiPurple3Color">#AD65D8</Color>
+    <Color x:Key="SemiPurple4Color">#9640CE</Color>
+    <Color x:Key="SemiPurple5Color">#7F2BC0</Color>
+    <Color x:Key="SemiPurple6Color">#6B23A3</Color>
+    <Color x:Key="SemiPurple7Color">#581C87</Color>
+    <Color x:Key="SemiPurple8Color">#45156B</Color>
+    <Color x:Key="SemiPurple9Color">#330E50</Color>
+    <Color x:Key="SemiViolet0Color">#DDD5F5</Color>
+    <Color x:Key="SemiViolet1Color">#C3B0EC</Color>
+    <Color x:Key="SemiViolet2Color">#A98AE2</Color>
+    <Color x:Key="SemiViolet3Color">#8F65D8</Color>
+    <Color x:Key="SemiViolet4Color">#7540CE</Color>
+    <Color x:Key="SemiViolet5Color">#5C2BC0</Color>
+    <Color x:Key="SemiViolet6Color">#4D23A3</Color>
+    <Color x:Key="SemiViolet7Color">#3F1C87</Color>
+    <Color x:Key="SemiViolet8Color">#31156B</Color>
+    <Color x:Key="SemiViolet9Color">#240E50</Color>
+    <Color x:Key="SemiIndigo0Color">#D5D8F5</Color>
+    <Color x:Key="SemiIndigo1Color">#B0B8EC</Color>
+    <Color x:Key="SemiIndigo2Color">#8A97E2</Color>
+    <Color x:Key="SemiIndigo3Color">#6577D8</Color>
+    <Color x:Key="SemiIndigo4Color">#4058CE</Color>
+    <Color x:Key="SemiIndigo5Color">#2B3FC0</Color>
+    <Color x:Key="SemiIndigo6Color">#2333A3</Color>
+    <Color x:Key="SemiIndigo7Color">#1C2A87</Color>
+    <Color x:Key="SemiIndigo8Color">#15206B</Color>
+    <Color x:Key="SemiIndigo9Color">#0E1750</Color>
+    <Color x:Key="SemiBlue0Color">#DEECF9</Color>
+    <Color x:Key="SemiBlue1Color">#BDD9F3</Color>
+    <Color x:Key="SemiBlue2Color">#98C5ED</Color>
+    <Color x:Key="SemiBlue3Color">#6EB1E6</Color>
+    <Color x:Key="SemiBlue4Color">#4A9DE0</Color>
+    <Color x:Key="SemiBlue5Color">#005FB8</Color>
+    <Color x:Key="SemiBlue6Color">#004C9B</Color>
+    <Color x:Key="SemiBlue7Color">#003A7D</Color>
+    <Color x:Key="SemiBlue8Color">#002B5E</Color>
+    <Color x:Key="SemiBlue9Color">#001D40</Color>
+    <Color x:Key="SemiLightBlue0Color">#D6EFF8</Color>
+    <Color x:Key="SemiLightBlue1Color">#B0DFF1</Color>
+    <Color x:Key="SemiLightBlue2Color">#87CEE9</Color>
+    <Color x:Key="SemiLightBlue3Color">#5EBDE1</Color>
+    <Color x:Key="SemiLightBlue4Color">#36ACD9</Color>
+    <Color x:Key="SemiLightBlue5Color">#0E9BD1</Color>
+    <Color x:Key="SemiLightBlue6Color">#0A82B2</Color>
+    <Color x:Key="SemiLightBlue7Color">#076993</Color>
+    <Color x:Key="SemiLightBlue8Color">#055074</Color>
+    <Color x:Key="SemiLightBlue9Color">#033755</Color>
+    <Color x:Key="SemiCyan0Color">#D4F0F5</Color>
+    <Color x:Key="SemiCyan1Color">#ABE0EB</Color>
+    <Color x:Key="SemiCyan2Color">#82CFE0</Color>
+    <Color x:Key="SemiCyan3Color">#59BFD6</Color>
+    <Color x:Key="SemiCyan4Color">#30AECC</Color>
+    <Color x:Key="SemiCyan5Color">#089EC2</Color>
+    <Color x:Key="SemiCyan6Color">#0784A3</Color>
+    <Color x:Key="SemiCyan7Color">#066B84</Color>
+    <Color x:Key="SemiCyan8Color">#045265</Color>
+    <Color x:Key="SemiCyan9Color">#033946</Color>
+    <Color x:Key="SemiTeal0Color">#D2F0ED</Color>
+    <Color x:Key="SemiTeal1Color">#A7E0DB</Color>
+    <Color x:Key="SemiTeal2Color">#7DD0C8</Color>
+    <Color x:Key="SemiTeal3Color">#53C0B6</Color>
+    <Color x:Key="SemiTeal4Color">#29B0A3</Color>
+    <Color x:Key="SemiTeal5Color">#00A090</Color>
+    <Color x:Key="SemiTeal6Color">#00877A</Color>
+    <Color x:Key="SemiTeal7Color">#006E64</Color>
+    <Color x:Key="SemiTeal8Color">#00554E</Color>
+    <Color x:Key="SemiTeal9Color">#003C38</Color>
+    <Color x:Key="SemiGreen0Color">#DFF6DD</Color>
+    <Color x:Key="SemiGreen1Color">#B8EBB4</Color>
+    <Color x:Key="SemiGreen2Color">#92E08B</Color>
+    <Color x:Key="SemiGreen3Color">#6CD562</Color>
+    <Color x:Key="SemiGreen4Color">#4FCA3A</Color>
+    <Color x:Key="SemiGreen5Color">#107C10</Color>
+    <Color x:Key="SemiGreen6Color">#0D680D</Color>
+    <Color x:Key="SemiGreen7Color">#0A540A</Color>
+    <Color x:Key="SemiGreen8Color">#074007</Color>
+    <Color x:Key="SemiGreen9Color">#052C05</Color>
+    <Color x:Key="SemiLightGreen0Color">#E6F7D6</Color>
+    <Color x:Key="SemiLightGreen1Color">#C5EEAB</Color>
+    <Color x:Key="SemiLightGreen2Color">#A4E580</Color>
+    <Color x:Key="SemiLightGreen3Color">#83DC55</Color>
+    <Color x:Key="SemiLightGreen4Color">#62D32B</Color>
+    <Color x:Key="SemiLightGreen5Color">#4FCA3A</Color>
+    <Color x:Key="SemiLightGreen6Color">#42A830</Color>
+    <Color x:Key="SemiLightGreen7Color">#358626</Color>
+    <Color x:Key="SemiLightGreen8Color">#28641C</Color>
+    <Color x:Key="SemiLightGreen9Color">#1B4212</Color>
+    <Color x:Key="SemiLime0Color">#F0F9D6</Color>
+    <Color x:Key="SemiLime1Color">#DFF2AB</Color>
+    <Color x:Key="SemiLime2Color">#CFEB80</Color>
+    <Color x:Key="SemiLime3Color">#BFE455</Color>
+    <Color x:Key="SemiLime4Color">#AFDD2B</Color>
+    <Color x:Key="SemiLime5Color">#9FD600</Color>
+    <Color x:Key="SemiLime6Color">#84B300</Color>
+    <Color x:Key="SemiLime7Color">#6A9000</Color>
+    <Color x:Key="SemiLime8Color">#4F6C00</Color>
+    <Color x:Key="SemiLime9Color">#354800</Color>
+    <Color x:Key="SemiYellow0Color">#FFF4CE</Color>
+    <Color x:Key="SemiYellow1Color">#FFE79C</Color>
+    <Color x:Key="SemiYellow2Color">#FFDA6A</Color>
+    <Color x:Key="SemiYellow3Color">#FFCD38</Color>
+    <Color x:Key="SemiYellow4Color">#FFC006</Color>
+    <Color x:Key="SemiYellow5Color">#F5B800</Color>
+    <Color x:Key="SemiYellow6Color">#CC9A00</Color>
+    <Color x:Key="SemiYellow7Color">#A37C00</Color>
+    <Color x:Key="SemiYellow8Color">#7A5E00</Color>
+    <Color x:Key="SemiYellow9Color">#514000</Color>
+    <Color x:Key="SemiAmber0Color">#FFF1CC</Color>
+    <Color x:Key="SemiAmber1Color">#FFE099</Color>
+    <Color x:Key="SemiAmber2Color">#FFCF66</Color>
+    <Color x:Key="SemiAmber3Color">#FFBE33</Color>
+    <Color x:Key="SemiAmber4Color">#FFAD00</Color>
+    <Color x:Key="SemiAmber5Color">#E69E00</Color>
+    <Color x:Key="SemiAmber6Color">#BF8300</Color>
+    <Color x:Key="SemiAmber7Color">#996800</Color>
+    <Color x:Key="SemiAmber8Color">#734D00</Color>
+    <Color x:Key="SemiAmber9Color">#4D3300</Color>
+    <Color x:Key="SemiOrange0Color">#FFE8D6</Color>
+    <Color x:Key="SemiOrange1Color">#FFD0AD</Color>
+    <Color x:Key="SemiOrange2Color">#FFB884</Color>
+    <Color x:Key="SemiOrange3Color">#FFA05B</Color>
+    <Color x:Key="SemiOrange4Color">#FF8833</Color>
+    <Color x:Key="SemiOrange5Color">#D83B01</Color>
+    <Color x:Key="SemiOrange6Color">#B53201</Color>
+    <Color x:Key="SemiOrange7Color">#912901</Color>
+    <Color x:Key="SemiOrange8Color">#6E2001</Color>
+    <Color x:Key="SemiOrange9Color">#4A1601</Color>
+    <Color x:Key="SemiGrey0Color">#F3F3F3</Color>
+    <Color x:Key="SemiGrey1Color">#E0E0E0</Color>
+    <Color x:Key="SemiGrey2Color">#C4C4C4</Color>
+    <Color x:Key="SemiGrey3Color">#A3A3A3</Color>
+    <Color x:Key="SemiGrey4Color">#8A8A8A</Color>
+    <Color x:Key="SemiGrey5Color">#616161</Color>
+    <Color x:Key="SemiGrey6Color">#4A4A4A</Color>
+    <Color x:Key="SemiGrey7Color">#3D3D3D</Color>
+    <Color x:Key="SemiGrey8Color">#2B2B2B</Color>
+    <Color x:Key="SemiGrey9Color">#1A1A1A</Color>
+    <Color x:Key="SemiBackground0Color">#F3F3F3</Color>
+    <Color x:Key="SemiBackground1Color">#FFFFFF</Color>
+    <Color x:Key="SemiBackground2Color">#FFFFFF</Color>
+    <Color x:Key="SemiBackground3Color">#F9F9F9</Color>
+    <Color x:Key="SemiBackground4Color">#F6F6F6</Color>
+    <Color x:Key="SemiAIPurple0Color">#F5E6FF</Color>
+    <Color x:Key="SemiAIPurple1Color">#E8C8FF</Color>
+    <Color x:Key="SemiAIPurple2Color">#D6AAFF</Color>
+    <Color x:Key="SemiAIPurple3Color">#C48CFF</Color>
+    <Color x:Key="SemiAIPurple4Color">#B26EFF</Color>
+    <Color x:Key="SemiAIPurple5Color">#9B5DE5</Color>
+    <Color x:Key="SemiAIPurple6Color">#824DC0</Color>
+    <Color x:Key="SemiAIPurple7Color">#693D9B</Color>
+    <Color x:Key="SemiAIPurple8Color">#502D76</Color>
+    <Color x:Key="SemiAIPurple9Color">#371D51</Color>
 
     <SolidColorBrush x:Key="SemiWhite" Color="{StaticResource SemiWhiteColor}" />
     <SolidColorBrush x:Key="SemiBlack" Color="{StaticResource SemiBlackColor}" />
@@ -353,69 +352,68 @@
     <SolidColorBrush x:Key="SemiAIPurple8" Color="{StaticResource SemiAIPurple8Color}" />
     <SolidColorBrush x:Key="SemiAIPurple9" Color="{StaticResource SemiAIPurple9Color}" />
     <LinearGradientBrush x:Key="SemiAIGeneral0" StartPoint="99%,93%" EndPoint="1%,7%">
-        <GradientStop Offset="0.0" Color="#FFF2FF" />
-        <GradientStop Offset="0.3" Color="#F8EDFF" />
-        <GradientStop Offset="0.6" Color="#F4F4FF" />
-        <GradientStop Offset="1.0" Color="#EFF7FF" />
+        <GradientStop Offset="0.0" Color="#F5E6FF" />
+        <GradientStop Offset="0.3" Color="#E8D5F5" />
+        <GradientStop Offset="0.6" Color="#DDD5F5" />
+        <GradientStop Offset="1.0" Color="#DEECF9" />
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="SemiAIGeneral1" StartPoint="99%,93%" EndPoint="1%,7%">
-        <GradientStop Offset="0.0" Color="#FFDAFE" />
-        <GradientStop Offset="0.3" Color="#F2DAFF" />
-        <GradientStop Offset="0.6" Color="#DFE0FF" />
-        <GradientStop Offset="1.0" Color="#D5EBFF" />
+        <GradientStop Offset="0.0" Color="#D6AAFF" />
+        <GradientStop Offset="0.3" Color="#C18AE2" />
+        <GradientStop Offset="0.6" Color="#A98AE2" />
+        <GradientStop Offset="1.0" Color="#98C5ED" />
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="SemiAIGeneral2" StartPoint="99%,93%" EndPoint="1%,7%">
-        <GradientStop Offset="0.0" Color="#FEB5FF" />
-        <GradientStop Offset="0.3" Color="#E3B5FF" />
-        <GradientStop Offset="0.6" Color="#C1C0FF" />
-        <GradientStop Offset="1.0" Color="#ABD5FF" />
+        <GradientStop Offset="0.0" Color="#B26EFF" />
+        <GradientStop Offset="0.3" Color="#9640CE" />
+        <GradientStop Offset="0.6" Color="#7540CE" />
+        <GradientStop Offset="1.0" Color="#6EB1E6" />
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="SemiAIGeneral3" StartPoint="99%,93%" EndPoint="1%,7%">
-        <GradientStop Offset="0.0" Color="#F98FFF" />
-        <GradientStop Offset="0.3" Color="#D191FF" />
-        <GradientStop Offset="0.6" Color="#A3A0FF" />
-        <GradientStop Offset="1.0" Color="#82BEFF" />
+        <GradientStop Offset="0.0" Color="#9B5DE5" />
+        <GradientStop Offset="0.3" Color="#7F2BC0" />
+        <GradientStop Offset="0.6" Color="#5C2BC0" />
+        <GradientStop Offset="1.0" Color="#4A9DE0" />
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="SemiAIGeneral4" StartPoint="99%,93%" EndPoint="1%,7%">
-        <GradientStop Offset="0.0" Color="#F26AFF" />
-        <GradientStop Offset="0.3" Color="#BD6CFF" />
-        <GradientStop Offset="0.6" Color="#8681FF" />
-        <GradientStop Offset="1.0" Color="#58A6FF" />
+        <GradientStop Offset="0.0" Color="#824DC0" />
+        <GradientStop Offset="0.3" Color="#6B23A3" />
+        <GradientStop Offset="0.6" Color="#4D23A3" />
+        <GradientStop Offset="1.0" Color="#4058CE" />
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="SemiAIGeneral5" StartPoint="99%,93%" EndPoint="1%,7%">
-        <GradientStop Offset="0.0" Color="#E945FF" />
-        <GradientStop Offset="0.3" Color="#A647FF" />
-        <GradientStop Offset="0.6" Color="#6B61FF" />
-        <GradientStop Offset="1.0" Color="#2E8CFF" />
+        <GradientStop Offset="0.0" Color="#693D9B" />
+        <GradientStop Offset="0.3" Color="#581C87" />
+        <GradientStop Offset="0.6" Color="#3F1C87" />
+        <GradientStop Offset="1.0" Color="#2333A3" />
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="SemiAIGeneral6" StartPoint="99%,93%" EndPoint="1%,7%">
-        <GradientStop Offset="0.0" Color="#C235DB" />
-        <GradientStop Offset="0.3" Color="#8636DB" />
-        <GradientStop Offset="0.6" Color="#584DDB" />
-        <GradientStop Offset="1.0" Color="#2172DB" />
+        <GradientStop Offset="0.0" Color="#502D76" />
+        <GradientStop Offset="0.3" Color="#45156B" />
+        <GradientStop Offset="0.6" Color="#31156B" />
+        <GradientStop Offset="1.0" Color="#15206B" />
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="SemiAIGeneral7" StartPoint="99%,93%" EndPoint="1%,7%">
-        <GradientStop Offset="0.0" Color="#9D27B8" />
-        <GradientStop Offset="0.3" Color="#6928B8" />
-        <GradientStop Offset="0.6" Color="#473BB8" />
-        <GradientStop Offset="1.0" Color="#1659B8" />
+        <GradientStop Offset="0.0" Color="#371D51" />
+        <GradientStop Offset="0.3" Color="#330E50" />
+        <GradientStop Offset="0.6" Color="#240E50" />
+        <GradientStop Offset="1.0" Color="#0E1750" />
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="SemiAIGeneral8" StartPoint="99%,93%" EndPoint="1%,7%">
-        <GradientStop Offset="0.0" Color="#791B94" />
-        <GradientStop Offset="0.3" Color="#4E1C94" />
-        <GradientStop Offset="0.6" Color="#372B94" />
-        <GradientStop Offset="1.0" Color="#0D4394" />
+        <GradientStop Offset="0.0" Color="#2A1540" />
+        <GradientStop Offset="0.3" Color="#260B3E" />
+        <GradientStop Offset="0.6" Color="#1C0B3E" />
+        <GradientStop Offset="1.0" Color="#0A103E" />
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="SemiAIGeneral9" StartPoint="99%,93%" EndPoint="1%,7%">
-        <GradientStop Offset="0.0" Color="#581170" />
-        <GradientStop Offset="0.3" Color="#361270" />
-        <GradientStop Offset="0.6" Color="#281D70" />
-        <GradientStop Offset="1.0" Color="#072F70" />
+        <GradientStop Offset="0.0" Color="#1D0E2F" />
+        <GradientStop Offset="0.3" Color="#19082C" />
+        <GradientStop Offset="0.6" Color="#14082C" />
+        <GradientStop Offset="1.0" Color="#060A2C" />
     </LinearGradientBrush>
 
     <SolidColorBrush x:Key="SemiColorWhite" Color="{StaticResource SemiWhiteColor}" />
     <SolidColorBrush x:Key="SemiColorBlack" Color="{StaticResource SemiBlackColor}" />
-    <!--  Primary  -->
     <SolidColorBrush x:Key="SemiColorPrimary" Color="{StaticResource SemiBlue5Color}" />
     <SolidColorBrush x:Key="SemiColorPrimaryPointerover" Color="{StaticResource SemiBlue6Color}" />
     <SolidColorBrush x:Key="SemiColorPrimaryActive" Color="{StaticResource SemiBlue7Color}" />
@@ -423,7 +421,6 @@
     <SolidColorBrush x:Key="SemiColorPrimaryLight" Color="{StaticResource SemiBlue0Color}" />
     <SolidColorBrush x:Key="SemiColorPrimaryLightPointerover" Color="{StaticResource SemiBlue1Color}" />
     <SolidColorBrush x:Key="SemiColorPrimaryLightActive" Color="{StaticResource SemiBlue2Color}" />
-    <!--  Secondary  -->
     <SolidColorBrush x:Key="SemiColorSecondary" Color="{StaticResource SemiLightBlue5Color}" />
     <SolidColorBrush x:Key="SemiColorSecondaryPointerover" Color="{StaticResource SemiLightBlue6Color}" />
     <SolidColorBrush x:Key="SemiColorSecondaryActive" Color="{StaticResource SemiLightBlue7Color}" />
@@ -431,14 +428,12 @@
     <SolidColorBrush x:Key="SemiColorSecondaryLight" Color="{StaticResource SemiLightBlue0Color}" />
     <SolidColorBrush x:Key="SemiColorSecondaryLightPointerover" Color="{StaticResource SemiLightBlue1Color}" />
     <SolidColorBrush x:Key="SemiColorSecondaryLightActive" Color="{StaticResource SemiLightBlue2Color}" />
-    <!--  Tertiary  -->
     <SolidColorBrush x:Key="SemiColorTertiary" Color="{StaticResource SemiGrey5Color}" />
     <SolidColorBrush x:Key="SemiColorTertiaryPointerover" Color="{StaticResource SemiGrey6Color}" />
     <SolidColorBrush x:Key="SemiColorTertiaryActive" Color="{StaticResource SemiGrey7Color}" />
     <SolidColorBrush x:Key="SemiColorTertiaryLight" Color="{StaticResource SemiGrey0Color}" />
     <SolidColorBrush x:Key="SemiColorTertiaryLightPointerover" Color="{StaticResource SemiGrey1Color}" />
     <SolidColorBrush x:Key="SemiColorTertiaryLightActive" Color="{StaticResource SemiGrey2Color}" />
-    <!--  Information  -->
     <SolidColorBrush x:Key="SemiColorInformation" Color="{StaticResource SemiBlue5Color}" />
     <SolidColorBrush x:Key="SemiColorInformationPointerover" Color="{StaticResource SemiBlue6Color}" />
     <SolidColorBrush x:Key="SemiColorInformationActive" Color="{StaticResource SemiBlue7Color}" />
@@ -446,7 +441,6 @@
     <SolidColorBrush x:Key="SemiColorInformationLight" Color="{StaticResource SemiBlue0Color}" />
     <SolidColorBrush x:Key="SemiColorInformationLightPointerover" Color="{StaticResource SemiBlue1Color}" />
     <SolidColorBrush x:Key="SemiColorInformationLightActive" Color="{StaticResource SemiBlue2Color}" />
-    <!--  Success  -->
     <SolidColorBrush x:Key="SemiColorSuccess" Color="{StaticResource SemiGreen5Color}" />
     <SolidColorBrush x:Key="SemiColorSuccessPointerover" Color="{StaticResource SemiGreen6Color}" />
     <SolidColorBrush x:Key="SemiColorSuccessActive" Color="{StaticResource SemiGreen7Color}" />
@@ -454,14 +448,12 @@
     <SolidColorBrush x:Key="SemiColorSuccessLight" Color="{StaticResource SemiGreen0Color}" />
     <SolidColorBrush x:Key="SemiColorSuccessLightPointerover" Color="{StaticResource SemiGreen1Color}" />
     <SolidColorBrush x:Key="SemiColorSuccessLightActive" Color="{StaticResource SemiGreen2Color}" />
-    <!--  Warning  -->
     <SolidColorBrush x:Key="SemiColorWarning" Color="{StaticResource SemiOrange5Color}" />
     <SolidColorBrush x:Key="SemiColorWarningPointerover" Color="{StaticResource SemiOrange6Color}" />
     <SolidColorBrush x:Key="SemiColorWarningActive" Color="{StaticResource SemiOrange7Color}" />
     <SolidColorBrush x:Key="SemiColorWarningLight" Color="{StaticResource SemiOrange0Color}" />
     <SolidColorBrush x:Key="SemiColorWarningLightPointerover" Color="{StaticResource SemiOrange1Color}" />
     <SolidColorBrush x:Key="SemiColorWarningLightActive" Color="{StaticResource SemiOrange2Color}" />
-    <!--  Danger  -->
     <SolidColorBrush x:Key="SemiColorDanger" Color="{StaticResource SemiRed5Color}" />
     <SolidColorBrush x:Key="SemiColorDangerPointerover" Color="{StaticResource SemiRed6Color}" />
     <SolidColorBrush x:Key="SemiColorDangerActive" Color="{StaticResource SemiRed7Color}" />
@@ -469,39 +461,36 @@
     <SolidColorBrush x:Key="SemiColorDangerLightPointerover" Color="{StaticResource SemiRed1Color}" />
     <SolidColorBrush x:Key="SemiColorDangerLightActive" Color="{StaticResource SemiRed2Color}" />
 
-    <!-- AI General -->
     <LinearGradientBrush x:Key="SemiColorAIGeneral" StartPoint="99%,93%" EndPoint="1%,7%">
-        <GradientStop Offset="0.0" Color="#E945FF" />
-        <GradientStop Offset="0.3" Color="#A647FF" />
-        <GradientStop Offset="0.6" Color="#6B61FF" />
-        <GradientStop Offset="1.0" Color="#2E8CFF" />
+        <GradientStop Offset="0.0" Color="#9B5DE5" />
+        <GradientStop Offset="0.3" Color="#7F2BC0" />
+        <GradientStop Offset="0.6" Color="#5C2BC0" />
+        <GradientStop Offset="1.0" Color="#4058CE" />
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="SemiColorAIGeneralPointerover" StartPoint="99%,93%" EndPoint="1%,7%">
-        <GradientStop Offset="0.0" Color="#C235DB" />
-        <GradientStop Offset="0.3" Color="#8636DB" />
-        <GradientStop Offset="0.6" Color="#584DDB" />
-        <GradientStop Offset="1.0" Color="#2172DB" />
+        <GradientStop Offset="0.0" Color="#824DC0" />
+        <GradientStop Offset="0.3" Color="#6B23A3" />
+        <GradientStop Offset="0.6" Color="#4D23A3" />
+        <GradientStop Offset="1.0" Color="#2333A3" />
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="SemiColorAIGeneralActive" StartPoint="99%,93%" EndPoint="1%,7%">
-        <GradientStop Offset="0.0" Color="#9D27B8" />
-        <GradientStop Offset="0.3" Color="#6928B8" />
-        <GradientStop Offset="0.6" Color="#473BB8" />
-        <GradientStop Offset="1.0" Color="#1659B8" />
+        <GradientStop Offset="0.0" Color="#693D9B" />
+        <GradientStop Offset="0.3" Color="#581C87" />
+        <GradientStop Offset="0.6" Color="#3F1C87" />
+        <GradientStop Offset="1.0" Color="#1C2A87" />
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="SemiColorAIGeneralDisabled" StartPoint="99%,93%" EndPoint="1%,7%">
-        <GradientStop Offset="0.0" Color="#FEB5FF" />
-        <GradientStop Offset="0.3" Color="#E3B5FF" />
-        <GradientStop Offset="0.6" Color="#C1C0FF" />
-        <GradientStop Offset="1.0" Color="#ABD5FF" />
+        <GradientStop Offset="0.0" Color="#D6AAFF" />
+        <GradientStop Offset="0.3" Color="#C18AE2" />
+        <GradientStop Offset="0.6" Color="#A98AE2" />
+        <GradientStop Offset="1.0" Color="#98C5ED" />
     </LinearGradientBrush>
 
-    <!-- AI Purple -->
     <SolidColorBrush x:Key="SemiColorAIPurple" Color="{StaticResource SemiAIPurple5Color}" />
     <SolidColorBrush x:Key="SemiColorAIPurplePointerover" Color="{StaticResource SemiAIPurple6Color}" />
     <SolidColorBrush x:Key="SemiColorAIPurpleActive" Color="{StaticResource SemiAIPurple7Color}" />
     <SolidColorBrush x:Key="SemiColorAIPurpleDisabled" Color="{StaticResource SemiAIPurple2Color}" />
 
-    <!-- AI Background -->
     <LinearGradientBrush x:Key="SemiColorAIBackgroundBottom" StartPoint="69.35%,0%" EndPoint="30.65%,100%">
         <GradientStop Offset="0.0658" Color="#0AFFFFFF" />
         <GradientStop Offset="0.3288" Color="#0AFFE28A" />
@@ -539,48 +528,39 @@
         <GradientStop Offset="0.9423" Color="#00FFFFFF" />
     </LinearGradientBrush>
 
-    <!--  Text and Icons  -->
     <SolidColorBrush x:Key="SemiColorText0" Color="{StaticResource SemiGrey9Color}" />
-    <SolidColorBrush x:Key="SemiColorText1" Opacity="0.8" Color="{StaticResource SemiGrey9Color}" />
-    <SolidColorBrush x:Key="SemiColorText2" Opacity="0.62" Color="{StaticResource SemiGrey9Color}" />
-    <SolidColorBrush x:Key="SemiColorText3" Opacity="0.35" Color="{StaticResource SemiGrey9Color}" />
+    <SolidColorBrush x:Key="SemiColorText1" Color="#616161" />
+    <SolidColorBrush x:Key="SemiColorText2" Color="#8A8A8A" />
+    <SolidColorBrush x:Key="SemiColorText3" Color="#B3B3B3" />
 
-    <!--  Link  -->
     <SolidColorBrush x:Key="SemiColorLink" Color="{StaticResource SemiBlue5Color}" />
     <SolidColorBrush x:Key="SemiColorLinkPointerover" Color="{StaticResource SemiBlue6Color}" />
     <SolidColorBrush x:Key="SemiColorLinkActive" Color="{StaticResource SemiBlue7Color}" />
     <SolidColorBrush x:Key="SemiColorLinkVisited" Color="{StaticResource SemiBlue5Color}" />
 
-    <!--  Background  -->
     <SolidColorBrush x:Key="SemiColorBackground0" Color="{StaticResource SemiBackground0Color}" />
     <SolidColorBrush x:Key="SemiColorBackground1" Color="{StaticResource SemiBackground1Color}" />
     <SolidColorBrush x:Key="SemiColorBackground2" Color="{StaticResource SemiBackground2Color}" />
     <SolidColorBrush x:Key="SemiColorBackground3" Color="{StaticResource SemiBackground3Color}" />
     <SolidColorBrush x:Key="SemiColorBackground4" Color="{StaticResource SemiBackground4Color}" />
 
-    <!--  Fill  -->
-    <SolidColorBrush x:Key="SemiColorFill0" Opacity="0.05" Color="{StaticResource SemiGrey8Color}" />
-    <SolidColorBrush x:Key="SemiColorFill1" Opacity="0.09" Color="{StaticResource SemiGrey8Color}" />
-    <SolidColorBrush x:Key="SemiColorFill2" Opacity="0.13" Color="{StaticResource SemiGrey8Color}" />
+    <SolidColorBrush x:Key="SemiColorFill0" Color="#0A000000" />
+    <SolidColorBrush x:Key="SemiColorFill1" Color="#12000000" />
+    <SolidColorBrush x:Key="SemiColorFill2" Color="#1A000000" />
 
-    <!--  Border  -->
-    <SolidColorBrush x:Key="SemiColorBorder" Opacity="0.08" Color="{StaticResource SemiGrey9Color}" />
-    <SolidColorBrush x:Key="SemiColorFocusBorder" Color="{StaticResource SemiBlue5Color}" />
+    <SolidColorBrush x:Key="SemiColorBorder" Color="#0F000000" />
+    <SolidColorBrush x:Key="SemiColorFocusBorder" Color="{StaticResource SemiGrey9Color}" />
 
-    <!--  Disabled  -->
-    <SolidColorBrush x:Key="SemiColorDisabledText" Opacity="0.35" Color="{StaticResource SemiGrey9Color}" />
+    <SolidColorBrush x:Key="SemiColorDisabledText" Color="#A0A0A0" />
     <SolidColorBrush x:Key="SemiColorDisabledBorder" Color="{StaticResource SemiGrey1Color}" />
-    <SolidColorBrush x:Key="SemiColorDisabledBackground" Color="{StaticResource SemiGrey1Color}" />
-    <!-- Official Opacity=0.04 -->
-    <SolidColorBrush x:Key="SemiColorDisabledFill" Opacity="0.02" Color="{StaticResource SemiGrey8Color}" />
+    <SolidColorBrush x:Key="SemiColorDisabledBackground" Color="{StaticResource SemiGrey0Color}" />
+    <SolidColorBrush x:Key="SemiColorDisabledFill" Color="#05000000" />
 
-    <!--  Others  -->
     <SolidColorBrush x:Key="SemiColorNavBackground" Color="{StaticResource SemiBackground1Color}" />
-    <SolidColorBrush x:Key="SemiColorOverlayBackground" Opacity="0.6" Color="#16161A" />
+    <SolidColorBrush x:Key="SemiColorOverlayBackground" Opacity="0.3" Color="#000000" />
     <SolidColorBrush x:Key="SemiColorHighlightBackground" Color="{StaticResource SemiYellow2Color}" />
-    <SolidColorBrush x:Key="SemiColorHighlight" Color="{StaticResource SemiWhiteColor}" />
+    <SolidColorBrush x:Key="SemiColorHighlight" Color="{StaticResource SemiGrey9Color}" />
 
-    <!--  Shadow  -->
     <BoxShadows x:Key="SemiColorShadow">0 0 #0A000000</BoxShadows>
-    <BoxShadows x:Key="SemiShadowElevated">0 0 1 #4A000000, 0 4 14 #1A000000</BoxShadows>
+    <BoxShadows x:Key="SemiShadowElevated">0 2 4 #14000000, 0 8 16 #0A000000</BoxShadows>
 </ResourceDictionary>

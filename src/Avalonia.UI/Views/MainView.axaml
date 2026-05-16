@@ -30,9 +30,10 @@
         </Panel.Styles>
         <Grid Classes.Blur="{Binding $parent[u:UrsaWindow].(u:OverlayDialogHost.IsInModalStatus)}" ColumnDefinitions="Auto, *">
             <Border
-                Padding="8,4"
+                Padding="4,0"
                 VerticalAlignment="Stretch"
-                Theme="{DynamicResource CardBorder}"
+                Background="{DynamicResource SemiColorFill0}"
+                BorderBrush="{DynamicResource SemiColorBorder}"
                 BorderThickness="0,0,1,0"
                 IsVisible="{Binding !IsSidebarHidden}">
                 <u:NavMenu
@@ -52,20 +53,23 @@
                     <u:NavMenu.IconTemplate>
                         <DataTemplate x:DataType="x:String">
                             <u:TwoTonePathIcon
-                                Width="16"
-                                Height="16"
-                                ActiveForeground="{DynamicResource FluentAccentBrush}"
-                                ActiveStrokeBrush="{DynamicResource FluentAccentBrush}"
+                                Width="18"
+                                Height="18"
+                                ActiveForeground="{DynamicResource SemiColorPrimary}"
+                                ActiveStrokeBrush="{DynamicResource SemiColorPrimary}"
                                 Data="{Binding Converter={StaticResource IconConverter}}"
-                                Foreground="{DynamicResource TextBlockSecondaryForeground}"
+                                Foreground="{DynamicResource SemiColorText1}"
                                 IsActive="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=u:NavMenuItem}, Path=IsHighlighted, Mode=TwoWay}"
-                                StrokeBrush="{DynamicResource TextBlockSecondaryForeground}" />
+                                StrokeBrush="{DynamicResource SemiColorText1}" />
                         </DataTemplate>
                     </u:NavMenu.IconTemplate>
                     <u:NavMenu.HeaderTemplate>
                         <DataTemplate x:DataType="viewmodels:MenuItemViewModel">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <TextBlock HorizontalAlignment="Left" Text="{Binding MenuHeader}" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock
+                                    HorizontalAlignment="Left"
+                                    FontSize="14"
+                                    Text="{Binding MenuHeader}" />
                                 <Label
                                     Theme="{StaticResource TagLabel}"
                                     Classes="Purple"
@@ -75,27 +79,27 @@
                         </DataTemplate>
                     </u:NavMenu.HeaderTemplate>
                     <u:NavMenu.Header>
-                        <DockPanel Margin="8,32,8,8" HorizontalAlignment="Center">
+                        <DockPanel Margin="12,24,12,12" HorizontalAlignment="Center">
                             <Panel
                                 VerticalAlignment="Center"
                                 u:NavMenu.CanToggle="True"
                                 Background="Transparent"
                                 DockPanel.Dock="Left">
-                                <PathIcon Width="32" Height="32"
+                                <PathIcon Width="28" Height="28"
                                     Data="{StaticResource Icon_AvaloniaLogo}"
-                                    Foreground="{DynamicResource FluentAccentBrush}" />
+                                    Foreground="{DynamicResource SemiColorPrimary}" />
                             </Panel>
                             <TextBlock
                                 VerticalAlignment="Center"
                                 Classes="H4"
-                                Margin="16,0,0,0"
+                                Margin="12,0,0,0"
                                 IsVisible="{Binding !#menu.IsHorizontalCollapsed}"
                                 Text="Ursa"
                                 FontWeight="SemiBold" />
                         </DockPanel>
                     </u:NavMenu.Header>
                     <u:NavMenu.Footer>
-                        <StackPanel Spacing="4">
+                        <StackPanel Spacing="2">
                             <u:IconButton
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Left"
@@ -104,6 +108,7 @@
                                 Content="{Binding SettingText}"
                                 RenderTransform="{x:Null}"
                                 ToolTip.Tip="Settings"
+                                FontSize="13"
                                 FontWeight="Normal"
                                 Theme="{DynamicResource BorderlessIconButton}"
                                 Command="{Binding ActivateCommand}"
@@ -116,6 +121,7 @@
                                 Content="{Binding PluginText}"
                                 RenderTransform="{x:Null}"
                                 ToolTip.Tip="Plugin Management"
+                                FontSize="13"
                                 FontWeight="Normal"
                                 Theme="{DynamicResource BorderlessIconButton}"
                                 Command="{Binding ActivateCommand}"
@@ -126,9 +132,10 @@
             </Border>
             <Grid Grid.Column="1" RowDefinitions="Auto, *">
                 <Border
-                    Padding="8,4"
+                    Padding="16,8"
                     BorderBrush="{DynamicResource SemiColorBorder}"
-                    BorderThickness="0,0,0,1">
+                    BorderThickness="0,0,0,1"
+                    Background="{DynamicResource SemiColorBackground0}">
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <u:IconButton
@@ -145,25 +152,26 @@
                                 IsThreeState="True"
                                 Mode="Controller" />
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                             <u:IconButton
                                 Theme="{StaticResource BorderlessIconButton}"
                                 Classes="Tertiary"
                                 Icon="{StaticResource SemiIconSidebar}"
                                 ToolTip.Tip="Toggle Sidebar"
                                 Command="{Binding ToggleSidebarCommand}" />
-                            <u:Breadcrumb Name="Breadcrumb" VerticalAlignment="Center" Separator="/" />
+                            <u:Breadcrumb Name="Breadcrumb" VerticalAlignment="Center" Separator="/" FontSize="14" />
                         </StackPanel>
                     </DockPanel>
                 </Border>
-                <ContentControl
-                    Grid.Row="1"
-                    Margin="16"
-                    Content="{Binding Content}">
-                    <ContentControl.ContentTemplate>
-                        <plugin:ViewLocator />
-                    </ContentControl.ContentTemplate>
-                </ContentControl>
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+                    <ContentControl
+                        Margin="24,20"
+                        Content="{Binding Content}">
+                        <ContentControl.ContentTemplate>
+                            <plugin:ViewLocator />
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                </ScrollViewer>
             </Grid>
         </Grid>
     </Panel>

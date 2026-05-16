@@ -6,14 +6,14 @@
              x:Class="Avalonia.UI.Pages.PluginManagementPage"
              x:DataType="viewModels:PluginManagementViewModel"
              mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600">
-    <Grid Margin="16" RowDefinitions="Auto,Auto,*">
+    <Grid Margin="24" RowDefinitions="Auto,Auto,*">
         
-        <StackPanel Grid.Row="0" Spacing="4" Margin="0 0 0 16">
+        <StackPanel Grid.Row="0" Spacing="8" Margin="0 0 0 20">
             <TextBlock Text="Plugin Management" Theme="{StaticResource TitleTextBlock}" Classes="H3" />
             <TextBlock Text="Install, uninstall, enable or disable plugins" Classes="Secondary" />
         </StackPanel>
 
-        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0 0 0 12">
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0 0 0 16">
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <Button Content="Install Plugin" Command="{Binding InstallPluginCommand}" IsEnabled="{Binding !IsInstalling}"
                         Classes="FluentAccent"/>

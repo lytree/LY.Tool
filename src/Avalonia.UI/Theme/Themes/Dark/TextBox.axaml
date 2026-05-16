@@ -16,6 +16,6 @@
     <StaticResource x:Key="TextBoxBorderedDefaultBorderBrush" ResourceKey="SemiColorFill0" />
     <SolidColorBrush x:Key="TextBoxBorderedPointeroverBackground" Color="Transparent" />
     <StaticResource x:Key="TextBoxBorderedPointeroverBorderBrush" ResourceKey="SemiColorPrimaryPointerover" />
-    <SolidColorBrush x:Key="TextBoxSelectionBackground" Opacity="0.8" Color="#0041C5" />
+    <SolidColorBrush x:Key="TextBoxSelectionBackground" Opacity="0.8" Color="#4CC2FF" />
     <StaticResource x:Key="TextBoxSelectionForeground" ResourceKey="SemiColorWhite" />
 </ResourceDictionary>

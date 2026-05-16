@@ -1,29 +1,26 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <SolidColorBrush x:Key="BadgeBorderBrush" Color="#1C1F23" />
-    <SolidColorBrush x:Key="BadgeForeground" Color="#1C1F23" />
+    <SolidColorBrush x:Key="BadgeBorderBrush" Color="#1A1A1A" />
+    <SolidColorBrush x:Key="BadgeForeground" Color="#1A1A1A" />
     <SolidColorBrush x:Key="BadgeContentForeground" Color="White" />
-    <!-- Solid -->
     <StaticResource x:Key="BadgePrimaryBadgeBackground" ResourceKey="SemiColorPrimary" />
     <StaticResource x:Key="BadgeSecondaryBadgeBackground" ResourceKey="SemiColorSecondary" />
     <StaticResource x:Key="BadgeTertiaryBadgeBackground" ResourceKey="SemiColorTertiary" />
     <StaticResource x:Key="BadgeSuccessBadgeBackground" ResourceKey="SemiColorSuccess" />
     <StaticResource x:Key="BadgeWarningBadgeBackground" ResourceKey="SemiColorWarning" />
     <StaticResource x:Key="BadgeDangerBadgeBackground" ResourceKey="SemiColorDanger" />
-    <!-- Light -->
     <StaticResource x:Key="BadgeLightPrimaryBadgeForeground" ResourceKey="SemiColorPrimary" />
-    <SolidColorBrush x:Key="BadgeLightPrimaryBadgeBackground" Color="#053170" />
+    <SolidColorBrush x:Key="BadgeLightPrimaryBadgeBackground" Color="#001D40" />
     <StaticResource x:Key="BadgeLightSecondaryBadgeForeground" ResourceKey="SemiColorSecondary" />
-    <SolidColorBrush x:Key="BadgeLightSecondaryBadgeBackground" Color="#003761" />
+    <SolidColorBrush x:Key="BadgeLightSecondaryBadgeBackground" Color="#033755" />
     <StaticResource x:Key="BadgeLightTertiaryBadgeForeground" ResourceKey="SemiColorTertiary" />
-    <SolidColorBrush x:Key="BadgeLightTertiaryBadgeBackground" Color="#1C1F23" />
+    <SolidColorBrush x:Key="BadgeLightTertiaryBadgeBackground" Color="#1A1A1A" />
     <StaticResource x:Key="BadgeLightSuccessBadgeForeground" ResourceKey="SemiColorSuccess" />
-    <SolidColorBrush x:Key="BadgeLightSuccessBadgeBackground" Color="#123C19" />
+    <SolidColorBrush x:Key="BadgeLightSuccessBadgeBackground" Color="#052C05" />
     <StaticResource x:Key="BadgeLightWarningBadgeForeground" ResourceKey="SemiColorWarning" />
-    <SolidColorBrush x:Key="BadgeLightWarningBadgeBackground" Color="#551F03" />
+    <SolidColorBrush x:Key="BadgeLightWarningBadgeBackground" Color="#4A1601" />
     <StaticResource x:Key="BadgeLightDangerBadgeForeground" ResourceKey="SemiColorDanger" />
-    <SolidColorBrush x:Key="BadgeLightDangerBadgeBackground" Color="#6C090B" />
-    <!-- Inverted -->
-    <SolidColorBrush x:Key="BadgeInvertedBadgeBackground" Color="#1C1F23" />
+    <SolidColorBrush x:Key="BadgeLightDangerBadgeBackground" Color="#3B1215" />
+    <SolidColorBrush x:Key="BadgeInvertedBadgeBackground" Color="#1A1A1A" />
     <StaticResource x:Key="BadgeInvertedPrimaryBadgeForeground" ResourceKey="SemiColorPrimary" />
     <StaticResource x:Key="BadgeInvertedSecondaryBadgeForeground" ResourceKey="SemiColorSecondary" />
     <StaticResource x:Key="BadgeInvertedTertiaryBadgeForeground" ResourceKey="SemiColorTertiary" />

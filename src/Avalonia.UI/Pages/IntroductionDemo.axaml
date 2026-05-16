@@ -24,7 +24,7 @@
     </UserControl.Styles>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-        <StackPanel Margin="12" Spacing="8">
+        <StackPanel Margin="16" Spacing="12">
             <u:Banner
                 Classes="Bordered"
                 Content="Aesthetic revolution of productivity. Explore Ursa controls below."
@@ -35,9 +35,9 @@
 
             <Grid ColumnDefinitions="*, *, *" RowDefinitions="Auto, Auto, Auto, Auto, Auto">
                 <Border Grid.Column="0" Grid.Row="0" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Avatars" Classes="SectionTitle" />
-                        <StackPanel Orientation="Horizontal" Spacing="4">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Avatars" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
                             <u:Avatar Classes="Red Small" Content="R" />
                             <u:Avatar Classes="Blue Small" Content="B" />
                             <u:Avatar Classes="Green Small" Content="G" />
@@ -47,8 +47,8 @@
                 </Border>
 
                 <Border Grid.Column="1" Grid.Row="0" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Badges" Classes="SectionTitle" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Badges" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                         <WrapPanel Orientation="Horizontal">
                             <u:Badge Classes="Primary" Header="5">
                                 <u:Avatar Classes="Blue Small" Content="A" />
@@ -64,17 +64,17 @@
                 </Border>
 
                 <Border Grid.Column="2" Grid.Row="0" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Button Groups" Classes="SectionTitle" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Button Groups" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                         <u:ButtonGroup Classes="Primary Small" ItemsSource="{Binding ButtonGroupItems}" />
                         <u:ButtonGroup Classes="Success Small" ItemsSource="{Binding ButtonGroupItems}" />
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="0" Grid.Row="1" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Icon Buttons" Classes="SectionTitle" />
-                        <StackPanel Orientation="Horizontal" Spacing="4">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Icon Buttons" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
                             <u:IconButton Icon="{StaticResource SemiIconCamera}" Classes="Small" />
                             <u:IconButton Icon="{StaticResource SemiIconStar}" Classes="Secondary Small" />
                             <u:IconButton Icon="{StaticResource SemiIconLikeHeart}" Classes="Warning Small" />
@@ -83,57 +83,57 @@
                 </Border>
 
                 <Border Grid.Column="1" Grid.Row="1" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Rating" Classes="SectionTitle" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Rating" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                         <u:Rating Classes="Small" AllowHalf="True" Value="{Binding RatingValue}" />
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="2" Grid.Row="1" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Dual Badge" Classes="SectionTitle" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Dual Badge" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                         <u:DualBadge Header="v">1.0</u:DualBadge>
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="0" Grid.Row="2" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="IPv4Box" Classes="SectionTitle" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="IPv4Box" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                         <u:IPv4Box Width="180" IPAddress="{Binding IpAddress}" />
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="1" Grid.Row="2" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="NumericUpDown" Classes="SectionTitle" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="NumericUpDown" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                         <NumericUpDown Width="120" Value="{Binding SliderValue}" />
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="2" Grid.Row="2" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Slider" Classes="SectionTitle" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Slider" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                         <Slider Minimum="0" Maximum="100" Value="{Binding SliderValue}" />
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="0" Grid.Row="3" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="RangeSlider" Classes="SectionTitle" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="RangeSlider" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                         <u:RangeSlider Minimum="0" Maximum="100" LowerValue="{Binding LowerValue}" UpperValue="{Binding UpperValue}" />
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="1" Grid.Row="3" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="MultiComboBox" Classes="SectionTitle" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="MultiComboBox" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                         <u:MultiComboBox Width="180" PlaceholderText="Select..." ItemsSource="{Binding ComboBoxItems}" />
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="2" Grid.Row="3" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="TreeComboBox" Classes="SectionTitle" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="TreeComboBox" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                         <u:TreeComboBox Width="180" PlaceholderText="Select...">
                             <u:TreeComboBoxItem Header="Item 1">
                                 <u:TreeComboBoxItem Header="Sub 1" />
@@ -145,15 +145,15 @@
                 </Border>
 
                 <Border Grid.Column="0" Grid.Row="4" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="TagInput" Classes="SectionTitle" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="TagInput" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                         <u:TagInput Width="180" PlaceholderText="Add tags..." Tags="{Binding TagItems}" />
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="1" Grid.Row="4" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="MultiAutoComplete" Classes="SectionTitle" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="MultiAutoComplete" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                         <u:MultiAutoCompleteBox Width="180" PlaceholderText="Type..." ItemsSource="{Binding AutoCompleteItems}">
                             <u:MultiAutoCompleteBox.ItemTemplate>
                                 <DataTemplate DataType="models:ControlData">
@@ -165,8 +165,8 @@
                 </Border>
 
                 <Border Grid.Column="2" Grid.Row="4" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Breadcrumb" Classes="SectionTitle" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Breadcrumb" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                         <u:Breadcrumb>
                             <TextBlock Text="Home" />
                             <TextBlock Text="Ursa" />
@@ -178,30 +178,30 @@
 
             <Grid ColumnDefinitions="*, *, *" RowDefinitions="Auto">
                 <Border Grid.Column="0" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="DateRangePicker" Classes="SectionTitle" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="DateRangePicker" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                         <u:DateRangePicker Width="220" SelectedStartDate="{Binding StartDate}" SelectedEndDate="{Binding EndDate}" />
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="1" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="DateTimePicker" Classes="SectionTitle" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="DateTimePicker" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                         <u:DateTimePicker Width="220" SelectedDate="{Binding DateTime}" />
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="2" Theme="{DynamicResource CardBorder}" Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="TimeRangePicker" Classes="SectionTitle" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="TimeRangePicker" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                         <u:TimeRangePicker Width="220" SelectedStartTime="{Binding StartTime}" SelectedEndTime="{Binding EndTime}" />
                     </StackPanel>
                 </Border>
             </Grid>
 
             <Border Theme="{DynamicResource CardBorder}" Classes="Section">
-                <StackPanel Spacing="6">
-                    <TextBlock Text="ToolBar" Classes="SectionTitle" />
+                <StackPanel Spacing="8">
+                    <TextBlock Text="ToolBar" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                     <u:ToolBar Header="Actions">
                         <Button Content="Save" Classes="Small" />
                         <u:ToolBarSeparator />
@@ -212,8 +212,8 @@
             </Border>
 
             <Border Theme="{DynamicResource CardBorder}" Classes="Section">
-                <StackPanel Spacing="6">
-                    <TextBlock Text="Pagination" Classes="SectionTitle" />
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Pagination" Classes="SectionTitle" FontSize="14" FontWeight="SemiBold" />
                     <u:Pagination
                         HorizontalAlignment="Center"
                         PageSizeOptions="10, 20, 50"
