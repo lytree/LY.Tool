@@ -21,6 +21,11 @@ public partial class MainViewViewModel : ViewModelBase
     [ObservableProperty] private bool _isCollapsed;
     [ObservableProperty] private bool _isSidebarHidden;
     [RelayCommand]
+    public void ToggleSidebar()
+    {
+        IsSidebarHidden = !IsSidebarHidden;
+    }
+    [RelayCommand]
     public void Activate(string key)
     {
         OnNavigation(this, key);
@@ -32,7 +37,6 @@ public partial class MainViewViewModel : ViewModelBase
         _menuConfigurationService = menuConfigurationService;
         Menus = _menuConfigurationService.GetMenuStructure();
         WeakReferenceMessenger.Default.Register<MainViewViewModel, string, string>(this, "JumpTo", OnNavigation);
-        WeakReferenceMessenger.Default.Register<MainViewViewModel, string, string>(this, "SidebarAction", OnSidebarAction);
         OnNavigation(this, "Introduction");
     }
 
@@ -44,11 +48,5 @@ public partial class MainViewViewModel : ViewModelBase
     {
         SettingText = value ? null : "Settings";
         PluginText = value ? null : "Plugin";
-    }
-
-    private void OnSidebarAction(MainViewViewModel vm, string s)
-    {
-        if (s == "ToggleSidebar")
-            IsSidebarHidden = !IsSidebarHidden;
     }
 }

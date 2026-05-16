@@ -15,12 +15,7 @@
     x:DataType="viewModels:MainWindowViewModel"
     WindowStartupLocation="CenterScreen"
     Icon="/Assets/irihi.ico"
-    IsFullScreenButtonVisible="{OnPlatform {x:True}, macOS={x:False}}"
-    IsManagedResizerVisible="{OnPlatform {x:False}, Linux={x:True}}"
     mc:Ignorable="d">
-    <u:UrsaWindow.RightContent>
-        <views:TitleBarRightContent />
-    </u:UrsaWindow.RightContent>
     <u:UrsaWindow.Styles>
         <Style Selector="u|StandardDialogControl.Custom">
             <Style Selector="^ /template/ Button#PART_OKButton">

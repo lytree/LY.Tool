@@ -120,14 +120,47 @@
                     </u:NavMenu.Footer>
                 </u:NavMenu>
             </Border>
-            <ContentControl
-                Grid.Column="1"
-                Margin="16"
-                Content="{Binding Content}">
-                <ContentControl.ContentTemplate>
-                    <plugin:ViewLocator />
-                </ContentControl.ContentTemplate>
-            </ContentControl>
+            <Grid Grid.Column="1" RowDefinitions="Auto, *">
+                <Border
+                    Padding="8,4"
+                    BorderBrush="{DynamicResource SemiColorBorder}"
+                    BorderThickness="0,0,0,1">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <u:IconButton
+                                Theme="{StaticResource BorderlessIconButton}"
+                                Classes="Tertiary"
+                                Icon="{StaticResource Icon_About}"
+                                Click="JumpToAbout" />
+                            <u:IconButton
+                                Theme="{StaticResource BorderlessIconButton}"
+                                Classes="Tertiary"
+                                Icon="{StaticResource SemiIconGithubLogo}"
+                                Click="OpenRepository" />
+                            <u:ThemeToggleButton
+                                IsThreeState="True"
+                                Mode="Controller" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <u:IconButton
+                                Theme="{StaticResource BorderlessIconButton}"
+                                Classes="Tertiary"
+                                Icon="{StaticResource SemiIconSidebar}"
+                                ToolTip.Tip="Toggle Sidebar"
+                                Command="{Binding ToggleSidebarCommand}" />
+                            <u:Breadcrumb Name="Breadcrumb" VerticalAlignment="Center" Separator="/" />
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+                <ContentControl
+                    Grid.Row="1"
+                    Margin="16"
+                    Content="{Binding Content}">
+                    <ContentControl.ContentTemplate>
+                        <plugin:ViewLocator />
+                    </ContentControl.ContentTemplate>
+                </ContentControl>
+            </Grid>
         </Grid>
     </Panel>
 </UserControl>
