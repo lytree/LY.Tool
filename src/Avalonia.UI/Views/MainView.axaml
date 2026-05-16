@@ -33,7 +33,8 @@
                 Padding="8,4"
                 VerticalAlignment="Stretch"
                 Theme="{DynamicResource CardBorder}"
-                BorderThickness="0,0,1,0">
+                BorderThickness="0,0,1,0"
+                IsVisible="{Binding !IsSidebarHidden}">
                 <u:NavMenu
                     Name="menu"
                     CommandBinding="{Binding ActivateCommand}"

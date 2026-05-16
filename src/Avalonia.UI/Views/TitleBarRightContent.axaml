@@ -6,19 +6,33 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Avalonia.UI.Views.TitleBarRightContent">
 
-    <StackPanel Orientation="Horizontal">
-        <u:IconButton
-            Theme="{StaticResource BorderlessIconButton}"
-            Classes="Tertiary"
-            Icon="{StaticResource Icon_About}"
-            Click="JumpToAbout" />
-        <u:IconButton
-            Theme="{StaticResource BorderlessIconButton}"
-            Classes="Tertiary"
-            Icon="{StaticResource SemiIconGithubLogo}"
-            Click="OpenRepository" />
-        <u:ThemeToggleButton
-            IsThreeState="True"
-            Mode="Controller" />
-    </StackPanel>
+    <Border BorderBrush="{DynamicResource SemiColorBorder}" BorderThickness="1,0,0,0" Padding="8,0,0,0">
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4">
+                <u:IconButton
+                    Theme="{StaticResource BorderlessIconButton}"
+                    Classes="Tertiary"
+                    Icon="{StaticResource Icon_About}"
+                    Click="JumpToAbout" />
+                <u:IconButton
+                    Theme="{StaticResource BorderlessIconButton}"
+                    Classes="Tertiary"
+                    Icon="{StaticResource SemiIconGithubLogo}"
+                    Click="OpenRepository" />
+                <u:ThemeToggleButton
+                    IsThreeState="True"
+                    Mode="Controller" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="4">
+                <u:IconButton
+                    Name="ToggleSidebarButton"
+                    Theme="{StaticResource BorderlessIconButton}"
+                    Classes="Tertiary"
+                    Icon="{StaticResource SemiIconSidebar}"
+                    ToolTip.Tip="Toggle Sidebar"
+                    Click="ToggleSidebar" />
+                <u:Breadcrumb Name="Breadcrumb" VerticalAlignment="Center" Separator="/" />
+            </StackPanel>
+        </DockPanel>
+    </Border>
 </UserControl>
