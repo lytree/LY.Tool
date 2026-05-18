@@ -7,7 +7,7 @@ namespace Avalonia.Plugin.TDLSharp.ViewModels;
 
 [NavigationItem("TDL_DeepCopy")]
 [Menu("深度Copy转发", "TDL_DeepCopy", ParentKey = "TDL", Order = 3)]
-[ViewMap(typeof(Pages.DeepCopyPage))]
+[ViewMap(typeof(Pages.TdlScriptPage))]
 public partial class DeepCopyViewModel : TdlViewModelBase
 {
     public override ScriptDescriptor Script => new()

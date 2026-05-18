@@ -6,7 +6,7 @@ namespace Avalonia.Plugin.TDLSharp.ViewModels;
 
 [NavigationItem("TDL_GroupMediaDownload")]
 [Menu("群组媒体下载", "TDL_GroupMediaDownload", ParentKey = "TDL", Order = 4)]
-[ViewMap(typeof(Pages.GroupMediaDownloadPage))]
+[ViewMap(typeof(Pages.TdlScriptPage))]
 public partial class GroupMediaDownloadViewModel : TdlViewModelBase
 {
     public override ScriptDescriptor Script => new()

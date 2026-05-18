@@ -4,8 +4,8 @@
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:vm="clr-namespace:Avalonia.Plugin.TDLSharp.ViewModels"
 			 xmlns:models="clr-namespace:Avalonia.Plugin.TDLSharp.Models"
-			 x:Class="Avalonia.Plugin.TDLSharp.Pages.DeepCopyPage"
-			 x:DataType="vm:DeepCopyViewModel"
+			 x:Class="Avalonia.Plugin.TDLSharp.Pages.TdlScriptPage"
+			 x:DataType="vm:TdlViewModelBase"
 			 mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700">
 	<Grid Margin="16" RowDefinitions="Auto,Auto,*">
 
@@ -37,6 +37,19 @@
 								<NumericUpDown Grid.Column="1" Value="{Binding DefaultIntValue}" Minimum="0" HorizontalAlignment="Stretch" />
 							</Grid>
 						</DataTemplate>
+						<DataTemplate x:DataType="models:PathScriptParameter">
+							<Grid ColumnDefinitions="160,*,160" Margin="0 4" MinHeight="32">
+								<TextBlock Grid.Column="0" Text="{Binding DisplayName}" VerticalAlignment="Center" Classes="Body" />
+								<TextBox Grid.Column="1"
+										 Text="{Binding DefaultValue}"
+										 PlaceholderText="{Binding Description}"
+										 HorizontalAlignment="Stretch"
+										 IsReadOnly="True" />
+								<Button Grid.Column="2"
+										Content="浏览" Command="{Binding BrowseCommand}"
+										VerticalAlignment="Center" Margin="8,0,0,0" />
+							</Grid>
+						</DataTemplate>
 					</ItemsControl.DataTemplates>
 				</ItemsControl>
 
@@ -54,7 +67,7 @@
 					<TextBlock Grid.Column="0" Text="日志输出" Classes="SectionTitle" />
 					<Button Grid.Column="1" Content="清除" Command="{Binding ClearLogCommand}" FontSize="12" Padding="8 4" />
 				</Grid>
-				<ScrollViewer  MaxHeight="300" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+				<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
 					<ItemsControl ItemsSource="{Binding LogEntries}">
 						<ItemsControl.ItemTemplate>
 							<DataTemplate x:DataType="models:LogEntry">

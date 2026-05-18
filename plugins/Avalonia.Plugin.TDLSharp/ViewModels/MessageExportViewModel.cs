@@ -6,7 +6,7 @@ namespace Avalonia.Plugin.TDLSharp.ViewModels;
 
 [NavigationItem("TDL_MessageExport")]
 [Menu("消息导出", "TDL_MessageExport", ParentKey = "TDL", Order = 5)]
-[ViewMap(typeof(Pages.MessageExportPage))]
+[ViewMap(typeof(Pages.TdlScriptPage))]
 public partial class MessageExportViewModel : TdlViewModelBase
 {
     public override ScriptDescriptor Script => new()
