@@ -12,7 +12,7 @@ namespace Avalonia.UI.Services;
 public class LocalizationService : ILocalizationService
 {
     private readonly ConcurrentDictionary<string, (string? LookupPrefix, ResourceManager Manager)> _resourceManagers = new();
-    private CultureInfo _currentCulture = new("zh-CN");
+    private CultureInfo _currentCulture = new("en-US");
 
     public CultureInfo CurrentCulture => _currentCulture;
 

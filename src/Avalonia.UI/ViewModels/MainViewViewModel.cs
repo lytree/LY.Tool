@@ -45,6 +45,7 @@ public partial class MainViewViewModel : ViewModelBase
             _localizationService.CultureChanged += OnCultureChanged;
 
         UpdateLocalizedStrings();
+        Menus.RefreshHeaders();
         WeakReferenceMessenger.Default.Register<MainViewViewModel, string, string>(this, "JumpTo", OnNavigation);
         OnNavigation(this, "Introduction");
     }

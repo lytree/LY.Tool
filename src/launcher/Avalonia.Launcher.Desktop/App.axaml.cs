@@ -45,7 +45,12 @@ public partial class App : Application
     {
         if (ServiceLocator.TryGetService<ILocalizationService>(out var loc) && loc is not null)
         {
-            loc.SetCulture(new System.Globalization.CultureInfo("zh-CN"));
+            var settingsService = ServiceProvider?.GetRequiredService<ISettingsService>();
+            var savedLocale = settingsService?.GetValue("App.Locale");
+            var culture = !string.IsNullOrEmpty(savedLocale)
+                ? new System.Globalization.CultureInfo(savedLocale)
+                : new System.Globalization.CultureInfo("en-US");
+            loc.SetCulture(culture);
         }
     }
 

@@ -18,7 +18,7 @@ public partial class UrsaSemiTheme : Styles
         { new CultureInfo("en-US"), new en_us() },
     };
 
-    private static readonly ResourceDictionary DefaultResource = new zh_cn();
+    private static readonly ResourceDictionary DefaultResource = new en_us();
 
     public UrsaSemiTheme(IServiceProvider? provider = null)
     {
@@ -41,7 +41,7 @@ public partial class UrsaSemiTheme : Styles
                 }
                 else
                 {
-                    field = new CultureInfo("zh-CN");
+                    field = new CultureInfo("en-US");
                     SetResources(Resources, DefaultResource);
                 }
 

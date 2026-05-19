@@ -1,6 +1,6 @@
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using Avalonia.Plugin.Shared.Resources;
-using Avalonia.Plugin.Shared.Services;
 
 namespace Avalonia.UI.Theme.Locale;
 
@@ -8,6 +8,7 @@ public class en_us : ResourceDictionary
 {
     public en_us()
     {
+        AvaloniaXamlLoader.Load(this);
         this["STRING_MENU_BRING_TO_FRONT"] = Strings.MENU_BRING_TO_FRONT;
         this["STRING_MENU_BRING_FORWARD"] = Strings.MENU_BRING_FORWARD;
         this["STRING_MENU_SEND_BACKWARD"] = Strings.MENU_SEND_BACKWARD;

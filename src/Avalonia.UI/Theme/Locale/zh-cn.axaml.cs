@@ -1,5 +1,6 @@
 using System.Globalization;
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using Avalonia.Plugin.Shared.Resources;
 
 namespace Avalonia.UI.Theme.Locale;
@@ -8,6 +9,7 @@ public class zh_cn : ResourceDictionary
 {
     public zh_cn()
     {
+        AvaloniaXamlLoader.Load(this);
         var culture = new CultureInfo("zh-CN");
         this["STRING_MENU_BRING_TO_FRONT"] = Strings.ResourceManager.GetString(nameof(Strings.MENU_BRING_TO_FRONT), culture)!;
         this["STRING_MENU_BRING_FORWARD"] = Strings.ResourceManager.GetString(nameof(Strings.MENU_BRING_FORWARD), culture)!;

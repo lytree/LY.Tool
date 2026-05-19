@@ -127,8 +127,11 @@ public class SettingsService : ISettingsService
         RegisterSetting(SettingDefinition.Dropdown("App.Theme", "Theme", ["Default", "Light", "Dark"],
             "Select a theme for the application", "Appearance", 0, 0, "Default"));
 
+        RegisterSetting(SettingDefinition.Dropdown("App.Locale", "Language", ["en-US", "zh-CN"],
+            "Select display language (restart required for full effect)", "Appearance", 0, 1, "en-US"));
+
         RegisterSetting(SettingDefinition.Switch("App.SidebarCollapsed", "Collapse Sidebar",
-            "Collapse the sidebar navigation", "Appearance", 0, 1, false));
+            "Collapse the sidebar navigation", "Appearance", 0, 2, false));
 
         RegisterSetting(SettingDefinition.Text("App.UserName", "User Name",
             "Set your display name", "General", "",1, 0, ""));

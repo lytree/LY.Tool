@@ -1,9 +1,11 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using Avalonia.Plugin.Shared;
 using Avalonia.Plugin.Shared.Models;
 using Avalonia.Plugin.Shared.Services;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
+using Avalonia.UI.Theme;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -95,6 +97,21 @@ public partial class SettingsPageViewModel : ViewModelBase
                     _ => ThemeVariant.Default
                 };
             }
+        }
+
+        var locale = _settingsService.GetValue("App.Locale");
+        if (!string.IsNullOrEmpty(locale))
+        {
+            try
+            {
+                var culture = new CultureInfo(locale);
+                var app = Application.Current;
+                if (app is not null)
+                {
+                    UrsaSemiTheme.OverrideLocaleResources(app, culture);
+                }
+            }
+            catch (CultureNotFoundException) { }
         }
     }
 

@@ -46,45 +46,127 @@
       </xsd:complexType>
     </xsd:element>
   </xsd:schema>
-  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
-  <resheader name="version"><value>2.0</value></resheader>
-  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
-  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
-  <data name="MENU_BRING_TO_FRONT" xml:space="preserve"><value>Bring to Front</value></data>
-  <data name="MENU_BRING_FORWARD" xml:space="preserve"><value>Bring Forward</value></data>
-  <data name="MENU_SEND_BACKWARD" xml:space="preserve"><value>Send Backward</value></data>
-  <data name="MENU_SEND_TO_BACK" xml:space="preserve"><value>Send to Back</value></data>
-  <data name="MENU_DIALOG_OK" xml:space="preserve"><value>OK</value></data>
-  <data name="MENU_DIALOG_CANCEL" xml:space="preserve"><value>Cancel</value></data>
-  <data name="MENU_DIALOG_YES" xml:space="preserve"><value>Yes</value></data>
-  <data name="MENU_DIALOG_NO" xml:space="preserve"><value>No</value></data>
-  <data name="MENU_DIALOG_CLOSE" xml:space="preserve"><value>Close</value></data>
-  <data name="MENU_CUT" xml:space="preserve"><value>Cut</value></data>
-  <data name="MENU_COPY" xml:space="preserve"><value>Copy</value></data>
-  <data name="MENU_PASTE" xml:space="preserve"><value>Paste</value></data>
-  <data name="MENU_CLEAR" xml:space="preserve"><value>Clear</value></data>
-  <data name="PAGINATION_JUMP_TO" xml:space="preserve"><value>Jump to page</value></data>
-  <data name="PAGINATION_PAGE" xml:space="preserve"><value> </value></data>
-  <data name="THEME_TOGGLE_DARK" xml:space="preserve"><value>Dark</value></data>
-  <data name="THEME_TOGGLE_LIGHT" xml:space="preserve"><value>Light</value></data>
-  <data name="THEME_TOGGLE_SYSTEM" xml:space="preserve"><value>System</value></data>
-  <data name="DATE_TIME_CONFIRM" xml:space="preserve"><value>Confirm</value></data>
-  <data name="DATE_TIME_START_TIME" xml:space="preserve"><value>Start Time</value></data>
-  <data name="DATE_TIME_END_TIME" xml:space="preserve"><value>End Time</value></data>
-  <data name="CHOOSER_DIALOG_OK" xml:space="preserve"><value>OK</value></data>
-  <data name="CHOOSER_DIALOG_CANCEL" xml:space="preserve"><value>Cancel</value></data>
-  <data name="CHOOSER_FILE_NAME" xml:space="preserve"><value>File Name</value></data>
-  <data name="CHOOSER_SHOW_HIDDEN_FILES" xml:space="preserve"><value>Show Hidden Files</value></data>
-  <data name="CHOOSER_NAME_COLUMN" xml:space="preserve"><value>Name</value></data>
-  <data name="CHOOSER_DATEMODIFIED_COLUMN" xml:space="preserve"><value>Date Modified</value></data>
-  <data name="CHOOSER_TYPE_COLUMN" xml:space="preserve"><value>Type</value></data>
-  <data name="CHOOSER_SIZE_COLUMN" xml:space="preserve"><value>Size</value></data>
-  <data name="CHOOSER_PROMPT_FILE_ALREADY_EXISTS" xml:space="preserve"><value>File already exists: </value></data>
-  <data name="DRAWERPAGE_TOGGLE_NAVIGATION_DRAWER" xml:space="preserve"><value>Toggle Navigation Drawer</value></data>
-  <data name="BREADCRUMB_HOME" xml:space="preserve"><value>Home</value></data>
-  <data name="NAV_Introduction" xml:space="preserve"><value>Introduction</value></data>
-  <data name="NAV_Settings" xml:space="preserve"><value>Settings</value></data>
-  <data name="NAV_Plugins" xml:space="preserve"><value>Plugins</value></data>
-  <data name="NAV_PluginManagement" xml:space="preserve"><value>Plugin Management</value></data>
-  <data name="NAV_AboutUs" xml:space="preserve"><value>About Us</value></data>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+  </resheader>
+  <data name="MENU_BRING_TO_FRONT" xml:space="preserve">
+    <value>Bring to Front</value>
+  </data>
+  <data name="MENU_BRING_FORWARD" xml:space="preserve">
+    <value>Bring Forward</value>
+  </data>
+  <data name="MENU_SEND_BACKWARD" xml:space="preserve">
+    <value>Send Backward</value>
+  </data>
+  <data name="MENU_SEND_TO_BACK" xml:space="preserve">
+    <value>Send to Back</value>
+  </data>
+  <data name="MENU_DIALOG_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="MENU_DIALOG_CANCEL" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="MENU_DIALOG_YES" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="MENU_DIALOG_NO" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="MENU_DIALOG_CLOSE" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="MENU_CUT" xml:space="preserve">
+    <value>Cut</value>
+  </data>
+  <data name="MENU_COPY" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="MENU_PASTE" xml:space="preserve">
+    <value>Paste</value>
+  </data>
+  <data name="MENU_CLEAR" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="PAGINATION_JUMP_TO" xml:space="preserve">
+    <value>Jump to page</value>
+  </data>
+  <data name="PAGINATION_PAGE" xml:space="preserve">
+    <value>Page</value>
+  </data>
+  <data name="THEME_TOGGLE_DARK" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="THEME_TOGGLE_LIGHT" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="THEME_TOGGLE_SYSTEM" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="DATE_TIME_CONFIRM" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="DATE_TIME_START_TIME" xml:space="preserve">
+    <value>Start Time</value>
+  </data>
+  <data name="DATE_TIME_END_TIME" xml:space="preserve">
+    <value>End Time</value>
+  </data>
+  <data name="CHOOSER_DIALOG_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="CHOOSER_DIALOG_CANCEL" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="CHOOSER_FILE_NAME" xml:space="preserve">
+    <value>File Name</value>
+  </data>
+  <data name="CHOOSER_SHOW_HIDDEN_FILES" xml:space="preserve">
+    <value>Show Hidden Files</value>
+  </data>
+  <data name="CHOOSER_NAME_COLUMN" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="CHOOSER_DATEMODIFIED_COLUMN" xml:space="preserve">
+    <value>Date Modified</value>
+  </data>
+  <data name="CHOOSER_TYPE_COLUMN" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="CHOOSER_SIZE_COLUMN" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="CHOOSER_PROMPT_FILE_ALREADY_EXISTS" xml:space="preserve">
+    <value>File already exists: </value>
+  </data>
+  <data name="DRAWERPAGE_TOGGLE_NAVIGATION_DRAWER" xml:space="preserve">
+    <value>Toggle Navigation Drawer</value>
+  </data>
+  <data name="BREADCRUMB_HOME" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="NAV_Introduction" xml:space="preserve">
+    <value>Introduction</value>
+  </data>
+  <data name="NAV_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="NAV_Plugins" xml:space="preserve">
+    <value>Plugins</value>
+  </data>
+  <data name="NAV_PluginManagement" xml:space="preserve">
+    <value>Plugin Management</value>
+  </data>
+  <data name="NAV_AboutUs" xml:space="preserve">
+    <value>About Us</value>
+  </data>
 </root>
