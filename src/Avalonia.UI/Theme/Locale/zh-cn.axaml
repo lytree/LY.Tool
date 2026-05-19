@@ -1,0 +1,4 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    x:Class="Avalonia.UI.Theme.Locale.zh_cn"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+</ResourceDictionary>

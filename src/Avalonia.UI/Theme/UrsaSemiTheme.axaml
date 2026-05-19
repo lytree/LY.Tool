@@ -13,6 +13,7 @@
                 <ResourceInclude Source="Icons/_index.axaml" />
                 <ResourceInclude Source="Controls/_index.axaml" />
                 <ResourceInclude Source="Themes/Shared/_index.axaml" />
+                <ResourceInclude Source="Locale/zh-cn.axaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>
