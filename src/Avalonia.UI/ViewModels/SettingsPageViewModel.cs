@@ -14,6 +14,7 @@ namespace Avalonia.UI.ViewModels;
 public partial class SettingsPageViewModel : ViewModelBase
 {
     private readonly ISettingsService? _settingsService;
+    private readonly ILocalizationService? _localizationService;
 
     public ObservableCollection<SettingsGroupViewModel> Groups { get; } = [];
 
@@ -27,6 +28,7 @@ public partial class SettingsPageViewModel : ViewModelBase
     public SettingsPageViewModel(ISettingsService settingsService)
     {
         _settingsService = settingsService;
+        _localizationService = ServiceLocator.GetService<ILocalizationService>();
         LoadSettings();
     }
 
@@ -53,13 +55,13 @@ public partial class SettingsPageViewModel : ViewModelBase
             }
 
             IsDirty = false;
-            SaveStatusText = "已保存";
+            SaveStatusText = _localizationService?.GetString("SAVED", "已保存") ?? "已保存";
 
             ApplyRuntimeSettings();
         }
         catch (Exception)
         {
-            SaveStatusText = "保存失败";
+            SaveStatusText = _localizationService?.GetString("SAVE_FAILED", "保存失败") ?? "保存失败";
         }
     }
 
@@ -134,13 +136,38 @@ public partial class SettingsPageViewModel : ViewModelBase
 
         foreach (var group in grouped.OrderBy(g => g.Min(s => s.GroupOrder)))
         {
-            var groupVm = new SettingsGroupViewModel(group.Key, _settingsService, this);
+            var localizedName = ResolveGroupName(group.Key);
+            var groupVm = new SettingsGroupViewModel(localizedName, _settingsService, this);
             foreach (var setting in group.OrderBy(s => s.ItemOrder))
             {
-                groupVm.Items.Add(CreateEntry(setting, _settingsService, this));
+                var localizedSetting = LocalizeSettingItem(setting);
+                groupVm.Items.Add(CreateEntry(localizedSetting, _settingsService, this));
             }
             Groups.Add(groupVm);
         }
+    }
+
+    private string ResolveGroupName(string groupName)
+    {
+        var key = $"GROUP_{groupName.ToUpperInvariant()}";
+        var resolved = _localizationService?.GetString(key);
+        return resolved == key ? groupName : resolved ?? groupName;
+    }
+
+    private SettingItem LocalizeSettingItem(SettingItem setting)
+    {
+        var displayNameKey = $"SETTING_{setting.Key.Replace(".", "_").ToUpperInvariant()}";
+        var descKey = $"SETTING_{setting.Key.Replace(".", "_").ToUpperInvariant()}_DESC";
+
+        var displayName = _localizationService?.GetString(displayNameKey);
+        if (displayName != displayNameKey)
+            setting.DisplayName = displayName!;
+
+        var desc = _localizationService?.GetString(descKey);
+        if (desc != descKey)
+            setting.Description = desc;
+
+        return setting;
     }
 
     private static SettingEntryViewModel CreateEntry(SettingItem setting, ISettingsService settingsService, SettingsPageViewModel parent)
@@ -292,7 +319,9 @@ public partial class DropdownSettingEntryViewModel : SettingEntryViewModel
 
 public partial class PathSettingEntryViewModel : SettingEntryViewModel
 {
-    public string PlaceholderText => Setting.PlaceholderText ?? "选择文件路径...";
+    private readonly ILocalizationService? _localizationService;
+
+    public string PlaceholderText => Setting.PlaceholderText ?? _localizationService?.GetString("SELECT_FILE_PATH", "选择文件路径...") ?? "选择文件路径...";
 
     [ObservableProperty] private string _pathValue;
     private string _savedValue;
@@ -300,6 +329,7 @@ public partial class PathSettingEntryViewModel : SettingEntryViewModel
     public PathSettingEntryViewModel(SettingItem setting, ISettingsService settingsService, SettingsPageViewModel parent)
         : base(setting, settingsService, parent)
     {
+        _localizationService = ServiceLocator.GetService<ILocalizationService>();
         _pathValue = setting.RawValue;
         _savedValue = setting.RawValue;
     }
@@ -331,9 +361,10 @@ public partial class PathSettingEntryViewModel : SettingEntryViewModel
 
         var storageProvider = topLevel.StorageProvider;
 
+        var title = _localizationService?.GetString("BROWSE", "浏览") ?? "浏览";
         var result = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = $"选择{DisplayName}",
+            Title = $"{title}{DisplayName}",
             AllowMultiple = false
         });
 

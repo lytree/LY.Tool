@@ -1,4 +1,6 @@
 using System.Threading.Tasks;
+using Avalonia.Plugin.Shared;
+using Avalonia.Plugin.Shared.Services;
 using Ursa.Controls;
 
 namespace Avalonia.UI.Views;
@@ -15,7 +17,10 @@ public partial class MainWindow : UrsaWindow
 
     protected override async Task<bool> CanClose()
     {
-        var result = await OverlayMessageBox.ShowAsync("Are you sure you want to exit?\n您确定要退出吗？", "Exit", button: MessageBoxButton.YesNo);
+        var loc = ServiceLocator.TryGetService<ILocalizationService>(out var service) ? service : null;
+        var message = loc?.GetString("EXIT_CONFIRM_MESSAGE", "Are you sure you want to exit?") ?? "Are you sure you want to exit?";
+        var title = loc?.GetString("EXIT_CONFIRM_TITLE", "Exit") ?? "Exit";
+        var result = await OverlayMessageBox.ShowAsync(message, title, button: MessageBoxButton.YesNo);
         return result == MessageBoxResult.Yes;
     }
 }

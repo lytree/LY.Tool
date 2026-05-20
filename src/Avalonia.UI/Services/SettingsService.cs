@@ -1,3 +1,4 @@
+using Avalonia.Plugin.Shared;
 using Avalonia.Plugin.Shared.Models;
 using Avalonia.Plugin.Shared.Services;
 using Avalonia.UI.Data;
@@ -8,10 +9,12 @@ namespace Avalonia.UI.Services;
 public class SettingsService : ISettingsService
 {
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
+    private readonly ILocalizationService? _localizationService;
 
     public SettingsService(IDbContextFactory<AppDbContext> dbFactory)
     {
         _dbFactory = dbFactory;
+        _localizationService = ServiceLocator.GetService<ILocalizationService>();
     }
 
     public void RegisterSetting(SettingDefinition definition)
@@ -124,16 +127,28 @@ public class SettingsService : ISettingsService
 
     public void InitializeDefaults()
     {
-        RegisterSetting(SettingDefinition.Dropdown("App.Theme", "Theme", ["Default", "Light", "Dark"],
-            "Select a theme for the application", "Appearance", 0, 0, "Default"));
+        var themeDisplayName = _localizationService?.GetString("SETTING_THEME", "Theme") ?? "Theme";
+        var themeDesc = _localizationService?.GetString("SETTING_THEME_DESC", "Select a theme for the application") ?? "Select a theme for the application";
+        var langDisplayName = _localizationService?.GetString("SETTING_LANGUAGE", "Language") ?? "Language";
+        var langDesc = _localizationService?.GetString("SETTING_LANGUAGE_DESC", "Select display language (restart required for full effect)") ?? "Select display language (restart required for full effect)";
+        var sidebarDisplayName = _localizationService?.GetString("SETTING_COLLAPSE_SIDEBAR", "Collapse Sidebar") ?? "Collapse Sidebar";
+        var sidebarDesc = _localizationService?.GetString("SETTING_COLLAPSE_SIDEBAR_DESC", "Collapse the sidebar navigation") ?? "Collapse the sidebar navigation";
+        var userNameDisplayName = _localizationService?.GetString("SETTING_USER_NAME", "User Name") ?? "User Name";
+        var userNameDesc = _localizationService?.GetString("SETTING_USER_NAME_DESC", "Set your display name") ?? "Set your display name";
 
-        RegisterSetting(SettingDefinition.Dropdown("App.Locale", "Language", ["en-US", "zh-CN"],
-            "Select display language (restart required for full effect)", "Appearance", 0, 1, "en-US"));
+        var appearanceGroup = _localizationService?.GetString("GROUP_APPEARANCE", "Appearance") ?? "Appearance";
+        var generalGroup = _localizationService?.GetString("GROUP_GENERAL", "General") ?? "General";
 
-        RegisterSetting(SettingDefinition.Switch("App.SidebarCollapsed", "Collapse Sidebar",
-            "Collapse the sidebar navigation", "Appearance", 0, 2, false));
+        RegisterSetting(SettingDefinition.Dropdown("App.Theme", themeDisplayName, ["Default", "Light", "Dark"],
+            themeDesc, appearanceGroup, 0, 0, "Default"));
 
-        RegisterSetting(SettingDefinition.Text("App.UserName", "User Name",
-            "Set your display name", "General", "",1, 0, ""));
+        RegisterSetting(SettingDefinition.Dropdown("App.Locale", langDisplayName, ["en-US", "zh-CN"],
+            langDesc, appearanceGroup, 0, 1, "en-US"));
+
+        RegisterSetting(SettingDefinition.Switch("App.SidebarCollapsed", sidebarDisplayName,
+            sidebarDesc, appearanceGroup, 0, 2, false));
+
+        RegisterSetting(SettingDefinition.Text("App.UserName", userNameDisplayName,
+            userNameDesc, generalGroup, "", 1, 0, ""));
     }
 }

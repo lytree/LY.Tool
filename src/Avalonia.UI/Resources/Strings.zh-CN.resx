@@ -39,7 +39,7 @@
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="name" use="required" type="xsd:string" />
             </xsd:complexType>
           </xsd:element>
         </xsd:choice>
@@ -87,4 +87,75 @@
   <data name="NAV_Plugins" xml:space="preserve"><value>插件</value></data>
   <data name="NAV_PluginManagement" xml:space="preserve"><value>插件管理</value></data>
   <data name="NAV_AboutUs" xml:space="preserve"><value>关于我们</value></data>
+  <data name="PLUGIN_MANAGEMENT_TITLE" xml:space="preserve"><value>插件管理</value></data>
+  <data name="PLUGIN_MANAGEMENT_DESC" xml:space="preserve"><value>安装、卸载、启用或禁用插件</value></data>
+  <data name="INSTALL_PLUGIN" xml:space="preserve"><value>安装插件</value></data>
+  <data name="REFRESH" xml:space="preserve"><value>刷新</value></data>
+  <data name="ENABLE" xml:space="preserve"><value>启用</value></data>
+  <data name="DISABLE" xml:space="preserve"><value>禁用</value></data>
+  <data name="UNINSTALL" xml:space="preserve"><value>卸载</value></data>
+  <data name="VERSION_LABEL" xml:space="preserve"><value>版本：</value></data>
+  <data name="AUTHOR_LABEL" xml:space="preserve"><value>作者：</value></data>
+  <data name="NO_PLUGINS_INSTALLED" xml:space="preserve"><value>没有已安装的插件</value></data>
+  <data name="CLICK_INSTALL_PLUGIN" xml:space="preserve"><value>点击"安装插件"来添加新插件</value></data>
+  <data name="SELECT_PLUGIN_PACKAGE" xml:space="preserve"><value>选择插件包</value></data>
+  <data name="PLUGIN_PACKAGE" xml:space="preserve"><value>插件包</value></data>
+  <data name="STATE_LOADED" xml:space="preserve"><value>已加载</value></data>
+  <data name="STATE_INSTALLED" xml:space="preserve"><value>已安装</value></data>
+  <data name="STATE_DISABLED" xml:space="preserve"><value>已禁用</value></data>
+  <data name="STATE_PENDING_UNINSTALL" xml:space="preserve"><value>待卸载</value></data>
+  <data name="STATE_ERROR" xml:space="preserve"><value>错误</value></data>
+  <data name="STATE_NOT_INSTALLED" xml:space="preserve"><value>未安装</value></data>
+  <data name="PLUGIN_INSTALLED_SUCCESS" xml:space="preserve"><value>插件 '{0}' 安装成功</value></data>
+  <data name="INSTALLATION_FAILED" xml:space="preserve"><value>安装失败：{0}</value></data>
+  <data name="PLUGIN_UNINSTALL_AFTER_RESTART" xml:space="preserve"><value>插件 '{0}' 将在重启后卸载</value></data>
+  <data name="SETTINGS_TITLE" xml:space="preserve"><value>设置</value></data>
+  <data name="RESET" xml:space="preserve"><value>重置</value></data>
+  <data name="SAVE" xml:space="preserve"><value>保存</value></data>
+  <data name="SAVED" xml:space="preserve"><value>已保存</value></data>
+  <data name="SAVE_FAILED" xml:space="preserve"><value>保存失败</value></data>
+  <data name="ABOUT" xml:space="preserve"><value>关于</value></data>
+  <data name="APP_TITLE" xml:space="preserve"><value>Avalonia UI 模板</value></data>
+  <data name="APP_VERSION" xml:space="preserve"><value>版本 1.0.0</value></data>
+  <data name="APP_DESCRIPTION" xml:space="preserve"><value>基于 Avalonia 和 Ursa 控件构建的现代 UI 模板。</value></data>
+  <data name="BROWSE" xml:space="preserve"><value>浏览</value></data>
+  <data name="SELECT_FILE_PATH" xml:space="preserve"><value>选择文件路径...</value></data>
+  <data name="SETTING_THEME" xml:space="preserve"><value>主题</value></data>
+  <data name="SETTING_THEME_DESC" xml:space="preserve"><value>选择应用程序主题</value></data>
+  <data name="SETTING_LANGUAGE" xml:space="preserve"><value>语言</value></data>
+  <data name="SETTING_LANGUAGE_DESC" xml:space="preserve"><value>选择显示语言（完全生效需重启）</value></data>
+  <data name="SETTING_COLLAPSE_SIDEBAR" xml:space="preserve"><value>折叠侧边栏</value></data>
+  <data name="SETTING_COLLAPSE_SIDEBAR_DESC" xml:space="preserve"><value>折叠侧边栏导航</value></data>
+  <data name="SETTING_USER_NAME" xml:space="preserve"><value>用户名</value></data>
+  <data name="SETTING_USER_NAME_DESC" xml:space="preserve"><value>设置您的显示名称</value></data>
+  <data name="GROUP_APPEARANCE" xml:space="preserve"><value>外观</value></data>
+  <data name="GROUP_GENERAL" xml:space="preserve"><value>通用</value></data>
+  <data name="COMPANY_NAME_CN" xml:space="preserve"><value>铱泓科技</value></data>
+  <data name="COMPANY_NAME_EN" xml:space="preserve"><value>IRIHI Technology</value></data>
+  <data name="SLOGAN_CN" xml:space="preserve"><value>聚焦生产力的美学进化</value></data>
+  <data name="SLOGAN_EN" xml:space="preserve"><value>Aesthetic Evolution of Productivity</value></data>
+  <data name="SEMI_DESC_CN" xml:space="preserve"><value>开箱即用的独立主题库</value></data>
+  <data name="SEMI_DESC_EN" xml:space="preserve"><value>A ready-to-use standalone theme library</value></data>
+  <data name="URSA_DESC_CN" xml:space="preserve"><value>高性能企业级桌面客户端控件库</value></data>
+  <data name="URSA_DESC_EN" xml:space="preserve"><value>High-performance enterprise level control library for desktop apps</value></data>
+  <data name="MANTRA_DESC_CN" xml:space="preserve"><value>高性能文字排版渲染控件库</value></data>
+  <data name="MANTRA_DESC_EN" xml:space="preserve"><value>High-performance typography control library</value></data>
+  <data name="HUSKA_DESC_CN" xml:space="preserve"><value>手绘风格主题库</value></data>
+  <data name="HUSKA_DESC_EN" xml:space="preserve"><value>Hand-drawing theme library</value></data>
+  <data name="OPEN_SOURCE" xml:space="preserve"><value>开源</value></data>
+  <data name="COMMERCIAL" xml:space="preserve"><value>商业</value></data>
+  <data name="HOMEPAGE" xml:space="preserve"><value>主页</value></data>
+  <data name="TOOLTIP_SETTINGS" xml:space="preserve"><value>设置</value></data>
+  <data name="TOOLTIP_PLUGIN_MANAGEMENT" xml:space="preserve"><value>插件管理</value></data>
+  <data name="TOOLTIP_TOGGLE_SIDEBAR" xml:space="preserve"><value>切换侧边栏</value></data>
+  <data name="WINDOW_TITLE" xml:space="preserve"><value>Ursa 演示</value></data>
+  <data name="SPLASH_STARTING" xml:space="preserve"><value>正在启动 Ursa 演示...</value></data>
+  <data name="SPLASH_TITLE" xml:space="preserve"><value>主启动窗口</value></data>
+  <data name="SPLASH_SUBTITLE" xml:space="preserve"><value>二次元 JK 少女启动页</value></data>
+  <data name="SPLASH_WELCOME" xml:space="preserve"><value>欢迎来到 AvaloniaTemplate，启动页已加载本地图像资源：Assets/jk-girl.png</value></data>
+  <data name="WELCOME_IRIHI" xml:space="preserve"><value>欢迎来到铱泓科技</value></data>
+  <data name="LOADING_MODULES" xml:space="preserve"><value>正在加载组件...</value></data>
+  <data name="MENU_ABOUT_US" xml:space="preserve"><value>关于我们</value></data>
+  <data name="EXIT_CONFIRM_MESSAGE" xml:space="preserve"><value>确定要退出吗？</value></data>
+  <data name="EXIT_CONFIRM_TITLE" xml:space="preserve"><value>退出</value></data>
 </root>

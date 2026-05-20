@@ -11,16 +11,16 @@
 			<Grid ColumnDefinitions="*,Auto,Auto">
 				<TextBlock Grid.Column="0" Text="{Binding SaveStatusText}" Classes="Tertiary" VerticalAlignment="Center"
 						   IsVisible="{Binding SaveStatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
-				<Button Grid.Column="1" Content="重置" Command="{Binding ResetCommand}" MinWidth="80" Margin="0,0,12,0"
+				<Button Grid.Column="1" Content="{DynamicResource STRING_RESET}" Command="{Binding ResetCommand}" MinWidth="80" Margin="0,0,12,0"
 						IsEnabled="{Binding IsDirty}" />
-				<Button Grid.Column="2" Content="保存" Command="{Binding SaveCommand}" Classes="Primary" MinWidth="80"
+				<Button Grid.Column="2" Content="{DynamicResource STRING_SAVE}" Command="{Binding SaveCommand}" Classes="Primary" MinWidth="80"
 						IsEnabled="{Binding IsDirty}" />
 			</Grid>
 		</Border>
 
 		<ScrollViewer VerticalScrollBarVisibility="Auto">
 			<StackPanel Margin="24" Spacing="16">
-				<TextBlock Text="Settings" Theme="{StaticResource TitleTextBlock}" Classes="H2" />
+				<TextBlock Text="{DynamicResource STRING_SETTINGS_TITLE}" Theme="{StaticResource TitleTextBlock}" Classes="H2" />
 
 				<ItemsControl ItemsSource="{Binding Groups}">
 					<ItemsControl.ItemsPanel>
@@ -90,7 +90,7 @@
 															 PlaceholderText="{Binding PlaceholderText}"
 															 IsReadOnly="True" />
 													<Button Grid.Column="2" Grid.RowSpan="2"
-															Content="浏览" Command="{Binding BrowseCommand}"
+															Content="{DynamicResource STRING_BROWSE}" Command="{Binding BrowseCommand}"
 															VerticalAlignment="Center" Margin="8,0,0,0" />
 												</Grid>
 											</DataTemplate>
@@ -104,10 +104,10 @@
 
 				<Border Theme="{DynamicResource CardBorder}">
 					<StackPanel Spacing="12">
-						<TextBlock Text="About" Theme="{StaticResource TitleTextBlock}" Classes="H4" />
-						<TextBlock Text="Avalonia UI Template" Theme="{StaticResource TitleTextBlock}" Classes="H6" />
-						<TextBlock Text="Version 1.0.0" Classes="Secondary" />
-						<TextBlock Text="A modern UI template built with Avalonia and Ursa controls." Classes="Tertiary" />
+						<TextBlock Text="{DynamicResource STRING_ABOUT}" Theme="{StaticResource TitleTextBlock}" Classes="H4" />
+						<TextBlock Text="{DynamicResource STRING_APP_TITLE}" Theme="{StaticResource TitleTextBlock}" Classes="H6" />
+						<TextBlock Text="{DynamicResource STRING_APP_VERSION}" Classes="Secondary" />
+						<TextBlock Text="{DynamicResource STRING_APP_DESCRIPTION}" Classes="Tertiary" />
 					</StackPanel>
 				</Border>
 			</StackPanel>

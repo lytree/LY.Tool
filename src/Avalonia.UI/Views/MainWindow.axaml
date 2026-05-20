@@ -8,7 +8,7 @@
     xmlns:viewModels="clr-namespace:Avalonia.UI.ViewModels"
     xmlns:views="clr-namespace:Avalonia.UI.Views"
     xmlns:iri="https://irihi.tech/shared"
-    Title="Ursa Demo"
+    Title="{DynamicResource STRING_WINDOW_TITLE}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     x:CompileBindings="True"

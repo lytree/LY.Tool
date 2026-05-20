@@ -9,15 +9,15 @@
     <Grid Margin="24" RowDefinitions="Auto,Auto,*">
         
         <StackPanel Grid.Row="0" Spacing="8" Margin="0 0 0 20">
-            <TextBlock Text="Plugin Management" Theme="{StaticResource TitleTextBlock}" Classes="H3" />
-            <TextBlock Text="Install, uninstall, enable or disable plugins" Classes="Secondary" />
+            <TextBlock Text="{DynamicResource STRING_PLUGIN_MANAGEMENT_TITLE}" Theme="{StaticResource TitleTextBlock}" Classes="H3" />
+            <TextBlock Text="{DynamicResource STRING_PLUGIN_MANAGEMENT_DESC}" Classes="Secondary" />
         </StackPanel>
 
         <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0 0 0 16">
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <Button Content="Install Plugin" Command="{Binding InstallPluginCommand}" IsEnabled="{Binding !IsInstalling}"
+                <Button Content="{DynamicResource STRING_INSTALL_PLUGIN}" Command="{Binding InstallPluginCommand}" IsEnabled="{Binding !IsInstalling}"
                         Classes="FluentAccent"/>
-                <Button Content="Refresh" Command="{Binding RefreshPluginsCommand}"/>
+                <Button Content="{DynamicResource STRING_REFRESH}" Command="{Binding RefreshPluginsCommand}"/>
             </StackPanel>
             <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" VerticalAlignment="Center" Classes="Secondary" />
         </Grid>
@@ -41,17 +41,17 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="6">
-                                        <Button Content="Enable" 
+                                        <Button Content="{DynamicResource STRING_ENABLE}" 
                                                 Command="{Binding $parent[UserControl].DataContext.EnablePluginCommand}" 
                                                 CommandParameter="{Binding}"
                                                 IsVisible="{Binding CanEnable}"
                                                 Classes="small"/>
-                                        <Button Content="Disable" 
+                                        <Button Content="{DynamicResource STRING_DISABLE}" 
                                                 Command="{Binding $parent[UserControl].DataContext.DisablePluginCommand}" 
                                                 CommandParameter="{Binding}"
                                                 IsVisible="{Binding CanDisable}"
                                                 Classes="small"/>
-                                        <Button Content="Uninstall" 
+                                        <Button Content="{DynamicResource STRING_UNINSTALL}" 
                                                 Command="{Binding $parent[UserControl].DataContext.UninstallPluginCommand}" 
                                                 CommandParameter="{Binding}"
                                                 IsVisible="{Binding CanUninstall}"
@@ -60,10 +60,10 @@
 
                                     <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="16" Margin="0 4 0 0">
                                         <TextBlock FontSize="12" Classes="Tertiary">
-                                            <Run Text="Version: "/><Run Text="{Binding Version}"/>
+                                            <Run Text="{DynamicResource STRING_VERSION_LABEL}"/><Run Text="{Binding Version}"/>
                                         </TextBlock>
                                         <TextBlock FontSize="12" Classes="Tertiary">
-                                            <Run Text="Author: "/><Run Text="{Binding Author}"/>
+                                            <Run Text="{DynamicResource STRING_AUTHOR_LABEL}"/><Run Text="{Binding Author}"/>
                                         </TextBlock>
                                     </StackPanel>
 
@@ -85,9 +85,9 @@
                         Theme="{DynamicResource CardBorder}" Padding="32"
                         HorizontalAlignment="Center" Margin="0 40 0 0">
                     <StackPanel HorizontalAlignment="Center" Spacing="8">
-                        <TextBlock Text="No plugins installed" FontSize="16" 
+                        <TextBlock Text="{DynamicResource STRING_NO_PLUGINS_INSTALLED}" FontSize="16" 
                                    Classes="Tertiary" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Click 'Install Plugin' to add a new plugin" FontSize="13" 
+                        <TextBlock Text="{DynamicResource STRING_CLICK_INSTALL_PLUGIN}" FontSize="13" 
                                    Classes="Tertiary" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Border>

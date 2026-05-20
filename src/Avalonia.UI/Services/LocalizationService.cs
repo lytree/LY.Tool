@@ -48,6 +48,19 @@ public class LocalizationService : ILocalizationService
         return fallback;
     }
 
+    public string GetString(string key, params object[] args)
+    {
+        var format = GetString(key);
+        try
+        {
+            return string.Format(_currentCulture, format, args);
+        }
+        catch
+        {
+            return format;
+        }
+    }
+
     public void SetCulture(CultureInfo culture)
     {
         if (Equals(_currentCulture, culture))

@@ -104,7 +104,7 @@
 								Classes="Tertiary"
 								Icon="{StaticResource SemiIconSetting}"
 								Content="{Binding SettingText}"
-								ToolTip.Tip="Settings"
+								ToolTip.Tip="{DynamicResource STRING_TOOLTIP_SETTINGS}"
 								Theme="{DynamicResource BorderlessIconButton}"
 								Command="{Binding ActivateCommand}"
 								CommandParameter="Settings" />
@@ -112,7 +112,7 @@
 								Classes="Tertiary"
 								Icon="{StaticResource SemiIconPuzzle}"
 								Content="{Binding PluginText}"
-								ToolTip.Tip="Plugin Management"
+								ToolTip.Tip="{DynamicResource STRING_TOOLTIP_PLUGIN_MANAGEMENT}"
 								Theme="{DynamicResource BorderlessIconButton}"
 								Command="{Binding ActivateCommand}"
 								CommandParameter="PluginManagement" />
@@ -147,7 +147,7 @@
 								Theme="{StaticResource BorderlessIconButton}"
 								Classes="Tertiary"
 								Icon="{StaticResource SemiIconSidebar}"
-								ToolTip.Tip="Toggle Sidebar"
+								ToolTip.Tip="{DynamicResource STRING_TOOLTIP_TOGGLE_SIDEBAR}"
 								Command="{Binding ToggleSidebarCommand}" />
 							<u:Breadcrumb Name="Breadcrumb" VerticalAlignment="Center" Separator="/" FontSize="14" />
 						</StackPanel>

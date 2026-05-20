@@ -39,7 +39,7 @@
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="name" use="required" type="xsd:string" />
             </xsd:complexType>
           </xsd:element>
         </xsd:choice>
@@ -168,5 +168,218 @@
   </data>
   <data name="NAV_AboutUs" xml:space="preserve">
     <value>About Us</value>
+  </data>
+  <data name="PLUGIN_MANAGEMENT_TITLE" xml:space="preserve">
+    <value>Plugin Management</value>
+  </data>
+  <data name="PLUGIN_MANAGEMENT_DESC" xml:space="preserve">
+    <value>Install, uninstall, enable or disable plugins</value>
+  </data>
+  <data name="INSTALL_PLUGIN" xml:space="preserve">
+    <value>Install Plugin</value>
+  </data>
+  <data name="REFRESH" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="ENABLE" xml:space="preserve">
+    <value>Enable</value>
+  </data>
+  <data name="DISABLE" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="UNINSTALL" xml:space="preserve">
+    <value>Uninstall</value>
+  </data>
+  <data name="VERSION_LABEL" xml:space="preserve">
+    <value>Version: </value>
+  </data>
+  <data name="AUTHOR_LABEL" xml:space="preserve">
+    <value>Author: </value>
+  </data>
+  <data name="NO_PLUGINS_INSTALLED" xml:space="preserve">
+    <value>No plugins installed</value>
+  </data>
+  <data name="CLICK_INSTALL_PLUGIN" xml:space="preserve">
+    <value>Click 'Install Plugin' to add a new plugin</value>
+  </data>
+  <data name="SELECT_PLUGIN_PACKAGE" xml:space="preserve">
+    <value>Select Plugin Package</value>
+  </data>
+  <data name="PLUGIN_PACKAGE" xml:space="preserve">
+    <value>Plugin Package</value>
+  </data>
+  <data name="STATE_LOADED" xml:space="preserve">
+    <value>Loaded</value>
+  </data>
+  <data name="STATE_INSTALLED" xml:space="preserve">
+    <value>Installed</value>
+  </data>
+  <data name="STATE_DISABLED" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="STATE_PENDING_UNINSTALL" xml:space="preserve">
+    <value>Pending Uninstall</value>
+  </data>
+  <data name="STATE_ERROR" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="STATE_NOT_INSTALLED" xml:space="preserve">
+    <value>Not Installed</value>
+  </data>
+  <data name="PLUGIN_INSTALLED_SUCCESS" xml:space="preserve">
+    <value>Plugin '{0}' installed successfully</value>
+  </data>
+  <data name="INSTALLATION_FAILED" xml:space="preserve">
+    <value>Installation failed: {0}</value>
+  </data>
+  <data name="PLUGIN_UNINSTALL_AFTER_RESTART" xml:space="preserve">
+    <value>Plugin '{0}' will be uninstalled after restart</value>
+  </data>
+  <data name="SETTINGS_TITLE" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="RESET" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="SAVE" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SAVED" xml:space="preserve">
+    <value>Saved</value>
+  </data>
+  <data name="SAVE_FAILED" xml:space="preserve">
+    <value>Save failed</value>
+  </data>
+  <data name="ABOUT" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="APP_TITLE" xml:space="preserve">
+    <value>Avalonia UI Template</value>
+  </data>
+  <data name="APP_VERSION" xml:space="preserve">
+    <value>Version 1.0.0</value>
+  </data>
+  <data name="APP_DESCRIPTION" xml:space="preserve">
+    <value>A modern UI template built with Avalonia and Ursa controls.</value>
+  </data>
+  <data name="BROWSE" xml:space="preserve">
+    <value>Browse</value>
+  </data>
+  <data name="SELECT_FILE_PATH" xml:space="preserve">
+    <value>Select file path...</value>
+  </data>
+  <data name="SETTING_THEME" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="SETTING_THEME_DESC" xml:space="preserve">
+    <value>Select a theme for the application</value>
+  </data>
+  <data name="SETTING_LANGUAGE" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="SETTING_LANGUAGE_DESC" xml:space="preserve">
+    <value>Select display language (restart required for full effect)</value>
+  </data>
+  <data name="SETTING_COLLAPSE_SIDEBAR" xml:space="preserve">
+    <value>Collapse Sidebar</value>
+  </data>
+  <data name="SETTING_COLLAPSE_SIDEBAR_DESC" xml:space="preserve">
+    <value>Collapse the sidebar navigation</value>
+  </data>
+  <data name="SETTING_USER_NAME" xml:space="preserve">
+    <value>User Name</value>
+  </data>
+  <data name="SETTING_USER_NAME_DESC" xml:space="preserve">
+    <value>Set your display name</value>
+  </data>
+  <data name="GROUP_APPEARANCE" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="GROUP_GENERAL" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="COMPANY_NAME_CN" xml:space="preserve">
+    <value>铱泓科技</value>
+  </data>
+  <data name="COMPANY_NAME_EN" xml:space="preserve">
+    <value>IRIHI Technology</value>
+  </data>
+  <data name="SLOGAN_CN" xml:space="preserve">
+    <value>聚焦生产力的美学进化</value>
+  </data>
+  <data name="SLOGAN_EN" xml:space="preserve">
+    <value>Aesthetic Evolution of Productivity</value>
+  </data>
+  <data name="SEMI_DESC_CN" xml:space="preserve">
+    <value>开箱即用的独立主题库</value>
+  </data>
+  <data name="SEMI_DESC_EN" xml:space="preserve">
+    <value>A ready-to-use standalone theme library</value>
+  </data>
+  <data name="URSA_DESC_CN" xml:space="preserve">
+    <value>高性能企业级桌面客户端控件库</value>
+  </data>
+  <data name="URSA_DESC_EN" xml:space="preserve">
+    <value>High-performance enterprise level control library for desktop apps</value>
+  </data>
+  <data name="MANTRA_DESC_CN" xml:space="preserve">
+    <value>高性能文字排版渲染控件库</value>
+  </data>
+  <data name="MANTRA_DESC_EN" xml:space="preserve">
+    <value>High-performance typography control library</value>
+  </data>
+  <data name="HUSKA_DESC_CN" xml:space="preserve">
+    <value>手绘风格主题库</value>
+  </data>
+  <data name="HUSKA_DESC_EN" xml:space="preserve">
+    <value>Hand-drawing theme library</value>
+  </data>
+  <data name="OPEN_SOURCE" xml:space="preserve">
+    <value>Open Source</value>
+  </data>
+  <data name="COMMERCIAL" xml:space="preserve">
+    <value>Commercial</value>
+  </data>
+  <data name="HOMEPAGE" xml:space="preserve">
+    <value>Homepage</value>
+  </data>
+  <data name="TOOLTIP_SETTINGS" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="TOOLTIP_PLUGIN_MANAGEMENT" xml:space="preserve">
+    <value>Plugin Management</value>
+  </data>
+  <data name="TOOLTIP_TOGGLE_SIDEBAR" xml:space="preserve">
+    <value>Toggle Sidebar</value>
+  </data>
+  <data name="WINDOW_TITLE" xml:space="preserve">
+    <value>Ursa Demo</value>
+  </data>
+  <data name="SPLASH_STARTING" xml:space="preserve">
+    <value>Starting Ursa Demo...</value>
+  </data>
+  <data name="SPLASH_TITLE" xml:space="preserve">
+    <value>Main Splash Window</value>
+  </data>
+  <data name="SPLASH_SUBTITLE" xml:space="preserve">
+    <value>Anime JK Girl Splash Screen</value>
+  </data>
+  <data name="SPLASH_WELCOME" xml:space="preserve">
+    <value>Welcome to AvaloniaTemplate, splash screen loaded with local image resource: Assets/jk-girl.png</value>
+  </data>
+  <data name="WELCOME_IRIHI" xml:space="preserve">
+    <value>Welcome to IRIHI</value>
+  </data>
+  <data name="LOADING_MODULES" xml:space="preserve">
+    <value>Initializing modules...</value>
+  </data>
+  <data name="MENU_ABOUT_US" xml:space="preserve">
+    <value>About Us</value>
+  </data>
+  <data name="EXIT_CONFIRM_MESSAGE" xml:space="preserve">
+    <value>Are you sure you want to exit?</value>
+  </data>
+  <data name="EXIT_CONFIRM_TITLE" xml:space="preserve">
+    <value>Exit</value>
   </data>
 </root>

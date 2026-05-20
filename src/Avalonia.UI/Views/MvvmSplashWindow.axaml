@@ -7,7 +7,7 @@ xmlns:iri="https://irihi.tech/shared"
 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 xmlns:u="https://irihi.tech/ursa"
 xmlns:viewModels="clr-namespace:Avalonia.UI.ViewModels"
-Title="Starting Ursa Demo..."
+Title="{DynamicResource STRING_SPLASH_STARTING}"
 Width="720"
 Height="420"
 Icon="/Assets/Ursa.ico"
@@ -33,14 +33,14 @@ mc:Ignorable="d">
 			Spacing="10">
 				<TextBlock
 				Theme="{StaticResource TitleTextBlock}" Classes="H3"
-				Text="Main Splash Window" />
+				Text="{DynamicResource STRING_SPLASH_TITLE}" />
 				<TextBlock
 				Theme="{StaticResource TitleTextBlock}" Classes="H6"
-				Text="二次元 JK 少女启动页" />
+				Text="{DynamicResource STRING_SPLASH_SUBTITLE}" />
 				<TextBlock
 				Classes="Secondary"
 				TextWrapping="Wrap"
-				Text="欢迎来到 AvaloniaTemplate，启动页已加载本地图像资源：Assets/jk-girl.png" />
+				Text="{DynamicResource STRING_SPLASH_WELCOME}" />
 			</StackPanel>
 		</Grid>
 	</Border>

@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:iri="https://irihi.tech/shared"
     xmlns:u="https://irihi.tech/ursa"
-    Title="MainSplashWindow"
+    Title="{DynamicResource STRING_SPLASH_STARTING}"
     Width="520"
     Height="460"
     CanResize="False"
@@ -112,7 +112,7 @@
                             VerticalAlignment="Bottom"
                             FontSize="16"
                             FontWeight="SemiBold"
-                            Text="Welcome to IRIHI"
+                            Text="{DynamicResource STRING_WELCOME_IRIHI}"
                             Foreground="White" />
                     </Grid>
                 </Border>
@@ -138,22 +138,22 @@
                         Grid.Column="1"
                         VerticalAlignment="Bottom"
                         Theme="{StaticResource TitleTextBlock}" Classes="H3"
-                        Text="铱泓科技" />
+                        Text="{DynamicResource STRING_COMPANY_NAME_CN}" />
                     <TextBlock
                         Grid.Row="1"
                         Grid.Column="1"
                         Theme="{StaticResource TitleTextBlock}" Classes="H6 Secondary"
-                        Text="IRIHI Technology" />
+                        Text="{DynamicResource STRING_COMPANY_NAME_EN}" />
                 </Grid>
 
                 <StackPanel Grid.Row="2" Spacing="4">
-                    <TextBlock HorizontalAlignment="Center" FontSize="15" FontWeight="Medium" Text="聚焦生产力的美学进化" />
-                    <TextBlock HorizontalAlignment="Center" FontSize="13" Classes="Secondary" Text="Aesthetic Evolution of Productivity" />
+                    <TextBlock HorizontalAlignment="Center" FontSize="15" FontWeight="Medium" Text="{DynamicResource STRING_SLOGAN_CN}" />
+                    <TextBlock HorizontalAlignment="Center" FontSize="13" Classes="Secondary" Text="{DynamicResource STRING_SLOGAN_EN}" />
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Spacing="8">
                     <ProgressBar IsIndeterminate="True" Height="5" CornerRadius="999" />
-                    <TextBlock HorizontalAlignment="Center" FontSize="12" Classes="Tertiary" Text="正在加载组件... / Initializing modules..." />
+                    <TextBlock HorizontalAlignment="Center" FontSize="12" Classes="Tertiary" Text="{DynamicResource STRING_LOADING_MODULES}" />
                 </StackPanel>
             </Grid>
         </Border>
