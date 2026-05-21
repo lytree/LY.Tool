@@ -21,8 +21,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\Avalonia.Plugin.Generators\Avalonia.Plugin.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-		<ProjectReference Include="..\..\src\Avalonia.Plugin.Shared\Avalonia.Plugin.Shared.csproj"  PrivateAssets="all" />
+		<PackageReference Include="Avalonia.Plugin.Generators" Version="1.0.0" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<PackageReference Include="Avalonia.Plugin.Shared" Version="1.0.0" PrivateAssets="all" />
 	</ItemGroup>
 
 </Project>

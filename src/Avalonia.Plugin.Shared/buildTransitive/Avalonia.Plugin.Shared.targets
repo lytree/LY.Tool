@@ -1,4 +1,5 @@
 <Project>
+
   <Target Name="ExcludeSharedAssembliesFromCopyLocal"
           AfterTargets="ResolveAssemblyReferences"
           Condition="'$(AvaloniaPluginSharedExclusionsEnabled)' == 'true'">
@@ -10,7 +11,7 @@
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)"
           Condition="'%(Filename)' == 'Avalonia'" />
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)"
-          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Avalonia.'))" />
+          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Avalonia.')) And '%(Filename)' != '$(AssemblyName)'" />
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)"
           Condition="$([System.String]::Copy('%(Filename)').StartsWith('CommunityToolkit.'))" />
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)"
@@ -47,6 +48,8 @@
           Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Extensions.FileProviders'))" />
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)"
           Condition="'%(Filename)' == 'Microsoft.Extensions.Http'" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)"
+          Condition="'%(Filename)' == 'Microsoft.Extensions.DependencyModel'" />
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)"
           Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.EntityFrameworkCore'))" />
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)"
@@ -56,68 +59,90 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="PluginCopyDependencies"
-          AfterTargets="ResolveReferences"
-          Condition="'$(AvaloniaPluginSharedExclusionsEnabled)' == 'true'">
+  <Target Name="CleanPublishedPluginOutput"
+          AfterTargets="Publish"
+          Condition="'$(IsPluginProject)' == 'true' And '$(AvaloniaPluginSharedExclusionsEnabled)' == 'true'">
     <ItemGroup>
-      <_PluginDeps Include="@(RuntimeCopyLocalItems)" />
-
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="$([System.String]::Copy('%(Filename)').StartsWith('System.'))" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.'))" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="'%(Filename)' == 'Avalonia'" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Avalonia.'))" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="$([System.String]::Copy('%(Filename)').StartsWith('CommunityToolkit.'))" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Irihi.'))" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="'%(Filename)' == 'Ursa'" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="'%(Filename)' == 'Semi.Avalonia'" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="$([System.String]::Copy('%(Filename)').StartsWith('SQLitePCLRaw.'))" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="'%(Filename)' == 'Microsoft.Data.Sqlite'" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="'%(Filename)' == 'MicroCom.Runtime'" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="'%(Filename)' == 'System.Reactive'" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="'%(Filename)' == 'System.Private.Uri'" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Extensions.DependencyInjection'))" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Extensions.Localization'))" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Extensions.Logging'))" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="'%(Filename)' == 'Microsoft.Extensions.Options'" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="'%(Filename)' == 'Microsoft.Extensions.Primitives'" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Extensions.Caching'))" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Extensions.Configuration'))" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Extensions.FileProviders'))" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="'%(Filename)' == 'Microsoft.Extensions.Http'" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.EntityFrameworkCore'))" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="'%(Filename)' == 'Microsoft.Bcl.AsyncInterfaces'" />
-      <_PluginDeps Remove="@(_PluginDeps)"
-          Condition="'%(Filename)' == 'SQLite'" />
+      <_PublishedFiles Include="$(PublishDir)**\*.dll" />
+      <_PublishedFiles Include="$(PublishDir)**\*.pdb" />
+      <_PublishedFiles Include="$(PublishDir)**\*.xml" />
+      <_PublishedNativeFiles Include="$(PublishDir)runtimes\**\*.*" />
     </ItemGroup>
 
-    <Copy
-        SourceFiles="@(_PluginDeps)"
-        DestinationFiles="@(_PluginDeps->'$(OutDir)%(RecursiveDir)%(Filename)%(Extension)')"
-        SkipUnchangedFiles="true" />
+    <ItemGroup>
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="$([System.String]::Copy('%(Filename)').StartsWith('System.'))" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.'))" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="'%(Filename)' == 'Avalonia'" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Avalonia.')) And '%(Filename)' != '$(AssemblyName)'" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="$([System.String]::Copy('%(Filename)').StartsWith('CommunityToolkit.'))" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Irihi.'))" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="'%(Filename)' == 'Ursa'" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="'%(Filename)' == 'Semi.Avalonia'" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="$([System.String]::Copy('%(Filename)').StartsWith('SQLitePCLRaw.'))" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="'%(Filename)' == 'Microsoft.Data.Sqlite'" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="'%(Filename)' == 'MicroCom.Runtime'" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="'%(Filename)' == 'System.Reactive'" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="'%(Filename)' == 'System.Private.Uri'" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Extensions.DependencyInjection'))" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Extensions.Localization'))" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Extensions.Logging'))" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="'%(Filename)' == 'Microsoft.Extensions.Options'" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="'%(Filename)' == 'Microsoft.Extensions.Primitives'" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Extensions.Caching'))" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Extensions.Configuration'))" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Extensions.FileProviders'))" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="'%(Filename)' == 'Microsoft.Extensions.Http'" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="'%(Filename)' == 'Microsoft.Extensions.DependencyModel'" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.EntityFrameworkCore'))" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="'%(Filename)' == 'Microsoft.Bcl.AsyncInterfaces'" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="'%(Filename)' == 'SQLite'" />
+      <_ExcludedPublished Include="@(_PublishedFiles)"
+          Condition="'%(Filename)' == 'Avalonia.Plugin.Shared'" />
+
+      <_ExcludedNativePublished Include="@(_PublishedNativeFiles)"
+          Condition="'%(Filename)' == 'e_sqlite3'" />
+      <_ExcludedNativePublished Include="@(_PublishedNativeFiles)"
+          Condition="'%(Filename)' == 'libe_sqlite3'" />
+      <_ExcludedNativePublished Include="@(_PublishedNativeFiles)"
+          Condition="'%(Filename)' == 'libSkiaSharp'" />
+      <_ExcludedNativePublished Include="@(_PublishedNativeFiles)"
+          Condition="'%(Filename)' == 'libHarfBuzzSharp'" />
+      <_ExcludedNativePublished Include="@(_PublishedNativeFiles)"
+          Condition="'%(Filename)' == 'av_libglesv2'" />
+      <_ExcludedNativePublished Include="@(_PublishedNativeFiles)"
+          Condition="'%(Filename)' == 'libAvaloniaNative'" />
+    </ItemGroup>
+
+    <Delete Files="@(_ExcludedPublished)" />
+    <Delete Files="@(_ExcludedNativePublished)" />
+
+    <Message Text="Cleaned shared dependencies from plugin publish output: $(PublishDir)" Importance="high" />
   </Target>
 
   <Target Name="GeneratePluginManifest"

@@ -139,6 +139,107 @@ internal class PluginLoadContext : AssemblyLoadContext
             return LoadUnmanagedDllFromPath(libraryPath);
         }
 
+        libraryPath = ProbeNativeLibrary(unmanagedDllName);
+        if (libraryPath != null)
+        {
+            return LoadUnmanagedDllFromPath(libraryPath);
+        }
+
         return IntPtr.Zero;
+    }
+
+    private string? ProbeNativeLibrary(string unmanagedDllName)
+    {
+        var rid = RuntimeIdentifier.Current;
+        var nativeSubDir = Path.Combine("runtimes", rid, "native");
+
+        var candidates = new List<string>();
+
+        var ridDir = Path.Combine(_pluginDirectory, nativeSubDir);
+        if (Directory.Exists(ridDir))
+        {
+            candidates.AddRange(Directory.GetFiles(ridDir));
+        }
+
+        var rootDir = _pluginDirectory;
+        if (Directory.Exists(rootDir))
+        {
+            foreach (var f in Directory.GetFiles(rootDir))
+            {
+                var fn = Path.GetFileName(f);
+                if (IsNativeLibraryMatch(fn, unmanagedDllName))
+                    candidates.Add(f);
+            }
+        }
+
+        foreach (var candidate in candidates)
+        {
+            var fileName = Path.GetFileName(candidate);
+            if (IsNativeLibraryMatch(fileName, unmanagedDllName))
+            {
+                return candidate;
+            }
+        }
+
+        if (Directory.Exists(Path.Combine(_pluginDirectory, "runtimes")))
+        {
+            foreach (var file in Directory.GetFiles(
+                Path.Combine(_pluginDirectory, "runtimes"), "*", SearchOption.AllDirectories))
+            {
+                var fileName = Path.GetFileName(file);
+                if (IsNativeLibraryMatch(fileName, unmanagedDllName))
+                {
+                    return file;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static bool IsNativeLibraryMatch(string fileName, string unmanagedDllName)
+    {
+        var baseName = unmanagedDllName;
+
+        if (string.Equals(fileName, baseName, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (string.Equals(fileName, baseName + ".dll", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (string.Equals(fileName, "lib" + baseName + ".so", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (string.Equals(fileName, "lib" + baseName + ".dylib", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (fileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(fileName[..^4], baseName, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    }
+
+    private static class RuntimeIdentifier
+    {
+        public static string Current
+        {
+            get
+            {
+                var arch = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture switch
+                {
+                    System.Runtime.InteropServices.Architecture.X64 => "x64",
+                    System.Runtime.InteropServices.Architecture.Arm64 => "arm64",
+                    System.Runtime.InteropServices.Architecture.X86 => "x86",
+                    System.Runtime.InteropServices.Architecture.Arm => "arm",
+                    _ => "x64"
+                };
+
+                if (OperatingSystem.IsWindows()) return $"win-{arch}";
+                if (OperatingSystem.IsLinux()) return $"linux-{arch}";
+                if (OperatingSystem.IsMacOS()) return $"osx-{arch}";
+                return $"win-{arch}";
+            }
+        }
     }
 }
