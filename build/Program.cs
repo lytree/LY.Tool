@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -25,8 +26,19 @@ public static class Program
     }
 }
 
+[Flags]
+public enum BuildTarget
+{
+    None = 0,
+    Bin = 1,
+    NuGet = 2,
+    Plugin = 4,
+    All = Bin | NuGet | Plugin
+}
+
 public class BuildContext : FrostingContext
 {
+    public BuildTarget Target { get; }
     public string BuildConfiguration { get; }
     public string PackageVersion { get; }
     public string NuGetSource { get; }
@@ -56,6 +68,7 @@ public class BuildContext : FrostingContext
     public BuildContext(ICakeContext context)
         : base(context)
     {
+        Target = ParseBuildTarget(context.Argument("build", "all"));
         BuildConfiguration = context.Argument("configuration", "Release");
         PackageVersion = context.Argument("package-version", "1.0.0");
         NuGetSource = context.Argument("nuget-source", "https://api.nuget.org/v3/index.json");
@@ -82,6 +95,26 @@ public class BuildContext : FrostingContext
             new("Avalonia.Plugin.NavigationMenus", "A4B5C6D7-E8F9-0123-DEFA-NAVIGA0000001", "Navigation Menus Plugin", "1.0.0", "AvaloniaPlugin", "Navigation and menu components"),
             new("Avalonia.Plugin.TDLSharp", "A1B2C3D4-E5F6-7890-ABCD-TDLSHARP00001", "TDLSharp Plugin", "1.0.0", "TDLSharp", "Telegram TDLib integration plugin"),
         };
+    }
+
+    private static BuildTarget ParseBuildTarget(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return BuildTarget.All;
+
+        var result = BuildTarget.None;
+        foreach (var part in value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            result |= part.ToLowerInvariant() switch
+            {
+                "all" => BuildTarget.All,
+                "bin" => BuildTarget.Bin,
+                "nuget" => BuildTarget.NuGet,
+                "plugin" => BuildTarget.Plugin,
+                _ => throw new ArgumentException($"Unknown build target: '{part}'. Valid values: all, bin, nuget, plugin")
+            };
+        }
+        return result == BuildTarget.None ? BuildTarget.All : result;
     }
 }
 
@@ -157,50 +190,96 @@ public sealed class BuildTask : FrostingTask<BuildContext>
             MSBuildSettings = msBuildSettings
         });
 
-        context.EnsureDirectoryExists(context.NuGetPackagesDir);
-
-        context.DotNetPack(context.GeneratorsProject, new DotNetPackSettings
+        if (context.Target.HasFlag(BuildTarget.NuGet))
         {
-            Configuration = context.BuildConfiguration,
-            OutputDirectory = context.NuGetPackagesDir,
-            NoBuild = true,
-            MSBuildSettings = msBuildSettings
-        });
+            context.EnsureDirectoryExists(context.NuGetPackagesDir);
 
-        context.DotNetPack(context.SharedProject, new DotNetPackSettings
-        {
-            Configuration = context.BuildConfiguration,
-            OutputDirectory = context.NuGetPackagesDir,
-            NoBuild = true,
-            MSBuildSettings = msBuildSettings
-        });
-
-        context.Log.Information("Plugin NuGet packages created in: {0}", context.NuGetPackagesDir);
-
-        context.DotNetBuild(context.LauncherProject, new DotNetBuildSettings
-        {
-            Configuration = context.BuildConfiguration,
-            MSBuildSettings = msBuildSettings
-        });
-
-        foreach (var plugin in context.PluginProjects)
-        {
-            var pluginMsBuild = context.CreateMSBuildSettings()
-                .WithProperty("IsPluginProject", "true")
-                .WithProperty("PluginId", plugin.PluginId)
-                .WithProperty("PluginName", $"\"{plugin.PluginName}\"")
-                .WithProperty("PackageVersion", plugin.PluginVersion)
-                .WithProperty("PluginAuthor", plugin.PluginAuthor)
-                .WithProperty("PluginDescription", $"\"{plugin.PluginDescription}\"");
-
-            context.DotNetBuild(plugin.ProjectPath(context.RootDir), new DotNetBuildSettings
+            context.DotNetPack(context.GeneratorsProject, new DotNetPackSettings
             {
                 Configuration = context.BuildConfiguration,
-                MSBuildSettings = pluginMsBuild
+                OutputDirectory = context.NuGetPackagesDir,
+                NoBuild = true,
+                MSBuildSettings = msBuildSettings
+            });
+
+            context.DotNetPack(context.SharedProject, new DotNetPackSettings
+            {
+                Configuration = context.BuildConfiguration,
+                OutputDirectory = context.NuGetPackagesDir,
+                NoBuild = true,
+                MSBuildSettings = msBuildSettings
+            });
+
+            context.Log.Information("Plugin NuGet packages created in: {0}", context.NuGetPackagesDir);
+        }
+
+        if (context.Target.HasFlag(BuildTarget.Bin))
+        {
+            context.DotNetBuild(context.LauncherProject, new DotNetBuildSettings
+            {
+                Configuration = context.BuildConfiguration,
+                MSBuildSettings = msBuildSettings
             });
         }
 
-        context.Log.Information("Build completed.");
+        if (context.Target.HasFlag(BuildTarget.Plugin))
+        {
+            foreach (var plugin in context.PluginProjects)
+            {
+                var pluginMsBuild = context.CreateMSBuildSettings()
+                    .WithProperty("IsPluginProject", "true")
+                    .WithProperty("PluginId", plugin.PluginId)
+                    .WithProperty("PluginName", $"\"{plugin.PluginName}\"")
+                    .WithProperty("PackageVersion", plugin.PluginVersion)
+                    .WithProperty("PluginAuthor", plugin.PluginAuthor)
+                    .WithProperty("PluginDescription", $"\"{plugin.PluginDescription}\"");
+
+                context.DotNetBuild(plugin.ProjectPath(context.RootDir), new DotNetBuildSettings
+                {
+                    Configuration = context.BuildConfiguration,
+                    MSBuildSettings = pluginMsBuild
+                });
+            }
+        }
+
+        context.Log.Information("Build completed. Target: {0}", context.Target);
+    }
+}
+
+[TaskName("PackBin")]
+[IsDependentOn(typeof(BuildTask))]
+public sealed class PackBinTask : FrostingTask<BuildContext>
+{
+    public override bool ShouldRun(BuildContext context)
+    {
+        return context.Target.HasFlag(BuildTarget.Bin);
+    }
+
+    public override void Run(BuildContext context)
+    {
+        context.EnsureDirectoryExists(context.BinPackagesDir);
+
+        var settings = new DotNetPublishSettings
+        {
+            Configuration = context.BuildConfiguration,
+            OutputDirectory = context.BinPackagesDir,
+            NoRestore = true,
+            NoBuild = true,
+        };
+
+        if (!string.IsNullOrEmpty(context.RuntimeIdentifier))
+        {
+            settings.Runtime = context.RuntimeIdentifier;
+        }
+
+        if (context.SelfContained)
+        {
+            settings.SelfContained = true;
+        }
+
+        context.DotNetPublish(context.LauncherProject, settings);
+
+        context.Log.Information("Launcher published to: {0}", context.BinPackagesDir);
     }
 }
 
@@ -208,6 +287,11 @@ public sealed class BuildTask : FrostingTask<BuildContext>
 [IsDependentOn(typeof(BuildTask))]
 public sealed class PackNuGetTask : FrostingTask<BuildContext>
 {
+    public override bool ShouldRun(BuildContext context)
+    {
+        return context.Target.HasFlag(BuildTarget.NuGet);
+    }
+
     public override void Run(BuildContext context)
     {
         context.EnsureDirectoryExists(context.NuGetPackagesDir);
@@ -287,42 +371,21 @@ public sealed class PushNuGetTask : FrostingTask<BuildContext>
     }
 }
 
-[TaskName("PublishLauncher")]
+[TaskName("PackPlugins")]
 [IsDependentOn(typeof(BuildTask))]
-public sealed class PublishLauncherTask : FrostingTask<BuildContext>
+public sealed class PackPluginsTask : FrostingTask<BuildContext>
 {
-    public override void Run(BuildContext context)
+    private static readonly HashSet<string> ExcludedExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
-        context.EnsureDirectoryExists(context.BinPackagesDir);
+        ".pdb",
+        ".xml",
+    };
 
-        var settings = new DotNetPublishSettings
-        {
-            Configuration = context.BuildConfiguration,
-            OutputDirectory = context.BinPackagesDir,
-            NoRestore = true,
-            NoBuild = true,
-        };
-
-        if (!string.IsNullOrEmpty(context.RuntimeIdentifier))
-        {
-            settings.Runtime = context.RuntimeIdentifier;
-        }
-
-        if (context.SelfContained)
-        {
-            settings.SelfContained = true;
-        }
-
-        context.DotNetPublish(context.LauncherProject, settings);
-
-        context.Log.Information("Launcher published to: {0}", context.BinPackagesDir);
+    public override bool ShouldRun(BuildContext context)
+    {
+        return context.Target.HasFlag(BuildTarget.Plugin);
     }
-}
 
-[TaskName("PublishPlugins")]
-[IsDependentOn(typeof(BuildTask))]
-public sealed class PublishPluginsTask : FrostingTask<BuildContext>
-{
     public override void Run(BuildContext context)
     {
         context.EnsureDirectoryExists(context.PluginPackagesDir);
@@ -330,7 +393,6 @@ public sealed class PublishPluginsTask : FrostingTask<BuildContext>
         foreach (var plugin in context.PluginProjects)
         {
             var pluginOutputDir = Path.Combine(context.PluginPackagesDir, plugin.ProjectName, "publish");
-
             context.EnsureDirectoryExists(pluginOutputDir);
 
             var pluginMsBuild = context.CreateMSBuildSettings()
@@ -351,21 +413,12 @@ public sealed class PublishPluginsTask : FrostingTask<BuildContext>
             context.Log.Information("Plugin published: {0} -> {1}", plugin.ProjectName, pluginOutputDir);
         }
 
+        PackPluginZips(context);
+
         context.Log.Information("All plugins published to: {0}", context.PluginPackagesDir);
     }
-}
 
-[TaskName("PackPlugins")]
-[IsDependentOn(typeof(PublishPluginsTask))]
-public sealed class PackPluginsTask : FrostingTask<BuildContext>
-{
-    private static readonly HashSet<string> ExcludedExtensions = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ".pdb",
-        ".xml",
-    };
-
-    public override void Run(BuildContext context)
+    private static void PackPluginZips(BuildContext context)
     {
         var zipOutputDir = Path.Combine(context.PluginPackagesDir, "zip");
         context.EnsureDirectoryExists(zipOutputDir);
@@ -448,16 +501,10 @@ public sealed class PackPluginsTask : FrostingTask<BuildContext>
     }
 }
 
-[TaskName("Pack")]
-[IsDependentOn(typeof(PackNuGetTask))]
-[IsDependentOn(typeof(PublishLauncherTask))]
-[IsDependentOn(typeof(PackPluginsTask))]
-public class PackTask : FrostingTask
-{
-}
-
 [TaskName("Default")]
-[IsDependentOn(typeof(PackTask))]
-public class DefaultTask : FrostingTask
+[IsDependentOn(typeof(PackBinTask))]
+[IsDependentOn(typeof(PackNuGetTask))]
+[IsDependentOn(typeof(PackPluginsTask))]
+public class DefaultTask : FrostingTask<BuildContext>
 {
 }
