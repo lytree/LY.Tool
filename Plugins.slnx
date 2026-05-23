@@ -2,10 +2,6 @@
     <Folder Name="/src/">
         <Project Path="src/Avalonia.Plugin.Generators/Avalonia.Plugin.Generators.csproj" />
         <Project Path="src/Avalonia.Plugin.Shared/Avalonia.Plugin.Shared.csproj" />
-        <Project Path="src/Avalonia.UI/Avalonia.UI.csproj" />
-    </Folder>
-    <Folder Name="/src/launcher/">
-        <Project Path="src/launcher/Avalonia.Launcher.Desktop/Avalonia.Launcher.Desktop.csproj" />
     </Folder>
     <Folder Name="/plugins/">
         <Project Path="plugins/Avalonia.Plugin.ButtonsInputs/Avalonia.Plugin.ButtonsInputs.csproj" />
@@ -13,6 +9,7 @@
         <Project Path="plugins/Avalonia.Plugin.DialogFeedbacks/Avalonia.Plugin.DialogFeedbacks.csproj" />
         <Project Path="plugins/Avalonia.Plugin.LayoutDisplay/Avalonia.Plugin.LayoutDisplay.csproj" />
         <Project Path="plugins/Avalonia.Plugin.NavigationMenus/Avalonia.Plugin.NavigationMenus.csproj" />
+        <Project Path="plugins/Avalonia.Plugin.Downloader/Avalonia.Plugin.Downloader.csproj" />
         <Project Path="plugins/Avalonia.Plugin.TDLSharp/Avalonia.Plugin.TDLSharp.csproj" />
         <Project Path="plugins/Avalonia.Plugin.Template/Avalonia.Plugin.Template.csproj" />
     </Folder>

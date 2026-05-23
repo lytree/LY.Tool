@@ -1,0 +1,13 @@
+<Solution>
+    <Folder Name="/src/">
+        <Project Path="src/Avalonia.Plugin.Generators/Avalonia.Plugin.Generators.csproj" />
+        <Project Path="src/Avalonia.Plugin.Shared/Avalonia.Plugin.Shared.csproj" />
+        <Project Path="src/Avalonia.UI/Avalonia.UI.csproj" />
+    </Folder>
+    <Folder Name="/src/launcher/">
+        <Project Path="src/launcher/Avalonia.Launcher.Desktop/Avalonia.Launcher.Desktop.csproj" />
+    </Folder>
+    <Folder Name="/src/platforms/">
+        <Project Path="src/Avalonia.Platforms.Abstractions/Avalonia.Platforms.Abstractions.csproj" />
+    </Folder>
+</Solution>
