@@ -4,7 +4,6 @@
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:vm="clr-namespace:Avalonia.Plugin.Downloader.ViewModels"
 			 xmlns:models="clr-namespace:Avalonia.Plugin.Downloader.Models"
-			 xmlns:shared="clr-namespace:Avalonia.Plugin.Shared.Controls;assembly=Avalonia.Plugin.Shared"
 			 x:Class="Avalonia.Plugin.Downloader.Pages.M3u8DownloaderPage"
 			 x:DataType="vm:DownloaderViewModelBase"
 			 mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700">
@@ -63,7 +62,35 @@
 		</Border>
 
 		<Border Grid.Row="2" Theme="{DynamicResource CardBorder}" Padding="12">
-			<shared:LogOutputView LogEntries="{Binding LogEntries}" />
+			<Grid RowDefinitions="Auto,*">
+				<Grid ColumnDefinitions="*,Auto" Margin="0 0 0 8">
+					<TextBlock Grid.Column="0" Text="日志输出" Classes="SectionTitle" VerticalAlignment="Center" />
+					<Button Grid.Column="1" Content="清除" Command="{Binding ClearLogCommand}" FontSize="12" Padding="8 4" />
+				</Grid>
+				<ListBox x:Name="LogListBox" Grid.Row="1"
+						 ItemsSource="{Binding LogEntries}"
+						 SelectionMode="Toggle"
+						 ScrollViewer.VerticalScrollBarVisibility="Auto"
+						 ScrollViewer.HorizontalScrollBarVisibility="Auto">
+					<ListBox.Styles>
+						<Style Selector="ListBoxItem">
+							<Setter Property="Padding" Value="2 1" />
+							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+						</Style>
+					</ListBox.Styles>
+					<ListBox.ItemTemplate>
+						<DataTemplate x:DataType="models:LogEntry">
+							<SelectableTextBlock Text="{Binding FormattedLine}" FontSize="12" FontFamily="Consolas" TextWrapping="Wrap">
+								<SelectableTextBlock.ContextMenu>
+									<ContextMenu x:CompileBindings="False">
+										<MenuItem Header="复制" Command="{Binding $parent[ListBox].DataContext.CopyLogEntryCommand}" CommandParameter="{Binding}" />
+									</ContextMenu>
+								</SelectableTextBlock.ContextMenu>
+							</SelectableTextBlock>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+			</Grid>
 		</Border>
 	</Grid>
 </UserControl>

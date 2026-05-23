@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Avalonia.Input.Platform;
 using Avalonia.Plugin.Downloader.Models;
 using Avalonia.Plugin.Downloader.Services;
 using Avalonia.Plugin.Shared;
@@ -13,7 +14,7 @@ public abstract partial class DownloaderViewModelBase : ViewModelBase
     public abstract ScriptDescriptor Script { get; }
 
     [ObservableProperty] private ObservableCollection<ScriptParameter> _parameters = [];
-    [ObservableProperty] private ObservableCollection<string> _logEntries = [];
+    [ObservableProperty] private ObservableCollection<LogEntry> _logEntries = [];
     [ObservableProperty] private bool _isRunning;
     [ObservableProperty] private string _statusText = "就绪";
 
@@ -24,6 +25,25 @@ public abstract partial class DownloaderViewModelBase : ViewModelBase
         foreach (var param in Script.Parameters)
         {
             Parameters.Add(param);
+        }
+    }
+
+    [RelayCommand]
+    private void ClearLog()
+    {
+        LogEntries.Clear();
+    }
+
+    [RelayCommand]
+    private async Task CopyLogEntry(LogEntry entry)
+    {
+        var topLevel = Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+            ? desktop.MainWindow
+            : null;
+        var clipboard = topLevel?.Clipboard;
+        if (clipboard is not null)
+        {
+            await clipboard.SetTextAsync(entry.FormattedLine);
         }
     }
 
@@ -48,7 +68,7 @@ public abstract partial class DownloaderViewModelBase : ViewModelBase
         }
         catch (Exception ex)
         {
-            AddLog($"执行失败: {ex.Message}");
+            AddLogEntry(new LogEntry { Message = $"执行失败: {ex.Message}" });
             StatusText = "执行失败";
         }
         finally
@@ -70,7 +90,7 @@ public abstract partial class DownloaderViewModelBase : ViewModelBase
 
     protected DirectUiLogger CreateUiLogger()
     {
-        return new DirectUiLogger(message => AddLog(message));
+        return new DirectUiLogger(message => AddLogEntry(new LogEntry { Message = message }));
     }
 
     protected Dictionary<string, string> BuildParameterValues()
@@ -83,12 +103,11 @@ public abstract partial class DownloaderViewModelBase : ViewModelBase
         return values;
     }
 
-    protected void AddLog(string message)
+    protected void AddLogEntry(LogEntry entry)
     {
-        var line = $"[{DateTime.Now:HH:mm:ss}] {message}";
         Dispatcher.UIThread.Post(() =>
         {
-            LogEntries.Add(line);
+            LogEntries.Add(entry);
             if (LogEntries.Count > 1000)
             {
                 LogEntries.RemoveAt(0);

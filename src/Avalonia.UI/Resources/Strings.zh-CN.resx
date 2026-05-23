@@ -158,4 +158,5 @@
   <data name="MENU_ABOUT_US" xml:space="preserve"><value>关于我们</value></data>
   <data name="EXIT_CONFIRM_MESSAGE" xml:space="preserve"><value>确定要退出吗？</value></data>
   <data name="EXIT_CONFIRM_TITLE" xml:space="preserve"><value>退出</value></data>
+  <data name="RESTART_REQUIRED" xml:space="preserve"><value>部分更改需要重启后生效</value></data>
 </root>

@@ -5,7 +5,6 @@ using Avalonia.Plugin.Shared.Models;
 using Avalonia.Plugin.Shared.Services;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
-using Avalonia.UI.Theme;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -107,10 +106,9 @@ public partial class SettingsPageViewModel : ViewModelBase
             try
             {
                 var culture = new CultureInfo(locale);
-                var app = Application.Current;
-                if (app is not null)
+                if (_localizationService is not null)
                 {
-                    UrsaSemiTheme.OverrideLocaleResources(app, culture);
+                    _localizationService.SetCulture(culture);
                 }
             }
             catch (CultureNotFoundException) { }

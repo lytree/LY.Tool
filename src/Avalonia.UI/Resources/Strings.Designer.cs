@@ -133,4 +133,5 @@ public static class Strings
     public static string MENU_ABOUT_US => ResourceManager.GetString(nameof(MENU_ABOUT_US), Culture)!;
     public static string EXIT_CONFIRM_MESSAGE => ResourceManager.GetString(nameof(EXIT_CONFIRM_MESSAGE), Culture)!;
     public static string EXIT_CONFIRM_TITLE => ResourceManager.GetString(nameof(EXIT_CONFIRM_TITLE), Culture)!;
+    public static string RESTART_REQUIRED => ResourceManager.GetString(nameof(RESTART_REQUIRED), Culture)!;
 }

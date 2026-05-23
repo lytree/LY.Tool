@@ -12,6 +12,7 @@ public class LocalizationService : ILocalizationService
 {
     private readonly ConcurrentDictionary<string, (string? LookupPrefix, ResourceManager Manager)> _resourceManagers = new();
     private CultureInfo _currentCulture = new("en-US");
+    private bool _initialSync = true;
 
     public CultureInfo CurrentCulture => _currentCulture;
 
@@ -63,7 +64,8 @@ public class LocalizationService : ILocalizationService
 
     public void SetCulture(CultureInfo culture)
     {
-        if (Equals(_currentCulture, culture))
+        var cultureChanged = !Equals(_currentCulture, culture);
+        if (!cultureChanged && !_initialSync)
             return;
 
         _currentCulture = culture;
@@ -72,7 +74,10 @@ public class LocalizationService : ILocalizationService
 
         SyncToResourceDictionary();
 
-        CultureChanged?.Invoke(this, culture);
+        _initialSync = false;
+
+        if (cultureChanged)
+            CultureChanged?.Invoke(this, culture);
     }
 
     public void RegisterResourceManager(ResourceManager manager, string? prefix = null)
