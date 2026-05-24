@@ -30,6 +30,8 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<ISettingsService, SettingsService>();
 
+        services.AddSingleton<IWindowInfoService, WindowInfoService>();
+
         services.AddLocalization();
         services.AddSingleton<ILocalizationService, LocalizationService>();
 

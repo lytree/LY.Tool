@@ -54,6 +54,5 @@
   <data name="NAV_TDL_BatchForward" xml:space="preserve"><value>Batch Deep Forward</value></data>
   <data name="NAV_TDL_ClearMessage" xml:space="preserve"><value>Clear Messages</value></data>
   <data name="NAV_TDL_DeepCopy" xml:space="preserve"><value>Deep Copy Forward</value></data>
-  <data name="NAV_TDL_GroupMediaDownload" xml:space="preserve"><value>Group Media Download</value></data>
   <data name="NAV_TDL_MessageExport" xml:space="preserve"><value>Message Export</value></data>
 </root>

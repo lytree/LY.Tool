@@ -156,39 +156,52 @@ public sealed class CleanTask : FrostingTask<BuildContext>
 {
     public override void Run(BuildContext context)
     {
-        if (Directory.Exists(context.PackagesDir))
+        var target = context.Target;
+
+        if (target.HasFlag(BuildTarget.NuGet))
         {
-            context.CleanDirectory(context.PackagesDir);
+            CleanDirectoryIfExists(context, context.NuGetPackagesDir);
+
+            CleanDirectoryIfExists(context, Path.Combine(context.RootDir, "src", "Avalonia.Plugin.Generators", "bin"));
+            CleanDirectoryIfExists(context, Path.Combine(context.RootDir, "src", "Avalonia.Plugin.Generators", "obj"));
+            CleanDirectoryIfExists(context, Path.Combine(context.RootDir, "src", "Avalonia.Plugin.Shared", "bin"));
+            CleanDirectoryIfExists(context, Path.Combine(context.RootDir, "src", "Avalonia.Plugin.Shared", "obj"));
         }
 
-        var cleanDirs = new[]
+        if (target.HasFlag(BuildTarget.Bin))
         {
-            Path.Combine(context.RootDir, "src", "Avalonia.Plugin.Generators", "bin"),
-            Path.Combine(context.RootDir, "src", "Avalonia.Plugin.Generators", "obj"),
-            Path.Combine(context.RootDir, "src", "Avalonia.Plugin.Shared", "bin"),
-            Path.Combine(context.RootDir, "src", "Avalonia.Plugin.Shared", "obj"),
-            Path.Combine(context.RootDir, "src", "launcher", "Avalonia.Launcher.Desktop", "bin"),
-            Path.Combine(context.RootDir, "src", "launcher", "Avalonia.Launcher.Desktop", "obj"),
-        };
+            CleanDirectoryIfExists(context, context.BinPackagesDir);
 
-        foreach (var dir in cleanDirs)
+            CleanDirectoryIfExists(context, Path.Combine(context.RootDir, "src", "launcher", "Avalonia.Launcher.Desktop", "bin"));
+            CleanDirectoryIfExists(context, Path.Combine(context.RootDir, "src", "launcher", "Avalonia.Launcher.Desktop", "obj"));
+        }
+
+        if (target.HasFlag(BuildTarget.Plugin))
         {
-            if (Directory.Exists(dir))
+            CleanDirectoryIfExists(context, context.PluginPackagesDir);
+
+            foreach (var plugin in context.PluginProjects)
             {
-                context.CleanDirectory(dir);
+                var pluginDir = Path.GetDirectoryName(plugin.ProjectPath(context.RootDir))!;
+                CleanDirectoryIfExists(context, Path.Combine(pluginDir, "bin"));
+                CleanDirectoryIfExists(context, Path.Combine(pluginDir, "obj"));
             }
         }
 
-        foreach (var plugin in context.PluginProjects)
+        if (target.HasFlag(BuildTarget.All))
         {
-            var pluginDir = Path.GetDirectoryName(plugin.ProjectPath(context.RootDir))!;
-            var binDir = Path.Combine(pluginDir, "bin");
-            var objDir = Path.Combine(pluginDir, "obj");
-            if (Directory.Exists(binDir)) context.CleanDirectory(binDir);
-            if (Directory.Exists(objDir)) context.CleanDirectory(objDir);
+            CleanDirectoryIfExists(context, context.PackagesDir);
         }
 
-        context.Log.Information("Clean completed.");
+        context.Log.Information("Clean completed. Target: {0}", target);
+    }
+
+    private static void CleanDirectoryIfExists(BuildContext context, string dir)
+    {
+        if (Directory.Exists(dir))
+        {
+            context.CleanDirectory(dir);
+        }
     }
 }
 

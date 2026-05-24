@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Avalonia.Plugin.Shared;
 using Avalonia.Plugin.Shared.Services;
+using Avalonia.UI.Services;
 using Ursa.Controls;
 
 namespace Avalonia.UI.Views;
@@ -13,6 +14,11 @@ public partial class MainWindow : UrsaWindow
     {
         InitializeComponent();
         NotificationManager = new WindowNotificationManager(this) { MaxItems = 3 };
+
+        if (ServiceLocator.TryGetService<IWindowInfoService>(out var windowInfoService) && windowInfoService is WindowInfoService impl)
+        {
+            impl.Initialize(this);
+        }
     }
 
     protected override async Task<bool> CanClose()

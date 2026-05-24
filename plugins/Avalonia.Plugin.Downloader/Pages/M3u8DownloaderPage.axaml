@@ -61,7 +61,7 @@
 			</StackPanel>
 		</Border>
 
-		<Border Grid.Row="2" Theme="{DynamicResource CardBorder}" Padding="12">
+		<Border Grid.Row="2" Theme="{DynamicResource CardBorder}" Padding="12" MaxHeight="400">
 			<Grid RowDefinitions="Auto,*">
 				<Grid ColumnDefinitions="*,Auto" Margin="0 0 0 8">
 					<TextBlock Grid.Column="0" Text="日志输出" Classes="SectionTitle" VerticalAlignment="Center" />

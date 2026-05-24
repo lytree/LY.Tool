@@ -61,7 +61,7 @@
 			</StackPanel>
 		</Border>
 
-		<Border Grid.Row="2" Theme="{DynamicResource CardBorder}" Padding="12">
+		<Border Grid.Row="2" Theme="{DynamicResource CardBorder}" Padding="12" MaxHeight="400">
 			<Grid RowDefinitions="Auto,*">
 				<Grid ColumnDefinitions="*,Auto" Margin="0 0 0 8">
 					<TextBlock Grid.Column="0" Text="日志输出" Classes="SectionTitle" VerticalAlignment="Center" />
@@ -71,7 +71,12 @@
 						 ItemsSource="{Binding LogEntries}"
 						 SelectionMode="Toggle"
 						 ScrollViewer.VerticalScrollBarVisibility="Auto"
-						 ScrollViewer.HorizontalScrollBarVisibility="Auto">
+						 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+					<ListBox.ItemsPanel>
+						<ItemsPanelTemplate>
+							<VirtualizingStackPanel />
+						</ItemsPanelTemplate>
+					</ListBox.ItemsPanel>
 					<ListBox.Styles>
 						<Style Selector="ListBoxItem">
 							<Setter Property="Padding" Value="2 1" />
@@ -80,13 +85,15 @@
 					</ListBox.Styles>
 					<ListBox.ItemTemplate>
 						<DataTemplate x:DataType="models:LogEntry">
-							<SelectableTextBlock Text="{Binding FormattedLine}" FontSize="12" FontFamily="Consolas" TextWrapping="Wrap">
-								<SelectableTextBlock.ContextMenu>
-									<ContextMenu x:CompileBindings="False">
-										<MenuItem Header="复制" Command="{Binding $parent[ListBox].DataContext.CopyLogEntryCommand}" CommandParameter="{Binding}" />
-									</ContextMenu>
-								</SelectableTextBlock.ContextMenu>
-							</SelectableTextBlock>
+							<DockPanel>
+								<SelectableTextBlock Text="{Binding FormattedLine}" FontSize="12" FontFamily="Consolas" TextWrapping="Wrap" HorizontalAlignment="Stretch">
+									<SelectableTextBlock.ContextMenu>
+										<ContextMenu x:CompileBindings="False">
+											<MenuItem Header="复制" Command="{Binding $parent[ListBox].DataContext.CopyLogEntryCommand}" CommandParameter="{Binding}" />
+										</ContextMenu>
+									</SelectableTextBlock.ContextMenu>
+								</SelectableTextBlock>
+							</DockPanel>
 						</DataTemplate>
 					</ListBox.ItemTemplate>
 				</ListBox>

@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Specialized;
 using Avalonia.Controls;
 using Avalonia.Plugin.TDLSharp.ViewModels;

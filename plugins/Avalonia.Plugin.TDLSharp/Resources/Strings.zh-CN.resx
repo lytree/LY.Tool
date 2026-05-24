@@ -54,6 +54,5 @@
   <data name="NAV_TDL_BatchForward" xml:space="preserve"><value>批量深度转发</value></data>
   <data name="NAV_TDL_ClearMessage" xml:space="preserve"><value>清理消息</value></data>
   <data name="NAV_TDL_DeepCopy" xml:space="preserve"><value>深度复制转发</value></data>
-  <data name="NAV_TDL_GroupMediaDownload" xml:space="preserve"><value>群组媒体下载</value></data>
   <data name="NAV_TDL_MessageExport" xml:space="preserve"><value>消息导出</value></data>
 </root>

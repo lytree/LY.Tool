@@ -199,15 +199,13 @@
 						</StackPanel>
 					</DockPanel>
 				</Border>
-				<ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
-					<ContentControl
+				<ContentControl Grid.Row="1"
 						Margin="24,20"
 						Content="{Binding Content}">
-						<ContentControl.ContentTemplate>
-							<plugin:ViewLocator />
-						</ContentControl.ContentTemplate>
-					</ContentControl>
-				</ScrollViewer>
+					<ContentControl.ContentTemplate>
+						<plugin:ViewLocator />
+					</ContentControl.ContentTemplate>
+				</ContentControl>
 			</Grid>
 		</Grid>
 	</Panel>
