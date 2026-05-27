@@ -10,7 +10,9 @@ namespace Avalonia.UI.Services;
 public class NavigationService : INavigationService
 {
     private readonly Dictionary<string, ViewModelFactory> _viewModelFactories = [];
-    private readonly Dictionary<string, object> _viewModelCache = [];
+    // 使用 WeakReference 缓存 ViewModel：近期使用且仍存活的 ViewModel 可复用（保留状态），
+    // GC 回收后自动失效，避免永久缓存导致内存泄漏。
+    private readonly Dictionary<string, WeakReference<object>> _viewModelCache = [];
 
     public NavigationService()
     {
@@ -58,7 +60,8 @@ public class NavigationService : INavigationService
 
     public object CreateViewModel(string key)
     {
-        if (_viewModelCache.TryGetValue(key, out var cached))
+        // 优先从弱引用缓存中取：若 ViewModel 仍存活则复用（保留导航状态）
+        if (_viewModelCache.TryGetValue(key, out var weakRef) && weakRef.TryGetTarget(out var cached) && cached is not null)
         {
             return cached;
         }
@@ -66,7 +69,7 @@ public class NavigationService : INavigationService
         if (_viewModelFactories.TryGetValue(key, out var factory))
         {
             var viewModel = factory();
-            _viewModelCache[key] = viewModel;
+            _viewModelCache[key] = new WeakReference<object>(viewModel);
             return viewModel;
         }
 
@@ -75,18 +78,23 @@ public class NavigationService : INavigationService
 
     public void InvalidateCache(string key)
     {
-        if (_viewModelCache.TryGetValue(key, out var viewModel))
+        if (_viewModelCache.TryGetValue(key, out var weakRef) && weakRef.TryGetTarget(out var viewModel) && viewModel is not null)
         {
             ViewLocator.InvalidateViewCache(viewModel);
-            _viewModelCache.Remove(key);
+            (viewModel as IDisposable)?.Dispose();
         }
+        _viewModelCache.Remove(key);
     }
 
     public void InvalidateAllCache()
     {
-        foreach (var viewModel in _viewModelCache.Values)
+        foreach (var weakRef in _viewModelCache.Values)
         {
-            ViewLocator.InvalidateViewCache(viewModel);
+            if (weakRef.TryGetTarget(out var viewModel) && viewModel is not null)
+            {
+                ViewLocator.InvalidateViewCache(viewModel);
+                (viewModel as IDisposable)?.Dispose();
+            }
         }
         _viewModelCache.Clear();
     }

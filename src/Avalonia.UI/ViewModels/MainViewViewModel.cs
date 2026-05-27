@@ -72,4 +72,12 @@ public partial class MainViewViewModel : ViewModelBase
         SettingText = value ? null : _localizationService?.GetString("NAV_Settings", "Settings");
         PluginText = value ? null : _localizationService?.GetString("NAV_Plugins", "Plugins");
     }
+
+    public override void Dispose()
+    {
+        WeakReferenceMessenger.Default.Unregister<MainViewViewModel, string, string>(this, "JumpTo");
+        if (_localizationService is not null)
+            _localizationService.CultureChanged -= OnCultureChanged;
+        base.Dispose();
+    }
 }

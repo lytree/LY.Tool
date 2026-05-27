@@ -24,6 +24,8 @@ public partial class MainView : UserControl
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
+        // 重新注册 Messenger（View 可能被 Detach 后再次 Attach）
+        WeakReferenceMessenger.Default.Register<string, string>(this, "JumpTo", OnNavigationChanged);
         _viewModel = DataContext as MainViewViewModel;
         _localizationService = ServiceLocator.GetService<ILocalizationService>();
         _localizationService.CultureChanged += OnCultureChanged;
@@ -38,6 +40,7 @@ public partial class MainView : UserControl
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnDetachedFromVisualTree(e);
+        WeakReferenceMessenger.Default.Unregister<string, string>(this, "JumpTo");
         if (_localizationService is not null)
             _localizationService.CultureChanged -= OnCultureChanged;
     }

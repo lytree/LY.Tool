@@ -164,6 +164,14 @@ public partial class PluginManagementViewModel : ViewModelBase
             Plugins.Add(new PluginItemViewModel(e, _localizationService));
         }
     }
+
+    public override void Dispose()
+    {
+        _installationManager.PluginInstalled -= OnPluginInstalled;
+        _installationManager.PluginUninstalled -= OnPluginUninstalled;
+        _pluginLoader.PluginStateChanged -= OnPluginStateChanged;
+        base.Dispose();
+    }
 }
 
 public partial class PluginItemViewModel : ViewModelBase
