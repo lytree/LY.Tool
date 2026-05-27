@@ -3,9 +3,9 @@
         <AvaloniaVersion>12.0.3</AvaloniaVersion>
         <IrihiUrsaVersion>2.0.*</IrihiUrsaVersion>
         <CommunityToolkit>8.4.2</CommunityToolkit>
-        <MicrosoftExtensionsDI>10.0.7</MicrosoftExtensionsDI>
+        <MicrosoftExtensionsDI>10.0.8</MicrosoftExtensionsDI>
         <AvaloniaDiagnosticsSupport>2.2.1</AvaloniaDiagnosticsSupport>
-        <EfCoreVersion>10.0.7</EfCoreVersion>
-        <MicrosoftExtensionsLocalization>10.0.7</MicrosoftExtensionsLocalization>
+        <EfCoreVersion>10.0.8</EfCoreVersion>
+        <MicrosoftExtensionsLocalization>10.0.8</MicrosoftExtensionsLocalization>
     </PropertyGroup>
 </Project> 
