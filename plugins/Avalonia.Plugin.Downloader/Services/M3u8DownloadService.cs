@@ -1,4 +1,5 @@
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -9,6 +10,13 @@ namespace Avalonia.Plugin.Downloader.Services;
 
 public class M3u8DownloadService : IDisposable
 {
+    private static readonly Regex BandwidthRegex = new(@"BANDWIDTH=(\d+)", RegexOptions.Compiled);
+    private static readonly Regex ResolutionRegex = new(@"RESOLUTION=(\d+x\d+)", RegexOptions.Compiled);
+    private static readonly Regex CodecsRegex = new(@"CODES=""([^""]+)""", RegexOptions.Compiled);
+    private static readonly Regex MethodRegex = new(@"METHOD=([^,]+)", RegexOptions.Compiled);
+    private static readonly Regex UriRegex = new(@"URI=""([^""]+)""", RegexOptions.Compiled);
+    private static readonly Regex IvRegex = new(@"IV=0x([0-9a-fA-F]+)", RegexOptions.Compiled);
+
     private readonly DirectUiLogger _logger;
     private HttpClient? _ownedClient;
 
@@ -200,9 +208,9 @@ public class M3u8DownloadService : IDisposable
 
             if (line.StartsWith("#EXT-X-STREAM-INF:"))
             {
-                var bandwidthMatch = Regex.Match(line, @"BANDWIDTH=(\d+)");
-                var resolutionMatch = Regex.Match(line, @"RESOLUTION=(\d+x\d+)");
-                var codecsMatch = Regex.Match(line, @"CODECS=""([^""]+)""");
+                var bandwidthMatch = BandwidthRegex.Match(line);
+                var resolutionMatch = ResolutionRegex.Match(line);
+                var codecsMatch = CodecsRegex.Match(line);
 
                 if (bandwidthMatch.Success && i + 1 < lines.Length)
                 {
@@ -265,9 +273,9 @@ public class M3u8DownloadService : IDisposable
 
             if (line.StartsWith("#EXT-X-KEY:"))
             {
-                var methodMatch = Regex.Match(line, @"METHOD=([^,]+)");
-                var uriMatch = Regex.Match(line, @"URI=""([^""]+)""");
-                var ivMatch = Regex.Match(line, @"IV=0x([0-9a-fA-F]+)");
+                var methodMatch = MethodRegex.Match(line);
+                var uriMatch = UriRegex.Match(line);
+                var ivMatch = IvRegex.Match(line);
 
                 var method = methodMatch.Success ? methodMatch.Groups[1].Value : "";
                 var keyUrl = uriMatch.Success ? uriMatch.Groups[1].Value : "";
@@ -456,6 +464,8 @@ public class M3u8DownloadService : IDisposable
         var decrypted = new byte[ciphertext.Length];
 
         var state = new uint[16];
+        var workingState = new uint[16];
+        var block = new byte[64];
 
         state[0] = 0x61707865;
         state[1] = 0x3320646e;
@@ -476,7 +486,7 @@ public class M3u8DownloadService : IDisposable
 
         for (int i = 0; i < ciphertext.Length; i += 64)
         {
-            var workingState = (uint[])state.Clone();
+            Array.Copy(state, workingState, 16);
 
             for (int round = 0; round < 10; round += 2)
             {
@@ -493,26 +503,7 @@ public class M3u8DownloadService : IDisposable
             for (int j = 0; j < 16; j++)
             {
                 workingState[j] += state[j];
-            }
-
-            var block = new byte[64];
-            for (int j = 0; j < 16; j++)
-            {
-                var bytes = BitConverter.GetBytes(workingState[j]);
-                if (BitConverter.IsLittleEndian)
-                {
-                    block[j * 4] = bytes[0];
-                    block[j * 4 + 1] = bytes[1];
-                    block[j * 4 + 2] = bytes[2];
-                    block[j * 4 + 3] = bytes[3];
-                }
-                else
-                {
-                    block[j * 4 + 3] = bytes[0];
-                    block[j * 4 + 2] = bytes[1];
-                    block[j * 4 + 1] = bytes[2];
-                    block[j * 4] = bytes[3];
-                }
+                MemoryMarshal.Write(block.AsSpan(j * 4, 4), in workingState[j]);
             }
 
             var remaining = Math.Min(64, ciphertext.Length - i);

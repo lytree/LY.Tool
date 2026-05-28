@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Avalonia.Plugin.Shared;
 using Avalonia.Plugin.Shared.Models;
 using Avalonia.Plugin.Shared.Services;
@@ -10,11 +11,31 @@ public class SettingsService : ISettingsService
 {
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
     private readonly ILocalizationService? _localizationService;
+    private ConcurrentDictionary<string, SettingItem>? _settingsCache;
+    private bool _cacheInitialized;
 
     public SettingsService(IDbContextFactory<AppDbContext> dbFactory)
     {
         _dbFactory = dbFactory;
         _localizationService = ServiceLocator.GetService<ILocalizationService>();
+    }
+
+    private ConcurrentDictionary<string, SettingItem> EnsureCache()
+    {
+        if (_cacheInitialized) return _settingsCache!;
+
+        using var db = _dbFactory.CreateDbContext();
+        var items = db.Settings.OrderBy(s => s.GroupOrder).ThenBy(s => s.ItemOrder).ToList();
+        _settingsCache = new ConcurrentDictionary<string, SettingItem>(
+            items.Select(i => new KeyValuePair<string, SettingItem>(i.Key, i)));
+        _cacheInitialized = true;
+        return _settingsCache;
+    }
+
+    private void InvalidateCache()
+    {
+        _cacheInitialized = false;
+        _settingsCache = null;
     }
 
     public void RegisterSetting(SettingDefinition definition)
@@ -34,6 +55,7 @@ public class SettingsService : ISettingsService
             if (definition.Options != null)
                 existing.SetOptions(definition.Options);
             db.SaveChanges();
+            InvalidateCache();
             return;
         }
 
@@ -55,6 +77,7 @@ public class SettingsService : ISettingsService
 
         db.Settings.Add(item);
         db.SaveChanges();
+        InvalidateCache();
     }
 
     public void RegisterSettings(IEnumerable<SettingDefinition> definitions)
@@ -97,12 +120,13 @@ public class SettingsService : ISettingsService
             }
         }
         db.SaveChanges();
+        InvalidateCache();
     }
 
     public T? GetValue<T>(string key)
     {
-        var item = GetSetting(key);
-        return item != null ? item.GetValue<T>() : default;
+        var cache = EnsureCache();
+        return cache.TryGetValue(key, out var item) ? item.GetValue<T>() : default;
     }
 
     public string? GetValue(string key)
@@ -117,18 +141,24 @@ public class SettingsService : ISettingsService
         if (item == null) return;
         item.SetValue(value);
         db.SaveChanges();
+
+        var cache = EnsureCache();
+        if (cache.TryGetValue(key, out var cached))
+        {
+            cached.SetValue(value);
+        }
     }
 
     public List<SettingItem> GetAllSettings()
     {
-        using var db = _dbFactory.CreateDbContext();
-        return db.Settings.OrderBy(s => s.GroupOrder).ThenBy(s => s.ItemOrder).ToList();
+        var cache = EnsureCache();
+        return cache.Values.OrderBy(s => s.GroupOrder).ThenBy(s => s.ItemOrder).ToList();
     }
 
     public List<SettingItem> GetSettingsByGroup(string groupName)
     {
-        using var db = _dbFactory.CreateDbContext();
-        return db.Settings
+        var cache = EnsureCache();
+        return cache.Values
             .Where(s => s.GroupName == groupName)
             .OrderBy(s => s.ItemOrder)
             .ToList();
@@ -136,8 +166,8 @@ public class SettingsService : ISettingsService
 
     public List<string> GetGroups()
     {
-        using var db = _dbFactory.CreateDbContext();
-        return db.Settings
+        var cache = EnsureCache();
+        return cache.Values
             .Select(s => s.GroupName)
             .Distinct()
             .OrderBy(g => g)
@@ -146,8 +176,8 @@ public class SettingsService : ISettingsService
 
     public SettingItem? GetSetting(string key)
     {
-        using var db = _dbFactory.CreateDbContext();
-        return db.Settings.FirstOrDefault(s => s.Key == key);
+        var cache = EnsureCache();
+        return cache.TryGetValue(key, out var item) ? item : null;
     }
 
     public void RemoveSetting(string key)
@@ -157,6 +187,7 @@ public class SettingsService : ISettingsService
         if (item == null) return;
         db.Settings.Remove(item);
         db.SaveChanges();
+        InvalidateCache();
     }
 
     public void InitializeDefaults()

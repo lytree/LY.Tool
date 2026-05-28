@@ -32,13 +32,13 @@ internal class PluginLoadContext : AssemblyLoadContext
     private readonly AssemblyDependencyResolver _resolver;
     private readonly string _pluginDirectory;
     private readonly Dictionary<string, string> _assemblyPathCache;
-    private bool _assemblyCacheBuilt;
 
     public PluginLoadContext(string pluginPath) : base(isCollectible: true)
     {
         _pluginDirectory = Path.GetDirectoryName(pluginPath) ?? pluginPath;
         _resolver = new AssemblyDependencyResolver(pluginPath);
         _assemblyPathCache = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        BuildAssemblyCache();
     }
 
     protected override Assembly? Load(AssemblyName assemblyName)
@@ -124,11 +124,6 @@ internal class PluginLoadContext : AssemblyLoadContext
             _assemblyPathCache.Remove(name);
         }
 
-        if (!_assemblyCacheBuilt)
-        {
-            BuildAssemblyCache();
-        }
-
         return _assemblyPathCache.TryGetValue(name, out var path) ? path : null;
     }
 
@@ -150,7 +145,6 @@ internal class PluginLoadContext : AssemblyLoadContext
             {
             }
         }
-        _assemblyCacheBuilt = true;
     }
 
     protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)

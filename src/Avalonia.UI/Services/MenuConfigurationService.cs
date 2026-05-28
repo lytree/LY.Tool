@@ -16,35 +16,16 @@ public class MenuConfigurationService : IMenuConfigurationService
         _menuViewModel = new MenuViewModel();
     }
 
-    private static MenuItemViewModel DeepClone(MenuItemViewModel source)
-    {
-        var clone = new MenuItemViewModel
-        {
-            MenuHeader = source.RawHeader ?? source.MenuHeader,
-            Key = source.Key,
-            Status = source.Status,
-            IsSeparator = source.IsSeparator,
-        };
-        if (source.Children is { Count: > 0 })
-        {
-            foreach (var child in source.Children)
-            {
-                clone.Children.Add(DeepClone(child));
-            }
-        }
-        return clone;
-    }
-
     private void BuildMenuItemsMap(IEnumerable<MenuItemViewModel> menuItems)
     {
         foreach (var menuItem in menuItems)
         {
             if (!string.IsNullOrEmpty(menuItem.Key))
             {
-                _menuItemsMap[menuItem.Key] = DeepClone(menuItem);
+                _menuItemsMap[menuItem.Key] = menuItem;
             }
 
-            if (menuItem.Children != null && menuItem.Children.Any())
+            if (menuItem.Children is { Count: > 0 })
             {
                 BuildMenuItemsMap(menuItem.Children);
             }
@@ -116,11 +97,11 @@ public class MenuConfigurationService : IMenuConfigurationService
 
     public void RemoveMenuItem(string key)
     {
-        if (_menuItemsMap.TryGetValue(key, out var menuItem))
-        {
-            RemoveMenuItemFromParent(key);
-            _menuItemsMap.Remove(key);
-        }
+        if (!_menuItemsMap.TryGetValue(key, out var menuItem))
+            return;
+
+        RemoveMenuItemFromParent(key);
+        _menuItemsMap.Remove(key);
     }
 
     private void RemoveMenuItemFromParent(string key)

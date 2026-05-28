@@ -10,9 +10,7 @@ namespace Avalonia.UI.Services;
 public class NavigationService : INavigationService
 {
     private readonly Dictionary<string, ViewModelFactory> _viewModelFactories = [];
-    // 使用 WeakReference 缓存 ViewModel：近期使用且仍存活的 ViewModel 可复用（保留状态），
-    // GC 回收后自动失效，避免永久缓存导致内存泄漏。
-    private readonly Dictionary<string, WeakReference<object>> _viewModelCache = [];
+    private readonly Dictionary<string, object> _viewModelCache = [];
 
     public NavigationService()
     {
@@ -61,19 +59,15 @@ public class NavigationService : INavigationService
 
     public object CreateViewModel(string key)
     {
-        if (_viewModelCache.TryGetValue(key, out var weakRef))
+        if (_viewModelCache.TryGetValue(key, out var cached))
         {
-            if (weakRef.TryGetTarget(out var cached) && cached is not null)
-            {
-                return cached;
-            }
-            _viewModelCache.Remove(key);
+            return cached;
         }
 
         if (_viewModelFactories.TryGetValue(key, out var factory))
         {
             var viewModel = factory();
-            _viewModelCache[key] = new WeakReference<object>(viewModel);
+            _viewModelCache[key] = viewModel;
             return viewModel;
         }
 
@@ -82,7 +76,7 @@ public class NavigationService : INavigationService
 
     public void InvalidateCache(string key)
     {
-        if (_viewModelCache.TryGetValue(key, out var weakRef) && weakRef.TryGetTarget(out var viewModel) && viewModel is not null)
+        if (_viewModelCache.TryGetValue(key, out var viewModel))
         {
             ViewLocator.InvalidateViewCache(viewModel);
             (viewModel as IDisposable)?.Dispose();
@@ -92,13 +86,10 @@ public class NavigationService : INavigationService
 
     public void InvalidateAllCache()
     {
-        foreach (var weakRef in _viewModelCache.Values)
+        foreach (var viewModel in _viewModelCache.Values)
         {
-            if (weakRef.TryGetTarget(out var viewModel) && viewModel is not null)
-            {
-                ViewLocator.InvalidateViewCache(viewModel);
-                (viewModel as IDisposable)?.Dispose();
-            }
+            ViewLocator.InvalidateViewCache(viewModel);
+            (viewModel as IDisposable)?.Dispose();
         }
         _viewModelCache.Clear();
     }

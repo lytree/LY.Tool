@@ -136,9 +136,9 @@ public class PluginInstallationManager : IPluginInstallationManager
                 var destDir = Path.GetDirectoryName(destPath);
                 if (destDir != null) Directory.CreateDirectory(destDir);
 
-                using var srcStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, true);
-                using var dstStream = new FileStream(destPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
-                await srcStream.CopyToAsync(dstStream);
+                using var srcStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read, 65536, true);
+                using var dstStream = new FileStream(destPath, FileMode.Create, FileAccess.Write, FileShare.None, 65536, true);
+                await srcStream.CopyToAsync(dstStream, 65536);
 
                 copiedFiles++;
                 progress?.Report(0.5 + (double)copiedFiles / totalFiles * 0.5);
