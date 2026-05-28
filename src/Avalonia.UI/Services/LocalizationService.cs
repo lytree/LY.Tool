@@ -82,8 +82,7 @@ public class LocalizationService : ILocalizationService
         CultureInfo.DefaultThreadCurrentUICulture = culture;
 
         _stringCache = null;
-        SyncToResourceDictionary();
-        RebuildStringCache();
+        RebuildCacheAndSyncResources();
 
         _initialSync = false;
 
@@ -98,9 +97,12 @@ public class LocalizationService : ILocalizationService
         _stringCache = null;
     }
 
-    private void RebuildStringCache()
+    private void RebuildCacheAndSyncResources()
     {
+        var app = Application.Current;
+        var themeInstance = UrsaSemiTheme.Instance;
         var cache = new ConcurrentDictionary<string, string>();
+
         foreach (var (_, (lookupPrefix, manager)) in _resourceManagers)
         {
             var resourceSet = manager.GetResourceSet(_currentCulture, true, true);
@@ -109,39 +111,26 @@ public class LocalizationService : ILocalizationService
             foreach (DictionaryEntry entry in resourceSet)
             {
                 if (entry.Value is not string s) continue;
+                var entryKey = entry.Key?.ToString() ?? string.Empty;
                 var resourceKey = string.IsNullOrEmpty(lookupPrefix)
                     ? $"STRING_{entry.Key}"
                     : $"STRING_{lookupPrefix}_{entry.Key}";
-                cache.TryAdd(entry.Key?.ToString() ?? string.Empty, s);
-            }
-        }
-        _stringCache = cache;
-    }
 
-    private void SyncToResourceDictionary()
-    {
-        var app = Application.Current;
-        if (app is null) return;
+                cache.TryAdd(entryKey, s);
 
-        var themeInstance = UrsaSemiTheme.Instance;
-
-        foreach (var (_, (lookupPrefix, manager)) in _resourceManagers)
-        {
-            using var resourceSet = manager.GetResourceSet(_currentCulture, true, true);
-            if (resourceSet is null) continue;
-
-            foreach (DictionaryEntry entry in resourceSet)
-            {
-                if (entry.Value is not string s) continue;
-                var resourceKey = string.IsNullOrEmpty(lookupPrefix)
-                    ? $"STRING_{entry.Key}"
-                    : $"STRING_{lookupPrefix}_{entry.Key}";
-                app.Resources[resourceKey] = s;
-                if (themeInstance is not null)
+                if (app is not null)
                 {
-                    themeInstance.Resources[resourceKey] = s;
+                    app.Resources[resourceKey] = s;
+                    if (themeInstance is not null)
+                    {
+                        themeInstance.Resources[resourceKey] = s;
+                    }
                 }
             }
+
+            resourceSet.Dispose();
         }
+
+        _stringCache = cache;
     }
 }

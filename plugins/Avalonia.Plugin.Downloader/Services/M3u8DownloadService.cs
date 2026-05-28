@@ -7,13 +7,20 @@ using CliWrap;
 
 namespace Avalonia.Plugin.Downloader.Services;
 
-public class M3u8DownloadService
+public class M3u8DownloadService : IDisposable
 {
     private readonly DirectUiLogger _logger;
+    private HttpClient? _ownedClient;
 
     public M3u8DownloadService(DirectUiLogger logger)
     {
         _logger = logger;
+    }
+
+    public void Dispose()
+    {
+        _ownedClient?.Dispose();
+        _ownedClient = null;
     }
 
     public async Task DownloadAsync(
@@ -39,7 +46,7 @@ public class M3u8DownloadService
         {
             Directory.CreateDirectory(tempDir);
 
-            using var client = CreateHttpClient(headers);
+            var client = GetOrCreateClient(headers);
 
             _logger.Log("正在获取 M3U8...");
             var masterContent = await FetchM3u8Async(client, url, ct);
@@ -123,9 +130,16 @@ public class M3u8DownloadService
         }
     }
 
-    private HttpClient CreateHttpClient(Dictionary<string, string>? headers)
+    private HttpClient GetOrCreateClient(Dictionary<string, string>? headers)
     {
-        var handler = new HttpClientHandler();
+        if (_ownedClient is not null)
+            return _ownedClient;
+
+        var handler = new HttpClientHandler
+        {
+            MaxConnectionsPerServer = 16,
+            AutomaticDecompression = DecompressionMethods.All
+        };
         var client = new HttpClient(handler);
         client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
         if (headers != null)
@@ -135,6 +149,7 @@ public class M3u8DownloadService
                 client.DefaultRequestHeaders.TryAddWithoutValidation(kv.Key, kv.Value);
             }
         }
+        _ownedClient = client;
         return client;
     }
 
@@ -295,7 +310,7 @@ public class M3u8DownloadService
         var lockObj = new object();
 
         using var semaphore = new SemaphoreSlim(concurrency);
-        var tasks = new List<Task>();
+        var tasks = new List<Task>(m3u8Info.Segments.Count);
 
         foreach (var segment in m3u8Info.Segments)
         {
@@ -420,7 +435,7 @@ public class M3u8DownloadService
 
     private byte[] AESDecrypt(byte[] encryptedData, byte[] key, byte[]? iv, CipherMode mode)
     {
-        var aes = Aes.Create();
+        using var aes = Aes.Create();
         aes.BlockSize = 128;
         aes.KeySize = 128;
         aes.Key = key;
