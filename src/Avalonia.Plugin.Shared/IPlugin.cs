@@ -12,7 +12,7 @@ public interface IPlugin
     Task ShutdownAsync() => Task.CompletedTask;
     IEnumerable<KeyValuePair<Type, ViewFactory>> GetViewDefinitions();
     Dictionary<string, ViewModelFactory> GetNavigationItems();
-    List<KeyValuePair<string, MenuItemViewModel>> GetMenuItems();
+    List<KeyValuePair<string?, MenuItemViewModel>> GetMenuItems();
 }
 
 

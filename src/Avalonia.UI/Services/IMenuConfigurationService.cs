@@ -24,7 +24,7 @@ public interface IMenuConfigurationService
     /// 注册多个菜单项
     /// </summary>
     /// <param name="menuItems">菜单项列表，包含菜单项和其父菜单项键（可选）</param>
-    void RegisterMenuItems(List<KeyValuePair<string, MenuItemViewModel>> menuItems);
+    void RegisterMenuItems(List<KeyValuePair<string?, MenuItemViewModel>> menuItems);
 
     /// <summary>
     /// 移除菜单项

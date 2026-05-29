@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using Avalonia.Plugin.Shared;
 using Avalonia.Plugin.Shared.Models;
 using Avalonia.Plugin.Shared.Services;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -101,7 +102,7 @@ public partial class PluginManagementViewModel : ViewModelBase
         var success = await _installationManager.UninstallAsync(pluginItem.PluginId);
         if (success)
         {
-            pluginItem.UpdateFrom(_pluginLoader.GetPlugin(pluginItem.PluginId) ?? new PluginInfo { PluginId = pluginItem.PluginId, State = PluginState.PendingUninstall }, _localizationService);
+            pluginItem.UpdateFrom(_pluginLoader.GetPlugin(pluginItem.PluginId) ?? new PluginInfo { PluginId = pluginItem.PluginId, Name = pluginItem.Name, State = PluginState.PendingUninstall }, _localizationService);
             StatusMessage = _localizationService.GetString("PLUGIN_UNINSTALL_AFTER_RESTART", "Plugin '{0}' will be uninstalled after restart", pluginItem.Name);
             NeedsRestart = true;
         }
@@ -127,42 +128,51 @@ public partial class PluginManagementViewModel : ViewModelBase
 
     private void OnPluginInstalled(object? sender, PluginInfo e)
     {
-        var existing = Plugins.FirstOrDefault(p => p.PluginId == e.PluginId);
-        if (existing != null)
+        Dispatcher.UIThread.Post(() =>
         {
-            existing.UpdateFrom(e, _localizationService);
-        }
-        else
-        {
-            Plugins.Add(new PluginItemViewModel(e, _localizationService));
-        }
+            var existing = Plugins.FirstOrDefault(p => p.PluginId == e.PluginId);
+            if (existing != null)
+            {
+                existing.UpdateFrom(e, _localizationService);
+            }
+            else
+            {
+                Plugins.Add(new PluginItemViewModel(e, _localizationService));
+            }
+        });
     }
 
     private void OnPluginUninstalled(object? sender, PluginInfo e)
     {
-        var item = Plugins.FirstOrDefault(p => p.PluginId == e.PluginId);
-        if (item != null)
+        Dispatcher.UIThread.Post(() =>
         {
-            var updatedInfo = _pluginLoader.GetPlugin(e.PluginId);
-            if (updatedInfo != null)
+            var item = Plugins.FirstOrDefault(p => p.PluginId == e.PluginId);
+            if (item != null)
             {
-                item.UpdateFrom(updatedInfo, _localizationService);
+                var updatedInfo = _pluginLoader.GetPlugin(e.PluginId);
+                if (updatedInfo != null)
+                {
+                    item.UpdateFrom(updatedInfo, _localizationService);
+                }
             }
-        }
-        NeedsRestart = true;
+            NeedsRestart = true;
+        });
     }
 
     private void OnPluginStateChanged(object? sender, PluginInfo e)
     {
-        var item = Plugins.FirstOrDefault(p => p.PluginId == e.PluginId);
-        if (item != null)
+        Dispatcher.UIThread.Post(() =>
         {
-            item.UpdateFrom(e, _localizationService);
-        }
-        else
-        {
-            Plugins.Add(new PluginItemViewModel(e, _localizationService));
-        }
+            var item = Plugins.FirstOrDefault(p => p.PluginId == e.PluginId);
+            if (item != null)
+            {
+                item.UpdateFrom(e, _localizationService);
+            }
+            else
+            {
+                Plugins.Add(new PluginItemViewModel(e, _localizationService));
+            }
+        });
     }
 
     public override void Dispose()

@@ -149,10 +149,7 @@ public class PluginInstallationManager : IPluginInstallationManager
                 : Directory.GetFiles(installDir, "*.dll", SearchOption.AllDirectories)
                     .FirstOrDefault(f => !f.EndsWith(".resources.dll", StringComparison.OrdinalIgnoreCase));
 
-            pluginInfo.InstallPath = installDir;
-            pluginInfo.AssemblyPath = mainAssembly ?? string.Empty;
-            pluginInfo.State = PluginState.Installed;
-            pluginInfo.InstallTime = DateTime.UtcNow;
+            pluginInfo = pluginInfo.WithInstallInfo(installDir, mainAssembly ?? string.Empty, PluginState.Installed, DateTime.UtcNow);
 
             _pluginLoader.RegisterPlugin(pluginInfo);
 

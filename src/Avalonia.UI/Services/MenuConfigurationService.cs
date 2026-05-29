@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Plugin.Shared.ViewModels;
@@ -8,7 +9,7 @@ namespace Avalonia.UI.Services;
 public class MenuConfigurationService : IMenuConfigurationService
 {
     private readonly MenuViewModel _menuViewModel;
-    private readonly Dictionary<string, MenuItemViewModel> _menuItemsMap = new();
+    private readonly ConcurrentDictionary<string, MenuItemViewModel> _menuItemsMap = new();
     private bool _mapBuilt;
 
     public MenuConfigurationService()
@@ -53,13 +54,13 @@ public class MenuConfigurationService : IMenuConfigurationService
             var avaloniaParentMenuItem = FindAvaloniaMenuItem(parentKey);
             if (avaloniaParentMenuItem != null)
             {
-                if (avaloniaParentMenuItem.Children == null)
-                {
-                    avaloniaParentMenuItem.Children = new();
-                }
+                avaloniaParentMenuItem.Children ??= new();
                 avaloniaParentMenuItem.Children.Add(menuItem);
             }
-            _menuItemsMap[menuItem.Key] = menuItem;
+            if (!string.IsNullOrEmpty(menuItem.Key))
+            {
+                _menuItemsMap[menuItem.Key] = menuItem;
+            }
         }
     }
 
@@ -87,7 +88,7 @@ public class MenuConfigurationService : IMenuConfigurationService
         return null;
     }
 
-    public void RegisterMenuItems(List<KeyValuePair<string, MenuItemViewModel>> menuItems)
+    public void RegisterMenuItems(List<KeyValuePair<string?, MenuItemViewModel>> menuItems)
     {
         foreach (var (parentKey, menuItem) in menuItems)
         {
@@ -97,11 +98,8 @@ public class MenuConfigurationService : IMenuConfigurationService
 
     public void RemoveMenuItem(string key)
     {
-        if (!_menuItemsMap.TryGetValue(key, out var menuItem))
-            return;
-
+        _menuItemsMap.TryRemove(key, out _);
         RemoveMenuItemFromParent(key);
-        _menuItemsMap.Remove(key);
     }
 
     private void RemoveMenuItemFromParent(string key)
