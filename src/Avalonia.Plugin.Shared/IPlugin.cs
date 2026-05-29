@@ -8,20 +8,10 @@ namespace Avalonia.Plugin.Shared;
 
 public interface IPlugin
 {
-    /// <summary>
-    /// 【新增】获取插件提供的 ViewModel 与 View 的映射关系
-    /// </summary>
-    /// <returns>Key 为 ViewModel 类型，Value 为创建对应 View 的工厂方法</returns>
+    Task InitializeAsync() => Task.CompletedTask;
+    Task ShutdownAsync() => Task.CompletedTask;
     IEnumerable<KeyValuePair<Type, ViewFactory>> GetViewDefinitions();
-    /// <summary>
-    /// 获取插件提供的导航项
-    /// </summary>
-    /// <returns>导航项字典，键为导航键，值为 ViewModel 工厂方法</returns>
     Dictionary<string, ViewModelFactory> GetNavigationItems();
-    /// <summary>
-    /// 获取插件提供的菜单项
-    /// </summary>
-    /// <returns>菜单项列表，包含菜单项和其父菜单项键（可选）</returns>
     List<KeyValuePair<string, MenuItemViewModel>> GetMenuItems();
 }
 

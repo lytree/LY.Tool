@@ -6,11 +6,15 @@ public interface IPluginLoader
 {
     IReadOnlyList<PluginInfo> GetInstalledPlugins();
     PluginInfo? GetPlugin(string pluginId);
-    PluginLoadResult LoadPlugin(PluginInfo pluginInfo);
-    void UnloadPlugin(string pluginId);
-    void LoadAllPlugins();
+    Task<PluginLoadResult> LoadPluginAsync(PluginInfo pluginInfo);
+    Task LoadAllPluginsAsync();
     IPlugin? GetLoadedPlugin(string pluginId);
     IPluginMetadata? GetLoadedMetadata(string pluginId);
+    void RegisterPlugin(PluginInfo pluginInfo);
+    void UnregisterPlugin(string pluginId);
+    void EnablePlugin(string pluginId);
+    void DisablePlugin(string pluginId);
+    void MarkForUninstall(string pluginId);
     event EventHandler<PluginInfo>? PluginLoaded;
     event EventHandler<PluginInfo>? PluginUnloaded;
     event EventHandler<PluginInfo>? PluginStateChanged;

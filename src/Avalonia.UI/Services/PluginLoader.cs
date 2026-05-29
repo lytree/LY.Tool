@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Text.Json;
@@ -21,8 +20,8 @@ public class PluginLoader : IPluginLoader, IDisposable
     private readonly Dictionary<string, PluginEntry> _entries = [];
     private readonly string _pluginsDirectory;
     private readonly string? _extraPluginPath;
-    private readonly ReaderWriterLockSlim _lock = new();
-    private ImmutableList<PluginInfo>? _cachedPluginList;
+    private readonly object _sync = new();
+    private List<PluginInfo>? _cachedPluginList;
 
     public event EventHandler<PluginInfo>? PluginLoaded;
     public event EventHandler<PluginInfo>? PluginUnloaded;
@@ -39,36 +38,25 @@ public class PluginLoader : IPluginLoader, IDisposable
 
     public IReadOnlyList<PluginInfo> GetInstalledPlugins()
     {
-        _lock.EnterReadLock();
-        try
+        lock (_sync)
         {
-            return _cachedPluginList ??= _entries.Values
-                .Select(e => e.Info)
-                .ToImmutableList();
-        }
-        finally
-        {
-            _lock.ExitReadLock();
+            return _cachedPluginList ??= _entries.Values.Select(e => e.Info).ToList();
         }
     }
 
     public PluginInfo? GetPlugin(string pluginId)
     {
-        _lock.EnterReadLock();
-        try
+        lock (_sync)
         {
             return _entries.TryGetValue(pluginId, out var entry) ? entry.Info : null;
         }
-        finally
-        {
-            _lock.ExitReadLock();
-        }
     }
 
-    public PluginLoadResult LoadPlugin(PluginInfo pluginInfo)
+    public async Task<PluginLoadResult> LoadPluginAsync(PluginInfo pluginInfo)
     {
-        _lock.EnterWriteLock();
-        try
+        List<PluginInfo> eventsToFire = [];
+
+        lock (_sync)
         {
             if (_entries.TryGetValue(pluginInfo.PluginId, out var existing) && existing.Plugin is not null)
             {
@@ -88,56 +76,28 @@ public class PluginLoader : IPluginLoader, IDisposable
                     ErrorMessage = $"Plugin is {pluginInfo.State}, cannot load"
                 };
             }
-        }
-        finally
-        {
-            _lock.ExitWriteLock();
-        }
 
-        if (!File.Exists(pluginInfo.AssemblyPath))
-        {
-            _lock.EnterWriteLock();
-            try
+            if (!File.Exists(pluginInfo.AssemblyPath))
             {
                 pluginInfo.State = PluginState.Error;
                 pluginInfo.ErrorMessage = $"Assembly not found: {pluginInfo.AssemblyPath}";
                 SavePluginManifest(pluginInfo);
                 InvalidateSnapshot();
-                PluginStateChanged?.Invoke(this, pluginInfo);
+                eventsToFire.Add(pluginInfo);
+                FireEventsOutsideLock(eventsToFire);
+                return new PluginLoadResult { Success = false, ErrorMessage = pluginInfo.ErrorMessage };
             }
-            finally
-            {
-                _lock.ExitWriteLock();
-            }
-            return new PluginLoadResult { Success = false, ErrorMessage = pluginInfo.ErrorMessage };
-        }
 
-        _lock.EnterReadLock();
-        try
-        {
             if (!ValidateDependencies(pluginInfo, out var depError))
             {
-                _lock.ExitReadLock();
-                _lock.EnterWriteLock();
-                try
-                {
-                    pluginInfo.State = PluginState.Error;
-                    pluginInfo.ErrorMessage = depError;
-                    SavePluginManifest(pluginInfo);
-                    InvalidateSnapshot();
-                    PluginStateChanged?.Invoke(this, pluginInfo);
-                }
-                finally
-                {
-                    _lock.ExitWriteLock();
-                }
+                pluginInfo.State = PluginState.Error;
+                pluginInfo.ErrorMessage = depError;
+                SavePluginManifest(pluginInfo);
+                InvalidateSnapshot();
+                eventsToFire.Add(pluginInfo);
+                FireEventsOutsideLock(eventsToFire);
                 return new PluginLoadResult { Success = false, ErrorMessage = depError };
             }
-        }
-        finally
-        {
-            if (_lock.IsReadLockHeld)
-                _lock.ExitReadLock();
         }
 
         AssemblyLoadContext loadContext;
@@ -169,43 +129,53 @@ public class PluginLoader : IPluginLoader, IDisposable
         }
         catch (Exception ex)
         {
-            _lock.EnterWriteLock();
-            try
+            lock (_sync)
             {
                 pluginInfo.State = PluginState.Error;
                 pluginInfo.ErrorMessage = $"Failed to load plugin: {ex.Message}";
                 SavePluginManifest(pluginInfo);
                 InvalidateSnapshot();
-                PluginStateChanged?.Invoke(this, pluginInfo);
+                eventsToFire.Add(pluginInfo);
             }
-            finally
-            {
-                _lock.ExitWriteLock();
-            }
+            FireEventsOutsideLock(eventsToFire);
             return new PluginLoadResult { Success = false, ErrorMessage = pluginInfo.ErrorMessage };
         }
 
         if (plugin == null)
         {
             loadContext.Unload();
-            _lock.EnterWriteLock();
-            try
+            lock (_sync)
             {
                 pluginInfo.State = PluginState.Error;
                 pluginInfo.ErrorMessage = "No IPlugin implementation found in assembly";
                 SavePluginManifest(pluginInfo);
                 InvalidateSnapshot();
-                PluginStateChanged?.Invoke(this, pluginInfo);
+                eventsToFire.Add(pluginInfo);
             }
-            finally
-            {
-                _lock.ExitWriteLock();
-            }
+            FireEventsOutsideLock(eventsToFire);
             return new PluginLoadResult { Success = false, ErrorMessage = pluginInfo.ErrorMessage };
         }
 
-        _lock.EnterWriteLock();
         try
+        {
+            await plugin.InitializeAsync();
+        }
+        catch (Exception ex)
+        {
+            loadContext.Unload();
+            lock (_sync)
+            {
+                pluginInfo.State = PluginState.Error;
+                pluginInfo.ErrorMessage = $"Plugin initialization failed: {ex.Message}";
+                SavePluginManifest(pluginInfo);
+                InvalidateSnapshot();
+                eventsToFire.Add(pluginInfo);
+            }
+            FireEventsOutsideLock(eventsToFire);
+            return new PluginLoadResult { Success = false, ErrorMessage = pluginInfo.ErrorMessage };
+        }
+
+        lock (_sync)
         {
             var entry = GetOrCreateEntry(pluginInfo.PluginId);
             entry.Context = loadContext;
@@ -221,71 +191,37 @@ public class PluginLoader : IPluginLoader, IDisposable
             SavePluginManifest(pluginInfo);
             InvalidateSnapshot();
 
-            PluginLoaded?.Invoke(this, pluginInfo);
-            PluginStateChanged?.Invoke(this, pluginInfo);
-
             return new PluginLoadResult { Success = true, Plugin = plugin, Metadata = metadata };
-        }
-        finally
-        {
-            _lock.ExitWriteLock();
-        }
-    }
-
-    public void UnloadPlugin(string pluginId)
-    {
-        _lock.EnterWriteLock();
-        try
-        {
-            if (!_entries.TryGetValue(pluginId, out var entry) || entry.Plugin is null) return;
-
-            UnloadPluginCore(entry);
-
-            if (entry.Info is not null)
-            {
-                entry.Info.State = PluginState.Installed;
-                SavePluginManifest(entry.Info);
-                InvalidateSnapshot();
-                PluginUnloaded?.Invoke(this, entry.Info);
-                PluginStateChanged?.Invoke(this, entry.Info);
-            }
-        }
-        finally
-        {
-            _lock.ExitWriteLock();
         }
     }
 
     public void DisablePlugin(string pluginId)
     {
-        _lock.EnterWriteLock();
-        try
+        PluginInfo? info = null;
+
+        lock (_sync)
         {
             if (!_entries.TryGetValue(pluginId, out var entry)) return;
-
-            if (entry.Plugin is not null)
-            {
-                UnloadPluginCore(entry);
-            }
 
             entry.Info.State = PluginState.Disabled;
             entry.Info.ErrorMessage = null;
             SavePluginManifest(entry.Info);
             InvalidateSnapshot();
-            PluginUnloaded?.Invoke(this, entry.Info);
-            PluginStateChanged?.Invoke(this, entry.Info);
+            info = entry.Info;
         }
-        finally
+
+        if (info is not null)
         {
-            _lock.ExitWriteLock();
+            PluginUnloaded?.Invoke(this, info);
+            PluginStateChanged?.Invoke(this, info);
         }
     }
 
     public void EnablePlugin(string pluginId)
     {
-        PluginInfo info;
-        _lock.EnterWriteLock();
-        try
+        PluginInfo? info = null;
+
+        lock (_sync)
         {
             if (!_entries.TryGetValue(pluginId, out var entry)) return;
             if (entry.Info.State != PluginState.Disabled) return;
@@ -293,72 +229,64 @@ public class PluginLoader : IPluginLoader, IDisposable
             entry.Info.State = PluginState.Installed;
             SavePluginManifest(entry.Info);
             InvalidateSnapshot();
-            PluginStateChanged?.Invoke(this, entry.Info);
             info = entry.Info;
         }
-        finally
-        {
-            _lock.ExitWriteLock();
-        }
 
-        LoadPlugin(info);
+        if (info is not null)
+        {
+            PluginStateChanged?.Invoke(this, info);
+            LoadPluginAsync(info).GetAwaiter().GetResult();
+        }
     }
 
     public void MarkForUninstall(string pluginId)
     {
-        _lock.EnterWriteLock();
-        try
+        PluginInfo? info = null;
+
+        lock (_sync)
         {
             if (!_entries.TryGetValue(pluginId, out var entry)) return;
             if (entry.Info.IsBuiltIn) return;
-
-            if (entry.Plugin is not null)
-            {
-                UnloadPluginCore(entry);
-            }
 
             entry.Info.State = PluginState.PendingUninstall;
             entry.Info.ErrorMessage = null;
             SavePluginManifest(entry.Info);
             InvalidateSnapshot();
-            PluginUnloaded?.Invoke(this, entry.Info);
-            PluginStateChanged?.Invoke(this, entry.Info);
+            info = entry.Info;
         }
-        finally
+
+        if (info is not null)
         {
-            _lock.ExitWriteLock();
+            PluginUnloaded?.Invoke(this, info);
+            PluginStateChanged?.Invoke(this, info);
         }
     }
 
-    public void LoadAllPlugins()
+    public async Task LoadAllPluginsAsync()
     {
         List<PluginInfo> toLoad;
-        _lock.EnterReadLock();
-        try
+
+        lock (_sync)
         {
             toLoad = _entries.Values
-                .Where(e => e.Info.State == PluginState.Installed || e.Info.State == PluginState.Error)
+                .Where(e => e.Info.State == PluginState.Installed)
                 .Select(e => e.Info)
                 .ToList();
-        }
-        finally
-        {
-            _lock.ExitReadLock();
         }
 
         foreach (var info in toLoad)
         {
-            LoadPlugin(info);
+            var result = await LoadPluginAsync(info);
+            if (result.Success)
+            {
+                PluginLoaded?.Invoke(this, info);
+                PluginStateChanged?.Invoke(this, info);
+            }
         }
 
-        _lock.EnterWriteLock();
-        try
+        lock (_sync)
         {
             LoadExtraPlugins();
-        }
-        finally
-        {
-            _lock.ExitWriteLock();
         }
     }
 
@@ -390,8 +318,11 @@ public class PluginLoader : IPluginLoader, IDisposable
             var assemblyName = AssemblyName.GetAssemblyName(dllPath);
             var pluginId = assemblyName.Name ?? Path.GetFileNameWithoutExtension(dllPath);
 
-            if (_entries.TryGetValue(pluginId, out var existing) && existing.Plugin is not null)
-                return;
+            lock (_sync)
+            {
+                if (_entries.TryGetValue(pluginId, out var existing) && existing.Plugin is not null)
+                    return;
+            }
 
             var pluginInfo = new PluginInfo
             {
@@ -404,10 +335,14 @@ public class PluginLoader : IPluginLoader, IDisposable
                 IsBuiltIn = false
             };
 
-            var entry = GetOrCreateEntry(pluginId);
-            entry.Info = pluginInfo;
-            InvalidateSnapshot();
-            LoadPlugin(pluginInfo);
+            lock (_sync)
+            {
+                var entry = GetOrCreateEntry(pluginId);
+                entry.Info = pluginInfo;
+                InvalidateSnapshot();
+            }
+
+            LoadPluginAsync(pluginInfo).GetAwaiter().GetResult();
         }
         catch (Exception ex)
         {
@@ -417,74 +352,38 @@ public class PluginLoader : IPluginLoader, IDisposable
 
     public void RegisterPlugin(PluginInfo pluginInfo)
     {
-        _lock.EnterWriteLock();
-        try
+        lock (_sync)
         {
             var entry = GetOrCreateEntry(pluginInfo.PluginId);
             entry.Info = pluginInfo;
             SavePluginManifest(pluginInfo);
             InvalidateSnapshot();
         }
-        finally
-        {
-            _lock.ExitWriteLock();
-        }
     }
 
     public void UnregisterPlugin(string pluginId)
     {
-        _lock.EnterWriteLock();
-        try
+        lock (_sync)
         {
-            if (_entries.TryGetValue(pluginId, out var entry) && entry.Plugin is not null)
-            {
-                UnloadPluginCore(entry);
-            }
             _entries.Remove(pluginId);
             InvalidateSnapshot();
             DeletePluginManifest(pluginId);
-        }
-        finally
-        {
-            _lock.ExitWriteLock();
         }
     }
 
     public IPlugin? GetLoadedPlugin(string pluginId)
     {
-        _lock.EnterReadLock();
-        try
+        lock (_sync)
         {
             return _entries.TryGetValue(pluginId, out var entry) ? entry.Plugin : null;
-        }
-        finally
-        {
-            _lock.ExitReadLock();
         }
     }
 
     public IPluginMetadata? GetLoadedMetadata(string pluginId)
     {
-        _lock.EnterReadLock();
-        try
+        lock (_sync)
         {
             return _entries.TryGetValue(pluginId, out var entry) ? entry.Metadata : null;
-        }
-        finally
-        {
-            _lock.ExitReadLock();
-        }
-    }
-
-    private void UnloadPluginCore(PluginEntry entry)
-    {
-        entry.Plugin = null;
-        entry.Metadata = null;
-
-        if (entry.Context is not null)
-        {
-            try { entry.Context.Unload(); } catch { }
-            entry.Context = null;
         }
     }
 
@@ -522,6 +421,14 @@ public class PluginLoader : IPluginLoader, IDisposable
 
         error = null;
         return true;
+    }
+
+    private void FireEventsOutsideLock(List<PluginInfo> events)
+    {
+        foreach (var info in events)
+        {
+            PluginStateChanged?.Invoke(this, info);
+        }
     }
 
     private void ProcessPendingUninstalls()
@@ -672,8 +579,7 @@ public class PluginLoader : IPluginLoader, IDisposable
 
     public void Dispose()
     {
-        _lock.EnterWriteLock();
-        try
+        lock (_sync)
         {
             foreach (var entry in _entries.Values)
             {
@@ -685,11 +591,6 @@ public class PluginLoader : IPluginLoader, IDisposable
             _entries.Clear();
             _cachedPluginList = null;
         }
-        finally
-        {
-            _lock.ExitWriteLock();
-        }
-        _lock.Dispose();
     }
 
     private sealed class PluginEntry
@@ -698,19 +599,5 @@ public class PluginLoader : IPluginLoader, IDisposable
         public IPlugin? Plugin { get; set; }
         public IPluginMetadata? Metadata { get; set; }
         public AssemblyLoadContext? Context { get; set; }
-    }
-
-    private class PluginManifest
-    {
-        public string? PluginId { get; set; }
-        public string? Name { get; set; }
-        public string? Version { get; set; }
-        public string? Author { get; set; }
-        public string? Description { get; set; }
-        public string? Assembly { get; set; }
-        public List<string>? Dependencies { get; set; }
-        public string? State { get; set; }
-        public DateTime? InstallTime { get; set; }
-        public bool IsBuiltIn { get; set; }
     }
 }

@@ -13,13 +13,13 @@ public class PluginInstallationManager : IPluginInstallationManager
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    private readonly PluginLoader _pluginLoader;
+    private readonly IPluginLoader _pluginLoader;
     private readonly string _pluginsDirectory;
 
     public event EventHandler<PluginInfo>? PluginInstalled;
     public event EventHandler<PluginInfo>? PluginUninstalled;
 
-    public PluginInstallationManager(PluginLoader pluginLoader, string? pluginsDirectory = null)
+    public PluginInstallationManager(IPluginLoader pluginLoader, string? pluginsDirectory = null)
     {
         _pluginLoader = pluginLoader;
         _pluginsDirectory = pluginsDirectory ?? Path.Combine(AppContext.BaseDirectory, "plugins");
@@ -204,7 +204,7 @@ public class PluginInstallationManager : IPluginInstallationManager
         if (File.Exists(manifestFile))
         {
             var json = await File.ReadAllTextAsync(manifestFile);
-            var manifest = JsonSerializer.Deserialize<PluginManifestJson>(json, JsonOptions);
+            var manifest = JsonSerializer.Deserialize<PluginManifest>(json, JsonOptions);
             if (manifest != null)
             {
                 return new PluginInfo
@@ -243,16 +243,5 @@ public class PluginInstallationManager : IPluginInstallationManager
         }
 
         return null;
-    }
-
-    private class PluginManifestJson
-    {
-        public string? PluginId { get; set; }
-        public string? Name { get; set; }
-        public string? Version { get; set; }
-        public string? Author { get; set; }
-        public string? Description { get; set; }
-        public string? Assembly { get; set; }
-        public List<string>? Dependencies { get; set; }
     }
 }

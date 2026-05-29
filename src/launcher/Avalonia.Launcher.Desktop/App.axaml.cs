@@ -36,7 +36,7 @@ public partial class App : Application
 
         InitializeDatabase();
         InitializeLocalization();
-        LoadPlugins();
+        LoadPluginsAsync().GetAwaiter().GetResult();
 
         DataContext = new ApplicationViewModel();
     }
@@ -66,7 +66,7 @@ public partial class App : Application
         settingsService?.InitializeDefaults();
     }
 
-    private void LoadPlugins()
+    private async Task LoadPluginsAsync()
     {
         var navigationService = ServiceProvider?.GetRequiredService<INavigationService>();
         var menuConfigurationService = ServiceProvider?.GetRequiredService<IMenuConfigurationService>();
@@ -75,7 +75,7 @@ public partial class App : Application
         if (navigationService == null || menuConfigurationService == null || pluginLoader == null)
             return;
 
-        pluginLoader.LoadAllPlugins();
+        await pluginLoader.LoadAllPluginsAsync();
 
         foreach (var pluginInfo in pluginLoader.GetInstalledPlugins())
         {
