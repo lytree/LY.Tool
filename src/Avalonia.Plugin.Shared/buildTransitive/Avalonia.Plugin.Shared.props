@@ -43,6 +43,10 @@
     <PluginExcludeAssembly Include="Microsoft.Bcl.AsyncInterfaces" />
     <PluginExcludeAssembly Include="SQLite" />
     <PluginExcludeAssembly Include="Avalonia.Plugin.Shared" />
+    <PluginExcludeAssembly Include="ProDataGrid" />
+    <PluginExcludeAssembly Include="ProDataGrid.FormulaEngine" />
+    <PluginExcludeAssembly Include="ProDataGrid.FormulaEngine.Excel" />
+    <PluginExcludeAssembly Include="ScottPlot" />
 
     <PluginExcludeNative Include="e_sqlite3.dll" />
     <PluginExcludeNative Include="libe_sqlite3.so" />
