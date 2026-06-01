@@ -26,7 +26,6 @@
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsDI)" />
 		<PackageReference Include="System.Reactive" Version="6.1.0" />
 		<PackageReference Include="ProDataGrid" Version="$(ProDataGridVersion)" />
-		<PackageReference Include="ScottPlot" Version="$(ScottPlotVersion)" />
 	</ItemGroup>
 
 	<ItemGroup>

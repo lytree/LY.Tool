@@ -62,8 +62,6 @@
           Condition="'%(Filename)' == 'ProDataGrid.FormulaEngine'" />
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)"
           Condition="'%(Filename)' == 'ProDataGrid.FormulaEngine.Excel'" />
-      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)"
-          Condition="'%(Filename)' == 'ScottPlot'" />
     </ItemGroup>
   </Target>
 
@@ -138,8 +136,6 @@
           Condition="'%(Filename)' == 'ProDataGrid.FormulaEngine'" />
       <_ExcludedPublished Include="@(_PublishedFiles)"
           Condition="'%(Filename)' == 'ProDataGrid.FormulaEngine.Excel'" />
-      <_ExcludedPublished Include="@(_PublishedFiles)"
-          Condition="'%(Filename)' == 'ScottPlot'" />
 
       <_ExcludedNativePublished Include="@(_PublishedNativeFiles)"
           Condition="'%(Filename)' == 'e_sqlite3'" />

@@ -46,7 +46,6 @@
     <PluginExcludeAssembly Include="ProDataGrid" />
     <PluginExcludeAssembly Include="ProDataGrid.FormulaEngine" />
     <PluginExcludeAssembly Include="ProDataGrid.FormulaEngine.Excel" />
-    <PluginExcludeAssembly Include="ScottPlot" />
 
     <PluginExcludeNative Include="e_sqlite3.dll" />
     <PluginExcludeNative Include="libe_sqlite3.so" />

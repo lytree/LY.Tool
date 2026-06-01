@@ -56,8 +56,11 @@ public class PluginLoader : IPluginLoader, IDisposable
     {
         List<PluginInfo> eventsToFire = [];
 
+        bool entryExisted;
         lock (_sync)
         {
+            entryExisted = _entries.ContainsKey(pluginInfo.PluginId);
+
             if (_entries.TryGetValue(pluginInfo.PluginId, out var existing) && existing.Plugin is not null)
             {
                 return new PluginLoadResult
@@ -80,10 +83,13 @@ public class PluginLoader : IPluginLoader, IDisposable
             if (!File.Exists(pluginInfo.AssemblyPath))
             {
                 var errInfo = pluginInfo.WithState(PluginState.Error, $"Assembly not found: {pluginInfo.AssemblyPath}");
-                UpdateEntry(errInfo);
-                SavePluginManifest(errInfo);
-                InvalidateSnapshot();
-                eventsToFire.Add(errInfo);
+                if (entryExisted)
+                {
+                    UpdateEntry(errInfo);
+                    SavePluginManifest(errInfo);
+                    InvalidateSnapshot();
+                    eventsToFire.Add(errInfo);
+                }
                 FireEventsOutsideLock(eventsToFire);
                 return new PluginLoadResult { Success = false, ErrorMessage = errInfo.ErrorMessage };
             }
@@ -91,10 +97,13 @@ public class PluginLoader : IPluginLoader, IDisposable
             if (!ValidateDependencies(pluginInfo, out var depError))
             {
                 var errInfo = pluginInfo.WithState(PluginState.Error, depError);
-                UpdateEntry(errInfo);
-                SavePluginManifest(errInfo);
-                InvalidateSnapshot();
-                eventsToFire.Add(errInfo);
+                if (entryExisted)
+                {
+                    UpdateEntry(errInfo);
+                    SavePluginManifest(errInfo);
+                    InvalidateSnapshot();
+                    eventsToFire.Add(errInfo);
+                }
                 FireEventsOutsideLock(eventsToFire);
                 return new PluginLoadResult { Success = false, ErrorMessage = depError };
             }
@@ -132,10 +141,13 @@ public class PluginLoader : IPluginLoader, IDisposable
             lock (_sync)
             {
                 var errInfo = pluginInfo.WithState(PluginState.Error, $"Failed to load plugin: {ex.Message}");
-                UpdateEntry(errInfo);
-                SavePluginManifest(errInfo);
-                InvalidateSnapshot();
-                eventsToFire.Add(errInfo);
+                if (entryExisted)
+                {
+                    UpdateEntry(errInfo);
+                    SavePluginManifest(errInfo);
+                    InvalidateSnapshot();
+                    eventsToFire.Add(errInfo);
+                }
             }
             FireEventsOutsideLock(eventsToFire);
             return new PluginLoadResult { Success = false, ErrorMessage = pluginInfo.ErrorMessage };
@@ -148,10 +160,13 @@ public class PluginLoader : IPluginLoader, IDisposable
             lock (_sync)
             {
                 errInfo = pluginInfo.WithState(PluginState.Error, "No IPlugin implementation found in assembly");
-                UpdateEntry(errInfo);
-                SavePluginManifest(errInfo);
-                InvalidateSnapshot();
-                eventsToFire.Add(errInfo);
+                if (entryExisted)
+                {
+                    UpdateEntry(errInfo);
+                    SavePluginManifest(errInfo);
+                    InvalidateSnapshot();
+                    eventsToFire.Add(errInfo);
+                }
             }
             FireEventsOutsideLock(eventsToFire);
             return new PluginLoadResult { Success = false, ErrorMessage = errInfo.ErrorMessage };
@@ -322,24 +337,17 @@ public class PluginLoader : IPluginLoader, IDisposable
             }
 
             var pluginInfo = new PluginInfo
-            {
-                PluginId = pluginId,
-                Name = assemblyName.Name ?? pluginId,
-                Version = assemblyName.Version?.ToString() ?? "0.0.0",
-                AssemblyPath = dllPath,
-                InstallPath = Path.GetDirectoryName(dllPath) ?? _extraPluginPath!,
-                State = PluginState.Installed,
-                IsBuiltIn = false
-            };
+        {
+            PluginId = pluginId,
+            Name = assemblyName.Name ?? pluginId,
+            Version = assemblyName.Version?.ToString() ?? "0.0.0",
+            AssemblyPath = dllPath,
+            InstallPath = Path.GetDirectoryName(dllPath) ?? _extraPluginPath!,
+            State = PluginState.Installed,
+            IsBuiltIn = false
+        };
 
-            lock (_sync)
-            {
-                var entry = GetOrCreateEntry(pluginId);
-                entry.Info = pluginInfo;
-                InvalidateSnapshot();
-            }
-
-            LoadPluginAsync(pluginInfo).GetAwaiter().GetResult();
+        LoadPluginAsync(pluginInfo).GetAwaiter().GetResult();
         }
         catch (Exception ex)
         {

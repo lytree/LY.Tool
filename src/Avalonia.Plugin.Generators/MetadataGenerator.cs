@@ -35,17 +35,20 @@ public class MetadataGenerator : IIncrementalGenerator
                     foreach (var cls in allClasses)
                     {
                         var vmName = cls.Identifier.Text;
+                        var vmNs = GetNamespace(cls);
+                        var fullVmName = $"{vmNs}.{vmName}";
 
                         if (TryGetAttr(cls, "ViewMap", out var vAttr))
                         {
-                            var vType = GetArg(vAttr!, 0);
-                            viewLines.AppendLine($"        yield return new KeyValuePair<Type, ViewFactory>(typeof({vmName}), () => new {vType}());");
+                            var vTypeShort = GetArg(vAttr!, 0);
+                            var vTypeFull = GetFullTypeName(vTypeShort, allClasses);
+                            viewLines.AppendLine($"        yield return new KeyValuePair<Type, ViewFactory>(typeof({fullVmName}), () => new {vTypeFull}());");
                         }
 
                         if (TryGetAttr(cls, "NavigationItem", out var nAttr))
                         {
                             var navKey = GetArg(nAttr!, 0);
-                            navLines.AppendLine($"        {{ {navKey}, () => new {vmName}() }},");
+                            navLines.AppendLine($"        {{ {navKey}, () => new {fullVmName}() }},");
                         }
 
                         if (TryGetAttr(cls, "Menu", out var mAttr))
@@ -150,6 +153,18 @@ namespace {data.Namespace}
 
     private static string GetNamespace(ClassDeclarationSyntax cls) =>
         (cls.Ancestors().OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault()?.Name.ToString()) ?? "Global";
+
+    private static string GetFullTypeName(string shortName, List<ClassDeclarationSyntax> allClasses)
+    {
+        foreach (var cls in allClasses)
+        {
+            if (cls.Identifier.Text == shortName)
+            {
+                return $"{GetNamespace(cls)}.{shortName}";
+            }
+        }
+        return shortName;
+    }
 
     private static (string Header, string Key, string? Parent, string? Status, int Order)
     ParseMenu(AttributeSyntax attr)

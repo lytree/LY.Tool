@@ -1,0 +1,49 @@
+<UserControl
+    x:Class="Avalonia.Plugin.ProDataGrid.Pages.FormulaDataGridDemo"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Avalonia.Plugin.ProDataGrid.ViewModels"
+    x:DataType="vm:FormulaDataGridDemoViewModel"
+    x:CompileBindings="True"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <Grid RowDefinitions="Auto, Auto, *, Auto">
+        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+            <Button Content="添加产品" Command="{Binding AddProductCommand}" />
+            <Button Content="重置数据" Command="{Binding ResetDataCommand}" />
+            <Button Content="保存" Command="{Binding SaveCommand}" />
+        </StackPanel>
+        <TextBlock Grid.Row="1" Text="演示：计算列（总价 = 单价 × 数量），编辑时自动重算，汇总底栏" Opacity="0.6" Margin="0,0,0,8" />
+        <DataGrid
+            Grid.Row="2"
+            ItemsSource="{Binding Products}"
+            SelectedItem="{Binding SelectedProduct}"
+            AutoGenerateColumns="False"
+            CanUserResizeColumns="True"
+            CanUserReorderColumns="True"
+            CanUserSortColumns="True"
+            GridLinesVisibility="All"
+            HeadersVisibility="All"
+            IsReadOnly="False"
+            EditTriggers="CellClick,CellDoubleClick,F2,TextInput"
+            x:CompileBindings="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="产品名称" Binding="{Binding Name, Mode=TwoWay}" Width="2*" />
+                <DataGridTextColumn Header="单价" Binding="{Binding Price, Mode=TwoWay}" Width="*" />
+                <DataGridTextColumn Header="数量" Binding="{Binding Quantity, Mode=TwoWay}" Width="*" />
+                <DataGridTextColumn Header="总价" Binding="{Binding Total, Mode=OneWay}" Width="*" IsReadOnly="True" />
+            </DataGrid.Columns>
+        </DataGrid>
+        <Border Grid.Row="3" Background="{DynamicResource SystemControlBackgroundAltHighBrush}" Padding="12,8" Margin="0,8,0,0">
+            <Grid ColumnDefinitions="2*, *, *, *">
+                <TextBlock Text="汇总" FontWeight="SemiBold" />
+                <TextBlock Grid.Column="1" Text="{Binding TotalPrice, StringFormat='单价合计: {0:C2}'}" />
+                <TextBlock Grid.Column="2" Text="{Binding TotalQuantity, StringFormat='数量合计: {0}'}" />
+                <TextBlock Grid.Column="3" Text="{Binding GrandTotal, StringFormat='总计: {0:C2}'}" FontWeight="SemiBold" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

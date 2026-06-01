@@ -1,8 +1,4 @@
 <Solution>
-    <Folder Name="/src/">
-        <Project Path="src/Avalonia.Plugin.Generators/Avalonia.Plugin.Generators.csproj" />
-        <Project Path="src/Avalonia.Plugin.Shared/Avalonia.Plugin.Shared.csproj" />
-    </Folder>
     <Folder Name="/plugins/">
         <Project Path="plugins/Avalonia.Plugin.ButtonsInputs/Avalonia.Plugin.ButtonsInputs.csproj" />
         <Project Path="plugins/Avalonia.Plugin.DateTime/Avalonia.Plugin.DateTime.csproj" />
@@ -12,5 +8,7 @@
         <Project Path="plugins/Avalonia.Plugin.Downloader/Avalonia.Plugin.Downloader.csproj" />
         <Project Path="plugins/Avalonia.Plugin.TDLSharp/Avalonia.Plugin.TDLSharp.csproj" />
         <Project Path="plugins/Avalonia.Plugin.Template/Avalonia.Plugin.Template.csproj" />
+        <Project Path="plugins/Avalonia.Plugin.ScottPlot/Avalonia.Plugin.ScottPlot.csproj" />
+        <Project Path="plugins/Avalonia.Plugin.ProDataGrid/Avalonia.Plugin.ProDataGrid.csproj" />
     </Folder>
 </Solution>

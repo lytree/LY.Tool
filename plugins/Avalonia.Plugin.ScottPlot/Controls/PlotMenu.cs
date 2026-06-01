@@ -5,15 +5,14 @@ using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
-using ScottPlot;
-using ScottPlot.IO;
+using SP = global::ScottPlot;
 
-namespace Avalonia.Plugin.Shared.Controls;
+namespace Avalonia.Plugin.ScottPlot.Controls;
 
-public class PlotMenu : IPlotMenu
+public class PlotMenu : SP.IPlotMenu
 {
     public string DefaultSaveImageFilename { get; set; } = "Plot.png";
-    public List<ContextMenuItem> ContextMenuItems { get; set; } = [];
+    public List<SP.ContextMenuItem> ContextMenuItems { get; set; } = [];
     private readonly PlotView _plotView;
 
     public PlotMenu(PlotView plotView)
@@ -22,7 +21,7 @@ public class PlotMenu : IPlotMenu
         Reset();
     }
 
-    public ContextMenuItem[] GetDefaultContextMenuItems()
+    public SP.ContextMenuItem[] GetDefaultContextMenuItems()
     {
         return
         [
@@ -32,7 +31,7 @@ public class PlotMenu : IPlotMenu
         ];
     }
 
-    public ContextMenu GetContextMenu(ScottPlot.Plot plot)
+    public ContextMenu GetContextMenu(SP.Plot plot)
     {
         List<MenuItem> items = [];
         foreach (var contextMenuItem in ContextMenuItems)
@@ -52,7 +51,7 @@ public class PlotMenu : IPlotMenu
         return new() { ItemsSource = items };
     }
 
-    public async void OpenSaveImageDialog(ScottPlot.Plot plot)
+    public async void OpenSaveImageDialog(SP.Plot plot)
     {
         var topLevel = TopLevel.GetTopLevel(_plotView)
                        ?? throw new NullReferenceException("Could not find a top level");
@@ -66,9 +65,9 @@ public class PlotMenu : IPlotMenu
         string? path = destinationFile?.TryGetLocalPath();
         if (path is not null && !string.IsNullOrWhiteSpace(path))
         {
-            ScottPlot.PixelSize lastRenderSize = plot.RenderManager.LastRender.FigureRect.Size;
+            SP.PixelSize lastRenderSize = plot.RenderManager.LastRender.FigureRect.Size;
             plot.Save(path, (int)lastRenderSize.Width, (int)lastRenderSize.Height,
-                ImageFormats.FromFilename(path));
+                SP.ImageFormats.FromFilename(path));
         }
     }
 
@@ -82,13 +81,13 @@ public class PlotMenu : IPlotMenu
         new("All Files") { Patterns = new List<string> { "*" } },
     ];
 
-    public async void CopyToClipboard(ScottPlot.Plot plot)
+    public async void CopyToClipboard(SP.Plot plot)
     {
         if (TopLevel.GetTopLevel(_plotView)?.Clipboard is not { } clipboard) return;
 
-        ScottPlot.PixelSize lastRenderSize = plot.RenderManager.LastRender.FigureRect.Size;
+        SP.PixelSize lastRenderSize = plot.RenderManager.LastRender.FigureRect.Size;
         var img = plot.GetImage((int)lastRenderSize.Width, (int)lastRenderSize.Height);
-        var bytes = img.GetImageBytes(ImageFormat.Bmp);
+        var bytes = img.GetImageBytes(SP.ImageFormat.Bmp);
 
         using var stream = new System.IO.MemoryStream(bytes, BitmapHeaderSize, bytes.Length - BitmapHeaderSize);
         var bitmap = new Bitmap(stream);
@@ -98,15 +97,15 @@ public class PlotMenu : IPlotMenu
 
     private const int BitmapHeaderSize = 14 + 40;
 
-    public void Autoscale(ScottPlot.Plot plot)
+    public void Autoscale(SP.Plot plot)
     {
         plot.Axes.AutoScale();
         _plotView.Refresh();
     }
 
-    public void ShowContextMenu(ScottPlot.Pixel pixel)
+    public void ShowContextMenu(SP.Pixel pixel)
     {
-        ScottPlot.Plot? plot = _plotView.Multiplot.GetPlotAtPixel(pixel);
+        var plot = _plotView.Plot;
         if (plot is null || ContextMenuItems.Count == 0) return;
 
         var menu = GetContextMenu(plot);
@@ -125,7 +124,7 @@ public class PlotMenu : IPlotMenu
         ContextMenuItems.Clear();
     }
 
-    public void Add(string label, Action<ScottPlot.Plot> action)
+    public void Add(string label, Action<SP.Plot> action)
     {
         ContextMenuItems.Add(new() { Label = label, OnInvoke = action });
     }

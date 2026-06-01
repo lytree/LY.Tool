@@ -7,33 +7,35 @@ using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Threading;
 using SkiaSharp;
-using ScottPlot;
+using SP = global::ScottPlot;
 
-namespace Avalonia.Plugin.Shared.Controls;
+namespace Avalonia.Plugin.ScottPlot.Controls;
 
-public class PlotView : global::Avalonia.Controls.Control, IPlotControl
+public class PlotView : global::Avalonia.Controls.Control, SP.IPlotControl
 {
-    public static readonly StyledProperty<ScottPlot.Plot?> PlotProperty =
-        AvaloniaProperty.Register<PlotView, ScottPlot.Plot?>(nameof(Plot));
+    public static readonly StyledProperty<SP.Plot?> PlotProperty =
+        AvaloniaProperty.Register<PlotView, SP.Plot?>(nameof(Plot));
 
-    public ScottPlot.Plot Plot
+    public SP.Plot Plot
     {
         get => GetValue(PlotProperty) ?? _internalPlot;
         set => SetValue(PlotProperty, value);
     }
 
-    public IMultiplot Multiplot { get; set; }
-    public IPlotMenu? Menu { get; set; }
-    public ScottPlot.Interactivity.UserInputProcessor UserInputProcessor { get; }
+    public SP.IMultiplot Multiplot { get; set; }
+    public SP.IPlotMenu? Menu { get; set; }
+    public SP.Interactivity.UserInputProcessor UserInputProcessor { get; }
     public GRContext? GRContext => null;
     public float DisplayScale { get; set; }
 
-    private ScottPlot.Plot _internalPlot;
+    private SP.Plot _internalPlot;
+    private SP.Multiplot _multiplotImpl;
 
     public PlotView()
     {
         _internalPlot = new() { PlotControl = this };
-        Multiplot = new Multiplot(_internalPlot);
+        _multiplotImpl = new SP.Multiplot(_internalPlot);
+        Multiplot = _multiplotImpl;
         Plot = _internalPlot;
 
         ClipToBounds = true;
@@ -52,24 +54,33 @@ public class PlotView : global::Avalonia.Controls.Control, IPlotControl
 
     private void OnPlotChanged(AvaloniaPropertyChangedEventArgs e)
     {
-        if (e.NewValue is ScottPlot.Plot newPlot)
+        if (e.NewValue is SP.Plot newPlot)
         {
             newPlot.PlotControl = this;
-            Multiplot.Reset(newPlot);
+            ResetMultiplot(newPlot);
             _internalPlot = newPlot;
         }
     }
 
+    private void ResetMultiplot(SP.Plot plot)
+    {
+        while (_multiplotImpl.Subplots.Count > 0)
+        {
+            _multiplotImpl.Subplots.RemoveAt(0);
+        }
+        _multiplotImpl.Subplots.Add(plot);
+    }
+
     private class CustomDrawOp : ICustomDrawOperation
     {
-        private readonly IMultiplot _multiplot;
+        private readonly SP.Multiplot _multiplot;
         private readonly float _displayScale;
 
         public Rect Bounds { get; }
         public bool HitTest(Point p) => true;
         public bool Equals(ICustomDrawOperation? other) => false;
 
-        public CustomDrawOp(Rect bounds, IMultiplot multiplot, float displayScale)
+        public CustomDrawOp(Rect bounds, SP.Multiplot multiplot, float displayScale)
         {
             _multiplot = multiplot;
             _displayScale = displayScale;
@@ -84,7 +95,7 @@ public class PlotView : global::Avalonia.Controls.Control, IPlotControl
             if (leaseFeature is null) return;
 
             using var lease = leaseFeature.Lease();
-            ScottPlot.PixelRect rect = new(0, (float)Bounds.Width * _displayScale,
+            SP.PixelRect rect = new(0, (float)Bounds.Width * _displayScale,
                 (float)Bounds.Height * _displayScale, 0);
 
             using SKAutoCanvasRestore _ = new(lease.SkCanvas, false);
@@ -97,23 +108,23 @@ public class PlotView : global::Avalonia.Controls.Control, IPlotControl
     public override void Render(DrawingContext context)
     {
         Rect controlBounds = new(Bounds.Size);
-        CustomDrawOp customDrawOp = new(controlBounds, Multiplot, DisplayScale);
+        CustomDrawOp customDrawOp = new(controlBounds, _multiplotImpl, DisplayScale);
         context.Custom(customDrawOp);
     }
 
     public void Reset()
     {
-        ScottPlot.Plot plot = new() { PlotControl = this };
+        SP.Plot plot = new() { PlotControl = this };
         Reset(plot);
     }
 
-    public void Reset(ScottPlot.Plot plot)
+    public void Reset(SP.Plot plot)
     {
-        ScottPlot.Plot oldPlot = _internalPlot;
+        SP.Plot oldPlot = _internalPlot;
         _internalPlot = plot;
         Plot = plot;
         oldPlot?.Dispose();
-        Multiplot.Reset(plot);
+        ResetMultiplot(plot);
     }
 
     public void Refresh()
@@ -121,14 +132,14 @@ public class PlotView : global::Avalonia.Controls.Control, IPlotControl
         Dispatcher.UIThread.InvokeAsync(InvalidateVisual, DispatcherPriority.Background);
     }
 
-    public void ShowContextMenu(Pixel position)
+    public void ShowContextMenu(SP.Pixel position)
     {
         Menu?.ShowContextMenu(position);
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
-        Pixel pixel = e.ToPixel(this);
+        SP.Pixel pixel = e.ToPixel(this);
         PointerUpdateKind kind = e.GetCurrentPoint(this).Properties.PointerUpdateKind;
         UserInputProcessor.ProcessMouseDown(pixel, kind);
         e.Pointer.Capture(this);
@@ -136,7 +147,7 @@ public class PlotView : global::Avalonia.Controls.Control, IPlotControl
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
-        Pixel pixel = e.ToPixel(this);
+        SP.Pixel pixel = e.ToPixel(this);
         PointerUpdateKind kind = e.GetCurrentPoint(this).Properties.PointerUpdateKind;
         UserInputProcessor.ProcessMouseUp(pixel, kind);
         e.Pointer.Capture(null);
@@ -144,13 +155,13 @@ public class PlotView : global::Avalonia.Controls.Control, IPlotControl
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
-        Pixel pixel = e.ToPixel(this);
+        SP.Pixel pixel = e.ToPixel(this);
         UserInputProcessor.ProcessMouseMove(pixel);
     }
 
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
     {
-        Pixel pixel = e.ToPixel(this);
+        SP.Pixel pixel = e.ToPixel(this);
         float delta = (float)e.Delta.Y;
         if (delta != 0)
         {
@@ -188,7 +199,7 @@ public class PlotView : global::Avalonia.Controls.Control, IPlotControl
         return 1.0f;
     }
 
-    public void SetCursor(ScottPlot.Cursor cursor)
+    public void SetCursor(SP.Cursor cursor)
     {
         Cursor = cursor.GetCursor();
     }

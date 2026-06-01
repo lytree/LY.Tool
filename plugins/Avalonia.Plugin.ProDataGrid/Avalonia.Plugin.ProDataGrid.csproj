@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<OutputType>Library</OutputType>
+		<PluginId>0F2F7DB6-0E9B-D872-442F-2CBC3DAC1FA1</PluginId>
+		<PluginName>ProDataGrid Plugin</PluginName>
+		<PluginAuthor>AvaloniaPlugin</PluginAuthor>
+		<PluginDescription>ProDataGrid advanced data grid controls demo plugin</PluginDescription>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Update="Resources\Strings.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Strings.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Avalonia.Plugin.Generators" Version="1.0.0" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<PackageReference Include="Avalonia.Plugin.Shared" Version="1.0.0" PrivateAssets="all" />
+		<PackageReference Include="ProDataGrid" Version="12.0.0" />
+	</ItemGroup>
+
+</Project>
