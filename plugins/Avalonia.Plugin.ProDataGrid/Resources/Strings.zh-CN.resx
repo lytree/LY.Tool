@@ -57,4 +57,7 @@
   <data name="NAV_FilteringGrouping" xml:space="preserve"><value>筛选与分组</value></data>
   <data name="NAV_RowDetailsSelection" xml:space="preserve"><value>行详情与选择</value></data>
   <data name="NAV_DragDrop" xml:space="preserve"><value>拖拽排序</value></data>
+  <data name="NAV_CustomDrawingEditing" xml:space="preserve"><value>自定义绘制编辑</value></data>
+  <data name="NAV_CustomDrawingLiveUpdates" xml:space="preserve"><value>自定义绘制实时更新</value></data>
+  <data name="NAV_EditingDemo" xml:space="preserve"><value>编辑交互演示</value></data>
 </root>

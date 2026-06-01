@@ -57,4 +57,7 @@
   <data name="NAV_FilteringGrouping" xml:space="preserve"><value>Filtering &amp; Grouping</value></data>
   <data name="NAV_RowDetailsSelection" xml:space="preserve"><value>Row Details &amp; Selection</value></data>
   <data name="NAV_DragDrop" xml:space="preserve"><value>Drag &amp; Drop</value></data>
+  <data name="NAV_CustomDrawingEditing" xml:space="preserve"><value>Custom Drawing Editing</value></data>
+  <data name="NAV_CustomDrawingLiveUpdates" xml:space="preserve"><value>Custom Drawing Live Updates</value></data>
+  <data name="NAV_EditingDemo" xml:space="preserve"><value>Editing Demo</value></data>
 </root>

@@ -1,0 +1,77 @@
+<UserControl
+    x:Class="Avalonia.Plugin.ProDataGrid.Pages.CustomDrawingLiveUpdatesPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Avalonia.Plugin.ProDataGrid.ViewModels"
+    xmlns:customDrawing="clr-namespace:Avalonia.Plugin.ProDataGrid.CustomDrawing"
+    x:DataType="vm:CustomDrawingLiveUpdatesViewModel"
+    x:CompileBindings="True"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+
+  <UserControl.Resources>
+    <customDrawing:SkiaAnimatedTextCellDrawOperationFactory x:Key="LiveSkiaFactory"
+                                                             Padding="4,2,4,2"
+                                                             TextAlignment="Left"
+                                                             VerticalAlignment="Center"
+                                                             WaveAmplitude="1.8" />
+  </UserControl.Resources>
+
+  <Grid RowDefinitions="Auto,Auto,*" RowSpacing="12" Margin="12">
+    <StackPanel Spacing="4">
+      <TextBlock Classes="h2" Text="自定义绘制列（实时更新）" />
+      <TextBlock Text="此示例使用 CompositionCustomVisual 后端和工厂失效事件实时动画 Skia 渲染的自定义绘制单元格。绑定的行值保持静态；重绘由显式失效驱动。"
+                 TextWrapping="Wrap" />
+    </StackPanel>
+
+    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+      <Button Content="启动" Command="{Binding StartCommand}" />
+      <Button Content="停止" Command="{Binding StopCommand}" />
+      <Button Content="重置数据" Command="{Binding ResetRowsCommand}" />
+      <TextBlock Text="间隔 (ms)" VerticalAlignment="Center" />
+      <TextBox Width="72" Text="{Binding IntervalMs, UpdateSourceTrigger=PropertyChanged}" />
+      <TextBlock Text="{Binding FrameCount, StringFormat='帧数: {0}'}" VerticalAlignment="Center" />
+      <TextBlock Text="{Binding RunState, StringFormat='状态: {0}'}" VerticalAlignment="Center" />
+    </StackPanel>
+
+    <DataGrid Grid.Row="2"
+              ItemsSource="{Binding Rows}"
+              AutoGenerateColumns="False"
+              CanUserAddRows="False"
+              CanUserReorderColumns="True"
+              CanUserResizeColumns="True"
+              CanUserSortColumns="True"
+              IsReadOnly="True"
+              RowHeight="28"
+              GridLinesVisibility="Horizontal"
+              RowBackground="#08000000"
+              x:CompileBindings="False">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="ID"
+                            Binding="{Binding Id}"
+                            Width="90"
+                            x:DataType="vm:CustomDrawingLiveUpdatesRow" />
+
+        <DataGridTextColumn Header="符号"
+                            Binding="{Binding Symbol}"
+                            Width="120"
+                            x:DataType="vm:CustomDrawingLiveUpdatesRow" />
+
+        <DataGridCustomDrawingColumn Header="动画消息"
+                                     Binding="{Binding Message}"
+                                     Width="*"
+                                     DrawingMode="DrawOperation"
+                                     RenderBackend="CompositionCustomVisual"
+                                     DrawOperationFactory="{StaticResource LiveSkiaFactory}"
+                                     TextLayoutCacheMode="Shared"
+                                     SharedTextLayoutCacheCapacity="1024"
+                                     DrawOperationLayoutFastPath="False"
+                                     Foreground="{DynamicResource ThemeForegroundBrush}"
+                                     x:DataType="vm:CustomDrawingLiveUpdatesRow" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </Grid>
+</UserControl>

@@ -34,4 +34,7 @@ public static class Strings
     public static string NAV_FilteringGrouping => ResourceManager.GetString(nameof(NAV_FilteringGrouping), Culture)!;
     public static string NAV_RowDetailsSelection => ResourceManager.GetString(nameof(NAV_RowDetailsSelection), Culture)!;
     public static string NAV_DragDrop => ResourceManager.GetString(nameof(NAV_DragDrop), Culture)!;
+    public static string NAV_CustomDrawingEditing => ResourceManager.GetString(nameof(NAV_CustomDrawingEditing), Culture)!;
+    public static string NAV_CustomDrawingLiveUpdates => ResourceManager.GetString(nameof(NAV_CustomDrawingLiveUpdates), Culture)!;
+    public static string NAV_EditingDemo => ResourceManager.GetString(nameof(NAV_EditingDemo), Culture)!;
 }
