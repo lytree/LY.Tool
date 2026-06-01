@@ -11,12 +11,16 @@
     d:DesignHeight="700"
     d:DesignWidth="1000"
     mc:Ignorable="d">
-    <Grid RowDefinitions="Auto, Auto, Auto, *, Auto, Auto">
+    <Grid RowDefinitions="Auto, Auto, Auto, Auto, *, Auto, Auto">
         <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
             <Button Content="添加行" Command="{Binding AddRowCommand}" />
             <Button Content="删除选中" Command="{Binding RemoveSelectedCommand}" />
             <Button Content="重置数据" Command="{Binding ResetDataCommand}" />
             <Button Content="清除日志" Command="{Binding ClearLogCommand}" />
+            <Separator Margin="4,0" />
+            <Button Content="撤销" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" />
+            <Button Content="重做" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}" />
+            <Button Content="提交修改" Command="{Binding CommitDirtyCommand}" />
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
             <TextBlock VerticalAlignment="Center" Text="编辑模式：" FontWeight="SemiBold" />
@@ -28,9 +32,27 @@
             </ComboBox>
             <TextBlock VerticalAlignment="Center" Text="{Binding ModeDescription}" Opacity="0.7" Margin="12,0,0,0" />
         </StackPanel>
-        <TextBlock Grid.Row="2" Text="{Binding EditStatus}" Foreground="Green" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
+            <TextBlock VerticalAlignment="Center" Text="批量编辑：" FontWeight="SemiBold" />
+            <TextBlock VerticalAlignment="Center" Text="分类" />
+            <ComboBox ItemsSource="{Binding CategoryOptions}" SelectedItem="{Binding BatchCategory}" Width="100" />
+            <Button Content="应用分类" Command="{Binding BatchSetCategoryCommand}" />
+            <TextBlock VerticalAlignment="Center" Text="供应商" Margin="8,0,0,0" />
+            <ComboBox ItemsSource="{Binding SupplierOptions}" SelectedItem="{Binding BatchSupplier}" Width="100" />
+            <Button Content="应用供应商" Command="{Binding BatchSetSupplierCommand}" />
+        </StackPanel>
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
+            <TextBlock Text="{Binding EditStatus}" Foreground="Green" FontWeight="SemiBold" />
+            <TextBlock VerticalAlignment="Center" Opacity="0.7">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}未提交修改: {0} 行">
+                        <Binding Path="DirtyCount" />
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+        </StackPanel>
         <DataGrid
-            Grid.Row="3"
+            Grid.Row="4"
             x:Name="Grid"
             ItemsSource="{Binding Rows}"
             SelectedItem="{Binding SelectedRow}"
@@ -60,10 +82,11 @@
                 <DataGridNumericColumn Header="数量" Binding="{Binding Quantity, Mode=TwoWay}" Width="80"
                     Minimum="0" Maximum="99999" Increment="1" />
                 <DataGridCheckBoxColumn Header="有货" Binding="{Binding InStock, Mode=TwoWay}" Width="70" />
+                <DataGridTextColumn Header="合计" Binding="{Binding Total, Mode=OneWay, StringFormat='{}{0:F2}'}" Width="100" IsReadOnly="True" />
                 <DataGridComboBoxColumn Header="供应商" Width="100"
                     ItemsSource="{Binding $parent[DataGrid].DataContext.SupplierOptions}"
                     SelectedItemBinding="{Binding Supplier, Mode=TwoWay}" />
-                <DataGridTextColumn Header="更新日期" Binding="{Binding LastUpdated, Mode=OneWay}" Width="100" IsReadOnly="True" />
+                <DataGridTextColumn Header="更新日期" Binding="{Binding LastUpdated, Mode=OneWay, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}" Width="120" IsReadOnly="True" />
                 <DataGridTemplateColumn Header="备注" Width="2*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="models:EditingDemoRow">
@@ -78,9 +101,9 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <GridSplitter Grid.Row="4" Background="{DynamicResource SystemControlHighlightAccentBrush}"
+        <GridSplitter Grid.Row="5" Background="{DynamicResource SystemControlHighlightAccentBrush}"
                       HorizontalAlignment="Stretch" Height="4" ResizeDirection="Rows" />
-        <Border Grid.Row="5" BorderBrush="{DynamicResource SystemControlHighlightAccentBrush}"
+        <Border Grid.Row="6" BorderBrush="{DynamicResource SystemControlHighlightAccentBrush}"
                 BorderThickness="1" Padding="4" MinHeight="120" MaxHeight="200">
             <Grid RowDefinitions="Auto, *">
                 <TextBlock Text="编辑事件日志" FontWeight="SemiBold" Margin="0,0,0,4" />
