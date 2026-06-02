@@ -395,7 +395,7 @@ public partial class TdlService
 
     ForwardDbContext CreateForwardDbContext(long chatId)
     {
-        var dataDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
+        var dataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AvaloniaTemplate", "TDLSharp", "data");
         Directory.CreateDirectory(dataDir);
         return new ForwardDbContext(chatId, dataDir);
     }

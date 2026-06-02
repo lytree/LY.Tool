@@ -24,7 +24,9 @@ public static class ServiceCollectionExtensions
 
         services.AddDbContextFactory<AppDbContext>(options =>
         {
-            var dbPath = Path.Combine(AppContext.BaseDirectory, "appdata.db");
+            var appDataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AvaloniaTemplate");
+            Directory.CreateDirectory(appDataDir);
+            var dbPath = Path.Combine(appDataDir, "appdata.db");
             options.UseSqlite($"Data Source={dbPath}");
         });
 

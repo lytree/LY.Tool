@@ -50,6 +50,19 @@ public partial class ScriptParameter : ObservableObject
         };
     }
 
+    public static ScriptParameter MultiLineText(string key, string displayName, string? description = null,
+        string? defaultValue = null, bool required = false)
+    {
+        return new MultiLineTextScriptParameter
+        {
+            Key = key,
+            DisplayName = displayName,
+            Description = description,
+            DefaultValue = defaultValue,
+            IsRequired = required
+        };
+    }
+
     public static ScriptParameter Path(string key, string displayName, string? description = null,
     int defaultValue = 0)
     {
@@ -64,6 +77,10 @@ public partial class ScriptParameter : ObservableObject
 }
 
 public partial class TextScriptParameter : ScriptParameter
+{
+}
+
+public partial class MultiLineTextScriptParameter : ScriptParameter
 {
 }
 

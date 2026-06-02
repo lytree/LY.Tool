@@ -1,3 +1,8 @@
+#!/usr/bin/env dotnet
+#:package Cake.Frosting@6.1.0
+#:package Cake.Common@6.1.0
+#:property PublishAot=false
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,15 +22,9 @@ using Cake.Core;
 using Cake.Core.Diagnostics;
 using Cake.Frosting;
 
-public static class Program
-{
-    public static int Main(string[] args)
-    {
-        return new CakeHost()
-            .UseContext<BuildContext>()
-            .Run(args);
-    }
-}
+return new CakeHost()
+    .UseContext<BuildContext>()
+    .Run(args);
 
 [Flags]
 public enum BuildTarget
