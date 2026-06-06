@@ -6,7 +6,7 @@ namespace Avalonia.Plugin.TDLSharp.ViewModels;
 
 [NavigationItem("TDL_DeleteForwards")]
 [Menu("NAV_TDL_DeleteForwards", "TDL_DeleteForwards", ParentKey = "NAV_TDL", Order = 6)]
-[ViewMap(typeof(Pages.TdlScriptPage))]
+[ViewMap(typeof(Pages.DeleteForwardsPage))]
 public partial class DeleteForwardsViewModel : TdlViewModelBase
 {
     public override ScriptDescriptor Script => new()

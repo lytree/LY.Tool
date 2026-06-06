@@ -6,7 +6,7 @@ namespace Avalonia.Plugin.TDLSharp.ViewModels;
 
 [NavigationItem("TDL_BatchForward")]
 [Menu("NAV_TDL_BatchForward", "TDL_BatchForward", ParentKey = "NAV_TDL", Order = 1)]
-[ViewMap(typeof(Pages.TdlScriptPage))]
+[ViewMap(typeof(Pages.BatchForwardPage))]
 public partial class BatchForwardViewModel : TdlViewModelBase
 {
     public override ScriptDescriptor Script => new()

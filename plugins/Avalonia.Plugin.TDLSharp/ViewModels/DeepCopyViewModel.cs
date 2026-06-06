@@ -1,12 +1,6 @@
-using System.Collections.ObjectModel;
-using Avalonia.Plugin.Shared;
 using Avalonia.Plugin.Shared.Attributes;
 using Avalonia.Plugin.TDLSharp.Models;
 using Avalonia.Plugin.TDLSharp.Services;
-using Avalonia.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Microsoft.EntityFrameworkCore;
 
 namespace Avalonia.Plugin.TDLSharp.ViewModels;
 
@@ -15,9 +9,6 @@ namespace Avalonia.Plugin.TDLSharp.ViewModels;
 [ViewMap(typeof(Pages.DeepCopyPage))]
 public partial class DeepCopyViewModel : TdlViewModelBase
 {
-    [ObservableProperty] private ObservableCollection<DeepCopyHistoryRecord> _historyRecords = [];
-    [ObservableProperty] private DeepCopyHistoryRecord? _selectedHistoryRecord;
-
     public override ScriptDescriptor Script => new()
     {
         Id = "forward",
@@ -30,11 +21,6 @@ public partial class DeepCopyViewModel : TdlViewModelBase
             ScriptParameter.Switch("comments", "处理评论", "是否同时处理评论中的浅转发", true),
         ]
     };
-
-    public DeepCopyViewModel()
-    {
-        LoadHistory();
-    }
 
     protected override async Task ExecuteCoreAsync(TdlService tdlService, Dictionary<string, string> paramValues, CancellationToken ct)
     {
@@ -56,84 +42,16 @@ public partial class DeepCopyViewModel : TdlViewModelBase
             if (sources.Count > 1)
                 AddLogEntry(new LogEntry { Message = $"━━━ 处理频道 [{i + 1}/{sources.Count}]: {channelLabel} ━━━" });
 
-            var record = new DeepCopyHistoryRecord
-            {
-                SourceChannel = channelLabel,
-                ExecutedAt = DateTime.Now,
-                Status = "执行中"
-            };
+            await tdlService.DeepCopyAsync(source, limit, comments, ct);
 
-            try
+            var chatId = await tdlService.ResolveChatIdAsync(source);
+            if (chatId == 0)
             {
-                await tdlService.DeepCopyAsync(source, limit, comments, ct);
-
-                var chatId = await tdlService.ResolveChatIdAsync(source);
-                if (chatId == 0)
-                {
-                    var currentUser = await tdlService.GetCurrentUserAsync();
-                    chatId = currentUser.Id;
-                }
-
-                await tdlService.DeleteShallowForwardMessagesAsync(chatId, ct);
-
-                record.Status = "成功";
-            }
-            catch (OperationCanceledException)
-            {
-                record.Status = "部分完成";
-                throw;
-            }
-            catch (Exception ex)
-            {
-                record.Status = "失败";
-                record.ErrorMessage = ex.Message;
+                var currentUser = await tdlService.GetCurrentUserAsync();
+                chatId = currentUser.Id;
             }
 
-            record.ExecutedAt = DateTime.Now;
-            await SaveHistoryRecordAsync(record);
-
-            Dispatcher.UIThread.Post(() =>
-            {
-                HistoryRecords.Insert(0, record);
-                if (HistoryRecords.Count > 100)
-                    HistoryRecords.RemoveAt(HistoryRecords.Count - 1);
-            });
-        }
-    }
-
-    [RelayCommand]
-    private void ClearHistory()
-    {
-        HistoryRecords.Clear();
-        _ = ClearHistoryDbAsync();
-    }
-
-    [RelayCommand]
-    private void DeleteHistoryRecord(DeepCopyHistoryRecord record)
-    {
-        HistoryRecords.Remove(record);
-        _ = DeleteHistoryRecordDbAsync(record);
-    }
-
-    [RelayCommand]
-    private void ApplyHistorySource(DeepCopyHistoryRecord record)
-    {
-        var sourceParam = Parameters.FirstOrDefault(p => p.Key == "source");
-        if (sourceParam != null)
-        {
-            var existingLines = (sourceParam.DefaultValue ?? "")
-                .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
-                .ToList();
-
-            if (!existingLines.Contains(record.SourceChannel) && record.SourceChannel != "收藏夹")
-            {
-                existingLines.Add(record.SourceChannel);
-                sourceParam.DefaultValue = string.Join(Environment.NewLine, existingLines);
-            }
-            else if (record.SourceChannel == "收藏夹")
-            {
-                sourceParam.DefaultValue = string.Join(Environment.NewLine, existingLines);
-            }
+            await tdlService.DeleteShallowForwardMessagesAsync(chatId, ct);
         }
     }
 
@@ -147,75 +65,5 @@ public partial class DeepCopyViewModel : TdlViewModelBase
             .Where(s => !string.IsNullOrWhiteSpace(s))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
-    }
-
-    private void LoadHistory()
-    {
-        Task.Run(async () =>
-        {
-            try
-            {
-                using var db = CreateHistoryDbContext();
-                await db.Database.EnsureCreatedAsync();
-                var records = await db.HistoryRecords
-                    .OrderByDescending(r => r.ExecutedAt)
-                    .Take(100)
-                    .ToListAsync();
-
-                Dispatcher.UIThread.Post(() =>
-                {
-                    foreach (var r in records)
-                        HistoryRecords.Add(r);
-                });
-            }
-            catch { }
-        });
-    }
-
-    private async Task SaveHistoryRecordAsync(DeepCopyHistoryRecord record)
-    {
-        try
-        {
-            using var db = CreateHistoryDbContext();
-            await db.Database.EnsureCreatedAsync();
-            db.HistoryRecords.Add(record);
-            await db.SaveChangesAsync();
-        }
-        catch { }
-    }
-
-    private async Task ClearHistoryDbAsync()
-    {
-        try
-        {
-            using var db = CreateHistoryDbContext();
-            await db.Database.EnsureCreatedAsync();
-            db.HistoryRecords.RemoveRange(db.HistoryRecords);
-            await db.SaveChangesAsync();
-        }
-        catch { }
-    }
-
-    private async Task DeleteHistoryRecordDbAsync(DeepCopyHistoryRecord record)
-    {
-        try
-        {
-            using var db = CreateHistoryDbContext();
-            await db.Database.EnsureCreatedAsync();
-            var entity = await db.HistoryRecords.FindAsync(record.Id);
-            if (entity != null)
-            {
-                db.HistoryRecords.Remove(entity);
-                await db.SaveChangesAsync();
-            }
-        }
-        catch { }
-    }
-
-    private static DeepCopyHistoryDbContext CreateHistoryDbContext()
-    {
-        var dataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AvaloniaTemplate", "TDLSharp");
-        Directory.CreateDirectory(dataDir);
-        return new DeepCopyHistoryDbContext(Path.Combine(dataDir, "deepcopy-history.db"));
     }
 }

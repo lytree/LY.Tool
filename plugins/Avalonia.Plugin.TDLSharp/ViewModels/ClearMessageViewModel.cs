@@ -6,7 +6,7 @@ namespace Avalonia.Plugin.TDLSharp.ViewModels;
 
 [NavigationItem("TDL_ClearMessage")]
 [Menu("NAV_TDL_ClearMessage", "TDL_ClearMessage", ParentKey = "NAV_TDL", Order = 2)]
-[ViewMap(typeof(Pages.TdlScriptPage))]
+[ViewMap(typeof(Pages.ClearMessagePage))]
 public partial class ClearMessageViewModel : TdlViewModelBase
 {
     public override ScriptDescriptor Script => new()

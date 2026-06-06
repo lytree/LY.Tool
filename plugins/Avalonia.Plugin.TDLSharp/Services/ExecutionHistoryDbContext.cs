@@ -3,16 +3,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Avalonia.Plugin.TDLSharp.Services;
 
-public class DeepCopyHistoryDbContext : DbContext
+public class ExecutionHistoryDbContext : DbContext
 {
     private readonly string _dbPath;
 
-    public DeepCopyHistoryDbContext(string dbPath)
+    public ExecutionHistoryDbContext(string dbPath)
     {
         _dbPath = dbPath;
     }
 
-    public DbSet<DeepCopyHistoryRecord> HistoryRecords { get; set; }
+    public DbSet<ExecutionHistoryRecord> ExecutionRecords { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -21,11 +21,15 @@ public class DeepCopyHistoryDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<DeepCopyHistoryRecord>(entity =>
+        modelBuilder.Entity<ExecutionHistoryRecord>(entity =>
         {
             entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.ScriptId);
             entity.HasIndex(e => e.ExecutedAt);
-            entity.Property(e => e.SourceChannel).IsRequired().HasMaxLength(512);
+            entity.Property(e => e.ScriptId).IsRequired().HasMaxLength(128);
+            entity.Property(e => e.ScriptName).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.ParametersJson).HasMaxLength(4096);
+            entity.Property(e => e.ParameterSummary).HasMaxLength(1024);
             entity.Property(e => e.Status).IsRequired().HasMaxLength(32);
             entity.Property(e => e.ErrorMessage).HasMaxLength(2048);
         });

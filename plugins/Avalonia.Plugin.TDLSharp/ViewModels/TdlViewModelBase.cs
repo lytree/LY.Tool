@@ -1,4 +1,7 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Text.Json;
+using Avalonia.Controls;
 using Avalonia.Input.Platform;
 using Avalonia.Plugin.Shared;
 using Avalonia.Plugin.Shared.Services;
@@ -8,6 +11,8 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.EntityFrameworkCore;
+using Ursa.Controls;
 
 namespace Avalonia.Plugin.TDLSharp.ViewModels;
 
@@ -17,6 +22,7 @@ public abstract partial class TdlViewModelBase : ViewModelBase
 
     [ObservableProperty] private ObservableCollection<ScriptParameter> _parameters = [];
     [ObservableProperty] private ObservableCollection<LogEntry> _logEntries = [];
+    [ObservableProperty] private ObservableCollection<ExecutionHistoryRecord> _executionHistoryRecords = [];
     [ObservableProperty] private bool _isRunning;
     [ObservableProperty] private string _statusText = "就绪";
     [ObservableProperty] private double _logMaxHeight = 400;
@@ -31,6 +37,7 @@ public abstract partial class TdlViewModelBase : ViewModelBase
         }
 
         WeakReferenceMessenger.Default.Register<TdlViewModelBase, WindowSizeChangedMessage>(this, OnWindowSizeChanged);
+        LoadExecutionHistory();
     }
 
     private void OnWindowSizeChanged(object recipient, WindowSizeChangedMessage message)
@@ -42,6 +49,20 @@ public abstract partial class TdlViewModelBase : ViewModelBase
     private void ClearLog()
     {
         LogEntries.Clear();
+    }
+
+    [RelayCommand]
+    private async Task ShowExecutionHistory()
+    {
+        await LoadExecutionHistoryAsync();
+        var dialogVm = new ExecutionHistoryDialogViewModel(ExecutionHistoryRecords, ApplyParametersFromJson);
+        var options = new OverlayDialogOptions
+        {
+            Title = $"执行历史 - {Script.Name}",
+            CanResize = true,
+            CanLightDismiss = true,
+        };
+        await OverlayDialog.ShowCustomAsync<Controls.ExecutionHistoryDialog, ExecutionHistoryDialogViewModel, bool>(dialogVm, options: options);
     }
 
     [RelayCommand]
@@ -66,29 +87,56 @@ public abstract partial class TdlViewModelBase : ViewModelBase
         StatusText = $"正在执行: {Script.Name}...";
         _cts = new CancellationTokenSource();
 
+        var sw = Stopwatch.StartNew();
+        var paramSnapshot = BuildParameterValues();
+        var status = "成功";
+        string? errorMsg = null;
+
         try
         {
-            var paramValues = BuildParameterValues();
             var tdlService = CreateTdlService();
-
-            await ExecuteCoreAsync(tdlService, paramValues, _cts.Token);
+            await ExecuteCoreAsync(tdlService, paramSnapshot, _cts.Token);
             StatusText = "执行完成";
         }
         catch (OperationCanceledException)
         {
+            status = "已取消";
             StatusText = "已取消";
         }
         catch (Exception ex)
         {
+            status = "失败";
+            errorMsg = ex.Message;
             AddLogEntry(new LogEntry { Message = $"执行失败: {ex.Message}" });
             StatusText = "执行失败";
         }
         finally
         {
+            sw.Stop();
             IsRunning = false;
             _cts?.Dispose();
             _cts = null;
             OnExecutionFinished();
+
+            // 记录执行历史
+            var record = new ExecutionHistoryRecord
+            {
+                ScriptId = Script.Id,
+                ScriptName = Script.Name,
+                ParametersJson = JsonSerializer.Serialize(paramSnapshot, new JsonSerializerOptions { WriteIndented = false }),
+                ParameterSummary = BuildParameterSummary(paramSnapshot),
+                ExecutedAt = DateTime.Now,
+                Duration = sw.Elapsed,
+                Status = status,
+                ErrorMessage = errorMsg
+            };
+            await SaveExecutionHistoryRecordAsync(record);
+            Dispatcher.UIThread.Post(() =>
+            {
+                ExecutionHistoryRecords.Insert(0, record);
+                if (ExecutionHistoryRecords.Count > 200)
+                    ExecutionHistoryRecords.RemoveAt(ExecutionHistoryRecords.Count - 1);
+            });
         }
     }
 
@@ -135,5 +183,98 @@ public abstract partial class TdlViewModelBase : ViewModelBase
                 LogEntries.RemoveAt(0);
             }
         });
+    }
+
+    private void ApplyParametersFromJson(string parametersJson)
+    {
+        try
+        {
+            var values = JsonSerializer.Deserialize<Dictionary<string, string>>(parametersJson) ?? new();
+            foreach (var param in Parameters)
+            {
+                if (values.TryGetValue(param.Key, out var val))
+                    param.DefaultValue = val;
+            }
+        }
+        catch { }
+    }
+
+    private async Task LoadExecutionHistoryAsync()
+    {
+        try
+        {
+            using var db = CreateExecutionHistoryDbContext();
+            await db.Database.EnsureCreatedAsync();
+            var records = await db.ExecutionRecords
+                .Where(r => r.ScriptId == Script.Id)
+                .OrderByDescending(r => r.ExecutedAt)
+                .Take(200)
+                .ToListAsync();
+
+            ExecutionHistoryRecords.Clear();
+            foreach (var r in records)
+                ExecutionHistoryRecords.Add(r);
+        }
+        catch { }
+    }
+
+    private string BuildParameterSummary(Dictionary<string, string> values)
+    {
+        var parts = new List<string>();
+        foreach (var param in Parameters)
+        {
+            if (values.TryGetValue(param.Key, out var val) && !string.IsNullOrWhiteSpace(val))
+            {
+                var shortVal = val.Length > 40 ? val[..37] + "..." : val;
+                parts.Add($"{param.DisplayName}={shortVal}");
+            }
+        }
+        return string.Join("; ", parts);
+    }
+
+    private void LoadExecutionHistory()
+    {
+        Task.Run(async () =>
+        {
+            try
+            {
+                using var db = CreateExecutionHistoryDbContext();
+                await db.Database.EnsureCreatedAsync();
+                var records = await db.ExecutionRecords
+                    .Where(r => r.ScriptId == Script.Id)
+                    .OrderByDescending(r => r.ExecutedAt)
+                    .Take(200)
+                    .ToListAsync();
+
+                Dispatcher.UIThread.Post(() =>
+                {
+                    foreach (var r in records)
+                        ExecutionHistoryRecords.Add(r);
+                });
+            }
+            catch { }
+        });
+    }
+
+    private async Task SaveExecutionHistoryRecordAsync(ExecutionHistoryRecord record)
+    {
+        try
+        {
+            using var db = CreateExecutionHistoryDbContext();
+            await db.Database.EnsureCreatedAsync();
+            db.ExecutionRecords.Add(record);
+            await db.SaveChangesAsync();
+        }
+        catch { }
+    }
+
+
+    internal static ExecutionHistoryDbContext CreateExecutionHistoryDbContext()
+    {
+        var dataDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "AvaloniaTemplate", "TDLSharp");
+        Directory.CreateDirectory(dataDir);
+        return new ExecutionHistoryDbContext(Path.Combine(dataDir, "execution-history.db"));
     }
 }

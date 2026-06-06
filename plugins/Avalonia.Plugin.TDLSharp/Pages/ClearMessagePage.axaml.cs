@@ -5,11 +5,11 @@ using Avalonia.Plugin.TDLSharp.ViewModels;
 
 namespace Avalonia.Plugin.TDLSharp.Pages;
 
-public partial class TdlScriptPage : UserControl
+public partial class ClearMessagePage : UserControl
 {
     private TdlViewModelBase? _currentVm;
 
-    public TdlScriptPage()
+    public ClearMessagePage()
     {
         InitializeComponent();
         DataContextChanged += OnDataContextChanged;
@@ -18,16 +18,12 @@ public partial class TdlScriptPage : UserControl
     private void OnDataContextChanged(object? sender, EventArgs e)
     {
         if (_currentVm is not null)
-        {
             _currentVm.LogEntries.CollectionChanged -= OnLogEntriesCollectionChanged;
-        }
 
         _currentVm = DataContext as TdlViewModelBase;
 
         if (_currentVm is not null)
-        {
             _currentVm.LogEntries.CollectionChanged += OnLogEntriesCollectionChanged;
-        }
     }
 
     private void OnLogEntriesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)

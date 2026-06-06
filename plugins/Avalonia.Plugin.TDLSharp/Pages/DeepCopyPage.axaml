@@ -4,7 +4,6 @@
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:vm="clr-namespace:Avalonia.Plugin.TDLSharp.ViewModels"
 			 xmlns:models="clr-namespace:Avalonia.Plugin.TDLSharp.Models"
-			 xmlns:controls="clr-namespace:Avalonia.Plugin.TDLSharp.Controls"
 			 x:Class="Avalonia.Plugin.TDLSharp.Pages.DeepCopyPage"
 			 x:DataType="vm:DeepCopyViewModel"
 			 mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="900">
@@ -61,11 +60,7 @@
 							<DataTemplate x:DataType="models:HistoryScriptParameter">
 								<Grid ColumnDefinitions="160,*" Margin="0 4" MinHeight="32">
 									<TextBlock Grid.Column="0" Text="{Binding DisplayName}" VerticalAlignment="Center" Classes="Body" />
-									<controls:HistoryComboBox Grid.Column="1"
-															  Text="{Binding DefaultValue, Mode=TwoWay}"
-															  PlaceholderText="{Binding Description}"
-															  HistoryKey="{Binding HistoryKey}"
-															  HorizontalAlignment="Stretch" />
+									<TextBox Grid.Column="1" Text="{Binding DefaultValue}" PlaceholderText="{Binding Description}" HorizontalAlignment="Stretch" />
 								</Grid>
 							</DataTemplate>
 						</ItemsControl.DataTemplates>
@@ -74,6 +69,7 @@
 					<StackPanel Orientation="Horizontal" Spacing="12" Margin="0 8 0 0">
 						<Button Content="执行" Command="{Binding ExecuteScriptCommand}" Classes="Primary" MinWidth="100" IsEnabled="{Binding !IsRunning}" />
 						<Button Content="取消" Command="{Binding CancelExecutionCommand}" MinWidth="80" IsVisible="{Binding IsRunning}" />
+						<Button Content="执行历史" Command="{Binding ShowExecutionHistoryCommand}" MinWidth="80" />
 						<TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" Classes="Tertiary" Margin="12 0 0 0" />
 					</StackPanel>
 				</StackPanel>
@@ -115,33 +111,6 @@
 							</DataTemplate>
 						</ListBox.ItemTemplate>
 					</ListBox>
-				</Grid>
-			</Border>
-
-			<Border Theme="{DynamicResource CardBorder}" Padding="12">
-				<Grid RowDefinitions="Auto,*">
-					<Grid ColumnDefinitions="*,Auto,Auto" Margin="0 0 0 8">
-						<TextBlock Grid.Column="0" Text="执行历史" Classes="SectionTitle" VerticalAlignment="Center" />
-						<Button Grid.Column="1" Content="应用" Command="{Binding ApplyHistorySourceCommand}" CommandParameter="{Binding SelectedHistoryRecord}" FontSize="12" Padding="8 4" Margin="0 0 8 0" IsEnabled="{Binding SelectedHistoryRecord, Converter={x:Static ObjectConverters.IsNotNull}}" />
-						<Button Grid.Column="2" Content="清除全部" Command="{Binding ClearHistoryCommand}" FontSize="12" Padding="8 4" />
-					</Grid>
-					<DataGrid Grid.Row="1" ItemsSource="{Binding HistoryRecords}" SelectedItem="{Binding SelectedHistoryRecord}"
-							  AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True"
-							  MaxHeight="250" SelectionMode="Single">
-						<DataGrid.Columns>
-							<DataGridTextColumn Header="状态" Binding="{Binding StatusIcon}" Width="50" />
-							<DataGridTextColumn Header="源频道" Binding="{Binding SourceChannel}" Width="*" />
-							<DataGridTextColumn Header="执行时间" Binding="{Binding ExecutedAt, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}" Width="140" />
-							<DataGridTextColumn Header="结果" Binding="{Binding Status}" Width="70" />
-							<DataGridTextColumn Header="错误信息" Binding="{Binding ErrorMessage}" Width="200" />
-						</DataGrid.Columns>
-						<DataGrid.ContextMenu>
-							<ContextMenu x:CompileBindings="False">
-								<MenuItem Header="应用到输入框" Command="{Binding ApplyHistorySourceCommand}" CommandParameter="{Binding SelectedHistoryRecord}" />
-								<MenuItem Header="删除此记录" Command="{Binding DeleteHistoryRecordCommand}" CommandParameter="{Binding SelectedHistoryRecord}" />
-							</ContextMenu>
-						</DataGrid.ContextMenu>
-					</DataGrid>
 				</Grid>
 			</Border>
 

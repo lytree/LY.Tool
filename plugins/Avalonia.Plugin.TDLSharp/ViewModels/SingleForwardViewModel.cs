@@ -6,7 +6,7 @@ namespace Avalonia.Plugin.TDLSharp.ViewModels;
 
 [NavigationItem("TDL_SingleForward")]
 [Menu("NAV_TDL_SingleForward", "TDL_SingleForward", ParentKey = "NAV_TDL", Order = 4)]
-[ViewMap(typeof(Pages.TdlScriptPage))]
+[ViewMap(typeof(Pages.SingleForwardPage))]
 public partial class SingleForwardViewModel : TdlViewModelBase
 {
     public override ScriptDescriptor Script => new()
