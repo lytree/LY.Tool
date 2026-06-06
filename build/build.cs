@@ -77,7 +77,7 @@ public class BuildContext : FrostingContext
         SelfContained = context.Argument("self-contained", false);
 
         RootDir = context.Environment.WorkingDirectory.FullPath;
-        PackagesDir = Path.Combine(RootDir, "packages");
+        PackagesDir = Path.Combine(RootDir, "bin");
         NuGetPackagesDir = Path.Combine(PackagesDir, "nuget");
         BinPackagesDir = Path.Combine(PackagesDir, "bin");
         PluginPackagesDir = Path.Combine(PackagesDir, "plugins");

@@ -6,10 +6,117 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-plugin-template",
-            "program": "${workspaceFolder}/src/launcher/Avalonia.Launcher.Desktop/bin/Debug/net10.0/Avalonia.Launcher.Desktop.dll",
-            "cwd": "${workspaceFolder}/src/launcher/Avalonia.Launcher.Desktop",
+            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
             "env": {
                 "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.Template/bin/Debug/net10.0"
+            },
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Debug Plugin - ButtonsInputs",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-plugin-buttons-inputs",
+            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "env": {
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.ButtonsInputs/bin/Debug/net10.0"
+            },
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Debug Plugin - DateTime",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-plugin-date-time",
+            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "env": {
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.DateTime/bin/Debug/net10.0"
+            },
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Debug Plugin - DialogFeedbacks",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-plugin-dialog-feedbacks",
+            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "env": {
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.DialogFeedbacks/bin/Debug/net10.0"
+            },
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Debug Plugin - Downloader",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-plugin-downloader",
+            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "env": {
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.Downloader/bin/Debug/net10.0"
+            },
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Debug Plugin - LayoutDisplay",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-plugin-layout-display",
+            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "env": {
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.LayoutDisplay/bin/Debug/net10.0"
+            },
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Debug Plugin - NavigationMenus",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-plugin-navigation-menus",
+            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "env": {
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.NavigationMenus/bin/Debug/net10.0"
+            },
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Debug Plugin - ProDataGrid",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-plugin-pro-data-grid",
+            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "env": {
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.ProDataGrid/bin/Debug/net10.0"
+            },
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Debug Plugin - ScottPlot",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-plugin-scott-plot",
+            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "env": {
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.ScottPlot/bin/Debug/net10.0"
+            },
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Debug Plugin - TDLSharp",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-plugin-tdl-sharp",
+            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "env": {
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.TDLSharp/bin/Debug/net10.0"
             },
             "console": "internalConsole",
             "stopAtEntry": false
