@@ -9,6 +9,8 @@ using Avalonia.UI.ViewModels;
 using Avalonia.UI.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace Avalonia.Launcher.Desktop;
 
@@ -18,6 +20,40 @@ public partial class App : Application
 
     public App()
     {
+        // 全局异常处理：后台线程未观察到的异常
+        TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
+        AppDomain.CurrentDomain.UnhandledException += OnDomainUnhandledException;
+    }
+
+    private static void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        LogGlobalException("UnobservedTaskException", e.Exception);
+        e.SetObserved();
+    }
+
+    private static void OnDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        if (e.ExceptionObject is Exception ex)
+            LogGlobalException("UnhandledException", ex);
+    }
+
+    private static void LogGlobalException(string source, Exception ex)
+    {
+        try
+        {
+            var logger = ServiceProvider?.GetRequiredService<ILogger<App>>();
+            logger?.LogError(ex, "[全局异常] {Source}: {Message}", source, ex.Message);
+        }
+        catch
+        {
+            Console.Error.WriteLine($"[全局异常] {source}: {ex}");
+        }
+    }
+
+    private static void OnUIThreadUnhandledException(object? sender, Avalonia.Threading.DispatcherUnhandledExceptionEventArgs e)
+    {
+        LogGlobalException("UIThreadUnhandledException", e.Exception);
+        e.Handled = true;
     }
 
     public override void Initialize()
@@ -41,6 +77,10 @@ public partial class App : Application
 
         ServiceProvider = services.BuildServiceProvider();
         ServiceLocator.Initialize(ServiceProvider);
+
+        // 记录应用启动日志
+        var logger = ServiceProvider.GetRequiredService<ILogger<App>>();
+        logger.ZLogInformation($"AvaloniaTemplate 应用启动");
 
         InitializeDatabase();
         InitializeLocalization();
@@ -114,6 +154,9 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            // 全局异常处理：UI 线程未处理异常
+            Avalonia.Threading.Dispatcher.UIThread.UnhandledException += OnUIThreadUnhandledException;
+
             desktop.MainWindow = new MvvmSplashWindow()
             {
                 DataContext = new SplashViewModel()

@@ -34,4 +34,20 @@ public class ExecutionHistoryDbContext : DbContext
             entity.Property(e => e.ErrorMessage).HasMaxLength(2048);
         });
     }
+
+    /// <summary>
+    /// 根据脚本ID创建独立的数据库上下文，每个脚本使用独立的db文件
+    /// </summary>
+    public static ExecutionHistoryDbContext CreateForScript(string scriptId)
+    {
+        var dataDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "AvaloniaTemplate", "TDLSharp", "history");
+        Directory.CreateDirectory(dataDir);
+
+        // 将scriptId中的特殊字符替换为下划线，确保文件名安全
+        var safeName = string.Concat(scriptId.Select(c => char.IsLetterOrDigit(c) ? c : '_'));
+        var dbPath = Path.Combine(dataDir, $"history-{safeName}.db");
+        return new ExecutionHistoryDbContext(dbPath);
+    }
 }

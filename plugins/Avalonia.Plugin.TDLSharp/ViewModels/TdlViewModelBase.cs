@@ -55,7 +55,7 @@ public abstract partial class TdlViewModelBase : ViewModelBase
     private async Task ShowExecutionHistory()
     {
         await LoadExecutionHistoryAsync();
-        var dialogVm = new ExecutionHistoryDialogViewModel(ExecutionHistoryRecords, ApplyParametersFromJson, Script.Parameters);
+        var dialogVm = new ExecutionHistoryDialogViewModel(Script.Id, ExecutionHistoryRecords, ApplyParametersFromJson);
         var options = new OverlayDialogOptions
         {
             Title = $"执行历史 - {Script.Name}",
@@ -92,24 +92,43 @@ public abstract partial class TdlViewModelBase : ViewModelBase
 
         var sw = Stopwatch.StartNew();
         var paramSnapshot = BuildParameterValues();
-        var status = "成功";
-        string? errorMsg = null;
+
+        // 执行开始时即创建历史记录
+        var record = new ExecutionHistoryRecord
+        {
+            ScriptId = Script.Id,
+            ScriptName = Script.Name,
+            ParametersJson = JsonSerializer.Serialize(paramSnapshot, new JsonSerializerOptions { WriteIndented = false }),
+            ParameterSummary = BuildParameterSummary(paramSnapshot),
+            ExecutedAt = DateTime.Now,
+            Duration = TimeSpan.Zero,
+            Status = "执行中",
+            ErrorMessage = null
+        };
+        await SaveExecutionHistoryRecordAsync(record);
+        Dispatcher.UIThread.Post(() =>
+        {
+            ExecutionHistoryRecords.Insert(0, record);
+            if (ExecutionHistoryRecords.Count > 200)
+                ExecutionHistoryRecords.RemoveAt(ExecutionHistoryRecords.Count - 1);
+        });
 
         try
         {
             var tdlService = CreateTdlService();
             await ExecuteCoreAsync(tdlService, paramSnapshot, _cts.Token);
+            record.Status = "成功";
             StatusText = "执行完成";
         }
         catch (OperationCanceledException)
         {
-            status = "已取消";
+            record.Status = "已取消";
             StatusText = "已取消";
         }
         catch (Exception ex)
         {
-            status = "失败";
-            errorMsg = ex.Message;
+            record.Status = "失败";
+            record.ErrorMessage = ex.Message;
             AddLogEntry(new LogEntry { Message = $"执行失败: {ex.Message}" });
             StatusText = "执行失败";
         }
@@ -121,25 +140,9 @@ public abstract partial class TdlViewModelBase : ViewModelBase
             _cts = null;
             OnExecutionFinished();
 
-            // 记录执行历史
-            var record = new ExecutionHistoryRecord
-            {
-                ScriptId = Script.Id,
-                ScriptName = Script.Name,
-                ParametersJson = JsonSerializer.Serialize(paramSnapshot, new JsonSerializerOptions { WriteIndented = false }),
-                ParameterSummary = BuildParameterSummary(paramSnapshot),
-                ExecutedAt = DateTime.Now,
-                Duration = sw.Elapsed,
-                Status = status,
-                ErrorMessage = errorMsg
-            };
-            await SaveExecutionHistoryRecordAsync(record);
-            Dispatcher.UIThread.Post(() =>
-            {
-                ExecutionHistoryRecords.Insert(0, record);
-                if (ExecutionHistoryRecords.Count > 200)
-                    ExecutionHistoryRecords.RemoveAt(ExecutionHistoryRecords.Count - 1);
-            });
+            // 更新历史记录的最终状态
+            record.Duration = sw.Elapsed;
+            await UpdateExecutionHistoryRecordAsync(record);
         }
     }
 
@@ -206,7 +209,7 @@ public abstract partial class TdlViewModelBase : ViewModelBase
     {
         try
         {
-            using var db = CreateExecutionHistoryDbContext();
+            using var db = ExecutionHistoryDbContext.CreateForScript(Script.Id);
             await db.Database.EnsureCreatedAsync();
             var records = await db.ExecutionRecords
                 .Where(r => r.ScriptId == Script.Id)
@@ -241,7 +244,7 @@ public abstract partial class TdlViewModelBase : ViewModelBase
         {
             try
             {
-                using var db = CreateExecutionHistoryDbContext();
+                using var db = ExecutionHistoryDbContext.CreateForScript(Script.Id);
                 await db.Database.EnsureCreatedAsync();
                 var records = await db.ExecutionRecords
                     .Where(r => r.ScriptId == Script.Id)
@@ -263,7 +266,7 @@ public abstract partial class TdlViewModelBase : ViewModelBase
     {
         try
         {
-            using var db = CreateExecutionHistoryDbContext();
+            using var db = ExecutionHistoryDbContext.CreateForScript(Script.Id);
             await db.Database.EnsureCreatedAsync();
             db.ExecutionRecords.Add(record);
             await db.SaveChangesAsync();
@@ -271,13 +274,15 @@ public abstract partial class TdlViewModelBase : ViewModelBase
         catch { }
     }
 
-
-    internal static ExecutionHistoryDbContext CreateExecutionHistoryDbContext()
+    private async Task UpdateExecutionHistoryRecordAsync(ExecutionHistoryRecord record)
     {
-        var dataDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "AvaloniaTemplate", "TDLSharp");
-        Directory.CreateDirectory(dataDir);
-        return new ExecutionHistoryDbContext(Path.Combine(dataDir, "execution-history.db"));
+        try
+        {
+            using var db = ExecutionHistoryDbContext.CreateForScript(Script.Id);
+            await db.Database.EnsureCreatedAsync();
+            db.ExecutionRecords.Update(record);
+            await db.SaveChangesAsync();
+        }
+        catch { }
     }
 }

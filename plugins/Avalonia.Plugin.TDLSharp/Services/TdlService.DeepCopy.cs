@@ -7,7 +7,7 @@ namespace Avalonia.Plugin.TDLSharp.Services;
 
 public partial class TdlService
 {
-    public async Task DeepCopyAsync(string? sourceLink, int limit, bool forwardComments, CancellationToken ct = default)
+    public async Task DeepCopyAsync(string? sourceLink, int limit, bool forwardComments, int maxNonShallowThreshold = 5000, CancellationToken ct = default)
     {
         await EnsureReadyAsync();
 
@@ -27,10 +27,20 @@ public partial class TdlService
 
         using var db = CreateForwardDbContext(sourceChatId);
         await db.Database.EnsureCreatedAsync();
+
+        // 每次执行前清空该频道的历史转发记录
+        var deletedCount = await db.ForwardRecords
+            .Where(r => r.SourceChatId == sourceChatId && r.TargetChatId == sourceChatId)
+            .ExecuteDeleteAsync();
+        if (deletedCount > 0)
+            _logger.Log($"已清空 {deletedCount} 条旧转发记录");
+        await db.SaveChangesAsync();
+
         _logger.Log($"数据库已就绪: forward-{sourceChatId}.db");
 
         int totalForwarded = 0;
         int totalSkipped = 0;
+        int consecutiveNonShallow = 0;
         long fromMessageId = 0;
         List<TdApi.Message>? pendingGroup = null;
         bool hasMore = true;
@@ -54,6 +64,24 @@ public partial class TdlService
                     .Where(m => m.ForwardInfo != null)
                     .OrderBy(m => m.Id)
                     .ToList();
+
+                // 统计本批次中非浅转发消息数量
+                int nonShallowInBatch = history.Messages_.Length - messages.Count;
+                if (nonShallowInBatch > 0)
+                {
+                    consecutiveNonShallow += nonShallowInBatch;
+                    if (consecutiveNonShallow >= maxNonShallowThreshold)
+                    {
+                        _logger.Log($"连续 {consecutiveNonShallow} 条非浅转发消息，超过阈值 {maxNonShallowThreshold}，停止扫描");
+                        hasMore = false;
+                        break;
+                    }
+                }
+
+                if (messages.Count > 0)
+                {
+                    consecutiveNonShallow = 0; // 发现浅转发，重置计数
+                }
 
                 if (messages.Count == 0)
                 {
@@ -162,6 +190,7 @@ public partial class TdlService
 
         int totalDeleted = 0;
         int totalScanned = 0;
+        int consecutiveBatchesWithoutMatch = 0;
         long fromMessageId = 0;
         bool hasMore = true;
 
@@ -193,6 +222,7 @@ public partial class TdlService
 
                     if (toDelete.Length > 0)
                     {
+                        consecutiveBatchesWithoutMatch = 0;
                         await client.DeleteMessagesAsync(
                             chatId: chatId,
                             messageIds: toDelete,
@@ -200,9 +230,37 @@ public partial class TdlService
                         );
 
                         totalDeleted += toDelete.Length;
-                        _logger.Log($"删除 {toDelete.Length} 条浅转发消息 (累计: {totalDeleted})");
+                        foreach (var id in toDelete)
+                            successRecordIds.Remove(id);
+
+                        _logger.Log($"删除 {toDelete.Length} 条浅转发消息 (累计: {totalDeleted}, 剩余: {successRecordIds.Count})");
+
+                        // 所有记录已删除完毕，直接结束
+                        if (successRecordIds.Count == 0)
+                        {
+                            _logger.Log("所有深Copy记录已全部删除，停止扫描");
+                            hasMore = false;
+                            break;
+                        }
+
                         await Task.Delay(1000, ct);
                     }
+                    else
+                    {
+                        consecutiveBatchesWithoutMatch++;
+                    }
+                }
+                else
+                {
+                    consecutiveBatchesWithoutMatch++;
+                }
+
+                // 连续3批没有匹配的浅转发消息，说明剩余记录已删除，提前退出
+                if (consecutiveBatchesWithoutMatch >= 3)
+                {
+                    _logger.Log("连续多批未发现匹配的浅转发消息，停止扫描");
+                    hasMore = false;
+                    break;
                 }
 
                 fromMessageId = history.Messages_.Last().Id;

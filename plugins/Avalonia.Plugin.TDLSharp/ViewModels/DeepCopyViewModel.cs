@@ -19,6 +19,7 @@ public partial class DeepCopyViewModel : TdlViewModelBase
             ScriptParameter.HistoryText("source", "源频道", "每行输入一个频道/群聊链接或用户名\n留空=收藏夹", required: false),
             ScriptParameter.Number("limit", "最大处理数量", "0=全部", 0),
             ScriptParameter.Switch("comments", "处理评论", "是否同时处理评论中的浅转发", true),
+            ScriptParameter.Number("maxNonShallow", "非浅转发阈值", "连续N条非浅转发消息后停止扫描", 5000),
         ]
     };
 
@@ -27,6 +28,7 @@ public partial class DeepCopyViewModel : TdlViewModelBase
         var sourceRaw = paramValues.GetValueOrDefault("source")?.Trim();
         var limit = int.TryParse(paramValues.GetValueOrDefault("limit", "0"), out var l) ? l : 0;
         var comments = bool.TryParse(paramValues.GetValueOrDefault("comments", "true"), out var c) && c;
+        var maxNonShallow = int.TryParse(paramValues.GetValueOrDefault("maxNonShallow", "5000"), out var m) ? m : 5000;
 
         var sources = ParseSources(sourceRaw);
 
@@ -42,7 +44,7 @@ public partial class DeepCopyViewModel : TdlViewModelBase
             if (sources.Count > 1)
                 AddLogEntry(new LogEntry { Message = $"━━━ 处理频道 [{i + 1}/{sources.Count}]: {channelLabel} ━━━" });
 
-            await tdlService.DeepCopyAsync(source, limit, comments, ct);
+            await tdlService.DeepCopyAsync(source, limit, comments, maxNonShallow, ct);
 
             var chatId = await tdlService.ResolveChatIdAsync(source);
             if (chatId == 0)

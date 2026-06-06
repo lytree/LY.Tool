@@ -36,6 +36,7 @@ public partial class ExecutionHistoryRecord : ObservableObject
 
     public string StatusIcon => Status switch
     {
+        "执行中" => "🔄",
         "成功" => "✅",
         "部分完成" => "⚠️",
         "已取消" => "🛑",

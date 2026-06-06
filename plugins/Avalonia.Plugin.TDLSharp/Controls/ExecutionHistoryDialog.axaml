@@ -14,7 +14,7 @@
 
     <Grid Margin="16" RowDefinitions="Auto,*">
 
-        <!-- 标题行 + 操作按钮靠左 -->
+        <!-- 标题行 + 操作按钮 -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0 0 0 12">
             <TextBlock
                 VerticalAlignment="Center"
@@ -22,19 +22,25 @@
                 FontWeight="600"
                 Text="执行历史" />
             <Button
-                Command="{Binding ClearAllCommand}"
-                Content="清除全部"
-                FontSize="12"
-                Padding="10 4" />
-            <Button
                 Command="{Binding ApplyParametersCommand}"
                 CommandParameter="{Binding SelectedRecord}"
                 Content="应用选中"
                 FontSize="12"
                 Padding="10 4" />
+            <Button
+                Command="{Binding DeleteRecordCommand}"
+                CommandParameter="{Binding SelectedRecord}"
+                Content="删除选中"
+                FontSize="12"
+                Padding="10 4" />
+            <Button
+                Command="{Binding ClearAllCommand}"
+                Content="清除全部"
+                FontSize="12"
+                Padding="10 4" />
         </StackPanel>
 
-        <!-- 历史表格（列在 code-behind 动态生成） -->
+        <!-- 表格展示 -->
         <DataGrid
             x:Name="HistoryDataGrid"
             Grid.Row="1"
@@ -48,7 +54,28 @@
             ItemsSource="{Binding Records}"
             SelectedItem="{Binding SelectedRecord}"
             SelectionMode="Single"
-            DoubleTapped="DataGrid_DoubleTapped">
+            DoubleTapped="DataGrid_DoubleTapped"
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
+            ScrollViewer.HorizontalScrollBarVisibility="Auto">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding StatusIcon}" Header="状态" Width="50" />
+                <DataGridTextColumn Binding="{Binding ParameterSummary}" Header="参数" Width="*" />
+                <DataGridTextColumn Binding="{Binding Status}" Header="结果" Width="60" />
+                <DataGridTextColumn Binding="{Binding ExecutedAt, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss}'}" Header="执行时间" Width="140" />
+                <DataGridTextColumn Binding="{Binding DurationText}" Header="耗时" Width="70" />
+                <DataGridTemplateColumn Header="操作" Width="60">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="models:ExecutionHistoryRecord">
+                            <Button
+                                Content="删除"
+                                FontSize="11"
+                                Padding="4 2"
+                                Command="{Binding $parent[DataGrid].((vm:ExecutionHistoryDialogViewModel)DataContext).DeleteRecordCommand}"
+                                CommandParameter="{Binding}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Command="{Binding $parent[DataGrid].((vm:ExecutionHistoryDialogViewModel)DataContext).ApplyParametersCommand}" CommandParameter="{Binding $parent[DataGrid].SelectedItem}" Header="应用参数到输入框" />

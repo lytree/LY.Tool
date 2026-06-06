@@ -21,14 +21,6 @@ public partial class TDLSharpPlugin : IPluginMetadata
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddSingleton<ILoggerFactory>(sp =>
-        {
-            return LoggerFactory.Create(builder =>
-            {
-                builder.SetMinimumLevel(LogLevel.Information);
-            });
-        });
-
         services.AddSingleton<TdlClientManager>(sp =>
         {
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
