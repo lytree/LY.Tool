@@ -11,6 +11,7 @@
             </ResourceDictionary.ThemeDictionaries>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceInclude Source="Icons/_index.axaml" />
+                <ResourceInclude Source="Icons/Fluent/_index.axaml" />
                 <ResourceInclude Source="Controls/_index.axaml" />
                 <ResourceInclude Source="Themes/Shared/_index.axaml" />
             </ResourceDictionary.MergedDictionaries>

@@ -1,0 +1,18 @@
+<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="avares://Avalonia.UI/Theme/Icons/Fluent/Regular16.axaml" />
+        <ResourceInclude Source="avares://Avalonia.UI/Theme/Icons/Fluent/Filled16.axaml" />
+        <ResourceInclude Source="avares://Avalonia.UI/Theme/Icons/Fluent/Regular20.axaml" />
+        <ResourceInclude Source="avares://Avalonia.UI/Theme/Icons/Fluent/Filled20.axaml" />
+        <ResourceInclude Source="avares://Avalonia.UI/Theme/Icons/Fluent/Regular24.axaml" />
+        <ResourceInclude Source="avares://Avalonia.UI/Theme/Icons/Fluent/Filled24.axaml" />
+        <ResourceInclude Source="avares://Avalonia.UI/Theme/Icons/Fluent/Regular28.axaml" />
+        <ResourceInclude Source="avares://Avalonia.UI/Theme/Icons/Fluent/Filled28.axaml" />
+        <ResourceInclude Source="avares://Avalonia.UI/Theme/Icons/Fluent/Regular32.axaml" />
+        <ResourceInclude Source="avares://Avalonia.UI/Theme/Icons/Fluent/Filled32.axaml" />
+        <ResourceInclude Source="avares://Avalonia.UI/Theme/Icons/Fluent/Regular48.axaml" />
+        <ResourceInclude Source="avares://Avalonia.UI/Theme/Icons/Fluent/Filled48.axaml" />
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>
