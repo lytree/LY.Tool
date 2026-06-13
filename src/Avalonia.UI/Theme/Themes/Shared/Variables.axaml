@@ -61,5 +61,4 @@
     <FontWeight x:Key="SemiFontWeightLight">350</FontWeight>
     <FontWeight x:Key="SemiFontWeightRegular">400</FontWeight>
     <FontWeight x:Key="SemiFontWeightBold">600</FontWeight>
-    <FontFamily x:Key="SemiFontFamilyRegular">Segoe UI Variable, Segoe UI, -apple-system, BlinkMacSystemFont, PingFang SC, Microsoft YaHei, Helvetica Neue, Helvetica, Arial, sans-serif</FontFamily>
 </ResourceDictionary>

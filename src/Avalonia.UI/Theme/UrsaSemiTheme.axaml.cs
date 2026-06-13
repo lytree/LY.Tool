@@ -7,6 +7,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Plugin.Shared;
 using Avalonia.Plugin.Shared.Services;
 using Avalonia.UI.Resources;
+using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.UI.Theme.Animations;
 
@@ -21,6 +22,11 @@ public partial class UrsaSemiTheme : Styles
     public UrsaSemiTheme(IServiceProvider? provider = null)
     {
         AvaloniaXamlLoader.Load(provider, this);
+
+        // FontFamily 不支持 XAML 元素语法实例化，需在代码中注册
+        Resources["SemiFontFamilyRegular"] = new FontFamily("Microsoft YaHei");
+        Resources["CodeFontFamily"] = new FontFamily("Cascadia Code, Consolas, Inconsolata, monospace");
+
         Resources.MergedDictionaries.Add(new DefaultSizeAnimations());
         Resources.MergedDictionaries.Add(new NavMenuSizeAnimations());
 

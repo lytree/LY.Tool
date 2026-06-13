@@ -10,5 +10,4 @@
     <StaticResource x:Key="TextBlockFontWeight" ResourceKey="SemiFontWeightRegular" />
     <StaticResource x:Key="TextBlockTitleFontWeight" ResourceKey="SemiFontWeightBold" />
     <CornerRadius x:Key="TextBlockCodeCornerRadius">2</CornerRadius>
-    <FontFamily x:Key="CodeFontFamily">Cascadia Code, Consolas, Inconsolata, monospace</FontFamily>
 </ResourceDictionary>
