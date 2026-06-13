@@ -24,8 +24,11 @@ public partial class UrsaSemiTheme : Styles
         AvaloniaXamlLoader.Load(provider, this);
 
         // FontFamily 不支持 XAML 元素语法实例化，需在代码中注册
-        Resources["SemiFontFamilyRegular"] = new FontFamily("Microsoft YaHei");
-        Resources["CodeFontFamily"] = new FontFamily("Cascadia Code, Consolas, Inconsolata, monospace");
+        // 使用跨平台回退链：Windows → macOS → Linux → 通用
+        Resources["SemiFontFamilyRegular"] = new FontFamily(
+            "Microsoft YaHei, PingFang SC, Noto Sans CJK SC, WenQuanYi Micro Hei, sans-serif");
+        Resources["CodeFontFamily"] = new FontFamily(
+            "Cascadia Code, Consolas, SF Mono, Menlo, DejaVu Sans Mono, Inconsolata, monospace");
 
         Resources.MergedDictionaries.Add(new DefaultSizeAnimations());
         Resources.MergedDictionaries.Add(new NavMenuSizeAnimations());
