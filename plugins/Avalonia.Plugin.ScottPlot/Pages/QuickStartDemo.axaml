@@ -13,9 +13,9 @@
     mc:Ignorable="d">
     <Grid RowDefinitions="Auto, *">
         <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
-            <Button Content="{DynamicResource STRING_BTN_SineWave}" Command="{Binding AddSineCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_CosineWave}" Command="{Binding AddCosineCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_Clear}" Command="{Binding ClearCommand}" />
+            <Button Content="{DynamicResource BTN_SineWave}" Command="{Binding AddSineCommand}" />
+            <Button Content="{DynamicResource BTN_CosineWave}" Command="{Binding AddCosineCommand}" />
+            <Button Content="{DynamicResource BTN_Clear}" Command="{Binding ClearCommand}" />
         </StackPanel>
         <controls:PlotView Grid.Row="1" Name="PlotView" />
     </Grid>

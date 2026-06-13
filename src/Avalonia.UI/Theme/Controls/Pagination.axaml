@@ -28,7 +28,7 @@
                         <TextBlock
                             Margin="4,0"
                             VerticalAlignment="Center"
-                            Text="{DynamicResource STRING_PAGINATION_JUMP_TO}" />
+                            Text="{DynamicResource PAGINATION_JUMP_TO}" />
                         <u:NumericIntUpDown
                             x:Name="{x:Static u:Pagination.PART_QuickJumpInput}"
                             Width="50"
@@ -36,7 +36,7 @@
                         <TextBlock
                             Margin="4,0"
                             VerticalAlignment="Center"
-                            Text="{DynamicResource STRING_PAGINATION_PAGE}" />
+                            Text="{DynamicResource PAGINATION_PAGE}" />
                     </StackPanel>
                     <ComboBox
                         IsVisible="{TemplateBinding ShowPageSizeSelector}"

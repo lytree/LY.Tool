@@ -96,7 +96,7 @@
                                             Margin="8"
                                             HorizontalAlignment="Right"
                                             Command="{Binding $parent[u:TimeRangePicker].Confirm}"
-                                            Content="{DynamicResource STRING_DATE_TIME_CONFIRM}" />
+                                            Content="{DynamicResource DATE_TIME_CONFIRM}" />
                                     </StackPanel>
                                     -->
                                     <ContentPresenter

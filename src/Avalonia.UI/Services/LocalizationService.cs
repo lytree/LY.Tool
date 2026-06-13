@@ -116,8 +116,8 @@ public class LocalizationService : ILocalizationService
                 if (entry.Value is not string s) continue;
                 var entryKey = entry.Key?.ToString() ?? string.Empty;
                 var resourceKey = string.IsNullOrEmpty(lookupPrefix)
-                    ? $"STRING_{entry.Key}"
-                    : $"STRING_{lookupPrefix}_{entry.Key}";
+                    ? $"{entry.Key}"
+                    : $"{lookupPrefix}_{entry.Key}";
 
                 cache.TryAdd(entryKey, s);
 

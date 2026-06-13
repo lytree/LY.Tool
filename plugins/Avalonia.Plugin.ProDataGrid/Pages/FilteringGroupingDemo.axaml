@@ -13,15 +13,15 @@
     mc:Ignorable="d">
     <Grid RowDefinitions="Auto, Auto, *">
         <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
-            <Button Content="{DynamicResource STRING_BTN_AddTask}" Command="{Binding AddTaskCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_ResetData}" Command="{Binding ResetDataCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_ClearFilter}" Command="{Binding ClearFilterCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_Save}" Command="{Binding SaveCommand}" />
+            <Button Content="{DynamicResource BTN_AddTask}" Command="{Binding AddTaskCommand}" />
+            <Button Content="{DynamicResource BTN_ResetData}" Command="{Binding ResetDataCommand}" />
+            <Button Content="{DynamicResource BTN_ClearFilter}" Command="{Binding ClearFilterCommand}" />
+            <Button Content="{DynamicResource BTN_Save}" Command="{Binding SaveCommand}" />
         </StackPanel>
         <Grid Grid.Row="1" ColumnDefinitions="Auto, *, Auto, Auto" Margin="0,0,0,8">
-            <TextBlock Text="{DynamicResource STRING_LBL_Filter}" VerticalAlignment="Center" Margin="0,0,8,0" />
-            <TextBox Grid.Column="1" Text="{Binding FilterText}" PlaceholderText="{DynamicResource STRING_HINT_FilterTitleAssigneeStatus}" />
-            <TextBlock Grid.Column="2" Text="{DynamicResource STRING_LBL_GroupBy}" VerticalAlignment="Center" Margin="16,0,8,0" />
+            <TextBlock Text="{DynamicResource LBL_Filter}" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <TextBox Grid.Column="1" Text="{Binding FilterText}" PlaceholderText="{DynamicResource HINT_FilterTitleAssigneeStatus}" />
+            <TextBlock Grid.Column="2" Text="{DynamicResource LBL_GroupBy}" VerticalAlignment="Center" Margin="16,0,8,0" />
             <ComboBox Grid.Column="3" ItemsSource="{Binding GroupByOptions}" SelectedItem="{Binding GroupByProperty}" MinWidth="120" />
         </Grid>
         <DataGrid
@@ -38,12 +38,12 @@
             EditTriggers="CellClick,CellDoubleClick,F2,TextInput"
             x:CompileBindings="False">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_ID}" Binding="{Binding Id, Mode=OneWay}" Width="60" IsReadOnly="True" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_Title}" Binding="{Binding Title, Mode=TwoWay}" Width="2*" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_Assignee}" Binding="{Binding Assignee, Mode=TwoWay}" Width="*" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_Status}" Binding="{Binding Status, Mode=TwoWay}" Width="100" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_Priority}" Binding="{Binding Priority, Mode=TwoWay}" Width="80" />
-                <DataGridTemplateColumn Header="{DynamicResource STRING_COL_Progress}" Width="120">
+                <DataGridTextColumn Header="{DynamicResource COL_ID}" Binding="{Binding Id, Mode=OneWay}" Width="60" IsReadOnly="True" />
+                <DataGridTextColumn Header="{DynamicResource COL_Title}" Binding="{Binding Title, Mode=TwoWay}" Width="2*" />
+                <DataGridTextColumn Header="{DynamicResource COL_Assignee}" Binding="{Binding Assignee, Mode=TwoWay}" Width="*" />
+                <DataGridTextColumn Header="{DynamicResource COL_Status}" Binding="{Binding Status, Mode=TwoWay}" Width="100" />
+                <DataGridTextColumn Header="{DynamicResource COL_Priority}" Binding="{Binding Priority, Mode=TwoWay}" Width="80" />
+                <DataGridTemplateColumn Header="{DynamicResource COL_Progress}" Width="120">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="models:TaskItem">
                             <Grid ColumnDefinitions="*, Auto">
@@ -53,8 +53,8 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_DueDate}" Binding="{Binding DueDate, Mode=TwoWay}" Width="110" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_Category}" Binding="{Binding Category, Mode=TwoWay}" Width="100" />
+                <DataGridTextColumn Header="{DynamicResource COL_DueDate}" Binding="{Binding DueDate, Mode=TwoWay}" Width="110" />
+                <DataGridTextColumn Header="{DynamicResource COL_Category}" Binding="{Binding Category, Mode=TwoWay}" Width="100" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

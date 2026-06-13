@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:iri="https://irihi.tech/shared"
     xmlns:u="https://irihi.tech/ursa"
-    Title="{DynamicResource STRING_SPLASH_STARTING}"
+    Title="{DynamicResource SPLASH_STARTING}"
     Width="520"
     Height="460"
     CanResize="False"
@@ -112,7 +112,7 @@
                             VerticalAlignment="Bottom"
                             FontSize="16"
                             FontWeight="SemiBold"
-                            Text="{DynamicResource STRING_WELCOME_IRIHI}"
+                            Text="{DynamicResource WELCOME_IRIHI}"
                             Foreground="White" />
                     </Grid>
                 </Border>
@@ -138,22 +138,22 @@
                         Grid.Column="1"
                         VerticalAlignment="Bottom"
                         Theme="{StaticResource TitleTextBlock}" Classes="H3"
-                        Text="{DynamicResource STRING_COMPANY_NAME_CN}" />
+                        Text="{DynamicResource COMPANY_NAME_CN}" />
                     <TextBlock
                         Grid.Row="1"
                         Grid.Column="1"
                         Theme="{StaticResource TitleTextBlock}" Classes="H6 Secondary"
-                        Text="{DynamicResource STRING_COMPANY_NAME_EN}" />
+                        Text="{DynamicResource COMPANY_NAME_EN}" />
                 </Grid>
 
                 <StackPanel Grid.Row="2" Spacing="4">
-                    <TextBlock HorizontalAlignment="Center" FontSize="15" FontWeight="Medium" Text="{DynamicResource STRING_SLOGAN_CN}" />
-                    <TextBlock HorizontalAlignment="Center" FontSize="13" Classes="Secondary" Text="{DynamicResource STRING_SLOGAN_EN}" />
+                    <TextBlock HorizontalAlignment="Center" FontSize="15" FontWeight="Medium" Text="{DynamicResource SLOGAN_CN}" />
+                    <TextBlock HorizontalAlignment="Center" FontSize="13" Classes="Secondary" Text="{DynamicResource SLOGAN_EN}" />
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Spacing="8">
                     <ProgressBar IsIndeterminate="True" Height="5" CornerRadius="999" />
-                    <TextBlock HorizontalAlignment="Center" FontSize="12" Classes="Tertiary" Text="{DynamicResource STRING_LOADING_MODULES}" />
+                    <TextBlock HorizontalAlignment="Center" FontSize="12" Classes="Tertiary" Text="{DynamicResource LOADING_MODULES}" />
                 </StackPanel>
             </Grid>
         </Border>

@@ -89,7 +89,7 @@
                                                     Margin="8"
                                                     HorizontalAlignment="Right"
                                                     Command="{Binding $parent[u:DatePickerBase].Confirm}"
-                                                    Content="{DynamicResource STRING_DATE_TIME_CONFIRM}" />
+                                                    Content="{DynamicResource DATE_TIME_CONFIRM}" />
                                             </StackPanel>
                                             <u:DatePickerCalendarView
                                                 Name="PART_Calendar"

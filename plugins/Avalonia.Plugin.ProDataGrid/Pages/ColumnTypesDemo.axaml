@@ -13,11 +13,11 @@
     mc:Ignorable="d">
     <Grid RowDefinitions="Auto, Auto, *">
         <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
-            <Button Content="{DynamicResource STRING_BTN_AddEmployee}" Command="{Binding AddEmployeeCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_ResetData}" Command="{Binding ResetDataCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_Save}" Command="{Binding SaveCommand}" />
+            <Button Content="{DynamicResource BTN_AddEmployee}" Command="{Binding AddEmployeeCommand}" />
+            <Button Content="{DynamicResource BTN_ResetData}" Command="{Binding ResetDataCommand}" />
+            <Button Content="{DynamicResource BTN_Save}" Command="{Binding SaveCommand}" />
         </StackPanel>
-        <TextBlock Grid.Row="1" Text="{DynamicResource STRING_DEMO_ColumnTypes}" Opacity="0.6" Margin="0,0,0,8" />
+        <TextBlock Grid.Row="1" Text="{DynamicResource DEMO_ColumnTypes}" Opacity="0.6" Margin="0,0,0,8" />
         <DataGrid
             Grid.Row="2"
             ItemsSource="{Binding Employees}"
@@ -33,26 +33,26 @@
             FrozenColumnCount="1"
             x:CompileBindings="False">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_ID}" Binding="{Binding Id, Mode=OneWay}" Width="60" IsReadOnly="True" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_FirstName}" Binding="{Binding FirstName, Mode=TwoWay}" Width="*" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_LastName}" Binding="{Binding LastName, Mode=TwoWay}" Width="*" />
-                <DataGridCheckBoxColumn Header="{DynamicResource STRING_COL_IsActive}" Binding="{Binding IsActive, Mode=TwoWay}" Width="80" />
-                <DataGridComboBoxColumn Header="{DynamicResource STRING_COL_Department}" Width="120"
+                <DataGridTextColumn Header="{DynamicResource COL_ID}" Binding="{Binding Id, Mode=OneWay}" Width="60" IsReadOnly="True" />
+                <DataGridTextColumn Header="{DynamicResource COL_FirstName}" Binding="{Binding FirstName, Mode=TwoWay}" Width="*" />
+                <DataGridTextColumn Header="{DynamicResource COL_LastName}" Binding="{Binding LastName, Mode=TwoWay}" Width="*" />
+                <DataGridCheckBoxColumn Header="{DynamicResource COL_IsActive}" Binding="{Binding IsActive, Mode=TwoWay}" Width="80" />
+                <DataGridComboBoxColumn Header="{DynamicResource COL_Department}" Width="120"
                     ItemsSource="{Binding $parent[DataGrid].DataContext.DepartmentOptions}"
                     SelectedItemBinding="{Binding Department, Mode=TwoWay}" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_Position}" Binding="{Binding Position, Mode=TwoWay}" Width="100" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_Salary}" Binding="{Binding Salary, Mode=TwoWay}" Width="100" />
-                <DataGridTemplateColumn Header="{DynamicResource STRING_COL_Rating}" Width="120">
+                <DataGridTextColumn Header="{DynamicResource COL_Position}" Binding="{Binding Position, Mode=TwoWay}" Width="100" />
+                <DataGridTextColumn Header="{DynamicResource COL_Salary}" Binding="{Binding Salary, Mode=TwoWay}" Width="100" />
+                <DataGridTemplateColumn Header="{DynamicResource COL_Rating}" Width="120">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="models:Employee">
                             <ProgressBar Minimum="1" Maximum="5" Value="{Binding PerformanceRating}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_HireDate}" Binding="{Binding HireDate, Mode=OneWay}" Width="110" IsReadOnly="True" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_Email}" Binding="{Binding Email, Mode=TwoWay}" Width="2*" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_City}" Binding="{Binding City, Mode=TwoWay}" Width="100" />
-                <DataGridTemplateColumn Header="{DynamicResource STRING_COL_Remarks}" Width="2*">
+                <DataGridTextColumn Header="{DynamicResource COL_HireDate}" Binding="{Binding HireDate, Mode=OneWay}" Width="110" IsReadOnly="True" />
+                <DataGridTextColumn Header="{DynamicResource COL_Email}" Binding="{Binding Email, Mode=TwoWay}" Width="2*" />
+                <DataGridTextColumn Header="{DynamicResource COL_City}" Binding="{Binding City, Mode=TwoWay}" Width="100" />
+                <DataGridTemplateColumn Header="{DynamicResource COL_Remarks}" Width="2*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="models:Employee">
                             <TextBlock Text="{Binding Notes}" TextTrimming="CharacterEllipsis" />

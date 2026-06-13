@@ -7,7 +7,7 @@ xmlns:iri="https://irihi.tech/shared"
 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 xmlns:u="https://irihi.tech/ursa"
 xmlns:viewModels="clr-namespace:Avalonia.UI.ViewModels"
-Title="{DynamicResource STRING_SPLASH_STARTING}"
+Title="{DynamicResource SPLASH_STARTING}"
 Width="720"
 Height="420"
 Icon="/Assets/Ursa.ico"
@@ -33,14 +33,14 @@ mc:Ignorable="d">
 			Spacing="10">
 				<TextBlock
 				Theme="{StaticResource TitleTextBlock}" Classes="H3"
-				Text="{DynamicResource STRING_SPLASH_TITLE}" />
+				Text="{DynamicResource SPLASH_TITLE}" />
 				<TextBlock
 				Theme="{StaticResource TitleTextBlock}" Classes="H6"
-				Text="{DynamicResource STRING_SPLASH_SUBTITLE}" />
+				Text="{DynamicResource SPLASH_SUBTITLE}" />
 				<TextBlock
 				Classes="Secondary"
 				TextWrapping="Wrap"
-				Text="{DynamicResource STRING_SPLASH_WELCOME}" />
+				Text="{DynamicResource SPLASH_WELCOME}" />
 			</StackPanel>
 		</Grid>
 	</Border>

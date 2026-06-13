@@ -39,7 +39,7 @@
                     CornerRadius="2"
                     IsActive="{Binding #active.IsChecked}"
                     IsLoading="{Binding #loading.IsChecked}">
-                    <SelectableTextBlock Margin="0,2" Text="{DynamicResource STRING_LBL_ChickenOrEgg}" />
+                    <SelectableTextBlock Margin="0,2" Text="{DynamicResource LBL_ChickenOrEgg}" />
                 </u:Skeleton>
                 <u:Skeleton
                     Margin="0,0,100,0"
@@ -47,14 +47,14 @@
                     CornerRadius="2"
                     IsActive="{Binding #active.IsChecked}"
                     IsLoading="{Binding #loading.IsChecked}">
-                    <SelectableTextBlock Margin="0,2" Text="{DynamicResource STRING_LBL_Craftsmanship}" />
+                    <SelectableTextBlock Margin="0,2" Text="{DynamicResource LBL_Craftsmanship}" />
                 </u:Skeleton>
                 <u:Skeleton
                     VerticalAlignment="Bottom"
                     CornerRadius="2"
                     IsActive="{Binding #active.IsChecked}"
                     IsLoading="{Binding #loading.IsChecked}">
-                    <SelectableTextBlock Margin="0,2" Text="{DynamicResource STRING_LBL_MountainWater}" />
+                    <SelectableTextBlock Margin="0,2" Text="{DynamicResource LBL_MountainWater}" />
                 </u:Skeleton>
             </UniformGrid>
         </Grid>

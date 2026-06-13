@@ -73,7 +73,7 @@ public partial class UrsaSemiTheme : Styles
             foreach (DictionaryEntry entry in resourceSet)
             {
                 if (entry.Value is not string s) continue;
-                var resourceKey = $"STRING_{entry.Key}";
+                var resourceKey = $"{entry.Key}";
                 _instance.Resources[resourceKey] = s;
             }
         }
@@ -131,7 +131,7 @@ public partial class UrsaSemiTheme : Styles
         foreach (DictionaryEntry entry in resourceSet)
         {
             if (entry.Value is not string s) continue;
-            var resourceKey = $"STRING_{entry.Key}";
+            var resourceKey = $"{entry.Key}";
             application.Resources[resourceKey] = s;
             if (_instance is not null)
             {
@@ -153,7 +153,7 @@ public partial class UrsaSemiTheme : Styles
         foreach (DictionaryEntry entry in resourceSet)
         {
             if (entry.Value is not string s) continue;
-            var resourceKey = $"STRING_{entry.Key}";
+            var resourceKey = $"{entry.Key}";
             element.Resources[resourceKey] = s;
             if (_instance is not null)
             {

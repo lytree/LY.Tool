@@ -19,7 +19,7 @@
             Name="displayFormat"
             Width="300"
             InnerLeftContent="Display Format"
-            Text="{DynamicResource STRING_FMT_TimeDisplay}" />
+            Text="{DynamicResource FMT_TimeDisplay}" />
         <TextBox
             Name="panelFormat"
             Width="300"
@@ -39,8 +39,8 @@
             HorizontalAlignment="Left"
             Classes="ClearButton"
             DisplayFormat="{Binding #displayFormat.Text}"
-            InnerLeftContent="{DynamicResource STRING_LBL_TimeStart}"
-            InnerRightContent="{DynamicResource STRING_LBL_TimeEnd}"
+            InnerLeftContent="{DynamicResource LBL_TimeStart}"
+            InnerRightContent="{DynamicResource LBL_TimeEnd}"
             NeedConfirmation="True"
             PanelFormat="{Binding #panelFormat.Text}" />
         

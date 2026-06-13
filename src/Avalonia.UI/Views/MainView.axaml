@@ -121,7 +121,7 @@
 								BorderThickness="0"
 								Padding="0"
 								CornerRadius="4"
-								ToolTip.Tip="{DynamicResource STRING_TOOLTIP_SETTINGS}"
+								ToolTip.Tip="{DynamicResource TOOLTIP_SETTINGS}"
 								Command="{Binding ActivateCommand}"
 								CommandParameter="Settings">
 								<Grid ColumnDefinitions="Auto, *">
@@ -145,7 +145,7 @@
 								BorderThickness="0"
 								Padding="0"
 								CornerRadius="4"
-								ToolTip.Tip="{DynamicResource STRING_TOOLTIP_PLUGIN_MANAGEMENT}"
+								ToolTip.Tip="{DynamicResource TOOLTIP_PLUGIN_MANAGEMENT}"
 								Command="{Binding ActivateCommand}"
 								CommandParameter="PluginManagement">
 								<Grid ColumnDefinitions="Auto, *">
@@ -193,7 +193,7 @@
 								Theme="{StaticResource BorderlessIconButton}"
 								Classes="Tertiary"
 								Icon="{StaticResource SemiIconSidebar}"
-								ToolTip.Tip="{DynamicResource STRING_TOOLTIP_TOGGLE_SIDEBAR}"
+								ToolTip.Tip="{DynamicResource TOOLTIP_TOGGLE_SIDEBAR}"
 								Command="{Binding ToggleSidebarCommand}" />
 							<u:Breadcrumb Name="Breadcrumb" VerticalAlignment="Center" Separator="/" FontSize="14" />
 						</StackPanel>

@@ -20,22 +20,22 @@
                 VerticalAlignment="Center"
                 FontSize="15"
                 FontWeight="600"
-                Text="{DynamicResource STRING_LBL_ExecutionHistory}" />
+                Text="{DynamicResource LBL_ExecutionHistory}" />
             <Button
                 Command="{Binding ApplyParametersCommand}"
                 CommandParameter="{Binding SelectedRecord}"
-                Content="{DynamicResource STRING_BTN_ApplySelected}"
+                Content="{DynamicResource BTN_ApplySelected}"
                 FontSize="12"
                 Padding="10 4" />
             <Button
                 Command="{Binding DeleteRecordCommand}"
                 CommandParameter="{Binding SelectedRecord}"
-                Content="{DynamicResource STRING_BTN_DeleteSelected}"
+                Content="{DynamicResource BTN_DeleteSelected}"
                 FontSize="12"
                 Padding="10 4" />
             <Button
                 Command="{Binding ClearAllCommand}"
-                Content="{DynamicResource STRING_BTN_ClearAll}"
+                Content="{DynamicResource BTN_ClearAll}"
                 FontSize="12"
                 Padding="10 4" />
         </StackPanel>
@@ -58,16 +58,16 @@
             ScrollViewer.VerticalScrollBarVisibility="Auto"
             ScrollViewer.HorizontalScrollBarVisibility="Auto">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding StatusIcon}" Header="{DynamicResource STRING_LBL_Status}" Width="50" />
-                <DataGridTextColumn Binding="{Binding ParameterSummary}" Header="{DynamicResource STRING_LBL_Parameters}" Width="*" />
-                <DataGridTextColumn Binding="{Binding Status}" Header="{DynamicResource STRING_LBL_Result}" Width="60" />
-                <DataGridTextColumn Binding="{Binding ExecutedAt, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss}'}" Header="{DynamicResource STRING_LBL_ExecutedAt}" Width="140" />
-                <DataGridTextColumn Binding="{Binding DurationText}" Header="{DynamicResource STRING_LBL_Duration}" Width="70" />
-                <DataGridTemplateColumn Header="{DynamicResource STRING_LBL_Actions}" Width="60">
+                <DataGridTextColumn Binding="{Binding StatusIcon}" Header="{DynamicResource LBL_Status}" Width="50" />
+                <DataGridTextColumn Binding="{Binding ParameterSummary}" Header="{DynamicResource LBL_Parameters}" Width="*" />
+                <DataGridTextColumn Binding="{Binding Status}" Header="{DynamicResource LBL_Result}" Width="60" />
+                <DataGridTextColumn Binding="{Binding ExecutedAt, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss}'}" Header="{DynamicResource LBL_ExecutedAt}" Width="140" />
+                <DataGridTextColumn Binding="{Binding DurationText}" Header="{DynamicResource LBL_Duration}" Width="70" />
+                <DataGridTemplateColumn Header="{DynamicResource LBL_Actions}" Width="60">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="models:ExecutionHistoryRecord">
                             <Button
-                                Content="{DynamicResource STRING_BTN_Delete}"
+                                Content="{DynamicResource BTN_Delete}"
                                 FontSize="11"
                                 Padding="4 2"
                                 Command="{Binding $parent[DataGrid].((vm:ExecutionHistoryDialogViewModel)DataContext).DeleteRecordCommand}"
@@ -78,8 +78,8 @@
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Command="{Binding $parent[DataGrid].((vm:ExecutionHistoryDialogViewModel)DataContext).ApplyParametersCommand}" CommandParameter="{Binding $parent[DataGrid].SelectedItem}" Header="{DynamicResource STRING_MENU_ApplyToInput}" />
-                    <MenuItem Command="{Binding $parent[DataGrid].((vm:ExecutionHistoryDialogViewModel)DataContext).DeleteRecordCommand}" CommandParameter="{Binding $parent[DataGrid].SelectedItem}" Header="{DynamicResource STRING_MENU_DeleteRecord}" />
+                    <MenuItem Command="{Binding $parent[DataGrid].((vm:ExecutionHistoryDialogViewModel)DataContext).ApplyParametersCommand}" CommandParameter="{Binding $parent[DataGrid].SelectedItem}" Header="{DynamicResource MENU_ApplyToInput}" />
+                    <MenuItem Command="{Binding $parent[DataGrid].((vm:ExecutionHistoryDialogViewModel)DataContext).DeleteRecordCommand}" CommandParameter="{Binding $parent[DataGrid].SelectedItem}" Header="{DynamicResource MENU_DeleteRecord}" />
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>

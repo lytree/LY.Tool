@@ -54,27 +54,27 @@
         <u:Timeline HorizontalAlignment="Left" Mode="Alternate">
             <u:TimelineItem
                 Content="Step 1"
-                Header="{DynamicResource STRING_LBL_Step1}"
+                Header="{DynamicResource LBL_Step1}"
                 Position="Left"
                 Type="Default" />
             <u:TimelineItem
                 Content="Step 2"
-                Header="{DynamicResource STRING_LBL_Step2}"
+                Header="{DynamicResource LBL_Step2}"
                 Position="Right"
                 Type="Success" />
             <u:TimelineItem
                 Content="Step 3"
-                Header="{DynamicResource STRING_LBL_Step3}"
+                Header="{DynamicResource LBL_Step3}"
                 Position="Separate"
                 Type="Warning" />
             <u:TimelineItem
                 Content="Step 4"
-                Header="{DynamicResource STRING_LBL_Step4}"
+                Header="{DynamicResource LBL_Step4}"
                 Position="Separate"
                 Type="Ongoing" />
             <u:TimelineItem
                 Content="Step 5"
-                Header="{DynamicResource STRING_LBL_Step5}"
+                Header="{DynamicResource LBL_Step5}"
                 Position="Separate"
                 TimeFormat="yyyy-MM-dd"
                 Type="Error" />

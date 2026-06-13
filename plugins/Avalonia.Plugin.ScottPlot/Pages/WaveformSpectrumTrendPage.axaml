@@ -22,8 +22,8 @@
                     <!-- 波形图工具栏 -->
                     <Border Grid.Row="0" Background="{DynamicResource SystemControlBackgroundAltHighBrush}" Padding="8,4" CornerRadius="4,4,0,0">
                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource STRING_LBL_Waveform}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
-                            <Button Content="{DynamicResource STRING_BTN_Autoscale}" Command="{Binding WaveformAutoscaleCommand}" FontSize="12" Padding="8,2" />
+                            <TextBlock Text="{DynamicResource LBL_Waveform}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
+                            <Button Content="{DynamicResource BTN_Autoscale}" Command="{Binding WaveformAutoscaleCommand}" FontSize="12" Padding="8,2" />
                         </StackPanel>
                     </Border>
                     <controls:PlotView Grid.Row="1" Name="WaveformPlotView" />
@@ -36,8 +36,8 @@
                     <!-- 频谱图工具栏 -->
                     <Border Grid.Row="0" Background="{DynamicResource SystemControlBackgroundAltHighBrush}" Padding="8,4" CornerRadius="4,4,0,0">
                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource STRING_LBL_Spectrum}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
-                            <Button Content="{DynamicResource STRING_BTN_Autoscale}" Command="{Binding SpectrumAutoscaleCommand}" FontSize="12" Padding="8,2" />
+                            <TextBlock Text="{DynamicResource LBL_Spectrum}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
+                            <Button Content="{DynamicResource BTN_Autoscale}" Command="{Binding SpectrumAutoscaleCommand}" FontSize="12" Padding="8,2" />
                         </StackPanel>
                     </Border>
                     <controls:PlotView Grid.Row="1" Name="SpectrumPlotView" />
@@ -50,8 +50,8 @@
                     <!-- 趋势图工具栏 -->
                     <Border Grid.Row="0" Background="{DynamicResource SystemControlBackgroundAltHighBrush}" Padding="8,4" CornerRadius="4,4,0,0">
                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource STRING_LBL_Trend}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
-                            <Button Content="{DynamicResource STRING_BTN_Autoscale}" Command="{Binding TrendAutoscaleCommand}" FontSize="12" Padding="8,2" />
+                            <TextBlock Text="{DynamicResource LBL_Trend}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
+                            <Button Content="{DynamicResource BTN_Autoscale}" Command="{Binding TrendAutoscaleCommand}" FontSize="12" Padding="8,2" />
                         </StackPanel>
                     </Border>
                     <controls:PlotView Grid.Row="1" Name="TrendPlotView" />
@@ -63,10 +63,10 @@
         <!-- 右侧：竖向工具栏 -->
         <Border Grid.Column="1" Background="{DynamicResource SystemControlBackgroundAltHighBrush}" Width="48" CornerRadius="4" Margin="0,4,4,4">
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Spacing="8" Margin="0,12,0,0">
-                <Button Name="BtnRegenerate" ToolTip.Tip="{DynamicResource STRING_TIP_RegenerateData}" Width="36" Height="36" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Binding RegenerateDataCommand}">
+                <Button Name="BtnRegenerate" ToolTip.Tip="{DynamicResource TIP_RegenerateData}" Width="36" Height="36" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Binding RegenerateDataCommand}">
                     <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="16" />
                 </Button>
-                <Button Name="BtnReset" ToolTip.Tip="{DynamicResource STRING_TIP_ResetAll}" Width="36" Height="36" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Binding ResetAllCommand}">
+                <Button Name="BtnReset" ToolTip.Tip="{DynamicResource TIP_ResetAll}" Width="36" Height="36" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Binding ResetAllCommand}">
                     <TextBlock Text="&#xE777;" FontFamily="Segoe MDL2 Assets" FontSize="16" />
                 </Button>
             </StackPanel>

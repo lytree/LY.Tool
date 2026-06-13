@@ -82,13 +82,13 @@
                                     HorizontalAlignment="Right">
                                     <Button
                                         Name="{x:Static u:PopConfirm.PART_CancelButton}"
-                                        Content="{DynamicResource STRING_MENU_DIALOG_CANCEL}"
+                                        Content="{DynamicResource MENU_DIALOG_CANCEL}"
                                         Command="{TemplateBinding CancelCommand}"
                                         CommandParameter="{TemplateBinding CancelCommandParameter}" />
                                     <Button
                                         Name="{x:Static u:PopConfirm.PART_ConfirmButton}"
                                         Theme="{DynamicResource SolidButton}"
-                                        Content="{DynamicResource STRING_MENU_DIALOG_OK}"
+                                        Content="{DynamicResource MENU_DIALOG_OK}"
                                         Command="{TemplateBinding ConfirmCommand}"
                                         CommandParameter="{TemplateBinding ConfirmCommandParameter}" />
                                 </StackPanel>

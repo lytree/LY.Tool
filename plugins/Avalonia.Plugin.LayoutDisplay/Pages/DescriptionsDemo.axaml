@@ -49,8 +49,8 @@
                 Orientation="{Binding #orientation.Value}"
                 LabelPosition="{Binding #labelPosition.Value}"
                 ItemAlignment="{Binding #itemAlignment.Value}">
-                <u:DescriptionsItem Label="{DynamicResource STRING_LBL_ActualUsers}" Content="1,480,000" />
-                <u:DescriptionsItem Label="{DynamicResource STRING_LBL_7DayRetention}">
+                <u:DescriptionsItem Label="{DynamicResource LBL_ActualUsers}" Content="1,480,000" />
+                <u:DescriptionsItem Label="{DynamicResource LBL_7DayRetention}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="98%" />
                         <PathIcon
@@ -61,11 +61,11 @@
                             Foreground="{DynamicResource SemiGreen5}" />
                     </StackPanel>
                 </u:DescriptionsItem>
-                <u:DescriptionsItem Label="{DynamicResource STRING_LBL_SecurityLevel}" Content="{DynamicResource STRING_LBL_Level3}" />
-                <u:DescriptionsItem Label="{DynamicResource STRING_LBL_VerticalTag}">
-                    <Label Theme="{DynamicResource TagLabel}" Content="{DynamicResource STRING_LBL_ECommerce}" />
+                <u:DescriptionsItem Label="{DynamicResource LBL_SecurityLevel}" Content="{DynamicResource LBL_Level3}" />
+                <u:DescriptionsItem Label="{DynamicResource LBL_VerticalTag}">
+                    <Label Theme="{DynamicResource TagLabel}" Content="{DynamicResource LBL_ECommerce}" />
                 </u:DescriptionsItem>
-                <u:DescriptionsItem Label="{DynamicResource STRING_LBL_CertStatus}" Content="{DynamicResource STRING_LBL_NotCertified}" />
+                <u:DescriptionsItem Label="{DynamicResource LBL_CertStatus}" Content="{DynamicResource LBL_NotCertified}" />
             </u:Descriptions>
 
             <TextBlock Text="Use ColumnWrapPanel to display horizontally" />
@@ -94,18 +94,18 @@
                         Classes="Small"
                         Orientation="Horizontal"
                         LabelPosition="Top">
-                        <u:DescriptionsItem Label="{DynamicResource STRING_LBL_ActualUsers}" Content="1,480,000" />
-                        <u:DescriptionsItem Label="{DynamicResource STRING_LBL_7DayRetention}" Content="98%" />
-                        <u:DescriptionsItem Label="{DynamicResource STRING_LBL_SecurityLevel}" Content="{DynamicResource STRING_LBL_Level3}" />
+                        <u:DescriptionsItem Label="{DynamicResource LBL_ActualUsers}" Content="1,480,000" />
+                        <u:DescriptionsItem Label="{DynamicResource LBL_7DayRetention}" Content="98%" />
+                        <u:DescriptionsItem Label="{DynamicResource LBL_SecurityLevel}" Content="{DynamicResource LBL_Level3}" />
                     </u:Descriptions>
                 </Border>
                 <Border Theme="{DynamicResource CardBorder}">
                     <u:Descriptions
                         Orientation="Horizontal"
                         LabelPosition="Top">
-                        <u:DescriptionsItem Label="{DynamicResource STRING_LBL_ActualUsers}" Content="1,480,000" />
-                        <u:DescriptionsItem Label="{DynamicResource STRING_LBL_7DayRetention}" Content="98%" />
-                        <u:DescriptionsItem Label="{DynamicResource STRING_LBL_SecurityLevel}" Content="{DynamicResource STRING_LBL_Level3}" />
+                        <u:DescriptionsItem Label="{DynamicResource LBL_ActualUsers}" Content="1,480,000" />
+                        <u:DescriptionsItem Label="{DynamicResource LBL_7DayRetention}" Content="98%" />
+                        <u:DescriptionsItem Label="{DynamicResource LBL_SecurityLevel}" Content="{DynamicResource LBL_Level3}" />
                     </u:Descriptions>
                 </Border>
                 <Border Theme="{DynamicResource CardBorder}">
@@ -113,9 +113,9 @@
                         Classes="Large"
                         Orientation="Horizontal"
                         LabelPosition="Top">
-                        <u:DescriptionsItem Label="{DynamicResource STRING_LBL_ActualUsers}" Content="1,480,000" />
-                        <u:DescriptionsItem Label="{DynamicResource STRING_LBL_7DayRetention}" Content="98%" />
-                        <u:DescriptionsItem Label="{DynamicResource STRING_LBL_SecurityLevel}" Content="{DynamicResource STRING_LBL_Level3}" />
+                        <u:DescriptionsItem Label="{DynamicResource LBL_ActualUsers}" Content="1,480,000" />
+                        <u:DescriptionsItem Label="{DynamicResource LBL_7DayRetention}" Content="98%" />
+                        <u:DescriptionsItem Label="{DynamicResource LBL_SecurityLevel}" Content="{DynamicResource LBL_Level3}" />
                     </u:Descriptions>
                 </Border>
             </StackPanel>

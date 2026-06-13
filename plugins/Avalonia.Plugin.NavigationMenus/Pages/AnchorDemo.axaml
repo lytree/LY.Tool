@@ -222,42 +222,42 @@
                 Spacing="100"
                 Margin="8">
                 <u:Anchor>
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_Components}" />
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_DesignLanguage}" />
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_MaterialPlatform}" />
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_ThemeStore}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_Components}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_DesignLanguage}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_MaterialPlatform}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_ThemeStore}" />
                 </u:Anchor>
                 <u:Anchor Classes="Small">
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_Components}" />
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_DesignLanguage}" />
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_MaterialPlatform}" />
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_ThemeStore}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_Components}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_DesignLanguage}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_MaterialPlatform}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_ThemeStore}" />
                 </u:Anchor>
                 <u:Anchor Classes="Tertiary">
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_Size}" />
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_Components}" />
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_DesignLanguage}" />
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_MaterialPlatform}" />
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_ThemeStore}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_Size}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_Components}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_DesignLanguage}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_MaterialPlatform}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_ThemeStore}" />
                 </u:Anchor>
                 <u:Anchor Classes="Muted">
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_Size}" />
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_Components}" />
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_DesignLanguage}" />
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_MaterialPlatform}" />
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_ThemeStore}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_Size}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_Components}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_DesignLanguage}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_MaterialPlatform}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_ThemeStore}" />
                 </u:Anchor>
                 <u:Anchor>
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_1DynamicDemo}">
-                        <u:AnchorItem Header="{DynamicResource STRING_NAV_1_1Components}">
+                    <u:AnchorItem Header="{DynamicResource NAV_1DynamicDemo}">
+                        <u:AnchorItem Header="{DynamicResource NAV_1_1Components}">
                             <u:AnchorItem Header="1.1.1 Avatar" />
                             <u:AnchorItem Header="1.1.2 Button" />
                             <u:AnchorItem Header="1.1.3 Icon" />
                         </u:AnchorItem>
-                        <u:AnchorItem Header="{DynamicResource STRING_NAV_1_2Material}" />
-                        <u:AnchorItem Header="{DynamicResource STRING_NAV_1_3ThemeStore}" />
+                        <u:AnchorItem Header="{DynamicResource NAV_1_2Material}" />
+                        <u:AnchorItem Header="{DynamicResource NAV_1_3ThemeStore}" />
                     </u:AnchorItem>
-                    <u:AnchorItem Header="{DynamicResource STRING_NAV_2DesignLanguage}" />
+                    <u:AnchorItem Header="{DynamicResource NAV_2DesignLanguage}" />
                 </u:Anchor>
             </StackPanel>
         </TabItem>

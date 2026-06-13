@@ -12,13 +12,13 @@
     mc:Ignorable="d">
     <Grid RowDefinitions="Auto, Auto, *">
         <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
-            <Button Content="{DynamicResource STRING_BTN_AddRow}" Command="{Binding AddRowCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_DeleteSelected}" Command="{Binding RemoveSelectedCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_ResetData}" Command="{Binding ResetDataCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_ClearFilter}" Command="{Binding ClearFilterCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_Save}" Command="{Binding SaveCommand}" />
+            <Button Content="{DynamicResource BTN_AddRow}" Command="{Binding AddRowCommand}" />
+            <Button Content="{DynamicResource BTN_DeleteSelected}" Command="{Binding RemoveSelectedCommand}" />
+            <Button Content="{DynamicResource BTN_ResetData}" Command="{Binding ResetDataCommand}" />
+            <Button Content="{DynamicResource BTN_ClearFilter}" Command="{Binding ClearFilterCommand}" />
+            <Button Content="{DynamicResource BTN_Save}" Command="{Binding SaveCommand}" />
         </StackPanel>
-        <TextBox Grid.Row="1" Text="{Binding FilterText}" PlaceholderText="{DynamicResource STRING_HINT_FilterNameCityDept}" Margin="0,0,0,8" />
+        <TextBox Grid.Row="1" Text="{Binding FilterText}" PlaceholderText="{DynamicResource HINT_FilterNameCityDept}" Margin="0,0,0,8" />
         <DataGrid
             Grid.Row="2"
             ItemsSource="{Binding People}"
@@ -35,13 +35,13 @@
             FrozenColumnCount="1"
             x:CompileBindings="False">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_ID}" Binding="{Binding Id, Mode=OneWay}" Width="60" IsReadOnly="True" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_FirstName}" Binding="{Binding FirstName, Mode=TwoWay}" Width="*" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_LastName}" Binding="{Binding LastName, Mode=TwoWay}" Width="*" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_Age}" Binding="{Binding Age, Mode=TwoWay}" Width="80" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_City}" Binding="{Binding City, Mode=TwoWay}" Width="*" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_Department}" Binding="{Binding Department, Mode=TwoWay}" Width="*" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_Salary}" Binding="{Binding Salary, Mode=TwoWay}" Width="120" />
+                <DataGridTextColumn Header="{DynamicResource COL_ID}" Binding="{Binding Id, Mode=OneWay}" Width="60" IsReadOnly="True" />
+                <DataGridTextColumn Header="{DynamicResource COL_FirstName}" Binding="{Binding FirstName, Mode=TwoWay}" Width="*" />
+                <DataGridTextColumn Header="{DynamicResource COL_LastName}" Binding="{Binding LastName, Mode=TwoWay}" Width="*" />
+                <DataGridTextColumn Header="{DynamicResource COL_Age}" Binding="{Binding Age, Mode=TwoWay}" Width="80" />
+                <DataGridTextColumn Header="{DynamicResource COL_City}" Binding="{Binding City, Mode=TwoWay}" Width="*" />
+                <DataGridTextColumn Header="{DynamicResource COL_Department}" Binding="{Binding Department, Mode=TwoWay}" Width="*" />
+                <DataGridTextColumn Header="{DynamicResource COL_Salary}" Binding="{Binding Salary, Mode=TwoWay}" Width="120" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

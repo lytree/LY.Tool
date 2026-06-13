@@ -17,7 +17,7 @@
                 u:FormItem.Label="DisplayFormat"
                 Name="formatBox"
                 Width="300"
-                Text="{DynamicResource STRING_FMT_DateTimeDisplay}" />
+                Text="{DynamicResource FMT_DateTimeDisplay}" />
             <TextBox Name="panelBox" u:FormItem.Label="Panel" Text="hh mm ss" />
             <u:DateTimePicker
                 MinWidth="100"

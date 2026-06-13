@@ -22,16 +22,16 @@
 
   <Grid RowDefinitions="Auto,Auto,*" RowSpacing="12" Margin="12">
     <StackPanel Spacing="4">
-      <TextBlock Classes="h2" Text="{DynamicResource STRING_TITLE_CustomDrawingLive}" />
-      <TextBlock Text="{DynamicResource STRING_DESC_CustomDrawingLive}"
+      <TextBlock Classes="h2" Text="{DynamicResource TITLE_CustomDrawingLive}" />
+      <TextBlock Text="{DynamicResource DESC_CustomDrawingLive}"
                  TextWrapping="Wrap" />
     </StackPanel>
 
     <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-      <Button Content="{DynamicResource STRING_BTN_Start}" Command="{Binding StartCommand}" />
-      <Button Content="{DynamicResource STRING_BTN_Stop}" Command="{Binding StopCommand}" />
-      <Button Content="{DynamicResource STRING_BTN_ResetData}" Command="{Binding ResetRowsCommand}" />
-      <TextBlock Text="{DynamicResource STRING_LBL_IntervalMs}" VerticalAlignment="Center" />
+      <Button Content="{DynamicResource BTN_Start}" Command="{Binding StartCommand}" />
+      <Button Content="{DynamicResource BTN_Stop}" Command="{Binding StopCommand}" />
+      <Button Content="{DynamicResource BTN_ResetData}" Command="{Binding ResetRowsCommand}" />
+      <TextBlock Text="{DynamicResource LBL_IntervalMs}" VerticalAlignment="Center" />
       <TextBox Width="72" Text="{Binding IntervalMs, UpdateSourceTrigger=PropertyChanged}" />
       <TextBlock Text="{Binding FrameCountText}" VerticalAlignment="Center" />
       <TextBlock Text="{Binding RunStateText}" VerticalAlignment="Center" />
@@ -50,17 +50,17 @@
               RowBackground="#08000000"
               x:CompileBindings="False">
       <DataGrid.Columns>
-        <DataGridTextColumn Header="{DynamicResource STRING_COL_ID}"
+        <DataGridTextColumn Header="{DynamicResource COL_ID}"
                             Binding="{Binding Id}"
                             Width="90"
                             x:DataType="vm:CustomDrawingLiveUpdatesRow" />
 
-        <DataGridTextColumn Header="{DynamicResource STRING_COL_Symbol}"
+        <DataGridTextColumn Header="{DynamicResource COL_Symbol}"
                             Binding="{Binding Symbol}"
                             Width="120"
                             x:DataType="vm:CustomDrawingLiveUpdatesRow" />
 
-        <DataGridCustomDrawingColumn Header="{DynamicResource STRING_COL_AnimatedMessage}"
+        <DataGridCustomDrawingColumn Header="{DynamicResource COL_AnimatedMessage}"
                                      Binding="{Binding Message}"
                                      Width="*"
                                      DrawingMode="DrawOperation"

@@ -124,7 +124,7 @@
             <Button
                 Grid.Row="3"
                 Grid.Column="2" Click="Button_Click"
-                Content="{DynamicResource STRING_BTN_TestSetNull}" />
+                Content="{DynamicResource BTN_TestSetNull}" />
         </Grid>
     </StackPanel>
 </UserControl>

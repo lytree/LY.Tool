@@ -15,14 +15,14 @@
 					<TextBlock Text="{Binding Script.Name}" Theme="{StaticResource TitleTextBlock}" Classes="H3" />
 					<TextBlock Text="{Binding Script.Description}" Classes="Secondary" />
 				</StackPanel>
-				<Button Grid.Column="1" Command="{Binding ShowExecutionHistoryCommand}" ToolTip.Tip="{DynamicResource STRING_LBL_ExecutionHistory}" VerticalAlignment="Center" Padding="6">
+				<Button Grid.Column="1" Command="{Binding ShowExecutionHistoryCommand}" ToolTip.Tip="{DynamicResource LBL_ExecutionHistory}" VerticalAlignment="Center" Padding="6">
 					<PathIcon Data="{DynamicResource SemiIconHistory}" Width="20" Height="20" />
 				</Button>
 			</Grid>
 
 			<Border Theme="{DynamicResource CardBorder}" Padding="16">
 				<StackPanel Spacing="12">
-					<TextBlock Text="{DynamicResource STRING_LBL_ParameterConfig}" Classes="SectionTitle" />
+					<TextBlock Text="{DynamicResource LBL_ParameterConfig}" Classes="SectionTitle" />
 					<ItemsControl ItemsSource="{Binding Parameters}">
 						<ItemsControl.DataTemplates>
 							<DataTemplate x:DataType="models:TextScriptParameter">
@@ -40,7 +40,7 @@
 							<DataTemplate x:DataType="models:BoolScriptParameter">
 								<Grid ColumnDefinitions="160,*" Margin="0 4" MinHeight="32">
 									<TextBlock Grid.Column="0" Text="{Binding DisplayName}" VerticalAlignment="Center" Classes="Body" />
-									<ToggleSwitch Grid.Column="1" IsChecked="{Binding DefaultBoolValue}" OnContent="{DynamicResource STRING_SW_On}" OffContent="{DynamicResource STRING_SW_Off}" />
+									<ToggleSwitch Grid.Column="1" IsChecked="{Binding DefaultBoolValue}" OnContent="{DynamicResource SW_On}" OffContent="{DynamicResource SW_Off}" />
 								</Grid>
 							</DataTemplate>
 							<DataTemplate x:DataType="models:NumberScriptParameter">
@@ -58,7 +58,7 @@
 											 HorizontalAlignment="Stretch"
 											 IsReadOnly="True" />
 									<Button Grid.Column="2"
-											Content="{DynamicResource STRING_BTN_Browse}" Command="{Binding BrowseCommand}"
+											Content="{DynamicResource BTN_Browse}" Command="{Binding BrowseCommand}"
 											VerticalAlignment="Center" Margin="8,0,0,0" />
 								</Grid>
 							</DataTemplate>
@@ -72,8 +72,8 @@
 					</ItemsControl>
 
 					<StackPanel Orientation="Horizontal" Spacing="12" Margin="0 8 0 0">
-						<Button Content="{DynamicResource STRING_BTN_Execute}" Command="{Binding ExecuteScriptCommand}" Classes="Primary" MinWidth="100" IsEnabled="{Binding !IsRunning}" />
-						<Button Content="{DynamicResource STRING_BTN_Cancel}" Command="{Binding CancelExecutionCommand}" MinWidth="80" IsVisible="{Binding IsRunning}" />
+						<Button Content="{DynamicResource BTN_Execute}" Command="{Binding ExecuteScriptCommand}" Classes="Primary" MinWidth="100" IsEnabled="{Binding !IsRunning}" />
+						<Button Content="{DynamicResource BTN_Cancel}" Command="{Binding CancelExecutionCommand}" MinWidth="80" IsVisible="{Binding IsRunning}" />
 						<TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" Classes="Tertiary" Margin="12 0 0 0" />
 					</StackPanel>
 				</StackPanel>
@@ -82,8 +82,8 @@
 			<Border Theme="{DynamicResource CardBorder}" Padding="12" MaxHeight="{Binding LogMaxHeight}">
 				<Grid RowDefinitions="Auto,*">
 					<Grid ColumnDefinitions="*,Auto" Margin="0 0 0 8">
-						<TextBlock Grid.Column="0" Text="{DynamicResource STRING_LBL_LogOutput}" Classes="SectionTitle" VerticalAlignment="Center" />
-						<Button Grid.Column="1" Content="{DynamicResource STRING_BTN_Clear}" Command="{Binding ClearLogCommand}" FontSize="12" Padding="8 4" />
+						<TextBlock Grid.Column="0" Text="{DynamicResource LBL_LogOutput}" Classes="SectionTitle" VerticalAlignment="Center" />
+						<Button Grid.Column="1" Content="{DynamicResource BTN_Clear}" Command="{Binding ClearLogCommand}" FontSize="12" Padding="8 4" />
 					</Grid>
 					<ListBox x:Name="LogListBox" Grid.Row="1"
 							 ItemsSource="{Binding LogEntries}"
@@ -107,7 +107,7 @@
 									<SelectableTextBlock Text="{Binding FormattedLine}" FontSize="12" FontFamily="Consolas" TextWrapping="Wrap" HorizontalAlignment="Stretch">
 										<SelectableTextBlock.ContextMenu>
 											<ContextMenu x:CompileBindings="False">
-												<MenuItem Header="{DynamicResource STRING_MENU_Copy}" Command="{Binding $parent[ListBox].DataContext.CopyLogEntryCommand}" CommandParameter="{Binding}" />
+												<MenuItem Header="{DynamicResource MENU_Copy}" Command="{Binding $parent[ListBox].DataContext.CopyLogEntryCommand}" CommandParameter="{Binding}" />
 											</ContextMenu>
 										</SelectableTextBlock.ContextMenu>
 									</SelectableTextBlock>

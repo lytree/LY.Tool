@@ -77,11 +77,11 @@
                             <TextBox
                                 IsVisible="{Binding !SelectingFolder}"
                                 Text="{Binding FileName}"
-                                PlaceholderText="{DynamicResource STRING_CHOOSER_FILE_NAME}" />
+                                PlaceholderText="{DynamicResource CHOOSER_FILE_NAME}" />
                         </DockPanel>
                         <CheckBox
                             VerticalAlignment="Center"
-                            Content="{DynamicResource STRING_CHOOSER_SHOW_HIDDEN_FILES}"
+                            Content="{DynamicResource CHOOSER_SHOW_HIDDEN_FILES}"
                             DockPanel.Dock="Left"
                             IsChecked="{Binding ShowHiddenFiles}" />
                         <UniformGrid
@@ -92,12 +92,12 @@
                                 Margin="8,0,0,0"
                                 Classes="Primary"
                                 Command="{Binding Ok}"
-                                Content="{DynamicResource STRING_CHOOSER_DIALOG_OK}" />
+                                Content="{DynamicResource CHOOSER_DIALOG_OK}" />
                             <Button
                                 Margin="8,0,0,0"
                                 Classes="Danger"
                                 Command="{Binding Cancel}"
-                                Content="{DynamicResource STRING_CHOOSER_DIALOG_CANCEL}" />
+                                Content="{DynamicResource CHOOSER_DIALOG_CANCEL}" />
                         </UniformGrid>
                     </DockPanel>
                     <Border
@@ -128,13 +128,13 @@
                                     <ColumnDefinition Width="200" SharedSizeGroup="Size" />
                                 </Grid.ColumnDefinitions>
                                 <GridSplitter Grid.Column="1" Width="1" />
-                                <TextBlock Grid.Column="2" Text="{DynamicResource STRING_CHOOSER_NAME_COLUMN}" />
+                                <TextBlock Grid.Column="2" Text="{DynamicResource CHOOSER_NAME_COLUMN}" />
                                 <GridSplitter Grid.Column="3" Width="1" />
-                                <TextBlock Grid.Column="4" Text="{DynamicResource STRING_CHOOSER_DATEMODIFIED_COLUMN}" />
+                                <TextBlock Grid.Column="4" Text="{DynamicResource CHOOSER_DATEMODIFIED_COLUMN}" />
                                 <GridSplitter Grid.Column="5" Width="1" />
-                                <TextBlock Grid.Column="6" Text="{DynamicResource STRING_CHOOSER_TYPE_COLUMN}" />
+                                <TextBlock Grid.Column="6" Text="{DynamicResource CHOOSER_TYPE_COLUMN}" />
                                 <GridSplitter Grid.Column="7" Width="1" />
-                                <TextBlock Grid.Column="8" Text="{DynamicResource STRING_CHOOSER_SIZE_COLUMN}" />
+                                <TextBlock Grid.Column="8" Text="{DynamicResource CHOOSER_SIZE_COLUMN}" />
                             </Grid>
                             <ListBox
                                 Name="PART_Files"
@@ -209,7 +209,7 @@
                                     <MultiBinding.Converter>
                                         <cvt:StringFormatConverter />
                                     </MultiBinding.Converter>
-                                    <DynamicResource ResourceKey="STRING_CHOOSER_PROMPT_FILE_ALREADY_EXISTS" />
+                                    <DynamicResource ResourceKey="CHOOSER_PROMPT_FILE_ALREADY_EXISTS" />
                                     <TemplateBinding Property="FileName" />
                                 </MultiBinding>
                             </TextBlock.Text>
@@ -218,11 +218,11 @@
                                     Spacing="10"
                                     Orientation="Horizontal">
                             <Button Theme="{StaticResource SolidButton}"
-                                    Content="{DynamicResource STRING_CHOOSER_DIALOG_OK}"
+                                    Content="{DynamicResource CHOOSER_DIALOG_OK}"
                                     HorizontalContentAlignment="Center"
                                     IsDefault="True"
                                     Command="{Binding Confirm, RelativeSource={RelativeSource TemplatedParent}}" />
-                            <Button Content="{DynamicResource STRING_CHOOSER_DIALOG_CANCEL}"
+                            <Button Content="{DynamicResource CHOOSER_DIALOG_CANCEL}"
                                     IsCancel="True"
                                     HorizontalContentAlignment="Center"
                                     Command="{Binding Cancel, RelativeSource={RelativeSource TemplatedParent}}" />

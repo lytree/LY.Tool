@@ -11,22 +11,22 @@
         <MenuItem
             x:Name="TextBoxContextFlyoutCutItem"
             Command="{Binding $parent[u:IPv4Box].Cut}"
-            Header="{DynamicResource STRING_MENU_CUT}"
+            Header="{DynamicResource MENU_CUT}"
             InputGesture="{x:Static u:IPv4Box.CutKeyGesture}" />
         <MenuItem
             x:Name="TextBoxContextFlyoutCopyItem"
             Command="{Binding $parent[u:IPv4Box].Copy}"
-            Header="{DynamicResource STRING_MENU_COPY}"
+            Header="{DynamicResource MENU_COPY}"
             InputGesture="{x:Static u:IPv4Box.CopyKeyGesture}" />
         <MenuItem
             x:Name="TextBoxContextFlyoutPasteItem"
             Command="{Binding $parent[u:IPv4Box].Paste}"
-            Header="{DynamicResource STRING_MENU_PASTE}"
+            Header="{DynamicResource MENU_PASTE}"
             InputGesture="{x:Static u:IPv4Box.PasteKeyGesture}" />
         <MenuItem
             x:Name="TextBoxContextFlyoutClearItem"
             Command="{Binding $parent[u:IPv4Box].Clear}"
-            Header="{DynamicResource STRING_MENU_CLEAR}" />
+            Header="{DynamicResource MENU_CLEAR}" />
     </MenuFlyout>
     <ControlTheme x:Key="{x:Type u:IPv4Box}" TargetType="{x:Type u:IPv4Box}">
         <Setter Property="Focusable" Value="True" />

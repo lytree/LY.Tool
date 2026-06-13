@@ -12,11 +12,11 @@
     mc:Ignorable="d">
     <Grid RowDefinitions="Auto, Auto, *, Auto">
         <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
-            <Button Content="{DynamicResource STRING_BTN_AddProduct}" Command="{Binding AddProductCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_ResetData}" Command="{Binding ResetDataCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_Save}" Command="{Binding SaveCommand}" />
+            <Button Content="{DynamicResource BTN_AddProduct}" Command="{Binding AddProductCommand}" />
+            <Button Content="{DynamicResource BTN_ResetData}" Command="{Binding ResetDataCommand}" />
+            <Button Content="{DynamicResource BTN_Save}" Command="{Binding SaveCommand}" />
         </StackPanel>
-        <TextBlock Grid.Row="1" Text="{DynamicResource STRING_DEMO_Formula}" Opacity="0.6" Margin="0,0,0,8" />
+        <TextBlock Grid.Row="1" Text="{DynamicResource DEMO_Formula}" Opacity="0.6" Margin="0,0,0,8" />
         <DataGrid
             Grid.Row="2"
             ItemsSource="{Binding Products}"
@@ -31,15 +31,15 @@
             EditTriggers="CellClick,CellDoubleClick,F2,TextInput"
             x:CompileBindings="False">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_ProductName}" Binding="{Binding Name, Mode=TwoWay}" Width="2*" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_Price}" Binding="{Binding Price, Mode=TwoWay}" Width="*" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_Quantity}" Binding="{Binding Quantity, Mode=TwoWay}" Width="*" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_Total}" Binding="{Binding Total, Mode=OneWay}" Width="*" IsReadOnly="True" />
+                <DataGridTextColumn Header="{DynamicResource COL_ProductName}" Binding="{Binding Name, Mode=TwoWay}" Width="2*" />
+                <DataGridTextColumn Header="{DynamicResource COL_Price}" Binding="{Binding Price, Mode=TwoWay}" Width="*" />
+                <DataGridTextColumn Header="{DynamicResource COL_Quantity}" Binding="{Binding Quantity, Mode=TwoWay}" Width="*" />
+                <DataGridTextColumn Header="{DynamicResource COL_Total}" Binding="{Binding Total, Mode=OneWay}" Width="*" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
         <Border Grid.Row="3" Background="{DynamicResource SystemControlBackgroundAltHighBrush}" Padding="12,8" Margin="0,8,0,0">
             <Grid ColumnDefinitions="2*, *, *, *">
-                <TextBlock Text="{DynamicResource STRING_LBL_Summary}" FontWeight="SemiBold" />
+                <TextBlock Text="{DynamicResource LBL_Summary}" FontWeight="SemiBold" />
                 <TextBlock Grid.Column="1" Text="{Binding TotalPriceText}" />
                 <TextBlock Grid.Column="2" Text="{Binding TotalQuantityText}" />
                 <TextBlock Grid.Column="3" Text="{Binding GrandTotalText}" FontWeight="SemiBold" />

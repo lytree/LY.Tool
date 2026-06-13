@@ -113,24 +113,24 @@
                         VerticalAlignment="Bottom"
                         FontSize="48"
                         FontWeight="700"
-                        Text="{DynamicResource STRING_COMPANY_NAME_CN}" />
+                        Text="{DynamicResource COMPANY_NAME_CN}" />
                     <TextBlock
                         Grid.Row="1"
                         Grid.Column="1"
                         Margin="12,0,0,0"
                         HorizontalAlignment="Left"
                         FontSize="16"
-                        Text="{DynamicResource STRING_COMPANY_NAME_EN}"
+                        Text="{DynamicResource COMPANY_NAME_EN}"
                         Classes="Secondary" />
                 </Grid>
                 <TextBlock
                     HorizontalAlignment="Center"
                     Theme="{StaticResource TitleTextBlock}" Classes="H4"
-                    Text="{DynamicResource STRING_SLOGAN_CN}" />
+                    Text="{DynamicResource SLOGAN_CN}" />
                 <TextBlock
                     HorizontalAlignment="Center"
                     FontSize="20"
-                    Text="{DynamicResource STRING_SLOGAN_EN}"
+                    Text="{DynamicResource SLOGAN_EN}"
                     Classes="Secondary" />
                 <UniformGrid
                     MaxWidth="810"
@@ -145,11 +145,11 @@
                         <StackPanel HorizontalAlignment="Left">
                             <TextBlock Classes="TileTitle" Text="Semi" />
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                <Label Theme="{DynamicResource TagLabel}" Classes="Blue Ghost" Content="{DynamicResource STRING_OPEN_SOURCE}" />
+                                <Label Theme="{DynamicResource TagLabel}" Classes="Blue Ghost" Content="{DynamicResource OPEN_SOURCE}" />
                             </StackPanel>
-                            <TextBlock Text="{DynamicResource STRING_SEMI_DESC_CN}"
+                            <TextBlock Text="{DynamicResource SEMI_DESC_CN}"
                                        Classes="Secondary" />
-                            <TextBlock Text="{DynamicResource STRING_SEMI_DESC_EN}"
+                            <TextBlock Text="{DynamicResource SEMI_DESC_EN}"
                                        Classes="Tertiary" />
                         </StackPanel>
                     </Button>
@@ -161,11 +161,11 @@
                         <StackPanel HorizontalAlignment="Left">
                             <TextBlock Classes="TileTitle" Text="Ursa" />
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                <Label Theme="{DynamicResource TagLabel}" Classes="Blue Ghost" Content="{DynamicResource STRING_OPEN_SOURCE}" />
+                                <Label Theme="{DynamicResource TagLabel}" Classes="Blue Ghost" Content="{DynamicResource OPEN_SOURCE}" />
                             </StackPanel>
-                            <TextBlock Text="{DynamicResource STRING_URSA_DESC_CN}"
+                            <TextBlock Text="{DynamicResource URSA_DESC_CN}"
                                        Classes="Secondary" />
-                            <TextBlock Text="{DynamicResource STRING_URSA_DESC_EN}"
+                            <TextBlock Text="{DynamicResource URSA_DESC_EN}"
                                        Classes="Tertiary" />
                         </StackPanel>
                     </Button>
@@ -177,11 +177,11 @@
                         <StackPanel HorizontalAlignment="Left">
                             <TextBlock Classes="TileTitle" Text="Mantra" />
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                <Label Theme="{DynamicResource TagLabel}" Classes="Purple Ghost" Content="{DynamicResource STRING_COMMERCIAL}" />
+                                <Label Theme="{DynamicResource TagLabel}" Classes="Purple Ghost" Content="{DynamicResource COMMERCIAL}" />
                             </StackPanel>
-                            <TextBlock Text="{DynamicResource STRING_MANTRA_DESC_CN}"
+                            <TextBlock Text="{DynamicResource MANTRA_DESC_CN}"
                                        Classes="Secondary" />
-                            <TextBlock Text="{DynamicResource STRING_MANTRA_DESC_EN}"
+                            <TextBlock Text="{DynamicResource MANTRA_DESC_EN}"
                                        Classes="Tertiary" />
                         </StackPanel>
                     </Button>
@@ -193,11 +193,11 @@
                         <StackPanel HorizontalAlignment="Left">
                             <TextBlock Classes="TileTitle" Text="Huska" />
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                <Label Theme="{DynamicResource TagLabel}" Classes="Purple Ghost" Content="{DynamicResource STRING_COMMERCIAL}" />
+                                <Label Theme="{DynamicResource TagLabel}" Classes="Purple Ghost" Content="{DynamicResource COMMERCIAL}" />
                             </StackPanel>
-                            <TextBlock Text="{DynamicResource STRING_HUSKA_DESC_CN}"
+                            <TextBlock Text="{DynamicResource HUSKA_DESC_CN}"
                                        Classes="Secondary" />
-                            <TextBlock Text="{DynamicResource STRING_HUSKA_DESC_EN}"
+                            <TextBlock Text="{DynamicResource HUSKA_DESC_EN}"
                                        Classes="Tertiary" />
                         </StackPanel>
                     </Button>
@@ -214,7 +214,7 @@
                 <HyperlinkButton
                     Classes="WithIcon"
                     VerticalAlignment="Center"
-                    Content="{DynamicResource STRING_HOMEPAGE}"
+                    Content="{DynamicResource HOMEPAGE}"
                     NavigateUri="https://irihi.tech">
                     <HyperlinkButton.Styles>
                         <Style Selector=".WithIcon /template/ PathIcon">

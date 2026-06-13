@@ -17,11 +17,11 @@
 
 			<Border Theme="{DynamicResource CardBorder}" Padding="16">
 				<StackPanel Spacing="12">
-					<TextBlock Text="{DynamicResource STRING_LBL_DownloadLinks}" Classes="SectionTitle" />
+					<TextBlock Text="{DynamicResource LBL_DownloadLinks}" Classes="SectionTitle" />
 
 					<Grid ColumnDefinitions="*,160" Margin="0 0 0 4">
-						<TextBlock Grid.Column="0" Text="{DynamicResource STRING_LBL_M3u8UrlList}" Classes="Body" VerticalAlignment="Center" />
-						<Button Grid.Column="1" Content="{DynamicResource STRING_BTN_AddLink}" Command="{Binding AddUrlEntryCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+						<TextBlock Grid.Column="0" Text="{DynamicResource LBL_M3u8UrlList}" Classes="Body" VerticalAlignment="Center" />
+						<Button Grid.Column="1" Content="{DynamicResource BTN_AddLink}" Command="{Binding AddUrlEntryCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
 					</Grid>
 
 					<ItemsControl ItemsSource="{Binding UrlEntries}">
@@ -30,12 +30,12 @@
 								<Grid ColumnDefinitions="*,200,32" Margin="0 4" MinHeight="32">
 									<TextBox Grid.Column="0"
 											 Text="{Binding Url}"
-											 PlaceholderText="{DynamicResource STRING_HINT_InputM3u8Url}"
+											 PlaceholderText="{DynamicResource HINT_InputM3u8Url}"
 											 HorizontalAlignment="Stretch"
 											 Margin="0 0 8 0" />
 									<TextBox Grid.Column="1"
 											 Text="{Binding FileName}"
-											 PlaceholderText="{DynamicResource STRING_HINT_FileNameOptional}"
+											 PlaceholderText="{DynamicResource HINT_FileNameOptional}"
 											 HorizontalAlignment="Stretch"
 											 Margin="0 0 8 0" />
 									<Button Grid.Column="2"
@@ -55,18 +55,18 @@
 
 			<Border Theme="{DynamicResource CardBorder}" Padding="16">
 				<StackPanel Spacing="12">
-					<TextBlock Text="{DynamicResource STRING_LBL_SaveSettings}" Classes="SectionTitle" />
+					<TextBlock Text="{DynamicResource LBL_SaveSettings}" Classes="SectionTitle" />
 
 					<Grid ColumnDefinitions="160,*,160" Margin="0 4" MinHeight="32">
-						<TextBlock Grid.Column="0" Text="{DynamicResource STRING_LBL_SavePath}" VerticalAlignment="Center" Classes="Body" />
+						<TextBlock Grid.Column="0" Text="{DynamicResource LBL_SavePath}" VerticalAlignment="Center" Classes="Body" />
 						<TextBox Grid.Column="1"
 								 Text="{Binding SavePath}"
-								 PlaceholderText="{DynamicResource STRING_HINT_SelectSaveFolder}"
+								 PlaceholderText="{DynamicResource HINT_SelectSaveFolder}"
 								 HorizontalAlignment="Stretch"
 								 IsReadOnly="True"
 								 Margin="0 0 8 0" />
 						<Button Grid.Column="2"
-								Content="{DynamicResource STRING_BTN_Browse}"
+								Content="{DynamicResource BTN_Browse}"
 								Command="{Binding BrowseSavePathCommand}"
 								VerticalAlignment="Center"
 								HorizontalAlignment="Stretch"
@@ -77,7 +77,7 @@
 
 			<Border Theme="{DynamicResource CardBorder}" Padding="16">
 				<StackPanel Spacing="12">
-					<TextBlock Text="{DynamicResource STRING_LBL_ParameterConfig}" Classes="SectionTitle" />
+					<TextBlock Text="{DynamicResource LBL_ParameterConfig}" Classes="SectionTitle" />
 					<ItemsControl ItemsSource="{Binding Parameters}">
 						<ItemsControl.DataTemplates>
 							<DataTemplate x:DataType="models:TextScriptParameter">
@@ -89,7 +89,7 @@
 							<DataTemplate x:DataType="models:BoolScriptParameter">
 								<Grid ColumnDefinitions="160,*" Margin="0 4" MinHeight="32">
 									<TextBlock Grid.Column="0" Text="{Binding DisplayName}" VerticalAlignment="Center" Classes="Body" />
-									<ToggleSwitch Grid.Column="1" IsChecked="{Binding DefaultBoolValue}" OnContent="{DynamicResource STRING_SW_On}" OffContent="{DynamicResource STRING_SW_Off}" />
+									<ToggleSwitch Grid.Column="1" IsChecked="{Binding DefaultBoolValue}" OnContent="{DynamicResource SW_On}" OffContent="{DynamicResource SW_Off}" />
 								</Grid>
 							</DataTemplate>
 							<DataTemplate x:DataType="models:NumberScriptParameter">
@@ -107,7 +107,7 @@
 											 HorizontalAlignment="Stretch"
 											 IsReadOnly="True" />
 									<Button Grid.Column="2"
-											Content="{DynamicResource STRING_BTN_Browse}" Command="{Binding BrowseCommand}"
+											Content="{DynamicResource BTN_Browse}" Command="{Binding BrowseCommand}"
 											VerticalAlignment="Center" Margin="8,0,0,0" />
 								</Grid>
 							</DataTemplate>
@@ -115,8 +115,8 @@
 					</ItemsControl>
 
 					<StackPanel Orientation="Horizontal" Spacing="12" Margin="0 8 0 0">
-						<Button Content="{DynamicResource STRING_BTN_Execute}" Command="{Binding ExecuteScriptCommand}" Classes="Primary" MinWidth="100" IsEnabled="{Binding !IsRunning}" />
-						<Button Content="{DynamicResource STRING_BTN_Cancel}" Command="{Binding CancelExecutionCommand}" MinWidth="80" IsVisible="{Binding IsRunning}" />
+						<Button Content="{DynamicResource BTN_Execute}" Command="{Binding ExecuteScriptCommand}" Classes="Primary" MinWidth="100" IsEnabled="{Binding !IsRunning}" />
+						<Button Content="{DynamicResource BTN_Cancel}" Command="{Binding CancelExecutionCommand}" MinWidth="80" IsVisible="{Binding IsRunning}" />
 						<TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" Classes="Tertiary" Margin="12 0 0 0" />
 					</StackPanel>
 				</StackPanel>
@@ -125,8 +125,8 @@
 			<Border Theme="{DynamicResource CardBorder}" Padding="12" MaxHeight="{Binding LogMaxHeight}">
 				<Grid RowDefinitions="Auto,*">
 					<Grid ColumnDefinitions="*,Auto" Margin="0 0 0 8">
-						<TextBlock Grid.Column="0" Text="{DynamicResource STRING_LBL_LogOutput}" Classes="SectionTitle" VerticalAlignment="Center" />
-						<Button Grid.Column="1" Content="{DynamicResource STRING_BTN_Clear}" Command="{Binding ClearLogCommand}" FontSize="12" Padding="8 4" />
+						<TextBlock Grid.Column="0" Text="{DynamicResource LBL_LogOutput}" Classes="SectionTitle" VerticalAlignment="Center" />
+						<Button Grid.Column="1" Content="{DynamicResource BTN_Clear}" Command="{Binding ClearLogCommand}" FontSize="12" Padding="8 4" />
 					</Grid>
 					<ListBox x:Name="LogListBox" Grid.Row="1"
 							 ItemsSource="{Binding LogEntries}"
@@ -144,7 +144,7 @@
 								<SelectableTextBlock Text="{Binding FormattedLine}" FontSize="12" FontFamily="Consolas" TextWrapping="Wrap">
 									<SelectableTextBlock.ContextMenu>
 										<ContextMenu x:CompileBindings="False">
-											<MenuItem Header="{DynamicResource STRING_MENU_Copy}" Command="{Binding $parent[ListBox].DataContext.CopyLogEntryCommand}" CommandParameter="{Binding}" />
+											<MenuItem Header="{DynamicResource MENU_Copy}" Command="{Binding $parent[ListBox].DataContext.CopyLogEntryCommand}" CommandParameter="{Binding}" />
 										</ContextMenu>
 									</SelectableTextBlock.ContextMenu>
 								</SelectableTextBlock>

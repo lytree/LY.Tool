@@ -77,7 +77,7 @@
         <Style Selector="^ /template/ Panel#PART_TitleArea">
             <Setter Property="ContextFlyout">
                 <MenuFlyout>
-                    <MenuItem Command="{Binding $parent[u:DialogControlBase].Close}" Header="{DynamicResource STRING_MENU_DIALOG_CLOSE}">
+                    <MenuItem Command="{Binding $parent[u:DialogControlBase].Close}" Header="{DynamicResource MENU_DIALOG_CLOSE}">
                         <MenuItem.Icon>
                             <PathIcon Data="{DynamicResource SemiIconClose}" Theme="{StaticResource InnerPathIcon}" />
                         </MenuItem.Icon>
@@ -91,7 +91,7 @@
                     <MenuItem
                         Command="{Binding $parent[u:DialogControlBase].UpdateLayer}"
                         CommandParameter="{x:Static u:DialogLayerChangeType.BringForward}"
-                        Header="{DynamicResource STRING_MENU_BRING_FORWARD}">
+                        Header="{DynamicResource MENU_BRING_FORWARD}">
                         <MenuItem.Icon>
                             <PathIcon Data="{DynamicResource DialogArrangeBringForwardGlyph}" Theme="{StaticResource InnerPathIcon}" />
                         </MenuItem.Icon>
@@ -99,7 +99,7 @@
                     <MenuItem
                         Command="{Binding $parent[u:DialogControlBase].UpdateLayer}"
                         CommandParameter="{x:Static u:DialogLayerChangeType.BringToFront}"
-                        Header="{DynamicResource STRING_MENU_BRING_TO_FRONT}">
+                        Header="{DynamicResource MENU_BRING_TO_FRONT}">
                         <MenuItem.Icon>
                             <PathIcon Data="{DynamicResource DialogArrangeBringToFrontGlyph}" Theme="{StaticResource InnerPathIcon}" />
                         </MenuItem.Icon>
@@ -107,7 +107,7 @@
                     <MenuItem
                         Command="{Binding $parent[u:DialogControlBase].UpdateLayer}"
                         CommandParameter="{x:Static u:DialogLayerChangeType.SendBackward}"
-                        Header="{DynamicResource STRING_MENU_SEND_BACKWARD}">
+                        Header="{DynamicResource MENU_SEND_BACKWARD}">
                         <MenuItem.Icon>
                             <PathIcon Data="{DynamicResource DialogArrangeSendBackwardGlyph}" Theme="{StaticResource InnerPathIcon}" />
                         </MenuItem.Icon>
@@ -115,12 +115,12 @@
                     <MenuItem
                         Command="{Binding $parent[u:DialogControlBase].UpdateLayer}"
                         CommandParameter="{x:Static u:DialogLayerChangeType.SendToBack}"
-                        Header="{DynamicResource STRING_MENU_SEND_TO_BACK}">
+                        Header="{DynamicResource MENU_SEND_TO_BACK}">
                         <MenuItem.Icon>
                             <PathIcon Data="{DynamicResource DialogArrangeSendToBackGlyph}" Theme="{StaticResource InnerPathIcon}" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Command="{Binding $parent[u:DialogControlBase].Close}" Header="{DynamicResource STRING_MENU_DIALOG_CLOSE}">
+                    <MenuItem Command="{Binding $parent[u:DialogControlBase].Close}" Header="{DynamicResource MENU_DIALOG_CLOSE}">
                         <MenuItem.Icon>
                             <PathIcon Data="{DynamicResource SemiIconClose}" Theme="{StaticResource InnerPathIcon}" />
                         </MenuItem.Icon>
@@ -232,24 +232,24 @@
         <Style Selector="^ /template/ Button#PART_CancelButton">
             <Setter Property="Grid.Column" Value="0" />
             <Setter Property="iri:ClassHelper.Classes" Value="Tertiary" />
-            <Setter Property="Content" Value="{DynamicResource STRING_MENU_DIALOG_CANCEL}" />
+            <Setter Property="Content" Value="{DynamicResource MENU_DIALOG_CANCEL}" />
         </Style>
         <Style Selector="^ /template/ Button#PART_NoButton">
             <Setter Property="Grid.Column" Value="1" />
             <Setter Property="iri:ClassHelper.Classes" Value="Danger" />
-            <Setter Property="Content" Value="{DynamicResource STRING_MENU_DIALOG_NO}" />
+            <Setter Property="Content" Value="{DynamicResource MENU_DIALOG_NO}" />
             <Setter Property="Theme" Value="{DynamicResource SolidButton}" />
         </Style>
         <Style Selector="^ /template/ Button#PART_YesButton">
             <Setter Property="Grid.Column" Value="2" />
             <Setter Property="iri:ClassHelper.Classes" Value="Primary" />
-            <Setter Property="Content" Value="{DynamicResource STRING_MENU_DIALOG_YES}" />
+            <Setter Property="Content" Value="{DynamicResource MENU_DIALOG_YES}" />
             <Setter Property="Theme" Value="{DynamicResource SolidButton}" />
         </Style>
         <Style Selector="^ /template/ Button#PART_OKButton">
             <Setter Property="Grid.Column" Value="3" />
             <Setter Property="iri:ClassHelper.Classes" Value="Primary" />
-            <Setter Property="Content" Value="{DynamicResource STRING_MENU_DIALOG_OK}" />
+            <Setter Property="Content" Value="{DynamicResource MENU_DIALOG_OK}" />
             <Setter Property="Theme" Value="{DynamicResource SolidButton}" />
         </Style>
         <Style Selector="^[Mode=None]">
@@ -373,7 +373,7 @@
         <Style Selector="^ /template/ Panel#PART_TitleArea">
             <Setter Property="ContextFlyout">
                 <MenuFlyout>
-                    <MenuItem Command="{Binding $parent[u:DialogControlBase].Close}" Header="{DynamicResource STRING_MENU_DIALOG_CLOSE}">
+                    <MenuItem Command="{Binding $parent[u:DialogControlBase].Close}" Header="{DynamicResource MENU_DIALOG_CLOSE}">
                         <MenuItem.Icon>
                             <PathIcon Data="{DynamicResource SemiIconClose}" Theme="{StaticResource InnerPathIcon}" />
                         </MenuItem.Icon>
@@ -387,7 +387,7 @@
                     <MenuItem
                         Command="{Binding $parent[u:DialogControlBase].UpdateLayer}"
                         CommandParameter="{x:Static u:DialogLayerChangeType.BringForward}"
-                        Header="{DynamicResource STRING_MENU_BRING_FORWARD}">
+                        Header="{DynamicResource MENU_BRING_FORWARD}">
                         <MenuItem.Icon>
                             <PathIcon Data="{DynamicResource DialogArrangeBringForwardGlyph}" Theme="{StaticResource InnerPathIcon}" />
                         </MenuItem.Icon>
@@ -395,7 +395,7 @@
                     <MenuItem
                         Command="{Binding $parent[u:DialogControlBase].UpdateLayer}"
                         CommandParameter="{x:Static u:DialogLayerChangeType.BringToFront}"
-                        Header="{DynamicResource STRING_MENU_BRING_TO_FRONT}">
+                        Header="{DynamicResource MENU_BRING_TO_FRONT}">
                         <MenuItem.Icon>
                             <PathIcon Data="{DynamicResource DialogArrangeBringToFrontGlyph}" Theme="{StaticResource InnerPathIcon}" />
                         </MenuItem.Icon>
@@ -403,7 +403,7 @@
                     <MenuItem
                         Command="{Binding $parent[u:DialogControlBase].UpdateLayer}"
                         CommandParameter="{x:Static u:DialogLayerChangeType.SendBackward}"
-                        Header="{DynamicResource STRING_MENU_SEND_BACKWARD}">
+                        Header="{DynamicResource MENU_SEND_BACKWARD}">
                         <MenuItem.Icon>
                             <PathIcon Data="{DynamicResource DialogArrangeSendBackwardGlyph}" Theme="{StaticResource InnerPathIcon}" />
                         </MenuItem.Icon>
@@ -411,7 +411,7 @@
                     <MenuItem
                         Command="{Binding $parent[u:DialogControlBase].UpdateLayer}"
                         CommandParameter="{x:Static u:DialogLayerChangeType.SendToBack}"
-                        Header="{DynamicResource STRING_MENU_SEND_TO_BACK}">
+                        Header="{DynamicResource MENU_SEND_TO_BACK}">
                         <MenuItem.Icon>
                             <PathIcon Data="{DynamicResource DialogArrangeSendToBackGlyph}" Theme="{StaticResource InnerPathIcon}" />
                         </MenuItem.Icon>
@@ -419,7 +419,7 @@
                     <MenuItem
                         Command="{Binding $parent[u:DialogControlBase].Close}"
                         CommandParameter="{x:Static u:DialogLayerChangeType.BringForward}"
-                        Header="{DynamicResource STRING_MENU_DIALOG_CLOSE}">
+                        Header="{DynamicResource MENU_DIALOG_CLOSE}">
                         <MenuItem.Icon>
                             <PathIcon Data="{DynamicResource SemiIconClose}" Theme="{StaticResource InnerPathIcon}" />
                         </MenuItem.Icon>
@@ -589,24 +589,24 @@
         <Style Selector="^ /template/ Button#PART_CancelButton">
             <Setter Property="Grid.Column" Value="0" />
             <Setter Property="iri:ClassHelper.Classes" Value="Tertiary" />
-            <Setter Property="Content" Value="{DynamicResource STRING_MENU_DIALOG_CANCEL}" />
+            <Setter Property="Content" Value="{DynamicResource MENU_DIALOG_CANCEL}" />
         </Style>
         <Style Selector="^ /template/ Button#PART_NoButton">
             <Setter Property="Grid.Column" Value="1" />
             <Setter Property="iri:ClassHelper.Classes" Value="Danger" />
-            <Setter Property="Content" Value="{DynamicResource STRING_MENU_DIALOG_NO}" />
+            <Setter Property="Content" Value="{DynamicResource MENU_DIALOG_NO}" />
             <Setter Property="Theme" Value="{DynamicResource SolidButton}" />
         </Style>
         <Style Selector="^ /template/ Button#PART_YesButton">
             <Setter Property="Grid.Column" Value="2" />
             <Setter Property="iri:ClassHelper.Classes" Value="Primary" />
-            <Setter Property="Content" Value="{DynamicResource STRING_MENU_DIALOG_YES}" />
+            <Setter Property="Content" Value="{DynamicResource MENU_DIALOG_YES}" />
             <Setter Property="Theme" Value="{DynamicResource SolidButton}" />
         </Style>
         <Style Selector="^ /template/ Button#PART_OKButton">
             <Setter Property="Grid.Column" Value="3" />
             <Setter Property="iri:ClassHelper.Classes" Value="Primary" />
-            <Setter Property="Content" Value="{DynamicResource STRING_MENU_DIALOG_OK}" />
+            <Setter Property="Content" Value="{DynamicResource MENU_DIALOG_OK}" />
             <Setter Property="Theme" Value="{DynamicResource SolidButton}" />
         </Style>
         <Style Selector="^[Mode=None]">

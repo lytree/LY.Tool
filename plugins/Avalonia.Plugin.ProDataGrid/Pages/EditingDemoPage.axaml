@@ -13,34 +13,34 @@
     mc:Ignorable="d">
     <Grid RowDefinitions="Auto, Auto, Auto, Auto, *, Auto, Auto">
         <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
-            <Button Content="{DynamicResource STRING_BTN_AddRow}" Command="{Binding AddRowCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_DeleteSelected}" Command="{Binding RemoveSelectedCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_ResetData}" Command="{Binding ResetDataCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_Export}" Command="{Binding SaveCommand}" />
-            <Button Content="{DynamicResource STRING_BTN_ClearLog}" Command="{Binding ClearLogCommand}" />
+            <Button Content="{DynamicResource BTN_AddRow}" Command="{Binding AddRowCommand}" />
+            <Button Content="{DynamicResource BTN_DeleteSelected}" Command="{Binding RemoveSelectedCommand}" />
+            <Button Content="{DynamicResource BTN_ResetData}" Command="{Binding ResetDataCommand}" />
+            <Button Content="{DynamicResource BTN_Export}" Command="{Binding SaveCommand}" />
+            <Button Content="{DynamicResource BTN_ClearLog}" Command="{Binding ClearLogCommand}" />
             <Separator Margin="4,0" />
-            <Button Content="{DynamicResource STRING_BTN_Undo}" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" />
-            <Button Content="{DynamicResource STRING_BTN_Redo}" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}" />
-            <Button Content="{DynamicResource STRING_BTN_CommitChanges}" Command="{Binding CommitDirtyCommand}" />
+            <Button Content="{DynamicResource BTN_Undo}" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" />
+            <Button Content="{DynamicResource BTN_Redo}" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}" />
+            <Button Content="{DynamicResource BTN_CommitChanges}" Command="{Binding CommitDirtyCommand}" />
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
-            <TextBlock VerticalAlignment="Center" Text="{DynamicResource STRING_LBL_EditMode}" FontWeight="SemiBold" />
+            <TextBlock VerticalAlignment="Center" Text="{DynamicResource LBL_EditMode}" FontWeight="SemiBold" />
             <ComboBox SelectedIndex="{Binding EditingModeIndex}">
-                <ComboBoxItem Content="{DynamicResource STRING_EDIT_DoubleClick}" />
-                <ComboBoxItem Content="{DynamicResource STRING_EDIT_SingleClick}" />
-                <ComboBoxItem Content="{DynamicResource STRING_EDIT_AltClick}" />
-                <ComboBoxItem Content="{DynamicResource STRING_EDIT_ReadOnly}" />
+                <ComboBoxItem Content="{DynamicResource EDIT_DoubleClick}" />
+                <ComboBoxItem Content="{DynamicResource EDIT_SingleClick}" />
+                <ComboBoxItem Content="{DynamicResource EDIT_AltClick}" />
+                <ComboBoxItem Content="{DynamicResource EDIT_ReadOnly}" />
             </ComboBox>
             <TextBlock VerticalAlignment="Center" Text="{Binding ModeDescription}" Opacity="0.7" Margin="12,0,0,0" />
         </StackPanel>
         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
-            <TextBlock VerticalAlignment="Center" Text="{DynamicResource STRING_LBL_BatchEdit}" FontWeight="SemiBold" />
-            <TextBlock VerticalAlignment="Center" Text="{DynamicResource STRING_LBL_Category}" />
+            <TextBlock VerticalAlignment="Center" Text="{DynamicResource LBL_BatchEdit}" FontWeight="SemiBold" />
+            <TextBlock VerticalAlignment="Center" Text="{DynamicResource LBL_Category}" />
             <ComboBox ItemsSource="{Binding CategoryOptions}" SelectedItem="{Binding BatchCategory}" Width="100" />
-            <Button Content="{DynamicResource STRING_BTN_ApplyCategory}" Command="{Binding BatchSetCategoryCommand}" />
-            <TextBlock VerticalAlignment="Center" Text="{DynamicResource STRING_LBL_Supplier}" Margin="8,0,0,0" />
+            <Button Content="{DynamicResource BTN_ApplyCategory}" Command="{Binding BatchSetCategoryCommand}" />
+            <TextBlock VerticalAlignment="Center" Text="{DynamicResource LBL_Supplier}" Margin="8,0,0,0" />
             <ComboBox ItemsSource="{Binding SupplierOptions}" SelectedItem="{Binding BatchSupplier}" Width="100" />
-            <Button Content="{DynamicResource STRING_BTN_ApplySupplier}" Command="{Binding BatchSetSupplierCommand}" />
+            <Button Content="{DynamicResource BTN_ApplySupplier}" Command="{Binding BatchSetSupplierCommand}" />
         </StackPanel>
         <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
             <TextBlock Text="{Binding EditStatus}" Foreground="Green" FontWeight="SemiBold" />
@@ -67,22 +67,22 @@
             CellEditEnded="OnCellEditEnded"
             x:CompileBindings="False">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_ID}" Binding="{Binding Id, Mode=OneWay}" Width="60" IsReadOnly="True" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_Product}" Binding="{Binding Product, Mode=TwoWay}" Width="*" />
-                <DataGridComboBoxColumn Header="{DynamicResource STRING_COL_Category}" Width="100"
+                <DataGridTextColumn Header="{DynamicResource COL_ID}" Binding="{Binding Id, Mode=OneWay}" Width="60" IsReadOnly="True" />
+                <DataGridTextColumn Header="{DynamicResource COL_Product}" Binding="{Binding Product, Mode=TwoWay}" Width="*" />
+                <DataGridComboBoxColumn Header="{DynamicResource COL_Category}" Width="100"
                     ItemsSource="{Binding $parent[DataGrid].DataContext.CategoryOptions}"
                     SelectedItemBinding="{Binding Category, Mode=TwoWay}" />
-                <DataGridNumericColumn Header="{DynamicResource STRING_COL_UnitPrice}" Binding="{Binding Price, Mode=TwoWay}" Width="100"
+                <DataGridNumericColumn Header="{DynamicResource COL_UnitPrice}" Binding="{Binding Price, Mode=TwoWay}" Width="100"
                     Minimum="0" Maximum="999999" Increment="10" FormatString="F2" />
-                <DataGridNumericColumn Header="{DynamicResource STRING_COL_Quantity}" Binding="{Binding Quantity, Mode=TwoWay}" Width="80"
+                <DataGridNumericColumn Header="{DynamicResource COL_Quantity}" Binding="{Binding Quantity, Mode=TwoWay}" Width="80"
                     Minimum="0" Maximum="99999" Increment="1" />
-                <DataGridCheckBoxColumn Header="{DynamicResource STRING_COL_InStock}" Binding="{Binding InStock, Mode=TwoWay}" Width="70" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_Total}" Binding="{Binding Total, Mode=OneWay, StringFormat='{}{0:F2}'}" Width="100" IsReadOnly="True" />
-                <DataGridComboBoxColumn Header="{DynamicResource STRING_COL_Supplier}" Width="100"
+                <DataGridCheckBoxColumn Header="{DynamicResource COL_InStock}" Binding="{Binding InStock, Mode=TwoWay}" Width="70" />
+                <DataGridTextColumn Header="{DynamicResource COL_Total}" Binding="{Binding Total, Mode=OneWay, StringFormat='{}{0:F2}'}" Width="100" IsReadOnly="True" />
+                <DataGridComboBoxColumn Header="{DynamicResource COL_Supplier}" Width="100"
                     ItemsSource="{Binding $parent[DataGrid].DataContext.SupplierOptions}"
                     SelectedItemBinding="{Binding Supplier, Mode=TwoWay}" />
-                <DataGridTextColumn Header="{DynamicResource STRING_COL_UpdateDate}" Binding="{Binding LastUpdated, Mode=OneWay, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}" Width="120" IsReadOnly="True" />
-                <DataGridTemplateColumn Header="{DynamicResource STRING_COL_Remarks}" Width="2*">
+                <DataGridTextColumn Header="{DynamicResource COL_UpdateDate}" Binding="{Binding LastUpdated, Mode=OneWay, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}" Width="120" IsReadOnly="True" />
+                <DataGridTemplateColumn Header="{DynamicResource COL_Remarks}" Width="2*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="models:EditingDemoRow">
                             <TextBlock Text="{Binding Notes}" TextTrimming="CharacterEllipsis" />
@@ -101,7 +101,7 @@
         <Border Grid.Row="6" BorderBrush="{DynamicResource SystemControlHighlightAccentBrush}"
                 BorderThickness="1" Padding="4" MinHeight="120" MaxHeight="200">
             <Grid RowDefinitions="Auto, *">
-                <TextBlock Text="{DynamicResource STRING_LBL_EditEventLog}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                <TextBlock Text="{DynamicResource LBL_EditEventLog}" FontWeight="SemiBold" Margin="0,0,0,4" />
                 <ListBox Grid.Row="1" ItemsSource="{Binding EventLog}" ScrollViewer.VerticalScrollBarVisibility="Auto"
                          BorderThickness="0" x:Name="LogList" />
             </Grid>

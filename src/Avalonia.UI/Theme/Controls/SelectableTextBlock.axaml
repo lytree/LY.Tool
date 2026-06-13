@@ -8,7 +8,7 @@
         Placement="Bottom">
         <MenuItem
             Command="{Binding $parent[SelectableTextBlock].Copy}"
-            Header="{DynamicResource STRING_MENU_COPY}"
+            Header="{DynamicResource MENU_COPY}"
             InputGesture="{x:Static TextBox.CopyGesture}"
             IsEnabled="{Binding $parent[SelectableTextBlock].CanCopy}" />
     </MenuFlyout>

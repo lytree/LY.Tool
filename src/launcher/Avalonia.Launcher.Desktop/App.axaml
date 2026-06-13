@@ -27,7 +27,7 @@ x:DataType="viewmodels:ApplicationViewModel">
 	<NativeMenu.Menu>
 		<NativeMenu>
 			<NativeMenuItem
-			Header="{DynamicResource STRING_MENU_ABOUT_US}"
+			Header="{DynamicResource MENU_ABOUT_US}"
 			Command="{Binding JumpToCommand}"
 			CommandParameter="AboutUs"/>
 		</NativeMenu>
