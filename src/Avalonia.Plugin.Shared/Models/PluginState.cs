@@ -4,7 +4,9 @@ public enum PluginState
 {
     NotInstalled,
     Installed,
+    Discovered,
     Loaded,
+    Registered,
     Disabled,
     PendingUninstall,
     Error

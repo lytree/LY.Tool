@@ -19,7 +19,7 @@ public partial class TDLSharpPlugin : IPluginMetadata
     public IEnumerable<string> Dependencies => [];
     public string PluginId => "A1B2C3D4-E5F6-7890-ABCD-TDLSHARP00001";
 
-    public void ConfigureServices(IServiceCollection services)
+    public Task InitializeAsync(IServiceCollection services)
     {
         services.AddSingleton<TdlClientManager>(sp =>
         {
@@ -30,9 +30,10 @@ public partial class TDLSharpPlugin : IPluginMetadata
 
             return new TdlClientManager(logger, apiId, apiHash, proxyServer, proxyPort, enableProxy);
         });
+        return Task.CompletedTask;
     }
 
-    public Task InitializeAsync(IServiceProvider serviceProvider)
+    public Task RegisterAsync(IServiceProvider serviceProvider)
     {
         if (serviceProvider.GetService<ILocalizationService>() is { } loc)
             loc.RegisterResourceManager(Strings.ResourceManager);

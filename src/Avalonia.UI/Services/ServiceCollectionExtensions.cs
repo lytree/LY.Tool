@@ -15,6 +15,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<IMenuConfigurationService, MenuConfigurationService>();
 
+        services.AddSingleton<ITaskRegistry, TaskRegistry>();
+
         // PluginLoader 由 App.axaml.cs 手动创建并注册，此处不再注册
 
         services.AddSingleton<IPluginInstallationManager, PluginInstallationManager>();

@@ -1,6 +1,7 @@
 
 using Avalonia.Controls;
 using Avalonia.Plugin.Shared.ViewModels;
+using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 
@@ -10,19 +11,24 @@ namespace Avalonia.Plugin.Shared;
 public interface IPlugin
 {
     /// <summary>
-    /// 注册服务到 IServiceCollection，在 DI 容器构建前调用
+    /// 初始化插件，向 IServiceCollection 注册服务。在 DI 容器构建前调用。
     /// </summary>
-    void ConfigureServices(IServiceCollection services) { }
+    Task InitializeAsync(IServiceCollection services) => Task.CompletedTask;
 
     /// <summary>
     /// DI 容器构建完成后调用，用于注册语言资源、设置等需要 IServiceProvider 的操作
     /// </summary>
-    Task InitializeAsync(IServiceProvider serviceProvider) => Task.CompletedTask;
+    Task RegisterAsync(IServiceProvider serviceProvider) => Task.CompletedTask;
 
     Task ShutdownAsync() => Task.CompletedTask;
     IEnumerable<KeyValuePair<Type, ViewFactory>> GetViewDefinitions();
     Dictionary<string, ViewModelFactory> GetNavigationItems();
     List<KeyValuePair<string?, MenuItemViewModel>> GetMenuItems();
+
+    /// <summary>
+    /// 获取插件提供的图标资源字典，用于菜单图标等
+    /// </summary>
+    IResourceDictionary? GetIconResources() => null;
 }
 
 

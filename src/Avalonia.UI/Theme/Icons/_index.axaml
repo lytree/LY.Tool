@@ -3,6 +3,10 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="FluentIcons.axaml" />
+    </ResourceDictionary.MergedDictionaries>
+
     <!-- Navigation -->
     <StreamGeometry x:Key="SemiIconChevronDown">M4.22 8.47c.3-.3.77-.3 1.06 0L12 15.19l6.72-6.72a.75.75 0 1 1 1.06 1.06l-7.25 7.25c-.3.3-.77.3-1.06 0L4.22 9.53a.75.75 0 0 1 0-1.06Z</StreamGeometry>
     <StreamGeometry x:Key="SemiIconChevronUp">M4.22 15.53c.3.3.77.3 1.06 0L12 8.81l6.72 6.72a.75.75 0 1 0 1.06-1.06l-7.25-7.25c-.3-.3-.77-.3-1.06 0L4.22 14.47a.75.75 0 0 0 1.06 1.06Z</StreamGeometry>

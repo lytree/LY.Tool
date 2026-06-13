@@ -16,9 +16,9 @@ public partial class DownloaderPlugin : IPluginMetadata
     public IEnumerable<string> Dependencies => [];
     public string PluginId => "B2C3D4E5-F6A7-8901-BCDE-DOWNLOADER001";
 
-    public void ConfigureServices(IServiceCollection services) { }
+    public Task InitializeAsync(IServiceCollection services) => Task.CompletedTask;
 
-    public Task InitializeAsync(IServiceProvider serviceProvider)
+    public Task RegisterAsync(IServiceProvider serviceProvider)
     {
         if (serviceProvider.GetService<ILocalizationService>() is { } loc)
             loc.RegisterResourceManager(Strings.ResourceManager);

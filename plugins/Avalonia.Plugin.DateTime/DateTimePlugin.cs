@@ -16,9 +16,9 @@ public partial class DateTimePlugin : IPluginMetadata
     public IEnumerable<string> Dependencies => [];
     public string PluginId => "Avalonia.Plugin.DateTime";
 
-    public void ConfigureServices(IServiceCollection services) { }
+    public Task InitializeAsync(IServiceCollection services) => Task.CompletedTask;
 
-    public Task InitializeAsync(IServiceProvider serviceProvider)
+    public Task RegisterAsync(IServiceProvider serviceProvider)
     {
         if (serviceProvider.GetService<ILocalizationService>() is { } loc)
             loc.RegisterResourceManager(Strings.ResourceManager);

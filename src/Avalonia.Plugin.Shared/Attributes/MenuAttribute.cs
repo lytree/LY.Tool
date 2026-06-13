@@ -27,6 +27,11 @@ public class MenuAttribute(string header, string key, string? parentKey = null) 
     public string? ParentKey { get; set; } = parentKey;
 
     /// <summary>
+    /// 菜单项图标名称
+    /// </summary>
+    public string? IconName { get; set; }
+
+    /// <summary>
     /// 菜单项状态
     /// </summary>
     public string? Status { get; set; } = null;

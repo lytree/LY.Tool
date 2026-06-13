@@ -385,4 +385,7 @@
   <data name="RESTART_REQUIRED" xml:space="preserve">
     <value>Restart required for some changes to take effect</value>
   </data>
+  <data name="EXIT_RUNNING_TASKS_WARNING" xml:space="preserve">
+    <value>The following tasks are still running:</value>
+  </data>
 </root>

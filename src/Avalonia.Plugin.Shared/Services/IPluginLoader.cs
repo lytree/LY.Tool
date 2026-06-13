@@ -26,4 +26,5 @@ public class PluginLoadResult
     public string? ErrorMessage { get; set; }
     public IPlugin? Plugin { get; set; }
     public IPluginMetadata? Metadata { get; set; }
+    public PluginInfo? PluginInfo { get; set; }
 }

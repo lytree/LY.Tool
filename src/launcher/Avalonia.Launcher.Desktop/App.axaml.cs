@@ -65,9 +65,13 @@ public partial class App : Application
         var services = new ServiceCollection();
         services.AddAvaloniaServices();
 
-        // 第一阶段：发现插件并注册服务
+        // 阶段1：发现所有插件程序集，创建 IPlugin 实例
         var pluginLoader = new PluginLoader();
-        pluginLoader.DiscoverAndConfigureServicesAsync(services).GetAwaiter().GetResult();
+        pluginLoader.DiscoverAllPluginAssembliesAsync().GetAwaiter().GetResult();
+
+        // 阶段2：调用插件 InitializeAsync(IServiceCollection)，注册 DI 服务
+        pluginLoader.InitializeAllPluginsAsync(services).GetAwaiter().GetResult();
+
         services.AddSingleton<IPluginLoader>(sp =>
         {
             var navigationService = sp.GetRequiredService<INavigationService>() as NavigationService;
@@ -85,8 +89,8 @@ public partial class App : Application
         InitializeDatabase();
         InitializeLocalization();
 
-        // 第二阶段：DI 容器构建完成后，初始化插件（注册语言资源等）
-        pluginLoader.InitializePluginsAsync(ServiceProvider).GetAwaiter().GetResult();
+        // 阶段3：调用插件 RegisterAsync(IServiceProvider)，执行多语言注册等
+        pluginLoader.RegisterAllPluginsAsync(ServiceProvider).GetAwaiter().GetResult();
         RegisterPluginNavigationAndMenus(pluginLoader);
 
         DataContext = new ApplicationViewModel();
@@ -127,7 +131,7 @@ public partial class App : Application
 
         foreach (var pluginInfo in pluginLoader.GetInstalledPlugins())
         {
-            if (pluginInfo.State != PluginState.Loaded)
+            if (pluginInfo.State != PluginState.Loaded && pluginInfo.State != PluginState.Registered)
                 continue;
 
             try

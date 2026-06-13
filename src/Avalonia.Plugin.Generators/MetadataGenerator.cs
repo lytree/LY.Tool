@@ -30,7 +30,7 @@ public class MetadataGenerator : IIncrementalGenerator
 
                     var viewLines = new StringBuilder();
                     var navLines = new StringBuilder();
-                    var menuData = new List<(string Header, string Key, string? Parent, string? Status, int Order)>();
+                    var menuData = new List<(string Header, string Key, string? Parent, string? IconName, string? Status, int Order)>();
 
                     foreach (var cls in allClasses)
                     {
@@ -73,6 +73,7 @@ using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Plugin.Shared;
 using Avalonia.Plugin.Shared.ViewModels;
+using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace {data.Namespace}
@@ -95,6 +96,8 @@ namespace {data.Namespace}
 {menuAddLines}
             return MenuItemTreeBuilder.BuildTree(allItems);
         }}
+
+        public IResourceDictionary? GetIconResources() => null;
     }}
 }}";
             ctx.AddSource($"{data.ClassName}.g.cs", SourceText.From(source, Encoding.UTF8));
@@ -107,10 +110,10 @@ namespace {data.Namespace}
         public string ClassName { get; }
         public string ViewLines { get; }
         public string NavLines { get; }
-        public List<(string Header, string Key, string? Parent, string? Status, int Order)> MenuData { get; }
+        public List<(string Header, string Key, string? Parent, string? IconName, string? Status, int Order)> MenuData { get; }
 
         public GeneratorData(string ns, string className, string viewLines, string navLines,
-            List<(string Header, string Key, string? Parent, string? Status, int Order)> menuData)
+            List<(string Header, string Key, string? Parent, string? IconName, string? Status, int Order)> menuData)
         {
             Namespace = ns;
             ClassName = className;
@@ -120,12 +123,13 @@ namespace {data.Namespace}
         }
     }
 
-    private static string GenerateMenuAddStatements(List<(string Header, string Key, string? Parent, string? Status, int Order)> data)
+    private static string GenerateMenuAddStatements(List<(string Header, string Key, string? Parent, string? IconName, string? Status, int Order)> data)
     {
         var sb = new StringBuilder();
         foreach (var d in data)
         {
-            sb.AppendLine($@"            allItems.Add(({d.Parent ?? "null"}, new MenuItemViewModel {{ MenuHeader = {d.Header}, Key = {d.Key}, Status = {d.Status ?? "null"}, Order = {d.Order} }}, {d.Order}));");
+            var iconNameProp = d.IconName != null ? $", MenuIconName = {d.IconName}" : "";
+            sb.AppendLine($@"            allItems.Add(({d.Parent ?? "null"}, new MenuItemViewModel {{ MenuHeader = {d.Header}, Key = {d.Key}{iconNameProp}, Status = {d.Status ?? "null"}, Order = {d.Order} }}, {d.Order}));");
         }
         return sb.ToString();
     }
@@ -167,12 +171,13 @@ namespace {data.Namespace}
         return shortName;
     }
 
-    private static (string Header, string Key, string? Parent, string? Status, int Order)
+    private static (string Header, string Key, string? Parent, string? IconName, string? Status, int Order)
     ParseMenu(AttributeSyntax attr)
     {
         string header = "null";
         string key = "null";
         string? parent = "null";
+        string? iconName = null;
         string? status = "null";
         int order = 100;
 
@@ -199,6 +204,7 @@ namespace {data.Namespace}
                     case "Header": header = expression; break;
                     case "Key": key = expression; break;
                     case "ParentKey": parent = expression; break;
+                    case "IconName": iconName = expression; break;
                     case "Status": status = expression; break;
                     case "Order":
                         if (!int.TryParse(expression, out order)) order = 100;
@@ -207,6 +213,6 @@ namespace {data.Namespace}
             }
         }
 
-        return (header, key, parent, status, order);
+        return (header, key, parent, iconName, status, order);
     }
 }
