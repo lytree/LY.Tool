@@ -60,7 +60,7 @@ public partial class App : Application
     {
         AvaloniaXamlLoader.Load(this);
 #if DEBUG
-    this.AttachDeveloperTools();
+        this.AttachDeveloperTools();
 #endif
         var services = new ServiceCollection();
         services.AddAvaloniaServices();
@@ -102,7 +102,7 @@ public partial class App : Application
         {
             var settingsService = ServiceProvider?.GetRequiredService<ISettingsService>();
             var savedLocale = settingsService?.GetValue("App.Locale");
-            var culture = !string.IsNullOrEmpty(savedLocale)
+            var culture = !string.IsNullOrEmpty(savedLocale) && !"Default".Equals(savedLocale)
                 ? new System.Globalization.CultureInfo(savedLocale)
                 : System.Globalization.CultureInfo.CurrentUICulture;
             loc.SetCulture(culture);
