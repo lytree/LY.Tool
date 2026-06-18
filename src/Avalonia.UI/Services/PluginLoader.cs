@@ -88,7 +88,7 @@ public class PluginLoader : IPluginLoader, IDisposable
 
     /// <summary>
     /// 阶段2：调用每个已发现插件的 InitializeAsync(IServiceCollection)，
-    /// 插件在初始化时向 ServiceCollection 注册服务，状态从 Discovered 变为 Loaded。
+    /// 插件在初始化时向 ServiceCollection 注册服务。
     /// 必须在 DiscoverAllPluginAssembliesAsync 之后、BuildServiceProvider 之前调用。
     /// </summary>
     public async Task InitializeAllPluginsAsync(IServiceCollection services)
@@ -98,7 +98,7 @@ public class PluginLoader : IPluginLoader, IDisposable
         lock (_sync)
         {
             toInitialize = _entries.Values
-                .Where(e => e.Info.State == PluginState.Discovered && e.Plugin is not null)
+                .Where(e => e.Info.State == PluginState.Loaded && e.Plugin is not null && !e.IsInitialized)
                 .ToList();
         }
 
@@ -127,12 +127,8 @@ public class PluginLoader : IPluginLoader, IDisposable
 
             lock (_sync)
             {
-                var loadedInfo = entry.Info.WithState(PluginState.Loaded);
-                var loadedEntry = GetOrCreateEntry(loadedInfo.PluginId);
-                loadedEntry.Info = loadedInfo;
-                SavePluginManifest(loadedInfo);
-                InvalidateSnapshot();
-                eventsToFire.Add(loadedInfo);
+                entry.IsInitialized = true;
+                eventsToFire.Add(entry.Info);
             }
 
             FireEventsOutsideLock(eventsToFire);
@@ -141,7 +137,7 @@ public class PluginLoader : IPluginLoader, IDisposable
 
     /// <summary>
     /// 阶段3：调用每个已加载插件的 RegisterAsync()，
-    /// 插件在注册时执行多语言注册、SQL 初始化等操作，状态从 Loaded 变为 Registered。
+    /// 插件在注册时执行多语言注册、SQL 初始化等操作。
     /// 必须在 ServiceProvider 构建完成之后调用。
     /// </summary>
     public async Task RegisterAllPluginsAsync(IServiceProvider serviceProvider)
@@ -151,7 +147,7 @@ public class PluginLoader : IPluginLoader, IDisposable
         lock (_sync)
         {
             toRegister = _entries.Values
-                .Where(e => e.Info.State == PluginState.Loaded && e.Plugin is not null)
+                .Where(e => e.Info.State == PluginState.Loaded && e.Plugin is not null && e.IsInitialized)
                 .ToList();
         }
 
@@ -178,22 +174,13 @@ public class PluginLoader : IPluginLoader, IDisposable
                 continue;
             }
 
-            lock (_sync)
-            {
-                var registeredInfo = entry.Info.WithState(PluginState.Registered);
-                var registeredEntry = GetOrCreateEntry(registeredInfo.PluginId);
-                registeredEntry.Info = registeredInfo;
-                SavePluginManifest(registeredInfo);
-                InvalidateSnapshot();
-                eventsToFire.Add(registeredInfo);
-            }
-
+            eventsToFire.Add(entry.Info);
             FireEventsOutsideLock(eventsToFire);
         }
     }
 
     /// <summary>
-    /// 发现单个插件程序集：加载 Assembly，创建 IPlugin/IPluginMetadata 实例，状态设为 Discovered。
+    /// 发现单个插件程序集：加载 Assembly，创建 IPlugin/IPluginMetadata 实例，状态设为 Loaded。
     /// </summary>
     private async Task<PluginLoadResult> DiscoverPluginAssemblyAsync(PluginInfo pluginInfo)
     {
@@ -311,8 +298,9 @@ public class PluginLoader : IPluginLoader, IDisposable
                 pluginInfo = pluginInfo.WithMetadata(true);
             }
 
-            pluginInfo = pluginInfo.WithState(PluginState.Discovered);
+            pluginInfo = pluginInfo.WithState(PluginState.Loaded);
             entry.Info = pluginInfo;
+            entry.IsInitialized = false;
             SavePluginManifest(pluginInfo);
             InvalidateSnapshot();
 
@@ -351,7 +339,7 @@ public class PluginLoader : IPluginLoader, IDisposable
         lock (_sync)
         {
             loaded = _entries.Values
-                .Where(e => e.Info.State == PluginState.Loaded || e.Info.State == PluginState.Registered)
+                .Where(e => e.Info.State == PluginState.Loaded)
                 .Select(e => e.Info)
                 .ToList();
         }
@@ -396,11 +384,8 @@ public class PluginLoader : IPluginLoader, IDisposable
 
         lock (_sync)
         {
-            var loadedInfo = pluginInfo.WithState(PluginState.Loaded);
-            var entry = GetOrCreateEntry(loadedInfo.PluginId);
-            entry.Info = loadedInfo;
-            SavePluginManifest(loadedInfo);
-            InvalidateSnapshot();
+            var entry = GetOrCreateEntry(pluginInfo.PluginId);
+            entry.IsInitialized = true;
 
             return new PluginLoadResult { Success = true, Plugin = discoveredPlugin, Metadata = result.Metadata };
         }
@@ -639,7 +624,7 @@ public class PluginLoader : IPluginLoader, IDisposable
 
                 var pluginInfo = ManifestToPluginInfo(manifest, pluginDir);
 
-                if (pluginInfo.State == PluginState.Loaded || pluginInfo.State == PluginState.Discovered || pluginInfo.State == PluginState.Registered)
+                if (pluginInfo.State == PluginState.Loaded)
                 {
                     pluginInfo = pluginInfo.WithState(PluginState.Installed);
                 }
@@ -759,5 +744,6 @@ public class PluginLoader : IPluginLoader, IDisposable
         public IPlugin? Plugin { get; set; }
         public IPluginMetadata? Metadata { get; set; }
         public AssemblyLoadContext? Context { get; set; }
+        public bool IsInitialized { get; set; }
     }
 }

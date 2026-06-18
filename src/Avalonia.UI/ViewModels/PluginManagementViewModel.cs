@@ -225,8 +225,6 @@ public partial class PluginItemViewModel : ViewModelBase
         (StateText, StateColor) = info.State switch
         {
             PluginState.Loaded => (_localizationService?.GetString("STATE_LOADED", "Loaded") ?? "Loaded", "#4CAF50"),
-            PluginState.Registered => (_localizationService?.GetString("STATE_REGISTERED", "Registered") ?? "Registered", "#4CAF50"),
-            PluginState.Discovered => (_localizationService?.GetString("STATE_DISCOVERED", "Discovered") ?? "Discovered", "#2196F3"),
             PluginState.Installed => (_localizationService?.GetString("STATE_INSTALLED", "Installed (restart to load)") ?? "Installed (restart to load)", "#2196F3"),
             PluginState.Disabled => (_localizationService?.GetString("STATE_DISABLED", "Disabled") ?? "Disabled", "#FF9800"),
             PluginState.PendingUninstall => (_localizationService?.GetString("STATE_PENDING_UNINSTALL", "Pending Uninstall") ?? "Pending Uninstall", "#9C27B0"),
@@ -235,7 +233,7 @@ public partial class PluginItemViewModel : ViewModelBase
         };
 
         CanEnable = info.State == PluginState.Disabled;
-        CanDisable = info.State == PluginState.Loaded || info.State == PluginState.Installed || info.State == PluginState.Registered;
+        CanDisable = info.State == PluginState.Loaded || info.State == PluginState.Installed;
         CanUninstall = !info.IsBuiltIn && info.State != PluginState.PendingUninstall;
     }
 }

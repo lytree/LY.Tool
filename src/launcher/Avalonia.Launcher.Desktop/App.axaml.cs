@@ -131,7 +131,7 @@ public partial class App : Application
 
         foreach (var pluginInfo in pluginLoader.GetInstalledPlugins())
         {
-            if (pluginInfo.State != PluginState.Loaded && pluginInfo.State != PluginState.Registered)
+            if (pluginInfo.State != PluginState.Loaded)
                 continue;
 
             try
