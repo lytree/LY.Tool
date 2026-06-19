@@ -6,7 +6,7 @@ using Avalonia.Plugin.TDLSharp.Services;
 namespace Avalonia.Plugin.TDLSharp.ViewModels;
 
 [NavigationItem("TDL_ClearMessage")]
-[Menu("NAV_TDL_ClearMessage", "TDL_ClearMessage", ParentKey = "NAV_TDL", Order = 2)]
+[Menu("NAV_TDL_ClearMessage", "TDL_ClearMessage", ParentKey = "NAV_TDL", Order = 10)]
 [ViewMap(typeof(Pages.ClearMessagePage))]
 public partial class ClearMessageViewModel : TdlViewModelBase
 {

@@ -6,7 +6,7 @@ using Avalonia.Plugin.TDLSharp.Services;
 namespace Avalonia.Plugin.TDLSharp.ViewModels;
 
 [NavigationItem("TDL_SingleForward")]
-[Menu("NAV_TDL_SingleForward", "TDL_SingleForward", ParentKey = "NAV_TDL", Order = 4)]
+[Menu("NAV_TDL_SingleForward", "TDL_SingleForward", ParentKey = "NAV_TDL", Order = 6)]
 [ViewMap(typeof(Pages.SingleForwardPage))]
 public partial class SingleForwardViewModel : TdlViewModelBase
 {

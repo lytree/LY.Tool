@@ -281,6 +281,13 @@
   <data name="LOGIN_Login" xml:space="preserve"><value>登录</value></data>
   <data name="LOGIN_BotTokenSubmitted" xml:space="preserve"><value>Bot Token 已提交，正在认证...</value></data>
   <data name="LOGIN_BotTokenFailed" xml:space="preserve"><value>Bot Token 登录失败: {0}</value></data>
+  <data name="LOGIN_QrCode" xml:space="preserve"><value>二维码</value></data>
+  <data name="LOGIN_QrCodeDesc" xml:space="preserve"><value>请求二维码并使用 Telegram 应用扫描以登录。</value></data>
+  <data name="LOGIN_RequestQrCode" xml:space="preserve"><value>请求二维码</value></data>
+  <data name="LOGIN_QrCodeRequested" xml:space="preserve"><value>二维码已请求，等待确认中...</value></data>
+  <data name="LOGIN_QrCodeFailed" xml:space="preserve"><value>二维码登录失败: {0}</value></data>
+  <data name="LOGIN_QrCodeScanPrompt" xml:space="preserve"><value>使用 Telegram 应用扫描以下链接：</value></data>
+  <data name="LOGIN_QrCodeConfirmWait" xml:space="preserve"><value>正在等待其他设备确认...</value></data>
   <data name="LOGIN_LoggedInAs" xml:space="preserve"><value>已登录账号</value></data>
   <data name="LOGIN_Logout" xml:space="preserve"><value>退出登录</value></data>
   <data name="LOGIN_LoggedOut" xml:space="preserve"><value>已成功退出登录。</value></data>

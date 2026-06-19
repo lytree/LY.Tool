@@ -6,7 +6,7 @@ using Avalonia.Plugin.TDLSharp.Services;
 namespace Avalonia.Plugin.TDLSharp.ViewModels;
 
 [NavigationItem("TDL_Download")]
-[Menu("NAV_TDL_Download", "TDL_Download", ParentKey = "NAV_TDL", Order = 7)]
+[Menu("NAV_TDL_Download", "TDL_Download", ParentKey = "NAV_TDL", Order = 4)]
 [ViewMap(typeof(Pages.DownloadPage))]
 public partial class DownloadViewModel : TdlViewModelBase
 {

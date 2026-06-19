@@ -38,6 +38,8 @@
 									GroupName="LoginMethod" />
 						<RadioButton Content="{DynamicResource LOGIN_BotToken}" IsChecked="{Binding IsBotLogin}"
 									GroupName="LoginMethod" />
+						<RadioButton Content="{DynamicResource LOGIN_QrCode}" IsChecked="{Binding IsQrCodeLogin}"
+									GroupName="LoginMethod" />
 					</StackPanel>
 
 					<!-- Initialize button -->
@@ -79,6 +81,26 @@
 							<Button Grid.Column="1" Content="{DynamicResource LOGIN_Login}" Command="{Binding SubmitBotTokenCommand}"
 									Margin="8 0 0 0" IsEnabled="{Binding CanSubmitBotToken}" VerticalAlignment="Stretch" Classes="Primary" />
 						</Grid>
+					</StackPanel>
+
+					<!-- QR code login -->
+					<StackPanel IsVisible="{Binding IsQrCodeLogin}" Spacing="12">
+						<TextBlock Text="{DynamicResource LOGIN_QrCodeDesc}" Classes="Secondary" TextWrapping="Wrap" />
+						<Button Content="{DynamicResource LOGIN_RequestQrCode}" Command="{Binding RequestQrCodeCommand}"
+								IsEnabled="{Binding CanRequestQrCode}" HorizontalAlignment="Left" Classes="Primary" />
+
+						<!-- QR code link display -->
+						<Border IsVisible="{Binding QrCodeLink, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+								Theme="{DynamicResource CardBorder}" Padding="16">
+							<StackPanel Spacing="8" HorizontalAlignment="Center">
+								<TextBlock Text="{DynamicResource LOGIN_QrCodeScanPrompt}" FontWeight="SemiBold"
+											HorizontalAlignment="Center" />
+								<TextBlock Text="{Binding QrCodeLink}" TextWrapping="Wrap" FontFamily="Cascadia Mono,Consolas,Courier New"
+											FontSize="11" MaxWidth="380" HorizontalAlignment="Center" />
+								<TextBlock Text="{DynamicResource LOGIN_QrCodeConfirmWait}" Classes="Secondary"
+											HorizontalAlignment="Center" FontSize="12" />
+							</StackPanel>
+						</Border>
 					</StackPanel>
 				</StackPanel>
 			</Border>

@@ -25,6 +25,7 @@ public class TdlUpdateHandler
     public bool PasswordNeeded { get; private set; }
     public bool IsAuthenticated { get; private set; }
     public string AuthState { get; private set; } = "Unknown";
+    public string? QrCodeLink { get; private set; }
 
     public TdlUpdateHandler(ManualResetEventSlim readyToAuthenticate, ILogger logger)
     {
@@ -89,8 +90,9 @@ public class TdlUpdateHandler
                 _onAuthStateChanged?.Invoke();
                 _onAuthWaitRegistration?.Invoke();
                 break;
-            case TdApi.Update.UpdateAuthorizationState { AuthorizationState: TdApi.AuthorizationState.AuthorizationStateWaitOtherDeviceConfirmation }:
+            case TdApi.Update.UpdateAuthorizationState { AuthorizationState: TdApi.AuthorizationState.AuthorizationStateWaitOtherDeviceConfirmation state }:
                 AuthState = "WaitOtherDeviceConfirmation";
+                QrCodeLink = state.Link;
                 _onAuthStateChanged?.Invoke();
                 _onAuthWaitOtherDeviceConfirmation?.Invoke();
                 break;

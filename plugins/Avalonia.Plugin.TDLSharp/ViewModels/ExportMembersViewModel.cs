@@ -6,7 +6,7 @@ using Avalonia.Plugin.TDLSharp.Services;
 namespace Avalonia.Plugin.TDLSharp.ViewModels;
 
 [NavigationItem("TDL_ExportMembers")]
-[Menu("NAV_TDL_ExportMembers", "TDL_ExportMembers", ParentKey = "NAV_TDL", Order = 10)]
+[Menu("NAV_TDL_ExportMembers", "TDL_ExportMembers", ParentKey = "NAV_TDL", Order = 2)]
 [ViewMap(typeof(Pages.ExportMembersPage))]
 public partial class ExportMembersViewModel : TdlViewModelBase
 {

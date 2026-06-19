@@ -13,7 +13,8 @@ namespace Avalonia.Plugin.TDLSharp.ViewModels;
 public enum LoginMethod
 {
     PhoneNumber,
-    BotToken
+    BotToken,
+    QrCode
 }
 
 public enum AuthStep
@@ -40,6 +41,7 @@ public partial class LoginViewModel : ViewModelBase
     [ObservableProperty] private string _authCode = string.Empty;
     [ObservableProperty] private string _password = string.Empty;
     [ObservableProperty] private string _botToken = string.Empty;
+    [ObservableProperty] private string? _qrCodeLink;
     [ObservableProperty] private AuthStep _currentStep = AuthStep.Idle;
     [ObservableProperty] private string _statusMessage = string.Empty;
     [ObservableProperty] private string _userInfo = string.Empty;
@@ -47,10 +49,12 @@ public partial class LoginViewModel : ViewModelBase
 
     public bool IsPhoneLogin => SelectedLoginMethod == LoginMethod.PhoneNumber;
     public bool IsBotLogin => SelectedLoginMethod == LoginMethod.BotToken;
+    public bool IsQrCodeLogin => SelectedLoginMethod == LoginMethod.QrCode;
     public bool CanSubmitPhone => CurrentStep is AuthStep.Idle or AuthStep.WaitPhoneNumber;
     public bool CanSubmitCode => CurrentStep == AuthStep.WaitCode;
     public bool CanSubmitPassword => CurrentStep == AuthStep.WaitPassword;
     public bool CanSubmitBotToken => CurrentStep is AuthStep.Idle or AuthStep.WaitPhoneNumber;
+    public bool CanRequestQrCode => CurrentStep is AuthStep.Idle or AuthStep.WaitPhoneNumber;
     public bool IsAuthenticated => CurrentStep == AuthStep.Ready;
 
     public LoginViewModel()
@@ -64,8 +68,10 @@ public partial class LoginViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(IsPhoneLogin));
         OnPropertyChanged(nameof(IsBotLogin));
+        OnPropertyChanged(nameof(IsQrCodeLogin));
         OnPropertyChanged(nameof(CanSubmitPhone));
         OnPropertyChanged(nameof(CanSubmitBotToken));
+        OnPropertyChanged(nameof(CanRequestQrCode));
     }
 
     partial void OnCurrentStepChanged(AuthStep value)
@@ -74,6 +80,7 @@ public partial class LoginViewModel : ViewModelBase
         OnPropertyChanged(nameof(CanSubmitCode));
         OnPropertyChanged(nameof(CanSubmitPassword));
         OnPropertyChanged(nameof(CanSubmitBotToken));
+        OnPropertyChanged(nameof(CanRequestQrCode));
         OnPropertyChanged(nameof(IsAuthenticated));
     }
 
@@ -95,6 +102,8 @@ public partial class LoginViewModel : ViewModelBase
             "WaitOtherDeviceConfirmation" => AuthStep.WaitOtherDeviceConfirmation,
             _ => AuthStep.Idle
         };
+
+        QrCodeLink = _clientManager.QrCodeLink;
 
         StatusMessage = CurrentStep switch
         {
@@ -247,6 +256,31 @@ public partial class LoginViewModel : ViewModelBase
         catch (Exception ex)
         {
             StatusMessage = Strings.Get("LOGIN_BotTokenFailed", ex.Message);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task RequestQrCode()
+    {
+        if (IsBusy) return;
+        IsBusy = true;
+        try
+        {
+            await _clientManager.EnsureInitializedAsync();
+            await _clientManager.RequestQrCodeAuthenticationAsync();
+            StatusMessage = Strings.Get("LOGIN_QrCodeRequested");
+        }
+        catch (TdException ex)
+        {
+            StatusMessage = Strings.Get("LOGIN_QrCodeFailed", ex.Error.Message);
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = Strings.Get("LOGIN_QrCodeFailed", ex.Message);
         }
         finally
         {

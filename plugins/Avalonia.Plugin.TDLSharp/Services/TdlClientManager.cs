@@ -27,6 +27,7 @@ public class TdlClientManager : IDisposable
     public bool IsReady => _ready.IsSet;
     public bool IsAuthenticated => _updateHandler?.IsAuthenticated ?? false;
     public string AuthState => _updateHandler?.AuthState ?? "Unknown";
+    public string? QrCodeLink => _updateHandler?.QrCodeLink;
     public TdClient Client => _client ?? throw new InvalidOperationException("Client not initialized. Call EnsureInitializedAsync first.");
 
     public event Func<TdApi.File, Task>? FileUpdated;
@@ -110,6 +111,12 @@ public class TdlClientManager : IDisposable
     {
         if (_client == null) throw new InvalidOperationException("Client not initialized.");
         await _client.ExecuteAsync(new TdApi.CheckAuthenticationBotToken { Token = botToken });
+    }
+
+    public async Task RequestQrCodeAuthenticationAsync()
+    {
+        if (_client == null) throw new InvalidOperationException("Client not initialized.");
+        await _client.ExecuteAsync(new TdApi.RequestQrCodeAuthentication());
     }
 
     public async Task LogoutAsync()

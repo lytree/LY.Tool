@@ -281,6 +281,13 @@
   <data name="LOGIN_Login" xml:space="preserve"><value>Login</value></data>
   <data name="LOGIN_BotTokenSubmitted" xml:space="preserve"><value>Bot token submitted. Authenticating...</value></data>
   <data name="LOGIN_BotTokenFailed" xml:space="preserve"><value>Bot token login failed: {0}</value></data>
+  <data name="LOGIN_QrCode" xml:space="preserve"><value>QR Code</value></data>
+  <data name="LOGIN_QrCodeDesc" xml:space="preserve"><value>Request a QR code and scan it with your Telegram app to log in.</value></data>
+  <data name="LOGIN_RequestQrCode" xml:space="preserve"><value>Request QR Code</value></data>
+  <data name="LOGIN_QrCodeRequested" xml:space="preserve"><value>QR code requested. Waiting for confirmation...</value></data>
+  <data name="LOGIN_QrCodeFailed" xml:space="preserve"><value>QR code login failed: {0}</value></data>
+  <data name="LOGIN_QrCodeScanPrompt" xml:space="preserve"><value>Scan this link with your Telegram app:</value></data>
+  <data name="LOGIN_QrCodeConfirmWait" xml:space="preserve"><value>Waiting for confirmation on your other device...</value></data>
   <data name="LOGIN_LoggedInAs" xml:space="preserve"><value>Logged in as</value></data>
   <data name="LOGIN_Logout" xml:space="preserve"><value>Logout</value></data>
   <data name="LOGIN_LoggedOut" xml:space="preserve"><value>Logged out successfully.</value></data>

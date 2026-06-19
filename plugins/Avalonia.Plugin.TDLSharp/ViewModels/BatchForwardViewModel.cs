@@ -6,7 +6,7 @@ using Avalonia.Plugin.TDLSharp.Services;
 namespace Avalonia.Plugin.TDLSharp.ViewModels;
 
 [NavigationItem("TDL_BatchForward")]
-[Menu("NAV_TDL_BatchForward", "TDL_BatchForward", ParentKey = "NAV_TDL", Order = 1)]
+[Menu("NAV_TDL_BatchForward", "TDL_BatchForward", ParentKey = "NAV_TDL", Order = 7)]
 [ViewMap(typeof(Pages.BatchForwardPage))]
 public partial class BatchForwardViewModel : TdlViewModelBase
 {

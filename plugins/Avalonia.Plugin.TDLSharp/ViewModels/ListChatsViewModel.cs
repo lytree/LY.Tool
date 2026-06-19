@@ -6,7 +6,7 @@ using Avalonia.Plugin.TDLSharp.Services;
 namespace Avalonia.Plugin.TDLSharp.ViewModels;
 
 [NavigationItem("TDL_ListChats")]
-[Menu("NAV_TDL_ListChats", "TDL_ListChats", ParentKey = "NAV_TDL", Order = 9)]
+[Menu("NAV_TDL_ListChats", "TDL_ListChats", ParentKey = "NAV_TDL", Order = 1)]
 [ViewMap(typeof(Pages.ListChatsPage))]
 public partial class ListChatsViewModel : TdlViewModelBase
 {

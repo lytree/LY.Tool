@@ -6,7 +6,7 @@ using Avalonia.Plugin.TDLSharp.Services;
 namespace Avalonia.Plugin.TDLSharp.ViewModels;
 
 [NavigationItem("TDL_Upload")]
-[Menu("NAV_TDL_Upload", "TDL_Upload", ParentKey = "NAV_TDL", Order = 8)]
+[Menu("NAV_TDL_Upload", "TDL_Upload", ParentKey = "NAV_TDL", Order = 5)]
 [ViewMap(typeof(Pages.UploadPage))]
 public partial class UploadViewModel : TdlViewModelBase
 {
