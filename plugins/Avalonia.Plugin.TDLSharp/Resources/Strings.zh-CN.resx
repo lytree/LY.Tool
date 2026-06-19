@@ -206,4 +206,55 @@
   <data name="LOG_FoundMatchingChat" xml:space="preserve"><value>找到匹配聊天: [{0}] ChatId={1}</value></data>
   <data name="LOG_SearchingChatList" xml:space="preserve"><value>在聊天列表中搜索: {0}</value></data>
   <data name="LOG_SkippedForwardedMsgs" xml:space="preserve"><value>跳过已转发消息: {0}</value></data>
+  <data name="NAV_TDL_Download" xml:space="preserve"><value>下载</value></data>
+  <data name="NAV_TDL_Upload" xml:space="preserve"><value>上传</value></data>
+  <data name="NAV_TDL_ListChats" xml:space="preserve"><value>列出聊天</value></data>
+  <data name="NAV_TDL_ExportMembers" xml:space="preserve"><value>导出成员</value></data>
+  <data name="SCRIPT_Download_Name" xml:space="preserve"><value>下载</value></data>
+  <data name="SCRIPT_Download_Desc" xml:space="preserve"><value>从消息链接或导出的JSON下载媒体文件</value></data>
+  <data name="SCRIPT_Upload_Name" xml:space="preserve"><value>上传</value></data>
+  <data name="SCRIPT_Upload_Desc" xml:space="preserve"><value>上传文件或目录到聊天 (默认: 收藏夹)</value></data>
+  <data name="SCRIPT_ListChats_Name" xml:space="preserve"><value>列出聊天</value></data>
+  <data name="SCRIPT_ListChats_Desc" xml:space="preserve"><value>列出所有聊天并导出为JSON文件</value></data>
+  <data name="SCRIPT_ExportMembers_Name" xml:space="preserve"><value>导出成员</value></data>
+  <data name="SCRIPT_ExportMembers_Desc" xml:space="preserve"><value>导出聊天成员/订阅者/管理员/机器人为JSON</value></data>
+  <data name="PARAM_Links" xml:space="preserve"><value>消息链接</value></data>
+  <data name="PARAM_LinksDesc" xml:space="preserve"><value>每行一个消息链接</value></data>
+  <data name="PARAM_Include" xml:space="preserve"><value>白名单扩展名</value></data>
+  <data name="PARAM_IncludeDesc" xml:space="preserve"><value>逗号分隔, 如 jpg,png (留空=不过滤)</value></data>
+  <data name="PARAM_Exclude" xml:space="preserve"><value>黑名单扩展名</value></data>
+  <data name="PARAM_ExcludeDesc" xml:space="preserve"><value>逗号分隔, 如 mp4,flv (留空=不过滤)</value></data>
+  <data name="PARAM_Desc" xml:space="preserve"><value>反序下载</value></data>
+  <data name="PARAM_DescDesc" xml:space="preserve"><value>从最新到最旧下载</value></data>
+  <data name="PARAM_Group" xml:space="preserve"><value>相册探测</value></data>
+  <data name="PARAM_GroupDesc" xml:space="preserve"><value>自动检测相册/组合消息并下载全部</value></data>
+  <data name="PARAM_SkipSame" xml:space="preserve"><value>自动跳过</value></data>
+  <data name="PARAM_SkipSameDesc" xml:space="preserve"><value>跳过同名且同大小的文件</value></data>
+  <data name="PARAM_Paths" xml:space="preserve"><value>文件/目录路径</value></data>
+  <data name="PARAM_PathsDesc" xml:space="preserve"><value>每行一个路径</value></data>
+  <data name="PARAM_Chat" xml:space="preserve"><value>目标聊天</value></data>
+  <data name="PARAM_ChatDesc" xml:space="preserve"><value>聊天链接/用户名/ID (留空=收藏夹)</value></data>
+  <data name="PARAM_Photo" xml:space="preserve"><value>作为照片上传</value></data>
+  <data name="PARAM_PhotoDesc" xml:space="preserve"><value>将图片作为照片而非文件上传</value></data>
+  <data name="PARAM_Rm" xml:space="preserve"><value>自动删除</value></data>
+  <data name="PARAM_RmDesc" xml:space="preserve"><value>上传成功后删除文件</value></data>
+  <data name="PARAM_Raw" xml:space="preserve"><value>原始数据</value></data>
+  <data name="PARAM_RawDesc" xml:space="preserve"><value>导出 Telegram MTProto 原始用户结构</value></data>
+  <data name="LOG_StartDownload" xml:space="preserve"><value>开始下载文件...</value></data>
+  <data name="LOG_DownloadComplete" xml:space="preserve"><value>下载完成: {0} 个文件, 跳过 {1} 个</value></data>
+  <data name="LOG_DownloadingFile" xml:space="preserve"><value>正在下载: {0} ({1} 字节)</value></data>
+  <data name="LOG_DownloadSkipped" xml:space="preserve"><value>跳过 (同名同大小): {0}</value></data>
+  <data name="LOG_DownloadFiltered" xml:space="preserve"><value>被扩展名过滤: {0}</value></data>
+  <data name="LOG_NoMediaInMessage" xml:space="preserve"><value>消息中无可下载的媒体: {0}</value></data>
+  <data name="LOG_DownloadFileFailed" xml:space="preserve"><value>下载失败: {0} - {1}</value></data>
+  <data name="LOG_StartUpload" xml:space="preserve"><value>开始上传文件...</value></data>
+  <data name="LOG_UploadComplete" xml:space="preserve"><value>上传完成: {0} 个文件</value></data>
+  <data name="LOG_UploadingFile" xml:space="preserve"><value>正在上传: {0} ({1} 字节)</value></data>
+  <data name="LOG_UploadFileFailed" xml:space="preserve"><value>上传失败: {0} - {1}</value></data>
+  <data name="LOG_UploadedAndDeleted" xml:space="preserve"><value>已上传并删除: {0}</value></data>
+  <data name="LOG_StartListChats" xml:space="preserve"><value>正在列出所有聊天...</value></data>
+  <data name="LOG_ListChatsComplete" xml:space="preserve"><value>已列出 {0} 个聊天</value></data>
+  <data name="LOG_StartExportMembers" xml:space="preserve"><value>开始导出成员...</value></data>
+  <data name="LOG_ExportMembersComplete" xml:space="preserve"><value>已导出 {0} 个成员</value></data>
+  <data name="LOG_NoFilesToUpload" xml:space="preserve"><value>没有可上传的有效文件</value></data>
 </root>

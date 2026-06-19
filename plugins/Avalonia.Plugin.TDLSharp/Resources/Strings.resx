@@ -206,4 +206,55 @@
   <data name="LOG_FoundMatchingChat" xml:space="preserve"><value>Found matching chat: [{0}] ChatId={1}</value></data>
   <data name="LOG_SearchingChatList" xml:space="preserve"><value>Searching in chat list: {0}</value></data>
   <data name="LOG_SkippedForwardedMsgs" xml:space="preserve"><value>Skipped already-forwarded messages: {0}</value></data>
+  <data name="NAV_TDL_Download" xml:space="preserve"><value>Download</value></data>
+  <data name="NAV_TDL_Upload" xml:space="preserve"><value>Upload</value></data>
+  <data name="NAV_TDL_ListChats" xml:space="preserve"><value>List Chats</value></data>
+  <data name="NAV_TDL_ExportMembers" xml:space="preserve"><value>Export Members</value></data>
+  <data name="SCRIPT_Download_Name" xml:space="preserve"><value>Download</value></data>
+  <data name="SCRIPT_Download_Desc" xml:space="preserve"><value>Download media files from message links or exported JSON</value></data>
+  <data name="SCRIPT_Upload_Name" xml:space="preserve"><value>Upload</value></data>
+  <data name="SCRIPT_Upload_Desc" xml:space="preserve"><value>Upload files or directories to a chat (default: Saved Messages)</value></data>
+  <data name="SCRIPT_ListChats_Name" xml:space="preserve"><value>List Chats</value></data>
+  <data name="SCRIPT_ListChats_Desc" xml:space="preserve"><value>List all chats and export to JSON file</value></data>
+  <data name="SCRIPT_ExportMembers_Name" xml:space="preserve"><value>Export Members</value></data>
+  <data name="SCRIPT_ExportMembers_Desc" xml:space="preserve"><value>Export chat members/subscribers/admins/bots to JSON</value></data>
+  <data name="PARAM_Links" xml:space="preserve"><value>Message Links</value></data>
+  <data name="PARAM_LinksDesc" xml:space="preserve"><value>One message link per line</value></data>
+  <data name="PARAM_Include" xml:space="preserve"><value>Whitelist Extensions</value></data>
+  <data name="PARAM_IncludeDesc" xml:space="preserve"><value>Comma-separated, e.g. jpg,png (empty=no filter)</value></data>
+  <data name="PARAM_Exclude" xml:space="preserve"><value>Blacklist Extensions</value></data>
+  <data name="PARAM_ExcludeDesc" xml:space="preserve"><value>Comma-separated, e.g. mp4,flv (empty=no filter)</value></data>
+  <data name="PARAM_Desc" xml:space="preserve"><value>Reverse Order</value></data>
+  <data name="PARAM_DescDesc" xml:space="preserve"><value>Download from newest to oldest</value></data>
+  <data name="PARAM_Group" xml:space="preserve"><value>Album Detection</value></data>
+  <data name="PARAM_GroupDesc" xml:space="preserve"><value>Auto-detect album/grouped messages and download all</value></data>
+  <data name="PARAM_SkipSame" xml:space="preserve"><value>Skip Same Files</value></data>
+  <data name="PARAM_SkipSameDesc" xml:space="preserve"><value>Skip files with same name and size</value></data>
+  <data name="PARAM_Paths" xml:space="preserve"><value>File/Directory Paths</value></data>
+  <data name="PARAM_PathsDesc" xml:space="preserve"><value>One path per line</value></data>
+  <data name="PARAM_Chat" xml:space="preserve"><value>Target Chat</value></data>
+  <data name="PARAM_ChatDesc" xml:space="preserve"><value>Chat link/username/ID (empty=Saved Messages)</value></data>
+  <data name="PARAM_Photo" xml:space="preserve"><value>Upload as Photo</value></data>
+  <data name="PARAM_PhotoDesc" xml:space="preserve"><value>Upload images as photos instead of files</value></data>
+  <data name="PARAM_Rm" xml:space="preserve"><value>Auto Delete</value></data>
+  <data name="PARAM_RmDesc" xml:space="preserve"><value>Delete files after successful upload</value></data>
+  <data name="PARAM_Raw" xml:space="preserve"><value>Raw Data</value></data>
+  <data name="PARAM_RawDesc" xml:space="preserve"><value>Export raw MTProto user structure</value></data>
+  <data name="LOG_StartDownload" xml:space="preserve"><value>Start downloading files...</value></data>
+  <data name="LOG_DownloadComplete" xml:space="preserve"><value>Download complete: {0} files, skipped {1}</value></data>
+  <data name="LOG_DownloadingFile" xml:space="preserve"><value>Downloading: {0} ({1} bytes)</value></data>
+  <data name="LOG_DownloadSkipped" xml:space="preserve"><value>Skipped (same name and size): {0}</value></data>
+  <data name="LOG_DownloadFiltered" xml:space="preserve"><value>Filtered by extension: {0}</value></data>
+  <data name="LOG_NoMediaInMessage" xml:space="preserve"><value>No downloadable media in message: {0}</value></data>
+  <data name="LOG_DownloadFileFailed" xml:space="preserve"><value>Download failed: {0} - {1}</value></data>
+  <data name="LOG_StartUpload" xml:space="preserve"><value>Start uploading files...</value></data>
+  <data name="LOG_UploadComplete" xml:space="preserve"><value>Upload complete: {0} files</value></data>
+  <data name="LOG_UploadingFile" xml:space="preserve"><value>Uploading: {0} ({1} bytes)</value></data>
+  <data name="LOG_UploadFileFailed" xml:space="preserve"><value>Upload failed: {0} - {1}</value></data>
+  <data name="LOG_UploadedAndDeleted" xml:space="preserve"><value>Uploaded and deleted: {0}</value></data>
+  <data name="LOG_StartListChats" xml:space="preserve"><value>Listing all chats...</value></data>
+  <data name="LOG_ListChatsComplete" xml:space="preserve"><value>Listed {0} chats</value></data>
+  <data name="LOG_StartExportMembers" xml:space="preserve"><value>Start exporting members...</value></data>
+  <data name="LOG_ExportMembersComplete" xml:space="preserve"><value>Exported {0} members</value></data>
+  <data name="LOG_NoFilesToUpload" xml:space="preserve"><value>No valid files to upload</value></data>
 </root>
