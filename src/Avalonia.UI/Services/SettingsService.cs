@@ -70,6 +70,7 @@ public class SettingsService : ISettingsService
             SettingType = definition.SettingType,
             DefaultValue = definition.DefaultValue,
             PluginId = definition.PluginId,
+            IsFolder = definition.IsFolder,
             RawValue = definition.DefaultValue ?? string.Empty
         };
         if (definition.Options != null)
@@ -112,6 +113,7 @@ public class SettingsService : ISettingsService
                     SettingType = def.SettingType,
                     DefaultValue = def.DefaultValue,
                     PluginId = def.PluginId,
+                    IsFolder = def.IsFolder,
                     RawValue = def.DefaultValue ?? string.Empty
                 };
                 if (def.Options != null)

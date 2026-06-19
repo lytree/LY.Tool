@@ -3,33 +3,41 @@
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:vm="clr-namespace:Avalonia.Plugin.TDLSharp.ViewModels"
-			 x:Class="Avalonia.Plugin.TDLSharp.Pages.LoginPage"
+			 x:Class="Avalonia.Plugin.TDLSharp.Controls.LoginDialog"
 			 x:DataType="vm:LoginViewModel"
-			 mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="500">
+			 mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="560">
 	<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-		<Grid Margin="24" RowDefinitions="Auto,Auto,Auto,Auto" MaxWidth="500" HorizontalAlignment="Stretch">
+		<Grid Margin="20" RowDefinitions="Auto,Auto,Auto,Auto" MaxWidth="440" HorizontalAlignment="Stretch">
 
 			<!-- Header -->
-			<StackPanel Grid.Row="0" Spacing="6" Margin="0 0 0 20">
+			<StackPanel Grid.Row="0" Spacing="6" Margin="0 0 0 16">
 				<TextBlock Text="{DynamicResource LOGIN_Title}" Theme="{StaticResource TitleTextBlock}" Classes="H2" />
 				<TextBlock Text="{Binding StatusMessage}" Classes="Secondary" FontSize="13" />
 			</StackPanel>
 
-			<!-- Authenticated state -->
-			<Border Grid.Row="1" Theme="{DynamicResource CardBorder}" Padding="16" Margin="0 0 0 12"
-					IsVisible="{Binding IsAuthenticated}">
-				<StackPanel Spacing="8">
-					<TextBlock Text="{DynamicResource LOGIN_LoggedInAs}" FontWeight="SemiBold" />
-					<TextBlock Text="{Binding UserInfo}" FontSize="14" TextWrapping="Wrap" />
-					<Button Content="{DynamicResource LOGIN_Logout}" Command="{Binding LogoutCommand}"
-							HorizontalAlignment="Left" Margin="0 8 0 0" IsEnabled="{Binding !IsBusy}" Classes="Danger" />
+			<!-- TDL root path info -->
+			<Border Grid.Row="1" Theme="{DynamicResource CardBorder}" Padding="12" Margin="0 0 0 12">
+				<StackPanel Spacing="6">
+					<TextBlock Text="{DynamicResource LOGIN_TdlRootPathLabel}" FontWeight="SemiBold" />
+					<TextBlock Text="{Binding TdlRootPath}" FontSize="12" TextWrapping="Wrap" Classes="Secondary" />
+					<!-- Warning when not set -->
+					<Border IsVisible="{Binding NeedsTdlRoot}" Background="{DynamicResource WarningLowBackgroundBrush}"
+							CornerRadius="6" Padding="8" Margin="0 2 0 0">
+						<TextBlock Text="{DynamicResource LOGIN_TdlRootNotSetWarning}" Classes="Secondary"
+									FontSize="11" TextWrapping="Wrap" />
+					</Border>
+					<!-- Info when directory is empty (not initialized) -->
+					<Border IsVisible="{Binding NeedsInitialization}" Background="{DynamicResource InfoLowBackgroundBrush}"
+							CornerRadius="6" Padding="8" Margin="0 2 0 0">
+						<TextBlock Text="{DynamicResource LOGIN_TdlRootEmptyInfo}" Classes="Secondary"
+									FontSize="11" TextWrapping="Wrap" />
+					</Border>
 				</StackPanel>
 			</Border>
 
 			<!-- Login method selection -->
-			<Border Grid.Row="2" Theme="{DynamicResource CardBorder}" Padding="16" Margin="0 0 0 12"
-					IsVisible="{Binding !IsAuthenticated}">
-				<StackPanel Spacing="12">
+			<Border Grid.Row="2" Theme="{DynamicResource CardBorder}" Padding="12" Margin="0 0 0 12">
+				<StackPanel Spacing="10">
 					<TextBlock Text="{DynamicResource LOGIN_SelectMethod}" Classes="SectionTitle" />
 
 					<!-- Method toggle -->
@@ -44,11 +52,11 @@
 
 					<!-- Initialize button -->
 					<Button Content="{DynamicResource LOGIN_Initialize}" Command="{Binding InitializeCommand}"
-							IsEnabled="{Binding !IsBusy}" HorizontalAlignment="Left" Margin="0 4 0 0" />
+							IsEnabled="{Binding !IsBusy}" HorizontalAlignment="Left" Margin="0 2 0 0" />
 
 					<!-- Phone login -->
 					<StackPanel IsVisible="{Binding IsPhoneLogin}" Spacing="8">
-						<Grid ColumnDefinitions="*,Auto" Margin="0 4">
+						<Grid ColumnDefinitions="*,Auto" Margin="0 2">
 							<TextBox Grid.Column="0" Text="{Binding PhoneNumber}" PlaceholderText="{DynamicResource LOGIN_PhonePlaceholder}"
 									IsEnabled="{Binding CanSubmitPhone}" />
 							<Button Grid.Column="1" Content="{DynamicResource LOGIN_SendCode}" Command="{Binding SubmitPhoneCommand}"
@@ -56,7 +64,7 @@
 						</Grid>
 
 						<!-- Code input -->
-						<Grid ColumnDefinitions="*,Auto" Margin="0 4"
+						<Grid ColumnDefinitions="*,Auto" Margin="0 2"
 							  IsVisible="{Binding CanSubmitCode}">
 							<TextBox Grid.Column="0" Text="{Binding AuthCode}" PlaceholderText="{DynamicResource LOGIN_CodePlaceholder}" />
 							<Button Grid.Column="1" Content="{DynamicResource LOGIN_SubmitCode}" Command="{Binding SubmitCodeCommand}"
@@ -64,7 +72,7 @@
 						</Grid>
 
 						<!-- Password input (2FA) -->
-						<Grid ColumnDefinitions="*,Auto" Margin="0 4"
+						<Grid ColumnDefinitions="*,Auto" Margin="0 2"
 							  IsVisible="{Binding CanSubmitPassword}">
 							<TextBox Grid.Column="0" Text="{Binding Password}" PlaceholderText="{DynamicResource LOGIN_PasswordPlaceholder}"
 									PasswordChar="*" />
@@ -75,7 +83,7 @@
 
 					<!-- Bot token login -->
 					<StackPanel IsVisible="{Binding IsBotLogin}" Spacing="8">
-						<Grid ColumnDefinitions="*,Auto" Margin="0 4">
+						<Grid ColumnDefinitions="*,Auto" Margin="0 2">
 							<TextBox Grid.Column="0" Text="{Binding BotToken}" PlaceholderText="{DynamicResource LOGIN_BotTokenPlaceholder}"
 									IsEnabled="{Binding CanSubmitBotToken}" />
 							<Button Grid.Column="1" Content="{DynamicResource LOGIN_Login}" Command="{Binding SubmitBotTokenCommand}"
@@ -84,21 +92,21 @@
 					</StackPanel>
 
 					<!-- QR code login -->
-					<StackPanel IsVisible="{Binding IsQrCodeLogin}" Spacing="12">
+					<StackPanel IsVisible="{Binding IsQrCodeLogin}" Spacing="10">
 						<TextBlock Text="{DynamicResource LOGIN_QrCodeDesc}" Classes="Secondary" TextWrapping="Wrap" />
 						<Button Content="{DynamicResource LOGIN_RequestQrCode}" Command="{Binding RequestQrCodeCommand}"
 								IsEnabled="{Binding CanRequestQrCode}" HorizontalAlignment="Left" Classes="Primary" />
 
 						<!-- QR code link display -->
 						<Border IsVisible="{Binding QrCodeLink, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-								Theme="{DynamicResource CardBorder}" Padding="16">
-							<StackPanel Spacing="8" HorizontalAlignment="Center">
+								Theme="{DynamicResource CardBorder}" Padding="12">
+							<StackPanel Spacing="6" HorizontalAlignment="Center">
 								<TextBlock Text="{DynamicResource LOGIN_QrCodeScanPrompt}" FontWeight="SemiBold"
 											HorizontalAlignment="Center" />
 								<TextBlock Text="{Binding QrCodeLink}" TextWrapping="Wrap" FontFamily="Cascadia Mono,Consolas,Courier New"
-											FontSize="11" MaxWidth="380" HorizontalAlignment="Center" />
+											FontSize="10" MaxWidth="360" HorizontalAlignment="Center" />
 								<TextBlock Text="{DynamicResource LOGIN_QrCodeConfirmWait}" Classes="Secondary"
-											HorizontalAlignment="Center" FontSize="12" />
+											HorizontalAlignment="Center" FontSize="11" />
 							</StackPanel>
 						</Border>
 					</StackPanel>
@@ -106,9 +114,9 @@
 			</Border>
 
 			<!-- Other device confirmation -->
-			<Border Grid.Row="3" Theme="{DynamicResource CardBorder}" Padding="16"
+			<Border Grid.Row="3" Theme="{DynamicResource CardBorder}" Padding="12"
 					IsVisible="{Binding CurrentStep, Converter={x:Static vm:AuthStepToVisibilityConverter.OtherDevice}}">
-				<StackPanel Spacing="8">
+				<StackPanel Spacing="6">
 					<TextBlock Text="{DynamicResource LOGIN_OtherDeviceConfirmation}" FontWeight="SemiBold" />
 					<TextBlock Text="{DynamicResource LOGIN_OtherDeviceDesc}" Classes="Secondary" TextWrapping="Wrap" />
 				</StackPanel>

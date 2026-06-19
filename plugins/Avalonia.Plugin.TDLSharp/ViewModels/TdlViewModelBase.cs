@@ -92,18 +92,37 @@ public abstract partial class TdlViewModelBase : ViewModelBase
 
         // Check authentication before execution
         var clientManager = ServiceLocator.GetService<TdlClientManager>();
-        if (clientManager != null && !clientManager.IsAuthenticated)
+        if (clientManager == null) return;
+
+        // 1. 检查 TDL 根目录是否设置
+        if (!clientManager.HasTdlRoot)
         {
             var result = await OverlayMessageBox.ShowAsync(
-                Strings.Get("LOGIN_NotInitializedWarning"),
+                Strings.Get("LOGIN_TdlRootNotSetWarning"),
                 Strings.Get("LOGIN_NotInitializedTitle"),
                 button: MessageBoxButton.YesNo,
                 icon: MessageBoxIcon.Warning);
 
             if (result == MessageBoxResult.Yes)
             {
-                WeakReferenceMessenger.Default.Send("TDL_Login", "JumpTo");
+                await LoginDialogService.ShowLoginDialogAsync();
             }
+            return;
+        }
+
+        // 2. 确保客户端已初始化并已回报认证状态
+        //    AuthState 为 Unknown 时初始化客户端，等待 TDLib 回报首个认证状态
+        await clientManager.EnsureReadyForAuthCheckAsync();
+
+        // 3. 根据认证状态判断是否需要弹出登录界面
+        //    NeedsLogin 涵盖所有 Wait* 状态及 Unknown/Closed/LoggingOut/Closing
+        if (clientManager.NeedsLogin)
+        {
+            // 已知具体认证状态时直接弹出登录界面（无需二次确认）
+            // 状态包括：WaitPhoneNumber / WaitCode / WaitPassword / WaitRegistration /
+            //          WaitOtherDeviceConfirmation / WaitEmailAddress / WaitEmailCode /
+            //          WaitPremiumPurchase / Unknown / Closed / LoggingOut / Closing
+            await LoginDialogService.ShowLoginDialogAsync();
             return;
         }
 

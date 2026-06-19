@@ -5,6 +5,7 @@ using Avalonia.Plugin.TDLSharp.Services;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Irihi.Avalonia.Shared.Contracts;
 using TdLib;
 using Ursa.Controls;
 
@@ -29,10 +30,8 @@ public enum AuthStep
     Error
 }
 
-[NavigationItem("TDL_Login")]
-[Menu("NAV_TDL_Login", "TDL_Login", ParentKey = "NAV_TDL", Order = 0)]
-[ViewMap(typeof(Pages.LoginPage))]
-public partial class LoginViewModel : ViewModelBase
+[ViewMap(typeof(Controls.LoginDialog))]
+public partial class LoginViewModel : ViewModelBase, IDialogContext
 {
     private readonly TdlClientManager _clientManager;
 
@@ -46,7 +45,12 @@ public partial class LoginViewModel : ViewModelBase
     [ObservableProperty] private string _statusMessage = string.Empty;
     [ObservableProperty] private string _userInfo = string.Empty;
     [ObservableProperty] private bool _isBusy;
+    [ObservableProperty] private string _tdlRootPath = string.Empty;
 
+    public bool HasTdlRoot => _clientManager.HasTdlRoot;
+    public bool NeedsTdlRoot => !HasTdlRoot;
+    public bool IsTdlInitialized => _clientManager.IsTdlInitialized;
+    public bool NeedsInitialization => HasTdlRoot && !IsTdlInitialized && !IsAuthenticated;
     public bool IsPhoneLogin => SelectedLoginMethod == LoginMethod.PhoneNumber;
     public bool IsBotLogin => SelectedLoginMethod == LoginMethod.BotToken;
     public bool IsQrCodeLogin => SelectedLoginMethod == LoginMethod.QrCode;
@@ -57,10 +61,18 @@ public partial class LoginViewModel : ViewModelBase
     public bool CanRequestQrCode => CurrentStep is AuthStep.Idle or AuthStep.WaitPhoneNumber;
     public bool IsAuthenticated => CurrentStep == AuthStep.Ready;
 
+    public void Close()
+    {
+        RequestClose?.Invoke(this, null);
+    }
+
+    public event EventHandler<object?>? RequestClose;
+
     public LoginViewModel()
     {
         _clientManager = ServiceLocator.GetService<TdlClientManager>()!;
         _clientManager.AuthStateChanged += OnAuthStateChanged;
+        TdlRootPath = _clientManager.TdlRoot;
         UpdateStepFromClient();
     }
 
@@ -82,6 +94,7 @@ public partial class LoginViewModel : ViewModelBase
         OnPropertyChanged(nameof(CanSubmitBotToken));
         OnPropertyChanged(nameof(CanRequestQrCode));
         OnPropertyChanged(nameof(IsAuthenticated));
+        OnPropertyChanged(nameof(NeedsInitialization));
     }
 
     private void OnAuthStateChanged()
@@ -120,6 +133,8 @@ public partial class LoginViewModel : ViewModelBase
         if (CurrentStep == AuthStep.Ready)
         {
             _ = LoadUserInfoAsync();
+            // Auto-close dialog after successful authentication
+            _ = AutoCloseDialogAsync();
         }
     }
 
@@ -142,10 +157,21 @@ public partial class LoginViewModel : ViewModelBase
         }
     }
 
+    private async Task AutoCloseDialogAsync()
+    {
+        await Task.Delay(500);
+        Dispatcher.UIThread.Post(() => RequestClose?.Invoke(this, true));
+    }
+
     [RelayCommand]
     private async Task Initialize()
     {
         if (IsBusy) return;
+        if (!HasTdlRoot)
+        {
+            StatusMessage = Strings.Get("LOGIN_TdlRootNotSet");
+            return;
+        }
         IsBusy = true;
         try
         {

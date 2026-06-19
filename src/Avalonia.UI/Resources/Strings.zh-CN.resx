@@ -120,6 +120,7 @@
   <data name="APP_DESCRIPTION" xml:space="preserve"><value>基于 Avalonia 和 Ursa 控件构建的现代 UI 模板。</value></data>
   <data name="BROWSE" xml:space="preserve"><value>浏览</value></data>
   <data name="SELECT_FILE_PATH" xml:space="preserve"><value>选择文件路径...</value></data>
+  <data name="SELECT_FOLDER_PATH" xml:space="preserve"><value>选择文件夹路径...</value></data>
   <data name="SETTING_THEME" xml:space="preserve"><value>主题</value></data>
   <data name="SETTING_THEME_DESC" xml:space="preserve"><value>选择应用程序主题</value></data>
   <data name="SETTING_LANGUAGE" xml:space="preserve"><value>语言</value></data>

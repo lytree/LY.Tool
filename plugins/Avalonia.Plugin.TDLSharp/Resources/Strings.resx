@@ -137,6 +137,8 @@
   <data name="PARAM_ForwardCommentsDesc" xml:space="preserve"><value>Whether to forward comments of this message</value></data>
   <data name="SETTING_ProxyServer" xml:space="preserve"><value>Proxy Server</value></data>
   <data name="SETTING_ProxyServerDesc" xml:space="preserve"><value>SOCKS5 proxy server address</value></data>
+  <data name="SETTING_TdlRootPath" xml:space="preserve"><value>TDL Data Directory</value></data>
+  <data name="SETTING_TdlRootPathDesc" xml:space="preserve"><value>Directory where TDLib stores session data and downloaded files</value></data>
   <data name="SETTING_ProxyPort" xml:space="preserve"><value>Proxy Port</value></data>
   <data name="SETTING_ProxyPortDesc" xml:space="preserve"><value>SOCKS5 proxy port</value></data>
   <data name="SETTING_EnableProxy" xml:space="preserve"><value>Enable Proxy</value></data>
@@ -295,6 +297,11 @@
   <data name="LOGIN_UserInfoUnavailable" xml:space="preserve"><value>Unable to retrieve user info</value></data>
   <data name="LOGIN_OtherDeviceConfirmation" xml:space="preserve"><value>Confirm on Another Device</value></data>
   <data name="LOGIN_OtherDeviceDesc" xml:space="preserve"><value>Please confirm the login on your Telegram app on another device.</value></data>
+  <data name="LOGIN_TdlRootPathLabel" xml:space="preserve"><value>TDL Data Directory</value></data>
+  <data name="LOGIN_TdlRootNotSet" xml:space="preserve"><value>TDL data directory is not set. Please configure it in Settings first.</value></data>
+  <data name="LOGIN_TdlRootNotSetWarning" xml:space="preserve"><value>TDL data directory is not configured. You need to set it in Settings before performing any operation. Navigate to the login page now?</value></data>
+  <data name="LOGIN_TdlRootEmptyInfo" xml:space="preserve"><value>Directory is empty. TDL has not been initialized yet. Please initialize and login below.</value></data>
+  <data name="LOGIN_TdlRootInitializedInfo" xml:space="preserve"><value>Directory contains data. TDL has been initialized previously.</value></data>
   <data name="LOGIN_StatusIdle" xml:space="preserve"><value>Not initialized</value></data>
   <data name="LOGIN_StatusWaitPhone" xml:space="preserve"><value>Waiting for phone number</value></data>
   <data name="LOGIN_StatusWaitCode" xml:space="preserve"><value>Waiting for auth code</value></data>

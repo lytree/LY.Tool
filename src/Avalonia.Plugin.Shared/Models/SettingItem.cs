@@ -19,6 +19,8 @@ public class SettingItem
 
     public string? PlaceholderText { get; set; }
 
+    public bool IsFolder { get; set; }
+
     public List<string> GetOptions()
     {
         if (string.IsNullOrEmpty(OptionsJson))

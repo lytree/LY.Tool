@@ -26,9 +26,9 @@ public partial class TDLSharpPlugin : IPluginMetadata
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
             var logger = loggerFactory.CreateLogger<TdlClientManager>();
 
-            var (apiId, apiHash, proxyServer, proxyPort, enableProxy) = ResolveSettings(sp);
+            var (apiId, apiHash, proxyServer, proxyPort, enableProxy, tdlRootPath) = ResolveSettings(sp);
 
-            return new TdlClientManager(logger, apiId, apiHash, proxyServer, proxyPort, enableProxy);
+            return new TdlClientManager(logger, apiId, apiHash, proxyServer, proxyPort, enableProxy, tdlRootPath);
         });
         return Task.CompletedTask;
     }
@@ -49,9 +49,11 @@ public partial class TDLSharpPlugin : IPluginMetadata
 
         settingsService.RegisterSettings(
         [
-            SettingDefinition.Text("TDL.ApiId", "API ID", "Telegram API ID", "","TDL", 0, 0,
+            SettingDefinition.Path("TDL.TdlRootPath", Strings.Get("SETTING_TdlRootPath"), Strings.Get("SETTING_TdlRootPathDesc"),
+                "TDL", 0, 0, GetDefaultTdlRoot(), PluginId, isFolder: true),
+            SettingDefinition.Text("TDL.ApiId", "API ID", "Telegram API ID", "","TDL", 0, 1,
                 GetEnvDefault("tdl_api_id"), PluginId),
-            SettingDefinition.Text("TDL.ApiHash", "API Hash", "Telegram API Hash", "","TDL", 0, 1,
+            SettingDefinition.Text("TDL.ApiHash", "API Hash", "Telegram API Hash", "","TDL", 0, 2,
                 GetEnvDefault("tdl_api_hash"), PluginId),
             SettingDefinition.Text("TDL.ProxyServer", Strings.Get("SETTING_ProxyServer"), Strings.Get("SETTING_ProxyServerDesc"), "","TDL", 1, 0,
                 "127.0.0.1", PluginId),
@@ -62,18 +64,25 @@ public partial class TDLSharpPlugin : IPluginMetadata
         ]);
     }
 
-    private (string apiId, string apiHash, string proxyServer, int proxyPort, bool enableProxy) ResolveSettings(IServiceProvider serviceProvider)
+    private (string apiId, string apiHash, string proxyServer, int proxyPort, bool enableProxy, string tdlRootPath) ResolveSettings(IServiceProvider serviceProvider)
     {
         string apiId = GetSettingValue(serviceProvider, "TDL.ApiId", "tdl_api_id", "");
         string apiHash = GetSettingValue(serviceProvider, "TDL.ApiHash", "tdl_api_hash", "");
         string proxyServer = GetSettingValue(serviceProvider, "TDL.ProxyServer", "tdl_proxy_server", "127.0.0.1");
         string proxyPortStr = GetSettingValue(serviceProvider, "TDL.ProxyPort", "tdl_proxy_port", "7897");
         string enableProxyStr = GetSettingValue(serviceProvider, "TDL.EnableProxy", "tdl_enable_proxy", "true");
+        string tdlRootPath = GetSettingValue(serviceProvider, "TDL.TdlRootPath", "tdl_root_path", GetDefaultTdlRoot());
 
         int proxyPort = int.TryParse(proxyPortStr, out var port) ? port : 7897;
         bool enableProxy = bool.TryParse(enableProxyStr, out var enabled) && enabled;
 
-        return (apiId, apiHash, proxyServer, proxyPort, enableProxy);
+        return (apiId, apiHash, proxyServer, proxyPort, enableProxy, tdlRootPath);
+    }
+
+    private static string GetDefaultTdlRoot()
+    {
+        string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        return Path.Combine(userProfile, ".tdl");
     }
 
     private static string GetSettingValue(IServiceProvider serviceProvider, string settingKey, string envKey, string defaultValue)

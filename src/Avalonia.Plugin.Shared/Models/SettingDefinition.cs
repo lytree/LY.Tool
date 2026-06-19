@@ -16,6 +16,8 @@ public class SettingDefinition
 
     public string? PluginId { get; set; }
 
+    public bool IsFolder { get; set; }
+
     public static SettingDefinition Text(string key, string displayName, string? description = null,string placeholder = "",
         string group = "General", int groupOrder = 0, int itemOrder = 0, string? defaultValue = null, string? pluginId = null)
     {
@@ -70,7 +72,8 @@ public class SettingDefinition
     }
 
     public static SettingDefinition Path(string key, string displayName, string? description = null,
-        string group = "General", int groupOrder = 0, int itemOrder = 0, string? defaultValue = null, string? pluginId = null)
+        string group = "General", int groupOrder = 0, int itemOrder = 0, string? defaultValue = null, string? pluginId = null,
+        bool isFolder = false)
     {
         return new SettingDefinition
         {
@@ -82,7 +85,8 @@ public class SettingDefinition
             ItemOrder = itemOrder,
             SettingType = SettingType.Path,
             DefaultValue = defaultValue,
-            PluginId = pluginId
+            PluginId = pluginId,
+            IsFolder = isFolder
         };
     }
 }

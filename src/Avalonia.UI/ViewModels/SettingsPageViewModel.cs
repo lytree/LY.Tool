@@ -321,7 +321,9 @@ public partial class PathSettingEntryViewModel : SettingEntryViewModel
 {
     private readonly ILocalizationService? _localizationService;
 
-    public string PlaceholderText => Setting.PlaceholderText ?? _localizationService?.GetString("SELECT_FILE_PATH", "选择文件路径...") ?? "选择文件路径...";
+    public string PlaceholderText => Setting.IsFolder
+        ? (_localizationService?.GetString("SELECT_FOLDER_PATH", "选择文件夹路径...") ?? "选择文件夹路径...")
+        : (Setting.PlaceholderText ?? _localizationService?.GetString("SELECT_FILE_PATH", "选择文件路径...") ?? "选择文件路径...");
 
     [ObservableProperty] private string _pathValue;
     private string _savedValue;
@@ -362,15 +364,32 @@ public partial class PathSettingEntryViewModel : SettingEntryViewModel
         var storageProvider = topLevel.StorageProvider;
 
         var title = _localizationService?.GetString("BROWSE", "浏览") ?? "浏览";
-        var result = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-        {
-            Title = $"{title}{DisplayName}",
-            AllowMultiple = false
-        });
 
-        if (result.Count > 0)
+        if (Setting.IsFolder)
         {
-            PathValue = result[0].TryGetLocalPath() ?? result[0].Path.ToString();
+            var folderResult = await storageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+            {
+                Title = $"{title}{DisplayName}",
+                AllowMultiple = false
+            });
+
+            if (folderResult.Count > 0)
+            {
+                PathValue = folderResult[0].TryGetLocalPath() ?? folderResult[0].Path.ToString();
+            }
+        }
+        else
+        {
+            var result = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            {
+                Title = $"{title}{DisplayName}",
+                AllowMultiple = false
+            });
+
+            if (result.Count > 0)
+            {
+                PathValue = result[0].TryGetLocalPath() ?? result[0].Path.ToString();
+            }
         }
     }
 }
