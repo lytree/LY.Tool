@@ -14,33 +14,147 @@ Icon="/Assets/Ursa.ico"
 x:DataType="viewModels:SplashViewModel"
 CountDown="{x:Null}"
 mc:Ignorable="d">
+	<u:SplashWindow.Styles>
+		<Style Selector="Border#Backdrop">
+			<Setter Property="Opacity" Value="0" />
+			<Style.Animations>
+				<Animation Duration="0:0:0.7" FillMode="Forward">
+					<KeyFrame Cue="0%">
+						<Setter Property="Opacity" Value="0" />
+					</KeyFrame>
+					<KeyFrame Cue="100%">
+						<Setter Property="Opacity" Value="1" />
+					</KeyFrame>
+				</Animation>
+			</Style.Animations>
+		</Style>
+
+		<Style Selector="Border#HeroImagePanel">
+			<Setter Property="Opacity" Value="0" />
+			<Style.Animations>
+				<Animation Duration="0:0:0.95" FillMode="Forward">
+					<KeyFrame Cue="0%">
+						<Setter Property="Opacity" Value="0" />
+					</KeyFrame>
+					<KeyFrame Cue="100%">
+						<Setter Property="Opacity" Value="1" />
+					</KeyFrame>
+				</Animation>
+			</Style.Animations>
+		</Style>
+
+		<Style Selector="StackPanel#BrandContent">
+			<Setter Property="Opacity" Value="0" />
+			<Style.Animations>
+				<Animation Duration="0:0:0.85" Delay="0:0:0.18" FillMode="Forward">
+					<KeyFrame Cue="0%">
+						<Setter Property="Opacity" Value="0" />
+					</KeyFrame>
+					<KeyFrame Cue="100%">
+						<Setter Property="Opacity" Value="1" />
+					</KeyFrame>
+				</Animation>
+			</Style.Animations>
+		</Style>
+
+		<Style Selector="Border#HaloPulse">
+			<Style.Animations>
+				<Animation Duration="0:0:2" IterationCount="INFINITE" PlaybackDirection="Alternate">
+					<KeyFrame Cue="0%">
+						<Setter Property="Opacity" Value="0.28" />
+					</KeyFrame>
+					<KeyFrame Cue="100%">
+						<Setter Property="Opacity" Value="0.72" />
+					</KeyFrame>
+				</Animation>
+			</Style.Animations>
+		</Style>
+	</u:SplashWindow.Styles>
+
 	<Border
+	Name="Backdrop"
 	Margin="16"
 	CornerRadius="8"
 	ClipToBounds="True"
 	BoxShadow="0 4 16 0 #22000000"
 	Theme="{DynamicResource CardBorder}">
 		<Grid ColumnDefinitions="2*,3*">
-			<Image
+			<Border
+			Name="HeroImagePanel"
 			Grid.Column="0"
-			Stretch="UniformToFill"
-			Source="/Assets/jk-girl.jpg" />
+			CornerRadius="8"
+			ClipToBounds="True">
+				<Grid>
+					<Image Stretch="UniformToFill" Source="/Assets/jk-girl.jpg" />
+					<Border>
+						<Border.Background>
+							<LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+								<GradientStop Offset="0" Color="#00000000" />
+								<GradientStop Offset="1" Color="#66000000" />
+							</LinearGradientBrush>
+						</Border.Background>
+					</Border>
+					<StackPanel
+					Margin="20"
+					VerticalAlignment="Bottom"
+					Spacing="4">
+						<Border
+						Name="HaloPulse"
+						Width="48"
+						Height="48"
+						Margin="0,0,0,8"
+						HorizontalAlignment="Left"
+						Background="{DynamicResource SemiColorPrimary}"
+						CornerRadius="24"
+						Opacity="0.2" />
+						<TextBlock
+						FontSize="13"
+						FontWeight="SemiBold"
+						Foreground="White"
+						Text="{DynamicResource SPLASH_SUBTITLE}" />
+					</StackPanel>
+				</Grid>
+			</Border>
 
 			<StackPanel
+			Name="BrandContent"
 			Grid.Column="1"
-			Margin="28"
+			Margin="32,24"
 			VerticalAlignment="Center"
-			Spacing="10">
+			Spacing="14">
 				<TextBlock
-				Theme="{StaticResource TitleTextBlock}" Classes="H3"
+				Theme="{StaticResource TitleTextBlock}"
+				Classes="H3"
 				Text="{DynamicResource SPLASH_TITLE}" />
 				<TextBlock
-				Theme="{StaticResource TitleTextBlock}" Classes="H6"
+				Theme="{StaticResource TitleTextBlock}"
+				Classes="H6 Secondary"
 				Text="{DynamicResource SPLASH_SUBTITLE}" />
 				<TextBlock
 				Classes="Secondary"
 				TextWrapping="Wrap"
 				Text="{DynamicResource SPLASH_WELCOME}" />
+
+				<Border
+				Margin="0,8,0,0"
+				Padding="0,12,0,0"
+				BorderBrush="{DynamicResource FluentBorderBrush}"
+				BorderThickness="0,1,0,0">
+					<Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+						<ProgressBar
+						Height="5"
+						Minimum="0"
+						Maximum="100"
+						CornerRadius="999"
+						Value="{Binding Progress}" />
+						<TextBlock
+						Grid.Column="1"
+						VerticalAlignment="Center"
+						FontSize="12"
+						Classes="Tertiary"
+						Text="{Binding Progress, StringFormat={}{0:0}%}" />
+					</Grid>
+				</Border>
 			</StackPanel>
 		</Grid>
 	</Border>
