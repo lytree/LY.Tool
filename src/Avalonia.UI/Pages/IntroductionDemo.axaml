@@ -7,6 +7,7 @@
     xmlns:models="using:Avalonia.Plugin.Shared.Models"
     xmlns:u="https://irihi.tech/ursa"
     xmlns:vm="using:Avalonia.UI.ViewModels"
+    x:CompileBindings="True"
     x:DataType="vm:IntroductionDemoViewModel"
     d:DesignHeight="800"
     d:DesignWidth="1600"
@@ -14,16 +15,103 @@
     <Design.DataContext>
         <vm:IntroductionDemoViewModel />
     </Design.DataContext>
+
     <UserControl.Styles>
-        <Style Selector="u|Badge">
-            <Setter Property="Margin" Value="4" />
+        <Style Selector="TextBlock.GroupHeader">
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}" />
+            <Setter Property="Margin" Value="0,8,0,12" />
         </Style>
-        <Style Selector="u|DualBadge">
-            <Setter Property="Margin" Value="3" />
+        <Style Selector="Button.ToolCard">
+            <Setter Property="Background" Value="{DynamicResource FluentCardBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="16,12" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="MinHeight" Value="56" />
+            <Setter Property="Transitions">
+                <Setter.Value>
+                    <Transitions>
+                        <BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+                    </Transitions>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style Selector="Button.ToolCard:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
+        </Style>
+        <Style Selector="Button.ToolCard:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
+        </Style>
+        <Style Selector="TextBlock.ToolName">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}" />
+        </Style>
+        <Style Selector="u|Badge.ToolStatus">
+            <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
     </UserControl.Styles>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-        
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="0,0,24,24" Spacing="24">
+            <!-- 空状态提示 -->
+            <TextBlock
+                IsVisible="{Binding HasNoResults}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Margin="0,48"
+                FontSize="16"
+                Foreground="{DynamicResource SemiColorText2}"
+                Text="{DynamicResource SEARCH_NO_RESULTS}" />
+
+            <ItemsControl ItemsSource="{Binding FilteredGroups}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ToolGroup">
+                        <StackPanel HorizontalAlignment="Stretch">
+                            <TextBlock Classes="GroupHeader" Text="{Binding GroupName}" />
+                            <ItemsControl
+                                ItemsSource="{Binding Items}"
+                                HorizontalAlignment="Stretch">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <u:ElasticWrapPanel
+                                            IsFillHorizontal="True"
+                                            ItemSpacing="12"
+                                            LineSpacing="12" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ToolItem">
+                                        <Button
+                                            Classes="ToolCard"
+                                            HorizontalAlignment="Stretch"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="{Binding Key}">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <TextBlock
+                                                    Grid.Column="0"
+                                                    Classes="ToolName"
+                                                    Text="{Binding Name}"
+                                                    TextTrimming="CharacterEllipsis" />
+                                                <u:Badge
+                                                    Grid.Column="1"
+                                                    Classes="ToolStatus"
+                                                    Content="{Binding Status}"
+                                                    IsVisible="{Binding Status, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                                            </Grid>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
     </ScrollViewer>
 </UserControl>

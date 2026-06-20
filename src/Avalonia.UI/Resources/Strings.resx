@@ -358,6 +358,9 @@
   <data name="SEARCH_PLACEHOLDER" xml:space="preserve">
     <value>Search</value>
   </data>
+  <data name="SEARCH_NO_RESULTS" xml:space="preserve">
+    <value>No results found</value>
+  </data>
   <data name="WINDOW_TITLE" xml:space="preserve">
     <value>Ursa Demo</value>
   </data>

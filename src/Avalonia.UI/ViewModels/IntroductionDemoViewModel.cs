@@ -1,54 +1,192 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Linq;
 using System.Net;
+using Avalonia.Plugin.Shared;
 using Avalonia.Plugin.Shared.Models;
+using Avalonia.Plugin.Shared.Services;
+using Avalonia.Plugin.Shared.ViewModels;
+using Avalonia.UI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
-
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace Avalonia.UI.ViewModels;
 
 public partial class IntroductionDemoViewModel : ObservableObject
 {
-    public ObservableCollection<string> ButtonGroupItems { get; set; } = new()
-    {
-        "Avalonia", "WPF", "Xamarin"
-    };
-
-    public ObservableCollection<string> ComboBoxItems { get; set; } = new()
-    {
-        "Option 1", "Option 2", "Option 3", "Option 4", "Option 5"
-    };
-
-    public ObservableCollection<ControlData> AutoCompleteItems { get; set; } = new()
-    {
-        new() { MenuHeader = "Avatar", Chinese = "头像" },
-        new() { MenuHeader = "Badge", Chinese = "徽标" },
-        new() { MenuHeader = "Button", Chinese = "按钮" },
-        new() { MenuHeader = "Dialog", Chinese = "对话框" },
-    };
-
-    public ObservableCollection<string> TagItems { get; set; } = new()
-    {
-        "Tag1", "Tag2", "Tag3"
-    };
+ 
 
     [ObservableProperty] private double _ratingValue = 3.5;
-    
     [ObservableProperty] private int _sliderValue = 50;
-
     [ObservableProperty] private IPAddress? _ipAddress = new IPAddress(new byte[] { 192, 168, 1, 1 });
-
     [ObservableProperty] private double _lowerValue = 20;
-    
     [ObservableProperty] private double _upperValue = 80;
-
     [ObservableProperty] private DateTime _startDate = DateTime.Today;
-    
     [ObservableProperty] private DateTime _endDate = DateTime.Today.AddDays(7);
-
     [ObservableProperty] private DateTime _dateTime = DateTime.Now;
-
     [ObservableProperty] private TimeSpan _startTime = new TimeSpan(9, 0, 0);
-    
     [ObservableProperty] private TimeSpan _endTime = new TimeSpan(17, 0, 0);
+
+    private readonly ILocalizationService? _localizationService;
+    private List<ToolGroup> _allGroups = [];
+
+    /// <summary>
+    /// 按目录分组的工具列表（已过滤）
+    /// </summary>
+    public ObservableCollection<ToolGroup> FilteredGroups { get; } = new();
+
+    [ObservableProperty] private string? _searchText;
+    [ObservableProperty] private bool _hasNoResults;
+
+    public IntroductionDemoViewModel()
+    {
+        _localizationService = ServiceLocator.TryGetService<ILocalizationService>(out var loc) ? loc : null;
+        LoadToolGroups();
+        WeakReferenceMessenger.Default.Register<IntroductionDemoViewModel, string, string>(this, "SearchChanged", OnSearchChanged);
+    }
+
+    private void OnSearchChanged(IntroductionDemoViewModel recipient, string message)
+    {
+        SearchText = message;
+    }
+
+    partial void OnSearchTextChanged(string? value)
+    {
+        ApplyFilter(value);
+    }
+
+    /// <summary>
+    /// 从菜单配置服务加载所有工具，按父级目录分组
+    /// </summary>
+    private void LoadToolGroups()
+    {
+        if (!ServiceLocator.TryGetService<IMenuConfigurationService>(out var menuConfig) || menuConfig is null)
+            return;
+
+        var menu = menuConfig.GetMenuStructure();
+        _allGroups.Clear();
+        var navCmd = NavigateCommand;
+
+        foreach (var parent in menu.MenuItems)
+        {
+            if (parent.IsSeparator || string.IsNullOrEmpty(parent.Key)) continue;
+
+            var group = new ToolGroup
+            {
+                GroupName = ResolveHeader(parent.MenuHeader) ?? parent.Key ?? string.Empty,
+                GroupKey = parent.Key ?? string.Empty
+            };
+
+            foreach (var child in parent.Children)
+            {
+                if (child.IsSeparator || string.IsNullOrEmpty(child.Key)) continue;
+                group.Items.Add(new ToolItem
+                {
+                    Name = ResolveHeader(child.MenuHeader) ?? child.Key ?? string.Empty,
+                    Key = child.Key!,
+                    Status = child.Status,
+                    NavigateCommand = navCmd
+                });
+            }
+
+            if (group.Items.Count > 0)
+                _allGroups.Add(group);
+        }
+
+        ApplyFilter(SearchText);
+    }
+
+    private string? ResolveHeader(string? header)
+    {
+        if (string.IsNullOrEmpty(header)) return header;
+        return _localizationService?.GetString(header) ?? header;
+    }
+
+    private void ApplyFilter(string? search)
+    {
+        FilteredGroups.Clear();
+        if (string.IsNullOrWhiteSpace(search))
+        {
+            foreach (var g in _allGroups)
+                FilteredGroups.Add(g);
+            HasNoResults = FilteredGroups.Count == 0;
+            return;
+        }
+
+        var keyword = search.Trim();
+        foreach (var group in _allGroups)
+        {
+            // 匹配分组（目录）名称：命中则整组保留
+            var groupMatched = group.GroupName.Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                                || group.GroupKey.Contains(keyword, StringComparison.OrdinalIgnoreCase);
+
+            var matched = group.Items
+                .Where(item => item.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                               || item.Key.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            // 分组名命中时展示整组；否则仅展示匹配的工具项
+            if (groupMatched)
+            {
+                var fullGroup = new ToolGroup
+                {
+                    GroupName = group.GroupName,
+                    GroupKey = group.GroupKey
+                };
+                foreach (var m in group.Items)
+                    fullGroup.Items.Add(m);
+                FilteredGroups.Add(fullGroup);
+            }
+            else if (matched.Count > 0)
+            {
+                var filteredGroup = new ToolGroup
+                {
+                    GroupName = group.GroupName,
+                    GroupKey = group.GroupKey
+                };
+                foreach (var m in matched)
+                    filteredGroup.Items.Add(m);
+                FilteredGroups.Add(filteredGroup);
+            }
+        }
+        HasNoResults = FilteredGroups.Count == 0;
+    }
+
+    [RelayCommand]
+    private void Navigate(string key)
+    {
+        WeakReferenceMessenger.Default.Send(key, "JumpTo");
+    }
+
+    public void RefreshGroups()
+    {
+        LoadToolGroups();
+    }
+}
+
+/// <summary>
+/// 工具分组（对应一个插件目录）
+/// </summary>
+public sealed class ToolGroup
+{
+    public string GroupName { get; set; } = string.Empty;
+    public string GroupKey { get; set; } = string.Empty;
+    public ObservableCollection<ToolItem> Items { get; set; } = [];
+}
+
+/// <summary>
+/// 单个工具项
+/// </summary>
+public sealed class ToolItem
+{
+    public string Name { get; set; } = string.Empty;
+    public string Key { get; set; } = string.Empty;
+    public string? Status { get; set; }
+    /// <summary>
+    /// 导航命令（由 ViewModel 注入）
+    /// </summary>
+    public System.Windows.Input.ICommand? NavigateCommand { get; set; }
 }

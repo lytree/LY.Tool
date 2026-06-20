@@ -95,7 +95,8 @@
 						HeaderBinding="{Binding}"
 						IconBinding="{Binding MenuHeader}"
 						IsHorizontalCollapsed="{Binding IsCollapsed, Mode=TwoWay}"
-						ItemsSource="{Binding Menus.MenuItems}">
+						ItemsSource="{Binding Menus.MenuItems}"
+						SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}">
 						<u:NavMenu.Styles>
 							<Style x:DataType="viewmodels:MenuItemViewModel" Selector="u|NavMenuItem">
 								<Setter Property="IsSeparator" Value="{Binding IsSeparator}" />

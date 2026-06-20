@@ -1,5 +1,6 @@
 using Avalonia.Plugin.Shared;
 using Avalonia.Plugin.Shared.Services;
+using Avalonia.Plugin.Shared.ViewModels;
 using Avalonia.UI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -22,6 +23,18 @@ public partial class MainViewViewModel : ViewModelBase
     [ObservableProperty] private bool _isCollapsed;
     [ObservableProperty] private bool _isSidebarHidden;
     [ObservableProperty] private string? _searchText;
+    [ObservableProperty] private MenuItemViewModel? _selectedMenuItem;
+
+    partial void OnSearchTextChanged(string? value)
+    {
+        // 搜索时自动跳转到首页，确保首页已创建并注册消息接收器
+        if (!string.IsNullOrWhiteSpace(value) && Content is not IntroductionDemoViewModel)
+        {
+            OnNavigation(this, "Introduction");
+        }
+        // 将搜索文本发送到首页（IntroductionDemoViewModel），用于过滤工具卡片
+        WeakReferenceMessenger.Default.Send(value ?? string.Empty, "SearchChanged");
+    }
 
     [RelayCommand]
     public void ToggleSidebar()
@@ -87,6 +100,29 @@ public partial class MainViewViewModel : ViewModelBase
             _disposableContent = null;
         }
         Content = _navigationService.CreateViewModel(s);
+        // 同步左侧导航栏选中项
+        SelectedMenuItem = FindMenuItemByKey(Menus.MenuItems, s);
+    }
+
+    /// <summary>
+    /// 递归查找指定 Key 对应的菜单项
+    /// </summary>
+    private static MenuItemViewModel? FindMenuItemByKey(
+        System.Collections.Generic.IEnumerable<MenuItemViewModel> items, string key)
+    {
+        foreach (var item in items)
+        {
+            if (!item.IsSeparator && string.Equals(item.Key, key, StringComparison.OrdinalIgnoreCase))
+                return item;
+
+            if (item.Children.Count > 0)
+            {
+                var found = FindMenuItemByKey(item.Children, key);
+                if (found is not null)
+                    return found;
+            }
+        }
+        return null;
     }
 
     partial void OnIsCollapsedChanged(bool value)
