@@ -21,7 +21,7 @@
 
 					<Grid ColumnDefinitions="*,160" Margin="0 0 0 4">
 						<TextBlock Grid.Column="0" Text="{DynamicResource LBL_M3u8UrlList}" Classes="Body" VerticalAlignment="Center" />
-						<Button Grid.Column="1" Content="{DynamicResource BTN_AddLink}" Command="{Binding AddUrlEntryCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+						<Button Grid.Column="1" Content="{DynamicResource BTN_AddLink}" Command="{Binding AddUrlEntryCommand}" Theme="{DynamicResource SolidButton}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
 					</Grid>
 
 					<ItemsControl ItemsSource="{Binding UrlEntries}">
@@ -42,6 +42,7 @@
 											Content="✕"
 											Command="{Binding $parent[ItemsControl].((vm:M3u8DownloaderViewModel)DataContext).RemoveUrlEntryCommand}"
 											CommandParameter="{Binding}"
+											Theme="{DynamicResource SolidButton}" Classes="Danger Small"
 											VerticalAlignment="Center"
 											HorizontalAlignment="Center"
 											Padding="4"
@@ -68,6 +69,7 @@
 						<Button Grid.Column="2"
 								Content="{DynamicResource BTN_Browse}"
 								Command="{Binding BrowseSavePathCommand}"
+								Theme="{DynamicResource SolidButton}" Classes="Small"
 								VerticalAlignment="Center"
 								HorizontalAlignment="Stretch"
 								HorizontalContentAlignment="Center" />
@@ -107,16 +109,17 @@
 											 HorizontalAlignment="Stretch"
 											 IsReadOnly="True" />
 									<Button Grid.Column="2"
-											Content="{DynamicResource BTN_Browse}" Command="{Binding BrowseCommand}"
-											VerticalAlignment="Center" Margin="8,0,0,0" />
+										Content="{DynamicResource BTN_Browse}" Command="{Binding BrowseCommand}"
+										Theme="{DynamicResource SolidButton}" Classes="Small"
+										VerticalAlignment="Center" Margin="8,0,0,0" />
 								</Grid>
 							</DataTemplate>
 						</ItemsControl.DataTemplates>
 					</ItemsControl>
 
 					<StackPanel Orientation="Horizontal" Spacing="12" Margin="0 8 0 0">
-						<Button Content="{DynamicResource BTN_Execute}" Command="{Binding ExecuteScriptCommand}" Classes="Primary" MinWidth="100" IsEnabled="{Binding !IsRunning}" />
-						<Button Content="{DynamicResource BTN_Cancel}" Command="{Binding CancelExecutionCommand}" MinWidth="80" IsVisible="{Binding IsRunning}" />
+						<Button Content="{DynamicResource BTN_Execute}" Command="{Binding ExecuteScriptCommand}" Theme="{DynamicResource SolidButton}" Classes="Primary" MinWidth="100" IsEnabled="{Binding !IsRunning}" />
+						<Button Content="{DynamicResource BTN_Cancel}" Command="{Binding CancelExecutionCommand}" Theme="{DynamicResource SolidButton}" MinWidth="80" IsVisible="{Binding IsRunning}" />
 						<TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" Classes="Tertiary" Margin="12 0 0 0" />
 					</StackPanel>
 				</StackPanel>
@@ -126,7 +129,7 @@
 				<Grid RowDefinitions="Auto,*">
 					<Grid ColumnDefinitions="*,Auto" Margin="0 0 0 8">
 						<TextBlock Grid.Column="0" Text="{DynamicResource LBL_LogOutput}" Classes="SectionTitle" VerticalAlignment="Center" />
-						<Button Grid.Column="1" Content="{DynamicResource BTN_Clear}" Command="{Binding ClearLogCommand}" FontSize="12" Padding="8 4" />
+						<Button Grid.Column="1" Content="{DynamicResource BTN_Clear}" Command="{Binding ClearLogCommand}" Theme="{DynamicResource SolidButton}" Classes="Small" FontSize="12" Padding="8 4" />
 					</Grid>
 					<ListBox x:Name="LogListBox" Grid.Row="1"
 							 ItemsSource="{Binding LogEntries}"

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Plugin.ScottPlot.Controls;
@@ -72,9 +73,6 @@ public partial class WaveformSpectrumTrendPage : UserControl
                 _vm.OnTrendPointClicked(nearestIndex);
             }
         }
-        catch
-        {
-            // 忽略坐标转换异常
-        }
+        catch (Exception ex) { Debug.WriteLine($"[ScottPlot] 趋势图点击坐标转换失败: {ex.Message}"); }
     }
 }

@@ -70,4 +70,6 @@
   <data name="LBL_Trend" xml:space="preserve"><value>Trend</value></data>
   <data name="TIP_RegenerateData" xml:space="preserve"><value>Regenerate Data</value></data>
   <data name="TIP_ResetAll" xml:space="preserve"><value>Reset All</value></data>
+  <data name="PAGE_WaveformSpectrumTrend_Title" xml:space="preserve"><value>Waveform / Spectrum / Trend</value></data>
+  <data name="PAGE_WaveformSpectrumTrend_Desc" xml:space="preserve"><value>Real-time waveform, spectrum and trend visualization</value></data>
 </root>

@@ -262,7 +262,7 @@ public abstract partial class TdlViewModelBase : ViewModelBase
                     param.DefaultValue = val;
             }
         }
-        catch { }
+        catch (Exception ex) { Debug.WriteLine($"[TdlViewModel] 应用参数 JSON 失败: {ex.Message}"); }
     }
 
     private async Task LoadExecutionHistoryAsync()
@@ -281,7 +281,7 @@ public abstract partial class TdlViewModelBase : ViewModelBase
             foreach (var r in records)
                 ExecutionHistoryRecords.Add(r);
         }
-        catch { }
+        catch (Exception ex) { Debug.WriteLine($"[TdlViewModel] 加载执行历史失败: {ex.Message}"); }
     }
 
     private string BuildParameterSummary(Dictionary<string, string> values)
@@ -318,7 +318,7 @@ public abstract partial class TdlViewModelBase : ViewModelBase
                         ExecutionHistoryRecords.Add(r);
                 });
             }
-            catch { }
+            catch (Exception ex) { Debug.WriteLine($"[TdlViewModel] 后台加载执行历史失败: {ex.Message}"); }
         });
     }
 
@@ -331,7 +331,7 @@ public abstract partial class TdlViewModelBase : ViewModelBase
             db.ExecutionRecords.Add(record);
             await db.SaveChangesAsync();
         }
-        catch { }
+        catch (Exception ex) { Debug.WriteLine($"[TdlViewModel] 保存执行历史记录失败: {ex.Message}"); }
     }
 
     private async Task UpdateExecutionHistoryRecordAsync(ExecutionHistoryRecord record)
@@ -343,6 +343,6 @@ public abstract partial class TdlViewModelBase : ViewModelBase
             db.ExecutionRecords.Update(record);
             await db.SaveChangesAsync();
         }
-        catch { }
+        catch (Exception ex) { Debug.WriteLine($"[TdlViewModel] 更新执行历史记录失败: {ex.Message}"); }
     }
 }

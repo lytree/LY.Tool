@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -134,7 +135,7 @@ public class M3u8DownloadService : IDisposable
         {
             if (Directory.Exists(tempDir))
             {
-                try { Directory.Delete(tempDir, true); } catch { }
+                try { Directory.Delete(tempDir, true); } catch (Exception ex) { Debug.WriteLine($"[M3u8] 清理临时目录失败 {tempDir}: {ex.Message}"); }
             }
         }
     }

@@ -39,7 +39,7 @@ public partial class TdlService
                         var chat = await client.GetChatAsync(chatId);
                         chats.Add(BuildChatInfo(chat));
                     }
-                    catch { }
+                    catch (Exception ex) { _logger.Log($"获取聊天 ChatId={chatId} 失败: {ex.Message}"); }
                 }
 
                 hasMore = result.ChatIds.Length == limit;

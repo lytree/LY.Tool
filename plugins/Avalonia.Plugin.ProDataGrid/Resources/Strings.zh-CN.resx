@@ -181,4 +181,7 @@
   <data name="WORD_Arrange" xml:space="preserve"><value>排列</value></data>
   <data name="WORD_Invalidate" xml:space="preserve"><value>失效</value></data>
   <data name="FMT_PulseRow" xml:space="preserve"><value>第 {0} 行: {1} {2} {3} 脉冲流</value></data>
+  <data name="BTN_Save" xml:space="preserve"><value>保存</value></data>
+  <data name="PAGE_FilteringGrouping_Title" xml:space="preserve"><value>筛选与分组</value></data>
+  <data name="PAGE_FilteringGrouping_Desc" xml:space="preserve"><value>实时筛选、排序与分组任务数据</value></data>
 </root>

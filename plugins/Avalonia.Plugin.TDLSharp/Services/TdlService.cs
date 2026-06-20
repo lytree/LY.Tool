@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using TdLib;
@@ -61,7 +62,7 @@ public partial class TdlService
                 return linkInfo.Message.ChatId;
             }
         }
-        catch (TdException) { }
+        catch (TdException ex) { Debug.WriteLine($"[TdlService] 链接解析尝试失败: {ex.Message}"); }
 
         try
         {
@@ -95,7 +96,7 @@ public partial class TdlService
                 }
             }
         }
-        catch (TdException) { }
+        catch (TdException ex) { Debug.WriteLine($"[TdlService] 链接解析尝试失败: {ex.Message}"); }
 
         if (long.TryParse(link.Trim(), out long chatId))
         {
@@ -110,7 +111,7 @@ public partial class TdlService
                 return foundChatId;
             }
         }
-        catch (TdException) { }
+        catch (TdException ex) { Debug.WriteLine($"[TdlService] 链接解析尝试失败: {ex.Message}"); }
 
         _logger.Log($"目标链接未关联到聊天: {link}");
         return 0;
@@ -129,7 +130,7 @@ public partial class TdlService
                 return linkInfo.Message.ChatId;
             }
         }
-        catch (TdException) { }
+        catch (TdException ex) { Debug.WriteLine($"[TdlService] 链接解析尝试失败: {ex.Message}"); }
 
         try
         {
@@ -144,7 +145,7 @@ public partial class TdlService
                 return 0;
             }
         }
-        catch (TdException) { }
+        catch (TdException ex) { Debug.WriteLine($"[TdlService] 链接解析尝试失败: {ex.Message}"); }
 
         try
         {
@@ -158,7 +159,7 @@ public partial class TdlService
                 }
             }
         }
-        catch (TdException) { }
+        catch (TdException ex) { Debug.WriteLine($"[TdlService] 链接解析尝试失败: {ex.Message}"); }
 
         if (long.TryParse(link.Trim(), out long chatId))
         {
@@ -181,11 +182,11 @@ public partial class TdlService
                             return chat.Id;
                         }
                     }
-                    catch { }
+                    catch (Exception ex) { Debug.WriteLine($"[TdlService] 搜索聊天时获取单个聊天失败 ChatId={id}: {ex.Message}"); }
                 }
             }
         }
-        catch { }
+        catch (Exception ex) { Debug.WriteLine($"[TdlService] 搜索聊天列表失败: {ex.Message}"); }
 
         return 0;
     }
@@ -208,7 +209,7 @@ public partial class TdlService
                     return chat.Id;
                 }
             }
-            catch { }
+            catch (Exception ex) { Debug.WriteLine($"[TdlService] 按标题搜索时获取单个聊天失败 ChatId={id}: {ex.Message}"); }
         }
 
         return 0;

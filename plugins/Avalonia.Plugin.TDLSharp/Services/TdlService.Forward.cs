@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using TdLib;
 
@@ -550,8 +551,6 @@ public partial class TdlService
         {
             await db.SaveChangesAsync();
         }
-        catch
-        {
-        }
+        catch (Exception ex) { Debug.WriteLine($"[TdlService] 保存转发记录失败: {ex.Message}"); }
     }
 }

@@ -167,7 +167,7 @@ public class TdlClientManager : IDisposable
         {
             await _client.ExecuteAsync(new TdApi.LogOut());
         }
-        catch { }
+        catch (Exception ex) { _logger.LogWarning(ex, "注销失败"); }
     }
 
     public async Task<TdApi.User> GetCurrentUserAsync()

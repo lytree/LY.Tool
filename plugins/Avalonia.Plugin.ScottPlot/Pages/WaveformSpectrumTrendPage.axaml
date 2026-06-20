@@ -12,65 +12,66 @@
     d:DesignWidth="1000"
     mc:Ignorable="d">
 
-    <Grid ColumnDefinitions="*,Auto">
-        <!-- 左侧：三个图区域 -->
-        <Grid RowDefinitions="*,*,*" Margin="4">
+    <Grid Margin="16" RowDefinitions="Auto,*,Auto">
+        <!-- 页面头部 -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0 0 0 16">
+            <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock Text="{DynamicResource PAGE_WaveformSpectrumTrend_Title}" Theme="{StaticResource TitleTextBlock}" Classes="H3" />
+                <TextBlock Text="{DynamicResource PAGE_WaveformSpectrumTrend_Desc}" Classes="Secondary" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <Button ToolTip.Tip="{DynamicResource TIP_RegenerateData}" Command="{Binding RegenerateDataCommand}" Theme="{DynamicResource SolidButton}" Padding="8 4">
+                    <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="14" />
+                </Button>
+                <Button ToolTip.Tip="{DynamicResource TIP_ResetAll}" Command="{Binding ResetAllCommand}" Theme="{DynamicResource SolidButton}" Padding="8 4">
+                    <TextBlock Text="&#xE777;" FontFamily="Segoe MDL2 Assets" FontSize="14" />
+                </Button>
+            </StackPanel>
+        </Grid>
 
-            <!-- 上部：波形图 -->
-            <Border Grid.Row="0" BorderBrush="{DynamicResource SystemBaseMediumLowColor}" BorderThickness="1" CornerRadius="4" Margin="0,0,0,4">
+        <!-- 三图区域 -->
+        <Grid Grid.Row="1" RowDefinitions="*,*,*" Margin="0 0 0 12">
+
+            <!-- 波形图 -->
+            <Border Grid.Row="0" Theme="{DynamicResource CardBorder}" Padding="0" Margin="0 0 0 8">
                 <Grid RowDefinitions="Auto,*">
-                    <!-- 波形图工具栏 -->
-                    <Border Grid.Row="0" Background="{DynamicResource SystemControlBackgroundAltHighBrush}" Padding="8,4" CornerRadius="4,4,0,0">
-                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource LBL_Waveform}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
-                            <Button Content="{DynamicResource BTN_Autoscale}" Command="{Binding WaveformAutoscaleCommand}" FontSize="12" Padding="8,2" />
+                    <Border Grid.Row="0" Padding="12 8" BorderBrush="{DynamicResource CardBorderBorderBrush}" BorderThickness="0 0 0 1">
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource LBL_Waveform}" Theme="{StaticResource TitleTextBlock}" Classes="H5" VerticalAlignment="Center" />
+                            <Button Content="{DynamicResource BTN_Autoscale}" Command="{Binding WaveformAutoscaleCommand}" Theme="{DynamicResource SolidButton}" Classes="Small" Padding="8 2" />
                         </StackPanel>
                     </Border>
-                    <controls:PlotView Grid.Row="1" Name="WaveformPlotView" />
+                    <controls:PlotView Grid.Row="1" Name="WaveformPlotView" Margin="4" />
                 </Grid>
             </Border>
 
-            <!-- 中部：频谱图 -->
-            <Border Grid.Row="1" BorderBrush="{DynamicResource SystemBaseMediumLowColor}" BorderThickness="1" CornerRadius="4" Margin="0,0,0,4">
+            <!-- 频谱图 -->
+            <Border Grid.Row="1" Theme="{DynamicResource CardBorder}" Padding="0" Margin="0 0 0 8">
                 <Grid RowDefinitions="Auto,*">
-                    <!-- 频谱图工具栏 -->
-                    <Border Grid.Row="0" Background="{DynamicResource SystemControlBackgroundAltHighBrush}" Padding="8,4" CornerRadius="4,4,0,0">
-                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource LBL_Spectrum}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
-                            <Button Content="{DynamicResource BTN_Autoscale}" Command="{Binding SpectrumAutoscaleCommand}" FontSize="12" Padding="8,2" />
+                    <Border Grid.Row="0" Padding="12 8" BorderBrush="{DynamicResource CardBorderBorderBrush}" BorderThickness="0 0 0 1">
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource LBL_Spectrum}" Theme="{StaticResource TitleTextBlock}" Classes="H5" VerticalAlignment="Center" />
+                            <Button Content="{DynamicResource BTN_Autoscale}" Command="{Binding SpectrumAutoscaleCommand}" Theme="{DynamicResource SolidButton}" Classes="Small" Padding="8 2" />
                         </StackPanel>
                     </Border>
-                    <controls:PlotView Grid.Row="1" Name="SpectrumPlotView" />
+                    <controls:PlotView Grid.Row="1" Name="SpectrumPlotView" Margin="4" />
                 </Grid>
             </Border>
 
-            <!-- 下部：趋势图 -->
-            <Border Grid.Row="2" BorderBrush="{DynamicResource SystemBaseMediumLowColor}" BorderThickness="1" CornerRadius="4">
+            <!-- 趋势图 -->
+            <Border Grid.Row="2" Theme="{DynamicResource CardBorder}" Padding="0">
                 <Grid RowDefinitions="Auto,*">
-                    <!-- 趋势图工具栏 -->
-                    <Border Grid.Row="0" Background="{DynamicResource SystemControlBackgroundAltHighBrush}" Padding="8,4" CornerRadius="4,4,0,0">
-                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource LBL_Trend}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
-                            <Button Content="{DynamicResource BTN_Autoscale}" Command="{Binding TrendAutoscaleCommand}" FontSize="12" Padding="8,2" />
+                    <Border Grid.Row="0" Padding="12 8" BorderBrush="{DynamicResource CardBorderBorderBrush}" BorderThickness="0 0 0 1">
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource LBL_Trend}" Theme="{StaticResource TitleTextBlock}" Classes="H5" VerticalAlignment="Center" />
+                            <Button Content="{DynamicResource BTN_Autoscale}" Command="{Binding TrendAutoscaleCommand}" Theme="{DynamicResource SolidButton}" Classes="Small" Padding="8 2" />
                         </StackPanel>
                     </Border>
-                    <controls:PlotView Grid.Row="1" Name="TrendPlotView" />
+                    <controls:PlotView Grid.Row="1" Name="TrendPlotView" Margin="4" />
                 </Grid>
             </Border>
 
         </Grid>
-
-        <!-- 右侧：竖向工具栏 -->
-        <Border Grid.Column="1" Background="{DynamicResource SystemControlBackgroundAltHighBrush}" Width="48" CornerRadius="4" Margin="0,4,4,4">
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Spacing="8" Margin="0,12,0,0">
-                <Button Name="BtnRegenerate" ToolTip.Tip="{DynamicResource TIP_RegenerateData}" Width="36" Height="36" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Binding RegenerateDataCommand}">
-                    <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="16" />
-                </Button>
-                <Button Name="BtnReset" ToolTip.Tip="{DynamicResource TIP_ResetAll}" Width="36" Height="36" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Binding ResetAllCommand}">
-                    <TextBlock Text="&#xE777;" FontFamily="Segoe MDL2 Assets" FontSize="16" />
-                </Button>
-            </StackPanel>
-        </Border>
     </Grid>
 
 </UserControl>

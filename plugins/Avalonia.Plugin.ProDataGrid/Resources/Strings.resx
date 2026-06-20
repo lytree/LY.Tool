@@ -181,4 +181,7 @@
   <data name="WORD_Arrange" xml:space="preserve"><value>Arrange</value></data>
   <data name="WORD_Invalidate" xml:space="preserve"><value>Invalidate</value></data>
   <data name="FMT_PulseRow" xml:space="preserve"><value>Row {0}: {1} {2} {3} Pulse</value></data>
+  <data name="BTN_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="PAGE_FilteringGrouping_Title" xml:space="preserve"><value>Filtering &amp; Grouping</value></data>
+  <data name="PAGE_FilteringGrouping_Desc" xml:space="preserve"><value>Filter, sort and group task data in real time</value></data>
 </root>

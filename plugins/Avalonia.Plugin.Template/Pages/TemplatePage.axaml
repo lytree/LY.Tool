@@ -26,10 +26,10 @@
                     </TextBlock>
 
                     <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
-                        <Button Content="Click Me!" Command="{Binding IncrementCountCommand}" 
-                                Classes="Primary" MinWidth="120"/>
-                        <Button Content="Reset" Command="{Binding ResetCountCommand}" 
-                                MinWidth="80"/>
+                        <Button Content="Click Me!" Command="{Binding IncrementCountCommand}"
+                                Theme="{DynamicResource SolidButton}" Classes="Primary" MinWidth="120"/>
+                        <Button Content="Reset" Command="{Binding ResetCountCommand}"
+                                Theme="{DynamicResource SolidButton}" MinWidth="80"/>
                     </StackPanel>
                 </StackPanel>
             </Border>

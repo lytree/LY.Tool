@@ -185,7 +185,7 @@ public partial class TdlService
             var user = await client.GetUserAsync(userId);
             members.Add(BuildMemberInfo(member, user, raw));
         }
-        catch { }
+        catch (Exception ex) { _logger.Log($"获取成员信息失败: {ex.Message}"); }
     }
 
     long ExtractMemberUserId(TdApi.ChatMember member)
