@@ -21,11 +21,18 @@ public partial class MainViewViewModel : ViewModelBase
     [ObservableProperty] private object? _content;
     [ObservableProperty] private bool _isCollapsed;
     [ObservableProperty] private bool _isSidebarHidden;
+    [ObservableProperty] private string? _searchText;
 
     [RelayCommand]
     public void ToggleSidebar()
     {
         IsSidebarHidden = !IsSidebarHidden;
+    }
+
+    [RelayCommand]
+    public void ToggleCollapse()
+    {
+        IsCollapsed = !IsCollapsed;
     }
 
     [RelayCommand]

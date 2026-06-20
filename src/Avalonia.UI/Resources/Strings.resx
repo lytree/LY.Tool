@@ -355,6 +355,9 @@
   <data name="TOOLTIP_TOGGLE_SIDEBAR" xml:space="preserve">
     <value>Toggle Sidebar</value>
   </data>
+  <data name="SEARCH_PLACEHOLDER" xml:space="preserve">
+    <value>Search</value>
+  </data>
   <data name="WINDOW_TITLE" xml:space="preserve">
     <value>Ursa Demo</value>
   </data>

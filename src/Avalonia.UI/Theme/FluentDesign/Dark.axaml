@@ -1,0 +1,125 @@
+<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Fluent Design System - Dark Theme Color Overrides -->
+
+    <!-- Primary / Accent (Fluent Accent #60CDFF) -->
+    <SolidColorBrush x:Key="SemiColorPrimary" Color="#60CDFF" />
+    <SolidColorBrush x:Key="SemiColorPrimaryPointerover" Color="#78D4FF" />
+    <SolidColorBrush x:Key="SemiColorPrimaryActive" Color="#38B0F0" />
+    <SolidColorBrush x:Key="SemiColorPrimaryDisabled" Opacity="0.35" Color="#60CDFF" />
+    <SolidColorBrush x:Key="SemiColorPrimaryLight" Opacity="0.15" Color="#60CDFF" />
+    <SolidColorBrush x:Key="SemiColorPrimaryLightPointerover" Opacity="0.2" Color="#60CDFF" />
+    <SolidColorBrush x:Key="SemiColorPrimaryLightActive" Opacity="0.25" Color="#60CDFF" />
+
+    <!-- Secondary -->
+    <SolidColorBrush x:Key="SemiColorSecondary" Color="#60CDFF" />
+    <SolidColorBrush x:Key="SemiColorSecondaryPointerover" Color="#78D4FF" />
+    <SolidColorBrush x:Key="SemiColorSecondaryActive" Color="#38B0F0" />
+    <SolidColorBrush x:Key="SemiColorSecondaryDisabled" Opacity="0.35" Color="#60CDFF" />
+    <SolidColorBrush x:Key="SemiColorSecondaryLight" Opacity="0.15" Color="#60CDFF" />
+    <SolidColorBrush x:Key="SemiColorSecondaryLightPointerover" Opacity="0.2" Color="#60CDFF" />
+    <SolidColorBrush x:Key="SemiColorSecondaryLightActive" Opacity="0.25" Color="#60CDFF" />
+
+    <!-- Tertiary (Fluent Subtle) -->
+    <SolidColorBrush x:Key="SemiColorTertiary" Color="#C5C5C5" />
+    <SolidColorBrush x:Key="SemiColorTertiaryPointerover" Color="#D4D4D4" />
+    <SolidColorBrush x:Key="SemiColorTertiaryActive" Color="#E8E8E8" />
+    <SolidColorBrush x:Key="SemiColorTertiaryLight" Opacity="0.2" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SemiColorTertiaryLightPointerover" Opacity="0.3" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SemiColorTertiaryLightActive" Opacity="0.4" Color="#FFFFFF" />
+
+    <!-- Information -->
+    <SolidColorBrush x:Key="SemiColorInformation" Color="#60CDFF" />
+    <SolidColorBrush x:Key="SemiColorInformationPointerover" Color="#78D4FF" />
+    <SolidColorBrush x:Key="SemiColorInformationActive" Color="#38B0F0" />
+    <SolidColorBrush x:Key="SemiColorInformationDisabled" Opacity="0.35" Color="#60CDFF" />
+    <SolidColorBrush x:Key="SemiColorInformationLight" Opacity="0.15" Color="#60CDFF" />
+    <SolidColorBrush x:Key="SemiColorInformationLightPointerover" Opacity="0.2" Color="#60CDFF" />
+    <SolidColorBrush x:Key="SemiColorInformationLightActive" Opacity="0.25" Color="#60CDFF" />
+
+    <!-- Success (Fluent Success #6CCB5F) -->
+    <SolidColorBrush x:Key="SemiColorSuccess" Color="#6CCB5F" />
+    <SolidColorBrush x:Key="SemiColorSuccessPointerover" Color="#8FD984" />
+    <SolidColorBrush x:Key="SemiColorSuccessActive" Color="#B2E5A9" />
+    <SolidColorBrush x:Key="SemiColorSuccessDisabled" Opacity="0.35" Color="#6CCB5F" />
+    <SolidColorBrush x:Key="SemiColorSuccessLight" Opacity="0.2" Color="#6CCB5F" />
+    <SolidColorBrush x:Key="SemiColorSuccessLightPointerover" Opacity="0.3" Color="#6CCB5F" />
+    <SolidColorBrush x:Key="SemiColorSuccessLightActive" Opacity="0.4" Color="#6CCB5F" />
+
+    <!-- Warning (Fluent Caution #FCE100) -->
+    <SolidColorBrush x:Key="SemiColorWarning" Color="#FCE100" />
+    <SolidColorBrush x:Key="SemiColorWarningPointerover" Color="#FDE94A" />
+    <SolidColorBrush x:Key="SemiColorWarningActive" Color="#FEF08A" />
+    <SolidColorBrush x:Key="SemiColorWarningLight" Opacity="0.2" Color="#FCE100" />
+    <SolidColorBrush x:Key="SemiColorWarningLightPointerover" Opacity="0.3" Color="#FCE100" />
+    <SolidColorBrush x:Key="SemiColorWarningLightActive" Opacity="0.4" Color="#FCE100" />
+
+    <!-- Danger (Fluent Critical #FF99A4) -->
+    <SolidColorBrush x:Key="SemiColorDanger" Color="#FF99A4" />
+    <SolidColorBrush x:Key="SemiColorDangerPointerover" Color="#FFBCBC" />
+    <SolidColorBrush x:Key="SemiColorDangerActive" Color="#FFDEDE" />
+    <SolidColorBrush x:Key="SemiColorDangerLight" Opacity="0.2" Color="#FF99A4" />
+    <SolidColorBrush x:Key="SemiColorDangerLightPointerover" Opacity="0.3" Color="#FF99A4" />
+    <SolidColorBrush x:Key="SemiColorDangerLightActive" Opacity="0.4" Color="#FF99A4" />
+
+    <!-- Text and Icons (Fluent Text Colors) -->
+    <SolidColorBrush x:Key="SemiColorText0" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SemiColorText1" Opacity="0.9" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SemiColorText2" Opacity="0.7" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SemiColorText3" Opacity="0.5" Color="#FFFFFF" />
+
+    <!-- Link -->
+    <SolidColorBrush x:Key="SemiColorLink" Color="#60CDFF" />
+    <SolidColorBrush x:Key="SemiColorLinkPointerover" Color="#78D4FF" />
+    <SolidColorBrush x:Key="SemiColorLinkActive" Color="#38B0F0" />
+    <SolidColorBrush x:Key="SemiColorLinkVisited" Color="#60CDFF" />
+
+    <!-- Background (Fluent ApplicationBackground / Layer) -->
+    <SolidColorBrush x:Key="SemiColorBackground0" Color="#202020" />
+    <SolidColorBrush x:Key="SemiColorBackground1" Color="#2C2C2C" />
+    <SolidColorBrush x:Key="SemiColorBackground2" Color="#323232" />
+    <SolidColorBrush x:Key="SemiColorBackground3" Color="#383838" />
+    <SolidColorBrush x:Key="SemiColorBackground4" Color="#454545" />
+
+    <!-- Fill (Fluent Subtle Fill) -->
+    <SolidColorBrush x:Key="SemiColorFill0" Opacity="0.12" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SemiColorFill1" Opacity="0.16" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SemiColorFill2" Opacity="0.20" Color="#FFFFFF" />
+
+    <!-- Border (Fluent CardStroke / Divider) -->
+    <SolidColorBrush x:Key="SemiColorBorder" Opacity="0.08" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SemiColorFocusBorder" Color="#60CDFF" />
+
+    <!-- Disabled -->
+    <SolidColorBrush x:Key="SemiColorDisabledText" Opacity="0.35" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SemiColorDisabledBorder" Opacity="0.08" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SemiColorDisabledBackground" Opacity="0.08" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SemiColorDisabledFill" Opacity="0.04" Color="#FFFFFF" />
+
+    <!-- Others -->
+    <SolidColorBrush x:Key="SemiColorNavBackground" Color="#2C2C2C" />
+    <SolidColorBrush x:Key="SemiColorOverlayBackground" Opacity="0.6" Color="#202020" />
+    <SolidColorBrush x:Key="SemiColorHighlightBackground" Opacity="0.2" Color="#FCE100" />
+    <SolidColorBrush x:Key="SemiColorHighlight" Color="#FFFFFF" />
+
+    <!-- Shadow (Fluent Elevation) -->
+    <BoxShadows x:Key="SemiColorShadow">0 0 #0A000000</BoxShadows>
+    <BoxShadows x:Key="SemiShadowElevated">inset 0 0 0 1 #1AFFFFFF, 0 4 14 #40000000</BoxShadows>
+
+    <!-- Fluent Background Colors for direct use -->
+    <Color x:Key="FluentAccentColor">#60CDFF</Color>
+    <Color x:Key="FluentAccentPointeroverColor">#78D4FF</Color>
+    <Color x:Key="FluentAccentPressedColor">#38B0F0</Color>
+    <SolidColorBrush x:Key="FluentAccentBrush" Color="#60CDFF" />
+    <SolidColorBrush x:Key="FluentAccentPointeroverBrush" Color="#78D4FF" />
+    <SolidColorBrush x:Key="FluentAccentPressedBrush" Color="#38B0F0" />
+    <SolidColorBrush x:Key="FluentCardBackgroundBrush" Color="#2C2C2C" />
+    <SolidColorBrush x:Key="FluentCardStrokeBrush" Opacity="0.08" Color="#FFFFFF" />
+    <!-- Layer background (nav pane + title bar, same layer for visual consistency) -->
+    <SolidColorBrush x:Key="FluentSubtleBrush" Color="#202020" />
+    <SolidColorBrush x:Key="FluentSubtleHoverBrush" Opacity="0.08" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="FluentSubtlePressedBrush" Opacity="0.12" Color="#FFFFFF" />
+
+</ResourceDictionary>

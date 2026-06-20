@@ -17,6 +17,7 @@
     MinWidth="640"
     MinHeight="480"
     Icon="/Assets/irihi.ico"
+    Background="{DynamicResource SemiColorBackground0}"
     mc:Ignorable="d">
     <views:MainView />
 </u:UrsaWindow>

@@ -7,20 +7,26 @@
 			 x:DataType="viewModels:SettingsPageViewModel"
 			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450">
 	<DockPanel>
-		<Border DockPanel.Dock="Bottom" Theme="{DynamicResource CardBorder}" Padding="16,12" Margin="24,0,24,0">
+		<!-- WinUI Gallery Footer Action Bar -->
+		<Border DockPanel.Dock="Bottom" Classes="WinUICard" Padding="16,12" Margin="36,0,36,0"
+				BorderThickness="0,1,0,0" BoxShadow="0 0 0 0 Transparent">
 			<Grid ColumnDefinitions="*,Auto,Auto">
-				<TextBlock Grid.Column="0" Text="{Binding SaveStatusText}" Classes="Tertiary" VerticalAlignment="Center"
+				<TextBlock Grid.Column="0" Text="{Binding SaveStatusText}" Classes="WinUICaption" VerticalAlignment="Center"
 						   IsVisible="{Binding SaveStatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
 				<Button Grid.Column="1" Content="{DynamicResource RESET}" Command="{Binding ResetCommand}" MinWidth="80" Margin="0,0,12,0"
+						Classes="WinUISubtle"
 						IsEnabled="{Binding IsDirty}" />
-				<Button Grid.Column="2" Content="{DynamicResource SAVE}" Command="{Binding SaveCommand}" Classes="Primary" MinWidth="80"
+				<Button Grid.Column="2" Content="{DynamicResource SAVE}" Command="{Binding SaveCommand}" Classes="WinUIAccent" MinWidth="80"
 						IsEnabled="{Binding IsDirty}" />
 			</Grid>
 		</Border>
 
 		<ScrollViewer VerticalScrollBarVisibility="Auto">
-			<StackPanel Margin="24" Spacing="16">
-				<TextBlock Text="{DynamicResource SETTINGS_TITLE}" Theme="{StaticResource TitleTextBlock}" Classes="H2" />
+			<StackPanel Margin="36,24" Spacing="16">
+				<!-- WinUI Gallery Page Header -->
+				<StackPanel Classes="WinUIPageHeader">
+					<TextBlock Text="{DynamicResource SETTINGS_TITLE}" Classes="WinUILargeTitle" />
+				</StackPanel>
 
 				<ItemsControl ItemsSource="{Binding Groups}">
 					<ItemsControl.ItemsPanel>
@@ -30,9 +36,9 @@
 					</ItemsControl.ItemsPanel>
 					<ItemsControl.ItemTemplate>
 						<DataTemplate x:DataType="viewModels:SettingsGroupViewModel">
-							<Border Theme="{DynamicResource CardBorder}">
+							<Border Classes="WinUICard">
 								<StackPanel Spacing="12">
-									<TextBlock Text="{Binding GroupName}" Theme="{StaticResource TitleTextBlock}" Classes="H4" />
+									<TextBlock Text="{Binding GroupName}" Classes="WinUISectionHeader" Margin="0" />
 									<ItemsControl ItemsSource="{Binding Items}">
 										<ItemsControl.ItemsPanel>
 											<ItemsPanelTemplate>
@@ -43,8 +49,8 @@
 											<DataTemplate x:DataType="viewModels:TextSettingEntryViewModel">
 												<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
 													<StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
-														<TextBlock Text="{Binding DisplayName}" Classes="Primary" />
-														<TextBlock Text="{Binding Description}" Classes="Tertiary"
+														<TextBlock Text="{Binding DisplayName}" Classes="WinUIBody" />
+														<TextBlock Text="{Binding Description}" Classes="WinUICaption"
 																   IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
 													</StackPanel>
 													<TextBox Grid.Column="1" Grid.RowSpan="2"
@@ -56,8 +62,8 @@
 											<DataTemplate x:DataType="viewModels:SwitchSettingEntryViewModel">
 												<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
 													<StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
-														<TextBlock Text="{Binding DisplayName}" Classes="Primary" />
-														<TextBlock Text="{Binding Description}" Classes="Tertiary"
+														<TextBlock Text="{Binding DisplayName}" Classes="WinUIBody" />
+														<TextBlock Text="{Binding Description}" Classes="WinUICaption"
 																   IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
 													</StackPanel>
 													<ToggleSwitch Grid.Column="1" Grid.RowSpan="2"
@@ -67,8 +73,8 @@
 											<DataTemplate x:DataType="viewModels:DropdownSettingEntryViewModel">
 												<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
 													<StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
-														<TextBlock Text="{Binding DisplayName}" Classes="Primary" />
-														<TextBlock Text="{Binding Description}" Classes="Tertiary"
+														<TextBlock Text="{Binding DisplayName}" Classes="WinUIBody" />
+														<TextBlock Text="{Binding Description}" Classes="WinUICaption"
 																   IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
 													</StackPanel>
 													<ComboBox Grid.Column="1" Grid.RowSpan="2"
@@ -80,8 +86,8 @@
 											<DataTemplate x:DataType="viewModels:PathSettingEntryViewModel">
 												<Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto">
 													<StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
-														<TextBlock Text="{Binding DisplayName}" Classes="Primary" />
-														<TextBlock Text="{Binding Description}" Classes="Tertiary"
+														<TextBlock Text="{Binding DisplayName}" Classes="WinUIBody" />
+														<TextBlock Text="{Binding Description}" Classes="WinUICaption"
 																   IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
 													</StackPanel>
 													<TextBox Grid.Column="1" Grid.RowSpan="2"
@@ -91,6 +97,7 @@
 															 IsReadOnly="True" />
 													<Button Grid.Column="2" Grid.RowSpan="2"
 															Content="{DynamicResource BROWSE}" Command="{Binding BrowseCommand}"
+															Classes="WinUISubtle"
 															VerticalAlignment="Center" Margin="8,0,0,0" />
 												</Grid>
 											</DataTemplate>
@@ -102,12 +109,15 @@
 					</ItemsControl.ItemTemplate>
 				</ItemsControl>
 
-				<Border Theme="{DynamicResource CardBorder}">
+				<!-- About Card -->
+				<Border Classes="WinUICard">
 					<StackPanel Spacing="12">
-						<TextBlock Text="{DynamicResource ABOUT}" Theme="{StaticResource TitleTextBlock}" Classes="H4" />
-						<TextBlock Text="{DynamicResource APP_TITLE}" Theme="{StaticResource TitleTextBlock}" Classes="H6" />
-						<TextBlock Text="{DynamicResource APP_VERSION}" Classes="Secondary" />
-						<TextBlock Text="{DynamicResource APP_DESCRIPTION}" Classes="Tertiary" />
+						<TextBlock Text="{DynamicResource ABOUT}" Classes="WinUISectionHeader" Margin="0" />
+						<StackPanel Spacing="4">
+							<TextBlock Text="{DynamicResource APP_TITLE}" Classes="WinUIBody" FontWeight="SemiBold" />
+							<TextBlock Text="{DynamicResource APP_VERSION}" Classes="WinUICaption" />
+							<TextBlock Text="{DynamicResource APP_DESCRIPTION}" Classes="WinUICaption" TextWrapping="Wrap" />
+						</StackPanel>
 					</StackPanel>
 				</Border>
 			</StackPanel>

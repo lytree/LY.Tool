@@ -45,41 +45,6 @@
                     </LinearGradientBrush>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
-            <ControlTheme x:Key="TileButton" TargetType="Button">
-                <Setter Property="HorizontalContentAlignment" Value="Left" />
-                <Setter Property="Padding" Value="24" />
-                <Setter Property="VerticalContentAlignment" Value="Center" />
-                <Setter Property="Template">
-                    <ControlTemplate>
-                        <Border
-                            Padding="0"
-                            Classes="Hover"
-                            Cursor="Hand"
-                            Theme="{DynamicResource CardBorder}"
-                            CornerRadius="8"
-                            BoxShadow="0 2 8 0 #18000000">
-                            <Border.Transitions>
-                                <Transitions>
-                                    <BrushTransition Property="BorderBrush" Duration="0.3" />
-                                    <BoxShadowsTransition Property="BoxShadow" Duration="0.3" />
-                                </Transitions>
-                            </Border.Transitions>
-                            <ContentPresenter
-                                Padding="{TemplateBinding Padding}"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                Content="{TemplateBinding Content}"
-                                ContentTemplate="{TemplateBinding ContentTemplate}" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter>
-                <Style Selector="^:pointerover /template/ Border">
-                    <Setter Property="BorderBrush" Value="{DynamicResource SemiColorPrimary}" />
-                    <Setter Property="BoxShadow" Value="0 4 16 0 #22000000" />
-                </Style>
-            </ControlTheme>
         </ResourceDictionary>
     </UserControl.Resources>
     <UserControl.Styles>
@@ -92,9 +57,10 @@
     </UserControl.Styles>
     <Grid RowDefinitions="*, Auto">
         <ScrollViewer>
-            <StackPanel>
+            <StackPanel Margin="36,24">
+                <!-- WinUI Gallery Hero Section -->
                 <Grid
-                    Margin="0,96,0,48"
+                    Margin="0,32,0,48"
                     HorizontalAlignment="Center"
                     ColumnDefinitions="*, *"
                     RowDefinitions="*, *">
@@ -102,7 +68,7 @@
                         Grid.Row="0"
                         Grid.RowSpan="2"
                         Grid.Column="0"
-                        Fill="{DynamicResource SemiColorPrimary}"
+                        Fill="{DynamicResource FluentAccentBrush}"
                         Width="96"
                         Margin="0,0,24,0"
                         VerticalAlignment="Center" />
@@ -121,84 +87,86 @@
                         HorizontalAlignment="Left"
                         FontSize="16"
                         Text="{DynamicResource COMPANY_NAME_EN}"
-                        Classes="Secondary" />
+                        Classes="WinUIBody" />
                 </Grid>
                 <TextBlock
                     HorizontalAlignment="Center"
-                    Theme="{StaticResource TitleTextBlock}" Classes="H4"
+                    Classes="WinUISubtitle"
                     Text="{DynamicResource SLOGAN_CN}" />
                 <TextBlock
                     HorizontalAlignment="Center"
                     FontSize="20"
                     Text="{DynamicResource SLOGAN_EN}"
-                    Classes="Secondary" />
+                    Classes="WinUIBody" />
+
+                <!-- WinUI Gallery Card Grid -->
                 <UniformGrid
                     MaxWidth="810"
-                    Margin="24"
+                    Margin="0,0,0,24"
                     HorizontalAlignment="Center"
                     Columns="2">
                     <Button
                         Margin="8"
                         Command="{Binding NavigateCommand}"
                         CommandParameter="semi"
-                        Theme="{DynamicResource TileButton}">
+                        Classes="WinUICard">
                         <StackPanel HorizontalAlignment="Left">
                             <TextBlock Classes="TileTitle" Text="Semi" />
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                 <Label Theme="{DynamicResource TagLabel}" Classes="Blue Ghost" Content="{DynamicResource OPEN_SOURCE}" />
                             </StackPanel>
                             <TextBlock Text="{DynamicResource SEMI_DESC_CN}"
-                                       Classes="Secondary" />
+                                       Classes="WinUIBody" />
                             <TextBlock Text="{DynamicResource SEMI_DESC_EN}"
-                                       Classes="Tertiary" />
+                                       Classes="WinUICaption" />
                         </StackPanel>
                     </Button>
                     <Button
                         Margin="8"
                         Command="{Binding NavigateCommand}"
                         CommandParameter="ursa"
-                        Theme="{DynamicResource TileButton}">
+                        Classes="WinUICard">
                         <StackPanel HorizontalAlignment="Left">
                             <TextBlock Classes="TileTitle" Text="Ursa" />
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                 <Label Theme="{DynamicResource TagLabel}" Classes="Blue Ghost" Content="{DynamicResource OPEN_SOURCE}" />
                             </StackPanel>
                             <TextBlock Text="{DynamicResource URSA_DESC_CN}"
-                                       Classes="Secondary" />
+                                       Classes="WinUIBody" />
                             <TextBlock Text="{DynamicResource URSA_DESC_EN}"
-                                       Classes="Tertiary" />
+                                       Classes="WinUICaption" />
                         </StackPanel>
                     </Button>
                     <Button
                         Margin="8"
                         Command="{Binding NavigateCommand}"
                         CommandParameter="mantra"
-                        Theme="{DynamicResource TileButton}">
+                        Classes="WinUICard">
                         <StackPanel HorizontalAlignment="Left">
                             <TextBlock Classes="TileTitle" Text="Mantra" />
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                 <Label Theme="{DynamicResource TagLabel}" Classes="Purple Ghost" Content="{DynamicResource COMMERCIAL}" />
                             </StackPanel>
                             <TextBlock Text="{DynamicResource MANTRA_DESC_CN}"
-                                       Classes="Secondary" />
+                                       Classes="WinUIBody" />
                             <TextBlock Text="{DynamicResource MANTRA_DESC_EN}"
-                                       Classes="Tertiary" />
+                                       Classes="WinUICaption" />
                         </StackPanel>
                     </Button>
                     <Button
                         Margin="8"
                         Command="{Binding NavigateCommand}"
                         CommandParameter="huska"
-                        Theme="{DynamicResource TileButton}">
+                        Classes="WinUICard">
                         <StackPanel HorizontalAlignment="Left">
                             <TextBlock Classes="TileTitle" Text="Huska" />
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                 <Label Theme="{DynamicResource TagLabel}" Classes="Purple Ghost" Content="{DynamicResource COMMERCIAL}" />
                             </StackPanel>
                             <TextBlock Text="{DynamicResource HUSKA_DESC_CN}"
-                                       Classes="Secondary" />
+                                       Classes="WinUIBody" />
                             <TextBlock Text="{DynamicResource HUSKA_DESC_EN}"
-                                       Classes="Tertiary" />
+                                       Classes="WinUICaption" />
                         </StackPanel>
                     </Button>
                 </UniformGrid>

@@ -1,6 +1,7 @@
 <Styles x:Class="Avalonia.UI.Theme.UrsaSemiTheme"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:fluentDesign="using:Avalonia.UI.Theme.FluentDesign"
         >
     <Styles.Resources>
         <ResourceDictionary>
@@ -19,5 +20,6 @@
     </Styles.Resources>
 
     <StyleInclude Source="Styles/_index.axaml" />
+    <fluentDesign:FluentDesignStyles />
 
 </Styles>

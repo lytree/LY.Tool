@@ -28,6 +28,8 @@ public partial class MainView : UserControl
         _viewModel = DataContext as MainViewViewModel;
         _localizationService = ServiceLocator.GetService<ILocalizationService>();
         _localizationService.CultureChanged += OnCultureChanged;
+        // 首次启动时用已初始化的本地化服务刷新面包屑
+        UpdateBreadcrumbFromCurrentContent();
         var topLevel = TopLevel.GetTopLevel(this);
         if (topLevel is null || _viewModel is null)
             return;
@@ -67,12 +69,11 @@ public partial class MainView : UserControl
     private void UpdateBreadcrumbFromCurrentContent()
     {
         var breadcrumb = this.FindControl<Breadcrumb>("Breadcrumb");
-        if (breadcrumb is null || breadcrumb.Items.Count < 2) return;
+        if (breadcrumb is null) return;
+        var lastKey = _viewModel?.Content?.GetType().Name.Replace("ViewModel", "") ?? "Introduction";
         breadcrumb.Items.Clear();
         breadcrumb.Items.Add(new BreadcrumbItem { Content = GetLocalizedString("BREADCRUMB_HOME", "Home"), IsReadOnly = true });
-        var lastKey = _viewModel?.Content?.GetType().Name.Replace("ViewModel", "");
-        if (lastKey is not null)
-            breadcrumb.Items.Add(new BreadcrumbItem { Content = GetPageDisplayName(lastKey), IsReadOnly = true });
+        breadcrumb.Items.Add(new BreadcrumbItem { Content = GetPageDisplayName(lastKey), IsReadOnly = true });
     }
 
     private string GetLocalizedString(string key, string fallback)

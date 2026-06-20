@@ -1,0 +1,299 @@
+<Styles
+    x:Class="Avalonia.UI.Theme.FluentDesign.FluentDesignStyles"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:u="https://irihi.tech/ursa">
+
+    <!-- WinUI Gallery Style - Fluent Design System -->
+
+    <!-- WinUI Gallery Card -->
+    <Style Selector="Border.WinUICard">
+        <Setter Property="Background" Value="{DynamicResource FluentCardBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="BoxShadow" Value="0 2 8 0 #0F000000" />
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+                    <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.15" />
+                </Transitions>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style Selector="Border.WinUICard:pointerover">
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
+        <Setter Property="BoxShadow" Value="0 4 16 0 #1A000000" />
+    </Style>
+
+    <!-- WinUI Gallery Card Clickable -->
+    <Style Selector="Button.WinUICard">
+        <Setter Property="Background" Value="{DynamicResource FluentCardBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+    </Style>
+    <Style Selector="Button.WinUICard:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
+    </Style>
+    <Style Selector="Button.WinUICard:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
+    </Style>
+
+    <!-- WinUI Gallery Navigation Pane -->
+    <Style Selector="Border.WinUINavPane">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="0,0,1,0" />
+    </Style>
+
+    <!-- WinUI Gallery Title Bar (same layer as nav pane for visual consistency) -->
+    <Style Selector="Border.WinUITitleBar">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+        <Setter Property="Padding" Value="0,0,16,0" />
+        <Setter Property="MinHeight" Value="48" />
+    </Style>
+
+    <!-- WinUI Gallery Page Header -->
+    <Style Selector="StackPanel.WinUIPageHeader">
+        <Setter Property="Margin" Value="0,0,0,24" />
+        <Setter Property="Spacing" Value="4" />
+    </Style>
+
+    <!-- WinUI Gallery Section Header -->
+    <Style Selector="TextBlock.WinUISectionHeader">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}" />
+        <Setter Property="Margin" Value="0,24,0,12" />
+    </Style>
+
+    <!-- WinUI Gallery Large Title (Page Title) -->
+    <Style Selector="TextBlock.WinUILargeTitle">
+        <Setter Property="FontSize" Value="28" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}" />
+    </Style>
+
+    <!-- WinUI Gallery Page Description -->
+    <Style Selector="TextBlock.WinUIPageDescription">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="{DynamicResource SemiColorText2}" />
+    </Style>
+
+    <!-- WinUI Gallery Subtitle (Card Title) -->
+    <Style Selector="TextBlock.WinUISubtitle">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}" />
+    </Style>
+
+    <!-- WinUI Gallery Body Text -->
+    <Style Selector="TextBlock.WinUIBody">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="{DynamicResource SemiColorText1}" />
+    </Style>
+
+    <!-- WinUI Gallery Caption -->
+    <Style Selector="TextBlock.WinUICaption">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource SemiColorText2}" />
+    </Style>
+
+    <!-- WinUI Gallery Accent Button -->
+    <Style Selector="Button.WinUIAccent">
+        <Setter Property="Background" Value="{DynamicResource FluentAccentBrush}" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="16,8" />
+        <Setter Property="MinHeight" Value="32" />
+    </Style>
+    <Style Selector="Button.WinUIAccent:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource FluentAccentPointeroverBrush}" />
+    </Style>
+    <Style Selector="Button.WinUIAccent:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource FluentAccentPressedBrush}" />
+    </Style>
+
+    <!-- WinUI Gallery Subtle Button -->
+    <Style Selector="Button.WinUISubtle">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="16,8" />
+        <Setter Property="MinHeight" Value="32" />
+    </Style>
+    <Style Selector="Button.WinUISubtle:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
+    </Style>
+    <Style Selector="Button.WinUISubtle:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
+    </Style>
+
+    <!-- WinUI Gallery Nav Item -->
+    <Style Selector="Button.WinUINavItem">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="12,10" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="MinHeight" Value="36" />
+    </Style>
+    <Style Selector="Button.WinUINavItem:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
+    </Style>
+    <Style Selector="Button.WinUINavItem:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
+    </Style>
+
+    <!-- WinUI Gallery Search Box -->
+    <Style Selector="TextBox.WinUISearchBox">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="MinHeight" Value="32" />
+    </Style>
+
+    <!-- WinUI Gallery InfoBar -->
+    <Style Selector="Border.WinUIInfoBar">
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="16,12" />
+        <Setter Property="BorderThickness" Value="0,0,0,0" />
+    </Style>
+    <Style Selector="Border.WinUIInfoBarWarning">
+        <Setter Property="Background" Value="{DynamicResource SemiColorWarningLight}" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="16,12" />
+    </Style>
+    <Style Selector="Border.WinUIInfoBarInfo">
+        <Setter Property="Background" Value="{DynamicResource SemiColorPrimaryLight}" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="16,12" />
+    </Style>
+    <Style Selector="Border.WinUIInfoBarSuccess">
+        <Setter Property="Background" Value="{DynamicResource SemiColorSuccessLight}" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="16,12" />
+    </Style>
+    <Style Selector="Border.WinUIInfoBarError">
+        <Setter Property="Background" Value="{DynamicResource SemiColorDangerLight}" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="16,12" />
+    </Style>
+
+    <!-- WinUI Gallery Badge -->
+    <Style Selector="Border.WinUIBadge">
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="8,2" />
+    </Style>
+
+    <!-- WinUI Gallery Divider -->
+    <Style Selector="Border.WinUIDivider">
+        <Setter Property="Height" Value="1" />
+        <Setter Property="Background" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="Margin" Value="0,8" />
+    </Style>
+
+    <!-- WinUI Gallery Settings Card -->
+    <Style Selector="Border.WinUISettingsCard">
+        <Setter Property="Background" Value="{DynamicResource FluentCardBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="16,12" />
+    </Style>
+
+    <!-- ===== WinUI Gallery NavigationView Styles ===== -->
+
+    <!-- WinUI Gallery NavMenuItem: selected indicator (left accent bar) -->
+    <Style Selector="u|NavMenuItem:selected /template/ Border#PART_Border">
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
+        <Setter Property="BorderThickness" Value="3,0,0,0" />
+    </Style>
+    <Style Selector="u|NavMenuItem:selected:pointerover /template/ Border#PART_Border">
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
+        <Setter Property="BorderThickness" Value="3,0,0,0" />
+    </Style>
+    <Style Selector="u|NavMenuItem:selected:focus /template/ Border#PART_Border">
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
+        <Setter Property="BorderThickness" Value="3,0,0,0" />
+    </Style>
+
+    <!-- WinUI Gallery NavMenuItem: selected icon accent color -->
+    <Style Selector="u|NavMenuItem:selected /template/ ContentPresenter#PART_IconPresenter">
+        <Setter Property="Foreground" Value="{DynamicResource FluentAccentBrush}" />
+    </Style>
+
+    <!-- WinUI Gallery NavMenuItem: hover subtle background -->
+    <Style Selector="u|NavMenuItem /template/ Border#PART_Border:pointerover">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
+    </Style>
+    <Style Selector="u|NavMenuItem:selected /template/ Border#PART_Border:pointerover">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
+    </Style>
+
+    <!-- WinUI Gallery: icon position consistent between collapsed/expanded (keep left-aligned, no centering) -->
+    <Style Selector="u|NavMenuItem:first-level /template/ ContentPresenter#PART_IconPresenter">
+        <Setter Property="Padding" Value="14,8,8,8" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+    </Style>
+    <Style Selector="u|NavMenuItem:horizontal-collapsed:first-level /template/ ContentPresenter#PART_IconPresenter">
+        <Setter Property="Grid.ColumnSpan" Value="1" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="Padding" Value="14,8,8,8" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+    </Style>
+
+    <!-- WinUI Gallery: only show first-level icons, hide sub-menu item icons -->
+    <Style Selector="u|NavMenuItem:not(:first-level) /template/ ContentPresenter#PART_IconPresenter">
+        <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+    <!-- WinUI Gallery Hamburger Button -->
+    <Style Selector="Button.WinUIHamburger">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Width" Value="48" />
+        <Setter Property="Height" Value="48" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.WinUIHamburger:pointerover">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
+    </Style>
+    <Style Selector="Button.WinUIHamburger:pressed">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
+    </Style>
+
+    <!-- WinUI Gallery Nav Pane Toggle Button (footer style) -->
+    <Style Selector="Button.WinUINavToggle">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="12,10" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="MinHeight" Value="36" />
+    </Style>
+    <Style Selector="Button.WinUINavToggle:pointerover">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
+    </Style>
+    <Style Selector="Button.WinUINavToggle:pressed">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
+    </Style>
+
+</Styles>
