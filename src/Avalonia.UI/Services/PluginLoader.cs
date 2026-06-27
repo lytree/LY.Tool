@@ -223,6 +223,29 @@ public class PluginLoader : IPluginLoader, IDisposable
                 FireEventsOutsideLock(eventsToFire);
                 return new PluginLoadResult { Success = false, ErrorMessage = errInfo.ErrorMessage };
             }
+
+            // SDK 契约版本校验：插件声明所需最低版本，若高于当前宿主链接的 PluginSdkVersion 则拒绝加载。
+            // 缺省 MinPluginSdkVersion 视为 "0.0.0"，向后兼容未声明版本要求的旧插件。
+            if (!IsPluginSdkCompatible(pluginInfo.MinPluginSdkVersion))
+            {
+                var required = string.IsNullOrWhiteSpace(pluginInfo.MinPluginSdkVersion) ? "0.0.0" : pluginInfo.MinPluginSdkVersion!;
+                var errInfo = pluginInfo.WithState(
+                    PluginState.Error,
+                    $"Plugin requires Plugin SDK >= {required}, but host provides {PluginSdkContract.CurrentVersion}. " +
+                    "Update the host application or contact the plugin author.");
+                lock (_sync)
+                {
+                    if (entryExisted)
+                    {
+                        UpdateEntry(errInfo);
+                        SavePluginManifest(errInfo);
+                        InvalidateSnapshot();
+                    }
+                    eventsToFire.Add(errInfo);
+                }
+                FireEventsOutsideLock(eventsToFire);
+                return new PluginLoadResult { Success = false, ErrorMessage = errInfo.ErrorMessage };
+            }
         }
 
         AssemblyLoadContext loadContext;
@@ -659,7 +682,8 @@ public class PluginLoader : IPluginLoader, IDisposable
             State = Enum.TryParse<PluginState>(manifest.State, out var state) ? state : PluginState.Installed,
             InstallTime = manifest.InstallTime,
             IsBuiltIn = manifest.IsBuiltIn,
-            HasMetadata = !string.IsNullOrEmpty(manifest.PluginId)
+            HasMetadata = !string.IsNullOrEmpty(manifest.PluginId),
+            MinPluginSdkVersion = manifest.MinPluginSdkVersion
         };
     }
 
@@ -692,7 +716,8 @@ public class PluginLoader : IPluginLoader, IDisposable
                 Dependencies = pluginInfo.Dependencies,
                 State = pluginInfo.State.ToString(),
                 InstallTime = pluginInfo.InstallTime,
-                IsBuiltIn = pluginInfo.IsBuiltIn
+                IsBuiltIn = pluginInfo.IsBuiltIn,
+                MinPluginSdkVersion = pluginInfo.MinPluginSdkVersion
             };
 
             var manifestPath = Path.Combine(pluginDir, "plugin.json");
@@ -737,6 +762,43 @@ public class PluginLoader : IPluginLoader, IDisposable
             _entries.Clear();
             _cachedPluginList = null;
         }
+    }
+
+    /// <summary>
+    /// 校验插件声明的 MinPluginSdkVersion 是否被当前宿主链接的 Plugin SDK 满足。
+    /// 规则：required &lt;= current 即兼容。null/空/解析失败均视为无约束（通过）。
+    /// 仅比较 Major.Minor.Build 三段；预发布标签忽略。
+    /// </summary>
+    private static bool IsPluginSdkCompatible(string? required)
+    {
+        if (string.IsNullOrWhiteSpace(required)) return true;
+
+        if (!TryParseSemVer(required, out var reqMajor, out var reqMinor, out var reqBuild))
+            return true; // 无法解析则放行（避免误拒合法插件）
+
+        if (!TryParseSemVer(PluginSdkContract.CurrentVersion, out var curMajor, out var curMinor, out var curBuild))
+            return true; // 宿主 SDK 版本无法解析时放行（保守策略：交由上层处理）
+
+        if (curMajor != reqMajor) return curMajor > reqMajor;
+        if (curMinor != reqMinor) return curMinor > reqMinor;
+        return curBuild >= reqBuild;
+    }
+
+    private static bool TryParseSemVer(string? version, out int major, out int minor, out int build)
+    {
+        major = minor = build = 0;
+        if (string.IsNullOrWhiteSpace(version)) return false;
+
+        // 取 '-' 之前的稳定版本部分
+        var stable = version.IndexOf('-');
+        var core = stable >= 0 ? version.Substring(0, stable) : version;
+
+        var parts = core.Split('.');
+        if (parts.Length == 0) return false;
+
+        return int.TryParse(parts[0], out major)
+            && (parts.Length < 2 || int.TryParse(parts[1], out minor))
+            && (parts.Length < 3 || int.TryParse(parts[2], out build));
     }
 
     private sealed class PluginEntry

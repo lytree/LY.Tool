@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
@@ -8,6 +8,11 @@
 		<PluginName>TDLSharp Plugin</PluginName>
 		<PluginAuthor>TDLSharp</PluginAuthor>
 		<PluginDescription>Telegram TDLib integration plugin providing batch forward, message export, media download and more.</PluginDescription>
+		<PluginVersion>1.0.0</PluginVersion>
+		<Version>$(PluginVersion)</Version>
+		<AssemblyVersion>$(PluginVersion)</AssemblyVersion>
+		<FileVersion>$(PluginVersion)</FileVersion>
+		<MinPluginSdkVersion>1.0.0</MinPluginSdkVersion>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Update="Resources\Strings.Designer.cs">
@@ -24,7 +29,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Avalonia.Plugin.Generators" Version="1.0.0" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-		<PackageReference Include="Avalonia.Plugin.Shared" Version="1.0.0" PrivateAssets="all" />
+		<PackageReference Include="Avalonia.Plugin.Generators" Version="$(PluginSdkVersion)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<PackageReference Include="Avalonia.Plugin.Shared" Version="$(PluginSdkVersion)" PrivateAssets="all" />
 	</ItemGroup>
 </Project>

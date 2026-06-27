@@ -9,6 +9,11 @@
     <PluginName>Plugin Template</PluginName>
     <PluginAuthor>AvaloniaPlugin</PluginAuthor>
     <PluginDescription>Template for creating new Avalonia plugins</PluginDescription>
+    <PluginVersion>1.0.0</PluginVersion>
+    <Version>$(PluginVersion)</Version>
+    <AssemblyVersion>$(PluginVersion)</AssemblyVersion>
+    <FileVersion>$(PluginVersion)</FileVersion>
+    <MinPluginSdkVersion>1.0.0</MinPluginSdkVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.Plugin.Generators" Version="1.0.0" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <PackageReference Include="Avalonia.Plugin.Shared" Version="1.0.0" PrivateAssets="all" />
+    <PackageReference Include="Avalonia.Plugin.Generators" Version="$(PluginSdkVersion)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <PackageReference Include="Avalonia.Plugin.Shared" Version="$(PluginSdkVersion)" PrivateAssets="all" />
   </ItemGroup>
 </Project>

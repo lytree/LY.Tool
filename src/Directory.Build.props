@@ -1,5 +1,11 @@
 <Project>
+    <!-- 链式继承仓库根真相源：HostVersion / PluginSdkVersion -->
+    <!-- src/ 的父目录即仓库根，用相对路径拼接避免属性函数引号嵌套问题 -->
+    <Import Project="$(MSBuildThisFileDirectory)../Directory.Build.props"
+            Condition="Exists('$(MSBuildThisFileDirectory)../Directory.Build.props')" />
+
     <Import Project="Environment.props" />
+
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -7,5 +13,17 @@
         <NullabilityInfoContextSupport>True</NullabilityInfoContextSupport>
         <ErrorOnDuplicatePublishOutputFiles>False</ErrorOnDuplicatePublishOutputFiles>
         <CheckEolWorkloads>false</CheckEolWorkloads>
+    </PropertyGroup>
+
+    <!--
+        主机程序集版本绑定（Launcher / UI / Platforms.Abstractions / Platforms.*）
+        SDK 项目（Generators / Shared）通过 csproj 内 <IsPluginSdkProject>true</IsPluginSdkProject>
+        覆盖为 $(PluginSdkVersion)，不在此处统一。
+        Version / AssemblyVersion / FileVersion 三件套同步，确保运行时 Assembly.GetName().Version 可用。
+    -->
+    <PropertyGroup Condition="'$(IsPluginSdkProject)' != 'true'">
+        <Version>$(HostVersion)</Version>
+        <AssemblyVersion>$(HostVersion)</AssemblyVersion>
+        <FileVersion>$(HostVersion)</FileVersion>
     </PropertyGroup>
 </Project>

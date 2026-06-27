@@ -213,7 +213,8 @@ public class PluginInstallationManager : IPluginInstallationManager
                     Description = manifest.Description ?? string.Empty,
                     Dependencies = manifest.Dependencies ?? [],
                     AssemblyPath = manifest.Assembly ?? string.Empty,
-                    HasMetadata = !string.IsNullOrEmpty(manifest.PluginId)
+                    HasMetadata = !string.IsNullOrEmpty(manifest.PluginId),
+                    MinPluginSdkVersion = manifest.MinPluginSdkVersion
                 };
             }
         }

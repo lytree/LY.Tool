@@ -9,6 +9,11 @@
 		<PluginName>ProDataGrid Plugin</PluginName>
 		<PluginAuthor>AvaloniaPlugin</PluginAuthor>
 		<PluginDescription>ProDataGrid advanced data grid controls demo plugin</PluginDescription>
+		<PluginVersion>1.0.0</PluginVersion>
+		<Version>$(PluginVersion)</Version>
+		<AssemblyVersion>$(PluginVersion)</AssemblyVersion>
+		<FileVersion>$(PluginVersion)</FileVersion>
+		<MinPluginSdkVersion>1.0.0</MinPluginSdkVersion>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Update="Resources\Strings.Designer.cs">
@@ -19,8 +24,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Avalonia.Plugin.Generators" Version="1.0.0" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-		<PackageReference Include="Avalonia.Plugin.Shared" Version="1.0.0" PrivateAssets="all" />
+		<PackageReference Include="Avalonia.Plugin.Generators" Version="$(PluginSdkVersion)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<PackageReference Include="Avalonia.Plugin.Shared" Version="$(PluginSdkVersion)" PrivateAssets="all" />
 		<PackageReference Include="ProDataGrid" Version="12.0.0" />
 		<PackageReference Include="SkiaSharp" Version="3.119.4" />
 	</ItemGroup>

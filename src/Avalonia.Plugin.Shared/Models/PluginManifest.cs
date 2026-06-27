@@ -21,4 +21,11 @@ public class PluginManifest
     public string? State { get; set; }
     public DateTime? InstallTime { get; set; }
     public bool IsBuiltIn { get; set; }
+
+    /// <summary>
+    /// 该插件所需的最低 Plugin SDK 契约版本。
+    /// 缺省时视为 "0.0.0"（向后兼容未声明版本要求的旧插件）。
+    /// 主体程序加载时与 PluginSdkContract.CurrentVersion 比对，不满足则拒绝加载。
+    /// </summary>
+    public string? MinPluginSdkVersion { get; set; }
 }

@@ -40,7 +40,18 @@ public class BuildContext : FrostingContext
 {
     public BuildTarget Target { get; }
     public string BuildConfiguration { get; }
-    public string PackageVersion { get; }
+
+    // 三层独立版本覆盖：留空时由 csproj 真相源（HostVersion / PluginSdkVersion / PluginVersion）决定
+    public string? HostVersionOverride { get; }
+    public string? PluginSdkVersionOverride { get; }
+    public string? PluginVersionOverride { get; }
+
+    // 兼容回退：显式传 --package-version 时覆盖所有层（紧急发版用）
+    public string? PackageVersion { get; }
+
+    // 插件过滤：--plugin=<Name> 只构建匹配的插件（逗号分隔多个）
+    public string? PluginFilter { get; }
+
     public string NuGetSource { get; }
     public string NuGetApiKey { get; }
     public string RuntimeIdentifier { get; }
@@ -57,12 +68,63 @@ public class BuildContext : FrostingContext
     public string LauncherProject { get; }
     public IReadOnlyList<PluginProjectInfo> PluginProjects { get; }
 
-    public DotNetMSBuildSettings CreateMSBuildSettings()
+    // 主机程序集版本覆盖（优先级：--host-version > --package-version > csproj 真相源）
+    public DotNetMSBuildSettings CreateHostMSBuildSettings()
+    {
+        var settings = BaseSettings();
+        if (!string.IsNullOrEmpty(HostVersionOverride))
+            settings.SetVersion(HostVersionOverride);
+        else if (!string.IsNullOrEmpty(PackageVersion))
+            settings.SetVersion(PackageVersion);
+        return settings;
+    }
+
+    // 插件 SDK 版本覆盖（优先级：--sdk-version > --package-version > csproj 真相源）
+    public DotNetMSBuildSettings CreateSdkMSBuildSettings()
+    {
+        var settings = BaseSettings();
+        if (!string.IsNullOrEmpty(PluginSdkVersionOverride))
+            settings.SetVersion(PluginSdkVersionOverride);
+        else if (!string.IsNullOrEmpty(PackageVersion))
+            settings.SetVersion(PackageVersion);
+        return settings;
+    }
+
+    // 插件版本覆盖（优先级：--plugin-version > --package-version > csproj <PluginVersion>）
+    // 关键修复：移除 .WithProperty("PackageVersion", ...)，避免覆盖 csproj 内 <Version>$(PluginVersion)</Version>
+    public DotNetMSBuildSettings CreatePluginMSBuildSettings(PluginProjectInfo plugin)
+    {
+        var settings = BaseSettings()
+            .WithProperty("IsPluginProject", "true")
+            .WithProperty("PluginId", plugin.PluginId)
+            .WithProperty("PluginName", $"\"{plugin.PluginName}\"")
+            .WithProperty("PluginAuthor", plugin.PluginAuthor)
+            .WithProperty("PluginDescription", $"\"{plugin.PluginDescription}\"");
+
+        if (!string.IsNullOrEmpty(PluginVersionOverride))
+            settings.SetVersion(PluginVersionOverride);
+        else if (!string.IsNullOrEmpty(PackageVersion))
+            settings.SetVersion(PackageVersion);
+        // 否则：不设 Version，让 csproj <Version>$(PluginVersion)</Version> 生效
+        return settings;
+    }
+
+    private DotNetMSBuildSettings BaseSettings()
     {
         return new DotNetMSBuildSettings()
-            .SetVersion(PackageVersion)
             .SetConfiguration(BuildConfiguration)
             .WithProperty("ContinuousIntegrationBuild", "true");
+    }
+
+    // 计算插件最终版本：--plugin-version > --package-version > csproj <PluginVersion>
+    // 用于 zip 命名和 plugin.json manifest，确保产物名与运行时版本一致
+    public string GetEffectivePluginVersion(PluginProjectInfo plugin)
+    {
+        if (!string.IsNullOrEmpty(PluginVersionOverride))
+            return PluginVersionOverride;
+        if (!string.IsNullOrEmpty(PackageVersion))
+            return PackageVersion;
+        return plugin.PluginVersion;
     }
 
     public BuildContext(ICakeContext context)
@@ -70,7 +132,12 @@ public class BuildContext : FrostingContext
     {
         Target = ParseBuildTarget(context.Argument("build", "all"));
         BuildConfiguration = context.Argument("configuration", "Release");
-        PackageVersion = context.Argument("package-version", "1.0.0");
+        HostVersionOverride = context.Argument("host-version", "");
+        PluginSdkVersionOverride = context.Argument("sdk-version", "");
+        PluginVersionOverride = context.Argument("plugin-version", "");
+        // 默认空：不覆盖，让 csproj 真相源生效；传值则全覆盖（兼容旧用法）
+        PackageVersion = context.Argument("package-version", "");
+        PluginFilter = context.Argument("plugin", "");
         NuGetSource = context.Argument("nuget-source", "https://api.nuget.org/v3/index.json");
         NuGetApiKey = context.Argument("nuget-api-key", "");
         RuntimeIdentifier = context.Argument("runtime-identifier", "");
@@ -86,7 +153,24 @@ public class BuildContext : FrostingContext
         SharedProject = Path.Combine(RootDir, "src", "Avalonia.Plugin.Shared", "Avalonia.Plugin.Shared.csproj");
         LauncherProject = Path.Combine(RootDir, "src", "launcher", "Avalonia.Launcher.Desktop", "Avalonia.Launcher.Desktop.csproj");
 
-        PluginProjects = DiscoverPlugins(RootDir);
+        PluginProjects = FilterPlugins(DiscoverPlugins(RootDir), PluginFilter);
+    }
+
+    private static IReadOnlyList<PluginProjectInfo> FilterPlugins(IReadOnlyList<PluginProjectInfo> all, string? filter)
+    {
+        if (string.IsNullOrWhiteSpace(filter))
+            return all;
+
+        var names = new HashSet<string>(
+            filter.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+            StringComparer.OrdinalIgnoreCase);
+
+        var matched = all.Where(p => names.Contains(p.ProjectName)).ToList();
+        if (matched.Count == 0)
+            throw new InvalidOperationException(
+                $"--plugin 过滤无匹配项 '{filter}'。可用插件：{string.Join(", ", all.Select(p => p.ProjectName))}");
+
+        return matched;
     }
 
     private static IReadOnlyList<PluginProjectInfo> DiscoverPlugins(string rootDir)
@@ -110,9 +194,10 @@ public class BuildContext : FrostingContext
             var pluginVersion = doc.Descendants("PluginVersion").FirstOrDefault()?.Value
                              ?? doc.Descendants("Version").FirstOrDefault()?.Value
                              ?? "1.0.0";
+            var minPluginSdkVersion = doc.Descendants("MinPluginSdkVersion").FirstOrDefault()?.Value ?? "0.0.0";
 
             plugins.Add(new PluginProjectInfo(
-                projectName, pluginId, pluginName, pluginVersion, pluginAuthor, pluginDescription));
+                projectName, pluginId, pluginName, pluginVersion, pluginAuthor, pluginDescription, minPluginSdkVersion));
         }
 
         return plugins;
@@ -145,7 +230,8 @@ public record PluginProjectInfo(
     string PluginName,
     string PluginVersion,
     string PluginAuthor,
-    string PluginDescription)
+    string PluginDescription,
+    string MinPluginSdkVersion)
 {
     public string ProjectPath(string rootDir) => Path.Combine(rootDir, "plugins", ProjectName, $"{ProjectName}.csproj");
 }
@@ -210,18 +296,19 @@ public sealed class BuildTask : FrostingTask<BuildContext>
 {
     public override void Run(BuildContext context)
     {
-        var msBuildSettings = context.CreateMSBuildSettings();
+        // SDK 层：Generators + Shared 用 PluginSdkVersion
+        var sdkSettings = context.CreateSdkMSBuildSettings();
 
         context.DotNetBuild(context.GeneratorsProject, new DotNetBuildSettings
         {
             Configuration = context.BuildConfiguration,
-            MSBuildSettings = msBuildSettings
+            MSBuildSettings = sdkSettings
         });
 
         context.DotNetBuild(context.SharedProject, new DotNetBuildSettings
         {
             Configuration = context.BuildConfiguration,
-            MSBuildSettings = msBuildSettings
+            MSBuildSettings = sdkSettings
         });
 
         if (context.Target.HasFlag(BuildTarget.NuGet))
@@ -233,7 +320,7 @@ public sealed class BuildTask : FrostingTask<BuildContext>
                 Configuration = context.BuildConfiguration,
                 OutputDirectory = context.NuGetPackagesDir,
                 NoBuild = true,
-                MSBuildSettings = msBuildSettings
+                MSBuildSettings = sdkSettings
             });
 
             context.DotNetPack(context.SharedProject, new DotNetPackSettings
@@ -241,32 +328,29 @@ public sealed class BuildTask : FrostingTask<BuildContext>
                 Configuration = context.BuildConfiguration,
                 OutputDirectory = context.NuGetPackagesDir,
                 NoBuild = true,
-                MSBuildSettings = msBuildSettings
+                MSBuildSettings = sdkSettings
             });
 
             context.Log.Information("Plugin NuGet packages created in: {0}", context.NuGetPackagesDir);
         }
 
+        // 主机层：Launcher 用 HostVersion
         if (context.Target.HasFlag(BuildTarget.Bin))
         {
+            var hostSettings = context.CreateHostMSBuildSettings();
             context.DotNetBuild(context.LauncherProject, new DotNetBuildSettings
             {
                 Configuration = context.BuildConfiguration,
-                MSBuildSettings = msBuildSettings
+                MSBuildSettings = hostSettings
             });
         }
 
+        // 插件层：各插件用自己的 PluginVersion（不再被 PackageVersion 覆盖）
         if (context.Target.HasFlag(BuildTarget.Plugin))
         {
             foreach (var plugin in context.PluginProjects)
             {
-                var pluginMsBuild = context.CreateMSBuildSettings()
-                    .WithProperty("IsPluginProject", "true")
-                    .WithProperty("PluginId", plugin.PluginId)
-                    .WithProperty("PluginName", $"\"{plugin.PluginName}\"")
-                    .WithProperty("PackageVersion", plugin.PluginVersion)
-                    .WithProperty("PluginAuthor", plugin.PluginAuthor)
-                    .WithProperty("PluginDescription", $"\"{plugin.PluginDescription}\"");
+                var pluginMsBuild = context.CreatePluginMSBuildSettings(plugin);
 
                 context.DotNetBuild(plugin.ProjectPath(context.RootDir), new DotNetBuildSettings
                 {
@@ -330,7 +414,7 @@ public sealed class PackNuGetTask : FrostingTask<BuildContext>
     {
         context.EnsureDirectoryExists(context.NuGetPackagesDir);
 
-        var msBuildSettings = context.CreateMSBuildSettings();
+        var msBuildSettings = context.CreateSdkMSBuildSettings();
 
         context.DotNetPack(context.GeneratorsProject, new DotNetPackSettings
         {
@@ -429,13 +513,7 @@ public sealed class PackPluginsTask : FrostingTask<BuildContext>
             var pluginOutputDir = Path.Combine(context.PluginPackagesDir, plugin.ProjectName, "publish");
             context.EnsureDirectoryExists(pluginOutputDir);
 
-            var pluginMsBuild = context.CreateMSBuildSettings()
-                .WithProperty("IsPluginProject", "true")
-                .WithProperty("PluginId", plugin.PluginId)
-                .WithProperty("PluginName", $"\"{plugin.PluginName}\"")
-                .WithProperty("PackageVersion", plugin.PluginVersion)
-                .WithProperty("PluginAuthor", plugin.PluginAuthor)
-                .WithProperty("PluginDescription", $"\"{plugin.PluginDescription}\"");
+            var pluginMsBuild = context.CreatePluginMSBuildSettings(plugin);
 
             context.DotNetPublish(plugin.ProjectPath(context.RootDir), new DotNetPublishSettings
             {
@@ -467,9 +545,10 @@ public sealed class PackPluginsTask : FrostingTask<BuildContext>
                 continue;
             }
 
-            EnsurePluginManifest(publishDir, plugin);
+            EnsurePluginManifest(publishDir, plugin, context);
 
-            var zipPath = Path.Combine(zipOutputDir, $"{plugin.ProjectName}-{plugin.PluginVersion}.zip");
+            var effectiveVersion = context.GetEffectivePluginVersion(plugin);
+            var zipPath = Path.Combine(zipOutputDir, $"{plugin.ProjectName}-{effectiveVersion}.zip");
 
             if (File.Exists(zipPath))
             {
@@ -504,7 +583,7 @@ public sealed class PackPluginsTask : FrostingTask<BuildContext>
         context.Log.Information("All plugin zip packages created in: {0}", zipOutputDir);
     }
 
-    private static void EnsurePluginManifest(string publishDir, PluginProjectInfo plugin)
+    private static void EnsurePluginManifest(string publishDir, PluginProjectInfo plugin, BuildContext context)
     {
         var manifestPath = Path.Combine(publishDir, "plugin.json");
         if (File.Exists(manifestPath)) return;
@@ -522,14 +601,17 @@ public sealed class PackPluginsTask : FrostingTask<BuildContext>
             catch { }
         }
 
+        var effectiveVersion = context.GetEffectivePluginVersion(plugin);
+
         var json = $@"{{
   ""pluginId"": ""{plugin.PluginId}"",
   ""name"": ""{plugin.PluginName}"",
-  ""version"": ""{plugin.PluginVersion}"",
+  ""version"": ""{effectiveVersion}"",
   ""author"": ""{plugin.PluginAuthor}"",
   ""description"": ""{plugin.PluginDescription}"",
   ""assembly"": ""{assemblyName}.dll"",
-  ""dependencies"": []
+  ""dependencies"": [],
+  ""minPluginSdkVersion"": ""{plugin.MinPluginSdkVersion}""
 }}";
         File.WriteAllText(manifestPath, json);
     }

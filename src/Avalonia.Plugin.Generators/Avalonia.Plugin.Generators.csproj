@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
 		<LangVersion>latest</LangVersion>
@@ -10,8 +10,12 @@
 		<DevelopmentDependency>true</DevelopmentDependency>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<IsPluginSdkProject>true</IsPluginSdkProject>
 		<PackageId>Avalonia.Plugin.Generators</PackageId>
-		<Version>1.0.0</Version>
+		<!-- SDK 版本绑定：覆盖 src/Directory.Build.props 的 HostVersion，改用 PluginSdkVersion -->
+		<Version>$(PluginSdkVersion)</Version>
+		<AssemblyVersion>$(PluginSdkVersion)</AssemblyVersion>
+		<FileVersion>$(PluginSdkVersion)</FileVersion>
 		<Description>Avalonia plugin source generator for metadata generation.</Description>
 		<Authors>AvaloniaPlugin</Authors>
 		<PackageTags>avalonia;plugin;generator;source-generator</PackageTags>

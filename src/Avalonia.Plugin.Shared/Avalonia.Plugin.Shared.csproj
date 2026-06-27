@@ -6,8 +6,12 @@
 		<Nullable>enable</Nullable>
 		<OutputType>Library</OutputType>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<IsPluginSdkProject>true</IsPluginSdkProject>
 		<PackageId>Avalonia.Plugin.Shared</PackageId>
-		<Version>1.0.0</Version>
+		<!-- SDK 版本绑定：覆盖 src/Directory.Build.props 的 HostVersion，改用 PluginSdkVersion -->
+		<Version>$(PluginSdkVersion)</Version>
+		<AssemblyVersion>$(PluginSdkVersion)</AssemblyVersion>
+		<FileVersion>$(PluginSdkVersion)</FileVersion>
 		<Description>Shared library for Avalonia plugin development, including controls, converters, and services.</Description>
 		<Authors>AvaloniaPlugin</Authors>
 		<PackageTags>avalonia;plugin;shared;controls;mvvm</PackageTags>
@@ -32,5 +36,30 @@
 		<None Include="buildTransitive\Avalonia.Plugin.Shared.props" Pack="true" PackagePath="buildTransitive\net10.0\Avalonia.Plugin.Shared.props" />
 		<None Include="buildTransitive\Avalonia.Plugin.Shared.targets" Pack="true" PackagePath="buildTransitive\net10.0\Avalonia.Plugin.Shared.targets" />
 	</ItemGroup>
+
+	<!--
+		生成 PluginSdkContract.g.cs：编译时把 PluginSdkVersion 嵌入程序集。
+		主体程序通过 PackageReference 引用本程序集，运行时读 PluginSdkContract.CurrentVersion
+		获得当前 SDK 契约版本，用于校验插件 MinPluginSdkVersion。
+		文件输出到 obj/ 避免污染源码树。
+	-->
+	<Target Name="GeneratePluginSdkContract" BeforeTargets="CoreCompile">
+		<ItemGroup>
+			<_PluginSdkContractLines Include="// &lt;auto-generated /&gt;" />
+			<_PluginSdkContractLines Include="namespace Avalonia.Plugin.Shared%3B" />
+			<_PluginSdkContractLines Include="/// &lt;summary&gt;" />
+			<_PluginSdkContractLines Include="/// 当前宿主链接的 Plugin SDK 契约版本。编译时由 $(PluginSdkVersion) 注入。" />
+			<_PluginSdkContractLines Include="/// 插件通过 plugin.json 的 minPluginSdkVersion 声明所需最低版本，主体程序加载时与此常量比对。" />
+			<_PluginSdkContractLines Include="/// &lt;/summary&gt;" />
+			<_PluginSdkContractLines Include="public static class PluginSdkContract" />
+			<_PluginSdkContractLines Include="{" />
+			<_PluginSdkContractLines Include='    public const string CurrentVersion = "$(PluginSdkVersion)"%3B' />
+			<_PluginSdkContractLines Include="}" />
+		</ItemGroup>
+		<WriteLinesToFile File="$(IntermediateOutputPath)PluginSdkContract.g.cs" Lines="@(_PluginSdkContractLines)" Overwrite="true" Encoding="UTF-8" />
+		<ItemGroup>
+			<Compile Include="$(IntermediateOutputPath)PluginSdkContract.g.cs" />
+		</ItemGroup>
+	</Target>
 
 </Project>

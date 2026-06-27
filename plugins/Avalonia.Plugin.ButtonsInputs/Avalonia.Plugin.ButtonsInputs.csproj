@@ -9,6 +9,11 @@
 		<PluginName>Buttons &amp; Inputs Plugin</PluginName>
 		<PluginAuthor>AvaloniaPlugin</PluginAuthor>
 		<PluginDescription>UI component library for buttons and input controls</PluginDescription>
+		<PluginVersion>1.0.0</PluginVersion>
+		<Version>$(PluginVersion)</Version>
+		<AssemblyVersion>$(PluginVersion)</AssemblyVersion>
+		<FileVersion>$(PluginVersion)</FileVersion>
+		<MinPluginSdkVersion>1.0.0</MinPluginSdkVersion>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Update="Resources\Strings.Designer.cs">
@@ -19,7 +24,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Avalonia.Plugin.Generators" Version="1.0.0" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-		<PackageReference Include="Avalonia.Plugin.Shared" Version="1.0.0" PrivateAssets="all" />
+		<PackageReference Include="Avalonia.Plugin.Generators" Version="$(PluginSdkVersion)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<PackageReference Include="Avalonia.Plugin.Shared" Version="$(PluginSdkVersion)" PrivateAssets="all" />
 	</ItemGroup>
 </Project>

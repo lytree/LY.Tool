@@ -1,0 +1,15 @@
+<Project>
+    <!--
+        仓库级版本真相源：三层独立版本控制
+        HostVersion       主体程序 Launcher UI Platforms 的业务版本
+        PluginSdkVersion  插件 SDK Generators Shared 的 API 契约版本，是插件兼容性依据
+        插件版本           各插件 csproj 内 PluginVersion 自行声明，不在此处统一
+
+        发版时只改这一处即可分别 bump 主机 或 SDK；插件版本在各插件 csproj 内修改。
+        build.ps1 仍可传 host-version / sdk-version / plugin-version 参数临时覆盖。
+    -->
+    <PropertyGroup>
+        <HostVersion>2.1.0</HostVersion>
+        <PluginSdkVersion>1.3.0</PluginSdkVersion>
+    </PropertyGroup>
+</Project>
