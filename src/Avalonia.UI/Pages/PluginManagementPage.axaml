@@ -68,11 +68,20 @@
                                                 CommandParameter="{Binding}"
                                                 IsVisible="{Binding CanUninstall}"
                                                 Classes="WinUISubtle small"/>
+                                        <Button Content="{DynamicResource CANCEL_UPGRADE}"
+                                                Command="{Binding $parent[UserControl].DataContext.CancelUpgradeCommand}"
+                                                CommandParameter="{Binding}"
+                                                IsVisible="{Binding CanCancelUpgrade}"
+                                                Classes="WinUISubtle small"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="16" Margin="0 4 0 0">
                                         <TextBlock FontSize="12" Classes="WinUICaption">
                                             <Run Text="{DynamicResource VERSION_LABEL}"/><Run Text="{Binding Version}"/>
+                                        </TextBlock>
+                                        <TextBlock FontSize="12" Classes="WinUICaption"
+                                                   IsVisible="{Binding PendingUpgradeVersion, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                            <Run Text="{DynamicResource PENDING_VERSION_LABEL}"/><Run Text="{Binding PendingUpgradeVersion}"/>
                                         </TextBlock>
                                         <TextBlock FontSize="12" Classes="WinUICaption">
                                             <Run Text="{DynamicResource AUTHOR_LABEL}"/><Run Text="{Binding Author}"/>

@@ -33,8 +33,13 @@ public class PluginLoader : IPluginLoader, IDisposable
         _pluginsDirectory = pluginsDirectory ?? Path.Combine(AppContext.BaseDirectory, "plugins");
         _extraPluginPath = Environment.GetEnvironmentVariable(ExtraPluginEnvironmentVariableName);
         Directory.CreateDirectory(_pluginsDirectory);
+        // 顺序：先迁移待升级（可能覆盖 plugins/{PluginId}/ 整个目录），再处理待卸载，
+        // 最后扫描 manifests。任何 .pending 目录都不应被后续两步误识别为插件目录
+        // （其根目录无 plugin.json，故 LoadAllPluginManifests/ProcessPendingUninstalls 会自动跳过）。
+        ProcessPendingUpgrades();
         ProcessPendingUninstalls();
         LoadAllPluginManifests();
+        RestorePendingUpgradeStates();
     }
 
     public IReadOnlyList<PluginInfo> GetInstalledPlugins()
@@ -596,6 +601,404 @@ public class PluginLoader : IPluginLoader, IDisposable
         catch (Exception ex)
         {
             Console.WriteLine($"Failed to load extra plugin from '{dllPath}': {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 应用启动早期：扫描 plugins/.pending/*.upgrade.json，逐个完成"先复制后删除"安全迁移。
+    /// 实现依据：docs/Plugin-Upgrade-Evaluation.md
+    ///   - 潜在问题 2：先复制后删除，每步失败可回滚
+    ///   - 潜在问题 3：多插件同时待升级，逐个处理，单个失败不影响其他
+    ///   - 潜在问题 5：迁移前再次 IsPluginSdkCompatible 校验，不兼容则保留旧版本
+    ///   - 潜在问题 6：.upgrade.json 存在但 .new/ 缺失 → 告警并清理
+    ///   - 潜在问题 4：状态合并（PreserveState=true 时迁移旧 manifest 的 State 到新 manifest）
+    /// </summary>
+    private void ProcessPendingUpgrades()
+    {
+        var pendingDir = Path.Combine(_pluginsDirectory, ".pending");
+        if (!Directory.Exists(pendingDir)) return;
+
+        foreach (var upgradeJson in Directory.GetFiles(pendingDir, "*.upgrade.json"))
+        {
+            try
+            {
+                ProcessSinglePendingUpgrade(upgradeJson, pendingDir);
+            }
+            catch (Exception ex)
+            {
+                // 单个失败不影响其他插件
+                Console.WriteLine($"[PluginUpgrade] Failed to process '{upgradeJson}': {ex.Message}");
+            }
+        }
+    }
+
+    private void ProcessSinglePendingUpgrade(string upgradeJsonPath, string pendingDir)
+    {
+        var json = File.ReadAllText(upgradeJsonPath);
+        var info = JsonSerializer.Deserialize<PendingUpgradeInfo>(json, JsonOptions);
+        if (info == null || string.IsNullOrEmpty(info.PluginId))
+        {
+            Console.WriteLine($"[PluginUpgrade] Invalid upgrade json '{upgradeJsonPath}', deleting.");
+            TryDeleteFile(upgradeJsonPath);
+            return;
+        }
+
+        var pluginId = info.PluginId;
+        var newVersionDir = info.NewVersionPath;
+        if (string.IsNullOrEmpty(newVersionDir))
+        {
+            // 兼容旧字段：回退到约定路径
+            newVersionDir = Path.Combine(pendingDir, $"{pluginId}.new");
+        }
+
+        // 潜在问题 6：.new/ 缺失 → 告警并清理 .upgrade.json
+        if (!Directory.Exists(newVersionDir))
+        {
+            Console.WriteLine($"[PluginUpgrade] '{pluginId}': new version directory '{newVersionDir}' missing. " +
+                              "Clearing stale upgrade marker. Old version will be kept.");
+            TryDeleteFile(upgradeJsonPath);
+            return;
+        }
+
+        var targetDir = Path.Combine(_pluginsDirectory, pluginId);
+        var stagingDir = targetDir + ".new";
+        var oldBackupDir = targetDir + ".old";
+
+        // 清理可能残留的临时目录（上次失败留下的）
+        TryDeleteDirectory(stagingDir);
+        TryDeleteDirectory(oldBackupDir);
+
+        // 潜在问题 5：迁移前再次 SDK 校验，若失败保留旧版本，仅清理 .pending/
+        if (!TryValidateSdkCompatibility(newVersionDir, out var newManifest, out var sdkError))
+        {
+            Console.WriteLine($"[PluginUpgrade] '{pluginId}': new version is SDK-incompatible ({sdkError}). " +
+                              "Keeping old version. Cleaning .pending/.");
+            TryDeleteDirectory(newVersionDir);
+            TryDeleteFile(upgradeJsonPath);
+            return;
+        }
+
+        // ============== 安全迁移顺序：先复制后删除 ==============
+        // 步骤 1：复制 .pending/{PluginId}.new/ → plugins/{PluginId}.new/
+        try
+        {
+            CopyDirectory(newVersionDir, stagingDir);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[PluginUpgrade] '{pluginId}': step 1 (copy to staging) failed: {ex.Message}");
+            TryDeleteDirectory(stagingDir);
+            // 旧版本未触碰，保持原状，仅清理 .pending
+            TryDeleteDirectory(newVersionDir);
+            TryDeleteFile(upgradeJsonPath);
+            return;
+        }
+
+        // 步骤 2：重命名 plugins/{PluginId}/ → plugins/{PluginId}.old/
+        // 若旧版本不存在（首次安装被误标为升级），跳过此步。
+        var oldManifestExists = Directory.Exists(targetDir) && File.Exists(Path.Combine(targetDir, "plugin.json"));
+        if (oldManifestExists)
+        {
+            try
+            {
+                Directory.Move(targetDir, oldBackupDir);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[PluginUpgrade] '{pluginId}': step 2 (rename old → .old) failed: {ex.Message}");
+                // 回滚步骤 1
+                TryDeleteDirectory(stagingDir);
+                TryDeleteDirectory(newVersionDir);
+                TryDeleteFile(upgradeJsonPath);
+                return;
+            }
+        }
+
+        // 步骤 3：重命名 plugins/{PluginId}.new/ → plugins/{PluginId}/
+        try
+        {
+            Directory.Move(stagingDir, targetDir);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[PluginUpgrade] '{pluginId}': step 3 (rename staging → target) failed: {ex.Message}");
+            // 回滚：把 .old 移回原位
+            if (oldManifestExists)
+            {
+                try { Directory.Move(oldBackupDir, targetDir); }
+                catch (Exception rollbackEx)
+                {
+                    Console.WriteLine($"[PluginUpgrade] '{pluginId}': FATAL rollback failed: {rollbackEx.Message}. " +
+                                      $"Old version preserved at '{oldBackupDir}'.");
+                }
+            }
+            TryDeleteDirectory(stagingDir);
+            TryDeleteDirectory(newVersionDir);
+            TryDeleteFile(upgradeJsonPath);
+            return;
+        }
+
+        // 步骤 4：删除 .old/
+        if (oldManifestExists)
+        {
+            try
+            {
+                Directory.Delete(oldBackupDir, true);
+            }
+            catch (Exception ex)
+            {
+                // 非致命：新版本已就位，旧版本残留 .old 不会影响加载
+                Console.WriteLine($"[PluginUpgrade] '{pluginId}': step 4 (delete .old) failed (non-fatal): {ex.Message}");
+            }
+        }
+
+        // 步骤 5：状态合并 —— 把旧 manifest 的 State 字段写到新 manifest
+        if (info.PreserveState && newManifest != null)
+        {
+            try
+            {
+                ApplyPreservedState(targetDir, newManifest, info);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[PluginUpgrade] '{pluginId}': state merge failed (non-fatal): {ex.Message}");
+            }
+        }
+
+        // 步骤 6：清理 .pending/{PluginId}.new/ 和 .upgrade.json
+        TryDeleteDirectory(newVersionDir);
+        TryDeleteFile(upgradeJsonPath);
+
+        Console.WriteLine($"[PluginUpgrade] '{pluginId}': successfully upgraded to v{info.NewVersion}.");
+    }
+
+    /// <summary>
+    /// 读取新版本 plugin.json，校验 MinPluginSdkVersion 与当前宿主是否兼容。
+    /// </summary>
+    private bool TryValidateSdkCompatibility(string newVersionDir, out PluginManifest? manifest, out string error)
+    {
+        manifest = null;
+        error = string.Empty;
+        var manifestPath = Path.Combine(newVersionDir, "plugin.json");
+        if (!File.Exists(manifestPath))
+        {
+            error = "plugin.json not found in new version";
+            return false;
+        }
+
+        var json = File.ReadAllText(manifestPath);
+        manifest = JsonSerializer.Deserialize<PluginManifest>(json, JsonOptions);
+        if (manifest == null)
+        {
+            error = "plugin.json is invalid";
+            return false;
+        }
+
+        if (!IsPluginSdkCompatible(manifest.MinPluginSdkVersion))
+        {
+            var required = string.IsNullOrWhiteSpace(manifest.MinPluginSdkVersion) ? "0.0.0" : manifest.MinPluginSdkVersion!;
+            error = $"requires Plugin SDK >= {required}, host provides {PluginSdkContract.CurrentVersion}";
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// 状态合并：根据 .upgrade.json 的 OldStateToPreserve 字段，把新 manifest 的 State
+    /// 设置为旧状态（仅 Disabled/Installed 合法；Error/PendingUninstall 重置为 Installed）。
+    /// </summary>
+    private void ApplyPreservedState(string targetDir, PluginManifest newManifest, PendingUpgradeInfo info)
+    {
+        var preserved = info.OldStateToPreserve;
+        string finalState;
+
+        if (!string.IsNullOrEmpty(preserved) &&
+            Enum.TryParse<PluginState>(preserved, out var oldState))
+        {
+            finalState = oldState switch
+            {
+                PluginState.Disabled => nameof(PluginState.Disabled),
+                PluginState.Installed => nameof(PluginState.Installed),
+                PluginState.Loaded => nameof(PluginState.Installed), // 升级后必须重新加载，不能直接进 Loaded
+                _ => nameof(PluginState.Installed) // Error/PendingUninstall/PendingUpgrade 重置
+            };
+        }
+        else
+        {
+            finalState = nameof(PluginState.Installed);
+        }
+
+        newManifest.State = finalState;
+
+        // 保留旧 InstallTime（若新包未自带）
+        newManifest.InstallTime ??= info.ScheduledAt;
+
+        var manifestPath = Path.Combine(targetDir, "plugin.json");
+        var json = JsonSerializer.Serialize(newManifest, JsonOptions);
+        File.WriteAllText(manifestPath, json);
+    }
+
+    /// <summary>
+    /// 启动期：扫描所有插件目录，若某个 plugin.json 的 state=PendingUpgrade（说明上次运行时
+    /// 用户已调度升级但未重启即崩溃，且 .pending/ 还在），把对应 PluginInfo 状态恢复为 PendingUpgrade。
+    /// 这样 UI 能继续显示"待升级"并提供取消按钮。
+    /// </summary>
+    private void RestorePendingUpgradeStates()
+    {
+        // 在 LoadAllPluginManifests 之后调用：检查 .pending/*.upgrade.json 仍存在的插件，
+        // 把 _entries 中对应项的状态覆盖为 PendingUpgrade。
+        var pendingDir = Path.Combine(_pluginsDirectory, ".pending");
+        if (!Directory.Exists(pendingDir)) return;
+
+        foreach (var upgradeJson in Directory.GetFiles(pendingDir, "*.upgrade.json"))
+        {
+            try
+            {
+                var json = File.ReadAllText(upgradeJson);
+                var info = JsonSerializer.Deserialize<PendingUpgradeInfo>(json, JsonOptions);
+                if (info == null || string.IsNullOrEmpty(info.PluginId)) continue;
+
+                lock (_sync)
+                {
+                    if (_entries.TryGetValue(info.PluginId, out var entry))
+                    {
+                        var upgraded = entry.Info.WithPendingUpgrade(
+                            info.NewVersion,
+                            $"Upgrade to v{info.NewVersion} scheduled; restart to apply.") with
+                        { State = PluginState.PendingUpgrade };
+                        entry.Info = upgraded;
+                        InvalidateSnapshot();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[PluginUpgrade] Failed to restore pending state from '{upgradeJson}': {ex.Message}");
+            }
+        }
+    }
+
+    private static void TryDeleteFile(string path)
+    {
+        try { if (File.Exists(path)) File.Delete(path); }
+        catch (Exception ex) { Console.WriteLine($"[PluginUpgrade] Failed to delete file '{path}': {ex.Message}"); }
+    }
+
+    private static void TryDeleteDirectory(string path)
+    {
+        try { if (Directory.Exists(path)) Directory.Delete(path, true); }
+        catch (Exception ex) { Console.WriteLine($"[PluginUpgrade] Failed to delete directory '{path}': {ex.Message}"); }
+    }
+
+    private static void CopyDirectory(string sourceDir, string destDir)
+    {
+        Directory.CreateDirectory(destDir);
+        foreach (var file in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
+        {
+            var relative = Path.GetRelativePath(sourceDir, file);
+            var dest = Path.GetFullPath(Path.Combine(destDir, relative));
+            var dir = Path.GetDirectoryName(dest);
+            if (dir != null) Directory.CreateDirectory(dir);
+            File.Copy(file, dest, overwrite: true);
+        }
+    }
+
+    public void MarkPendingUpgrade(string pluginId, PendingUpgradeInfo info)
+    {
+        PluginInfo? newInfo = null;
+        lock (_sync)
+        {
+            if (!_entries.TryGetValue(pluginId, out var entry)) return;
+            if (entry.Info.IsBuiltIn) return;
+
+            newInfo = entry.Info.WithPendingUpgrade(
+                info.NewVersion,
+                $"Upgrade to v{info.NewVersion} scheduled; restart to apply.") with
+            { State = PluginState.PendingUpgrade };
+            entry.Info = newInfo;
+            SavePluginManifest(newInfo);
+            InvalidateSnapshot();
+        }
+
+        if (newInfo is not null)
+        {
+            PluginStateChanged?.Invoke(this, newInfo);
+        }
+    }
+
+    public bool CancelPendingUpgrade(string pluginId)
+    {
+        PluginInfo? restoredInfo = null;
+        bool cleared;
+
+        lock (_sync)
+        {
+            if (!_entries.TryGetValue(pluginId, out var entry)) return false;
+            if (entry.Info.State != PluginState.PendingUpgrade) return false;
+
+            // 计算恢复后的状态：升级前必然是 Loaded 或 Error（见 InstallationManager 调度条件）
+            // 这里无法精确还原 Loaded（程序集仍加载中），所以统一恢复为 Installed。
+            restoredInfo = entry.Info with
+            {
+                State = PluginState.Installed,
+                ErrorMessage = null,
+                PendingUpgradeVersion = null
+            };
+            entry.Info = restoredInfo;
+            SavePluginManifest(restoredInfo);
+            InvalidateSnapshot();
+        }
+
+        // 清理 .pending/{PluginId}.upgrade.json 与 .pending/{PluginId}.new/
+        var pendingDir = Path.Combine(_pluginsDirectory, ".pending");
+        var upgradeJson = Path.Combine(pendingDir, $"{pluginId}.upgrade.json");
+        var newVersionDir = Path.Combine(pendingDir, $"{pluginId}.new");
+        cleared = TryClearPending(upgradeJson, newVersionDir);
+
+        if (restoredInfo is not null)
+        {
+            PluginStateChanged?.Invoke(this, restoredInfo);
+        }
+        return cleared;
+    }
+
+    private static bool TryClearPending(string upgradeJson, string newVersionDir)
+    {
+        var any = false;
+        try
+        {
+            if (File.Exists(upgradeJson)) { File.Delete(upgradeJson); any = true; }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[PluginUpgrade] Failed to delete '{upgradeJson}': {ex.Message}");
+        }
+        try
+        {
+            if (Directory.Exists(newVersionDir)) { Directory.Delete(newVersionDir, true); any = true; }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[PluginUpgrade] Failed to delete '{newVersionDir}': {ex.Message}");
+        }
+        return any;
+    }
+
+    public PendingUpgradeInfo? GetPendingUpgrade(string pluginId)
+    {
+        var pendingDir = Path.Combine(_pluginsDirectory, ".pending");
+        var upgradeJson = Path.Combine(pendingDir, $"{pluginId}.upgrade.json");
+        if (!File.Exists(upgradeJson)) return null;
+
+        try
+        {
+            var json = File.ReadAllText(upgradeJson);
+            return JsonSerializer.Deserialize<PendingUpgradeInfo>(json, JsonOptions);
+        }
+        catch
+        {
+            return null;
         }
     }
 

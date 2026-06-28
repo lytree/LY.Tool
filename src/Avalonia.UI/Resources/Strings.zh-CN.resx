@@ -93,7 +93,9 @@
   <data name="ENABLE" xml:space="preserve"><value>启用</value></data>
   <data name="DISABLE" xml:space="preserve"><value>禁用</value></data>
   <data name="UNINSTALL" xml:space="preserve"><value>卸载</value></data>
+  <data name="CANCEL_UPGRADE" xml:space="preserve"><value>取消升级</value></data>
   <data name="VERSION_LABEL" xml:space="preserve"><value>版本：</value></data>
+  <data name="PENDING_VERSION_LABEL" xml:space="preserve"><value>待升级：</value></data>
   <data name="AUTHOR_LABEL" xml:space="preserve"><value>作者：</value></data>
   <data name="NO_PLUGINS_INSTALLED" xml:space="preserve"><value>没有已安装的插件</value></data>
   <data name="CLICK_INSTALL_PLUGIN" xml:space="preserve"><value>点击"安装插件"来添加新插件</value></data>
@@ -103,11 +105,14 @@
   <data name="STATE_INSTALLED" xml:space="preserve"><value>已安装</value></data>
   <data name="STATE_DISABLED" xml:space="preserve"><value>已禁用</value></data>
   <data name="STATE_PENDING_UNINSTALL" xml:space="preserve"><value>待卸载</value></data>
+  <data name="STATE_PENDING_UPGRADE" xml:space="preserve"><value>待升级</value></data>
   <data name="STATE_ERROR" xml:space="preserve"><value>错误</value></data>
   <data name="STATE_NOT_INSTALLED" xml:space="preserve"><value>未安装</value></data>
   <data name="PLUGIN_INSTALLED_SUCCESS" xml:space="preserve"><value>插件 '{0}' 安装成功</value></data>
   <data name="INSTALLATION_FAILED" xml:space="preserve"><value>安装失败：{0}</value></data>
   <data name="PLUGIN_UNINSTALL_AFTER_RESTART" xml:space="preserve"><value>插件 '{0}' 将在重启后卸载</value></data>
+  <data name="PLUGIN_UPGRADE_SCHEDULED" xml:space="preserve"><value>插件 '{0}' 升级已就绪，重启后生效</value></data>
+  <data name="PLUGIN_UPGRADE_CANCELLED" xml:space="preserve"><value>插件 '{0}' 升级已取消</value></data>
   <data name="SETTINGS_TITLE" xml:space="preserve"><value>设置</value></data>
   <data name="RESET" xml:space="preserve"><value>重置</value></data>
   <data name="SAVE" xml:space="preserve"><value>保存</value></data>

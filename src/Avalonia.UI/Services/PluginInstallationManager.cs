@@ -19,6 +19,7 @@ public class PluginInstallationManager : IPluginInstallationManager
 
     public event EventHandler<PluginInfo>? PluginInstalled;
     public event EventHandler<PluginInfo>? PluginUninstalled;
+    public event EventHandler<PluginInfo>? PluginUpgradeScheduled;
 
     public PluginInstallationManager(IPluginLoader pluginLoader, string? pluginsDirectory = null)
     {
@@ -121,18 +122,17 @@ public class PluginInstallationManager : IPluginInstallationManager
             var existingPlugin = _pluginLoader.GetPlugin(pluginInfo.PluginId);
             if (existingPlugin != null)
             {
-                // 修复 #8：本项目不支持热卸载（见 AGENTS.md）。已加载插件的 DLL 被进程锁定，
-                // 直接删除目录会失败（IOException）。需区分状态处理：
-                //   - Loaded/Error：拒绝覆盖安装，提示用户重启应用
-                //   - 其他状态：尝试删除旧目录
-                if (existingPlugin.State == PluginState.Loaded || existingPlugin.State == PluginState.Error)
+                // 修复 #8 / 升级方案（docs/Plugin-Upgrade-Evaluation.md）：
+                // 本项目不支持热卸载（见 AGENTS.md）。已加载插件的 DLL 被进程锁定，
+                // 直接删除目录会失败（IOException）。改为：
+                //   - Loaded/Error：调度升级（写入 .pending/，重启时迁移），不再拒绝
+                //   - PendingUpgrade：覆盖 .pending/，更新 .upgrade.json 版本号（潜在问题 7）
+                //   - 其他状态：尝试删除旧目录后正常安装
+                if (existingPlugin.State == PluginState.Loaded ||
+                    existingPlugin.State == PluginState.Error ||
+                    existingPlugin.State == PluginState.PendingUpgrade)
                 {
-                    return new PluginInstallResult
-                    {
-                        Success = false,
-                        ErrorMessage = $"Plugin '{existingPlugin.Name}' is currently loaded (state={existingPlugin.State}). " +
-                                       "Hot unload is not supported. Close the application, then run the installer again."
-                    };
+                    return await ScheduleUpgradeAsync(tempDir, pluginInfo, existingPlugin, progress);
                 }
 
                 var targetDir = GetPluginDirectory(pluginInfo.PluginId);
@@ -222,6 +222,130 @@ public class PluginInstallationManager : IPluginInstallationManager
 
         PluginUninstalled?.Invoke(this, pluginInfo);
         return Task.FromResult(true);
+    }
+
+    public Task<bool> CancelUpgradeAsync(string pluginId)
+    {
+        // 实现依据：docs/Plugin-Upgrade-Evaluation.md（潜在问题 1：重启前用户取消升级）
+        var cancelled = _pluginLoader.CancelPendingUpgrade(pluginId);
+        return Task.FromResult(cancelled);
+    }
+
+    /// <summary>
+    /// 调度升级：把新版本（已解压在 tempDir）搬到 plugins/.pending/{PluginId}.new/，
+    /// 写入 .upgrade.json，并通过 PluginLoader.MarkPendingUpgrade 把插件状态置为 PendingUpgrade。
+    ///
+    /// 实现依据：docs/Plugin-Upgrade-Evaluation.md
+    ///   - 潜在问题 7（并发安装与升级）：若 .pending/{PluginId}.upgrade.json 已存在，
+    ///     直接覆盖 .new/ 并更新 .upgrade.json 版本号，保证原子性。
+    /// </summary>
+    private async Task<PluginInstallResult> ScheduleUpgradeAsync(
+        string tempDir,
+        PluginInfo newPluginInfo,
+        PluginInfo existingPlugin,
+        IProgress<double>? progress)
+    {
+        var pendingDir = Path.Combine(_pluginsDirectory, ".pending");
+        Directory.CreateDirectory(pendingDir);
+
+        var newVersionDir = Path.Combine(pendingDir, $"{newPluginInfo.PluginId}.new");
+        var upgradeJsonPath = Path.Combine(pendingDir, $"{newPluginInfo.PluginId}.upgrade.json");
+
+        // 潜在问题 7：覆盖已存在的 .new/（用户连续点击两次升级）
+        if (Directory.Exists(newVersionDir))
+        {
+            try { Directory.Delete(newVersionDir, true); }
+            catch (Exception ex)
+            {
+                return new PluginInstallResult
+                {
+                    Success = false,
+                    ErrorMessage = $"Cannot overwrite previous pending upgrade at '{newVersionDir}': {ex.Message}"
+                };
+            }
+        }
+
+        // 把整个 tempDir 移动到 .pending/{PluginId}.new/（原子性高于复制）
+        try
+        {
+            Directory.Move(tempDir, newVersionDir);
+            // tempDir 已被 Move 走，finally 块的 Directory.Exists 检查会安全跳过
+        }
+        catch (Exception ex)
+        {
+            // 跨卷场景 Move 可能失败，回退到复制+删除
+            try
+            {
+                CopyDirectoryRecursive(tempDir, newVersionDir);
+            }
+            catch (Exception copyEx)
+            {
+                return new PluginInstallResult
+                {
+                    Success = false,
+                    ErrorMessage = $"Failed to stage new version for upgrade (move: {ex.Message}; copy: {copyEx.Message})"
+                };
+            }
+        }
+
+        progress?.Report(1.0);
+
+        // 写 .upgrade.json
+        var upgradeInfo = new PendingUpgradeInfo
+        {
+            PluginId = newPluginInfo.PluginId,
+            NewVersion = newPluginInfo.Version,
+            ScheduledAt = DateTime.UtcNow,
+            PreserveState = true,
+            // 记录旧状态：Loaded 时迁移后应回到 Installed（不能直接 Loaded，必须重新加载）；
+            // 其他状态按字面保留（仅 Disabled/Installed 合法）。
+            OldStateToPreserve = existingPlugin.State.ToString(),
+            NewVersionPath = newVersionDir
+        };
+
+        try
+        {
+            var json = JsonSerializer.Serialize(upgradeInfo, JsonOptions);
+            await File.WriteAllTextAsync(upgradeJsonPath, json);
+        }
+        catch (Exception ex)
+        {
+            // 回滚：删除已就位的新版本目录
+            try { Directory.Delete(newVersionDir, true); } catch { }
+            return new PluginInstallResult
+            {
+                Success = false,
+                ErrorMessage = $"Failed to write upgrade marker: {ex.Message}"
+            };
+        }
+
+        // 让 PluginLoader 把内存中的插件状态改为 PendingUpgrade 并保存 manifest
+        _pluginLoader.MarkPendingUpgrade(newPluginInfo.PluginId, upgradeInfo);
+
+        var scheduledInfo = _pluginLoader.GetPlugin(newPluginInfo.PluginId);
+        if (scheduledInfo != null)
+        {
+            PluginUpgradeScheduled?.Invoke(this, scheduledInfo);
+        }
+
+        return new PluginInstallResult
+        {
+            Success = true,
+            PluginInfo = scheduledInfo ?? newPluginInfo
+        };
+    }
+
+    private static void CopyDirectoryRecursive(string sourceDir, string destDir)
+    {
+        Directory.CreateDirectory(destDir);
+        foreach (var file in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
+        {
+            var relative = Path.GetRelativePath(sourceDir, file);
+            var dest = Path.GetFullPath(Path.Combine(destDir, relative));
+            var dir = Path.GetDirectoryName(dest);
+            if (dir != null) Directory.CreateDirectory(dir);
+            File.Copy(file, dest, overwrite: true);
+        }
     }
 
     public Task<bool> EnablePluginAsync(string pluginId)

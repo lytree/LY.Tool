@@ -30,6 +30,14 @@ public record PluginInfo
     /// </summary>
     public string? MinPluginSdkVersion { get; init; }
 
+    /// <summary>
+    /// 待升级场景：用户已调度升级但尚未重启时，此字段记录新版本号，便于 UI 显示。
+    /// 真相源是 plugins/.pending/{PluginId}.upgrade.json 的 NewVersion 字段。
+    /// 仅当 State == PendingUpgrade 时有效。
+    /// 实现依据：docs/Plugin-Upgrade-Evaluation.md
+    /// </summary>
+    public string? PendingUpgradeVersion { get; init; }
+
     public PluginInfo WithState(PluginState state, string? errorMessage = null) =>
         this with { State = state, ErrorMessage = errorMessage };
 
@@ -47,4 +55,7 @@ public record PluginInfo
 
     public PluginInfo WithMinPluginSdkVersion(string? minPluginSdkVersion) =>
         this with { MinPluginSdkVersion = minPluginSdkVersion };
+
+    public PluginInfo WithPendingUpgrade(string? newVersion, string? errorMessage = null) =>
+        this with { PendingUpgradeVersion = newVersion, ErrorMessage = errorMessage };
 }

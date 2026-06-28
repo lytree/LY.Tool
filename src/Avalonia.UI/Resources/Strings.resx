@@ -187,8 +187,14 @@
   <data name="UNINSTALL" xml:space="preserve">
     <value>Uninstall</value>
   </data>
+  <data name="CANCEL_UPGRADE" xml:space="preserve">
+    <value>Cancel Upgrade</value>
+  </data>
   <data name="VERSION_LABEL" xml:space="preserve">
     <value>Version: </value>
+  </data>
+  <data name="PENDING_VERSION_LABEL" xml:space="preserve">
+    <value>Pending: </value>
   </data>
   <data name="AUTHOR_LABEL" xml:space="preserve">
     <value>Author: </value>
@@ -217,6 +223,9 @@
   <data name="STATE_PENDING_UNINSTALL" xml:space="preserve">
     <value>Pending Uninstall</value>
   </data>
+  <data name="STATE_PENDING_UPGRADE" xml:space="preserve">
+    <value>Pending Upgrade</value>
+  </data>
   <data name="STATE_ERROR" xml:space="preserve">
     <value>Error</value>
   </data>
@@ -231,6 +240,12 @@
   </data>
   <data name="PLUGIN_UNINSTALL_AFTER_RESTART" xml:space="preserve">
     <value>Plugin '{0}' will be uninstalled after restart</value>
+  </data>
+  <data name="PLUGIN_UPGRADE_SCHEDULED" xml:space="preserve">
+    <value>Plugin '{0}' upgrade scheduled, restart to apply</value>
+  </data>
+  <data name="PLUGIN_UPGRADE_CANCELLED" xml:space="preserve">
+    <value>Plugin '{0}' upgrade cancelled</value>
   </data>
   <data name="SETTINGS_TITLE" xml:space="preserve">
     <value>Settings</value>
