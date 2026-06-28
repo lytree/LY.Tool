@@ -110,10 +110,10 @@
                         <TextBlock
                             Margin="16"
                             VerticalAlignment="Bottom"
-                            FontSize="16"
+                            Classes="WinUIBody"
                             FontWeight="SemiBold"
                             Text="{DynamicResource WELCOME_IRIHI}"
-                            Foreground="White" />
+                            Foreground="{DynamicResource SemiColorText0}" />
                     </Grid>
                 </Border>
 
@@ -137,23 +137,22 @@
                     <TextBlock
                         Grid.Column="1"
                         VerticalAlignment="Bottom"
-                        Theme="{StaticResource TitleTextBlock}" Classes="H3"
-                        Text="{DynamicResource COMPANY_NAME_CN}" />
+                        Classes="WinUILargeTitle"
+                        Text="{DynamicResource SPLASH_TITLE}" />
                     <TextBlock
                         Grid.Row="1"
                         Grid.Column="1"
-                        Theme="{StaticResource TitleTextBlock}" Classes="H6 Secondary"
-                        Text="{DynamicResource COMPANY_NAME_EN}" />
+                        Classes="WinUIBody"
+                        Text="{DynamicResource SPLASH_SUBTITLE}" />
                 </Grid>
 
                 <StackPanel Grid.Row="2" Spacing="4">
-                    <TextBlock HorizontalAlignment="Center" FontSize="15" FontWeight="Medium" Text="{DynamicResource SLOGAN_CN}" />
-                    <TextBlock HorizontalAlignment="Center" FontSize="13" Classes="Secondary" Text="{DynamicResource SLOGAN_EN}" />
+                    <TextBlock HorizontalAlignment="Center" Classes="WinUIBody" Text="{DynamicResource SPLASH_WELCOME}" TextWrapping="Wrap" />
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Spacing="8">
                     <ProgressBar IsIndeterminate="True" Height="5" CornerRadius="999" />
-                    <TextBlock HorizontalAlignment="Center" FontSize="12" Classes="Tertiary" Text="{DynamicResource LOADING_MODULES}" />
+                    <TextBlock HorizontalAlignment="Center" Classes="WinUICaption" Text="{DynamicResource LOADING_MODULES}" />
                 </StackPanel>
             </Grid>
         </Border>

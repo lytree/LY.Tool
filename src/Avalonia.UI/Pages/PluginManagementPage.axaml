@@ -48,7 +48,7 @@
                                     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Spacing="8">
                                         <TextBlock Text="{Binding Name}" Classes="WinUISubtitle" />
                                         <Border Classes="WinUIBadge" Background="{Binding StateColor}">
-                                            <TextBlock Text="{Binding StateText}" FontSize="11" Foreground="White"/>
+                                            <TextBlock Text="{Binding StateText}" FontSize="11" Foreground="{DynamicResource SemiColorText0}"/>
                                         </Border>
                                     </StackPanel>
 

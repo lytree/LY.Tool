@@ -108,9 +108,9 @@ mc:Ignorable="d">
 						CornerRadius="24"
 						Opacity="0.2" />
 						<TextBlock
-						FontSize="13"
+						Classes="WinUICaption"
 						FontWeight="SemiBold"
-						Foreground="White"
+						Foreground="{DynamicResource SemiColorText0}"
 						Text="{DynamicResource SPLASH_SUBTITLE}" />
 					</StackPanel>
 				</Grid>
@@ -123,17 +123,15 @@ mc:Ignorable="d">
 			VerticalAlignment="Center"
 			Spacing="14">
 				<TextBlock
-				Theme="{StaticResource TitleTextBlock}"
-				Classes="H3"
-				Text="{DynamicResource SPLASH_TITLE}" />
-				<TextBlock
-				Theme="{StaticResource TitleTextBlock}"
-				Classes="H6 Secondary"
-				Text="{DynamicResource SPLASH_SUBTITLE}" />
-				<TextBlock
-				Classes="Secondary"
-				TextWrapping="Wrap"
-				Text="{DynamicResource SPLASH_WELCOME}" />
+			Classes="WinUILargeTitle"
+			Text="{DynamicResource SPLASH_TITLE}" />
+			<TextBlock
+			Classes="WinUIBody"
+			Text="{DynamicResource SPLASH_SUBTITLE}" />
+			<TextBlock
+			Classes="WinUICaption"
+			TextWrapping="Wrap"
+			Text="{DynamicResource SPLASH_WELCOME}" />
 
 				<Border
 				Margin="0,8,0,0"
@@ -148,11 +146,10 @@ mc:Ignorable="d">
 						CornerRadius="999"
 						Value="{Binding Progress}" />
 						<TextBlock
-						Grid.Column="1"
-						VerticalAlignment="Center"
-						FontSize="12"
-						Classes="Tertiary"
-						Text="{Binding Progress, StringFormat={}{0:0}%}" />
+					Grid.Column="1"
+					VerticalAlignment="Center"
+					Classes="WinUICaption"
+					Text="{Binding Progress, StringFormat={}{0:0}%}" />
 					</Grid>
 				</Border>
 			</StackPanel>
