@@ -25,7 +25,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CliWrap" Version="3.6.*" />
+		<PackageReference Include="CliWrap" Version="3.10.2" />
 		<PackageReference Include="Avalonia.Plugin.Generators" Version="$(PluginSdkVersion)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 		<PackageReference Include="Avalonia.Plugin.Shared" Version="$(PluginSdkVersion)" PrivateAssets="all" />
 	</ItemGroup>

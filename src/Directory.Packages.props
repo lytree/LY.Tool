@@ -1,14 +1,29 @@
 <Project>
+    <!--
+        主体程序 (Host) + Plugin SDK 版本变量定义。
+
+        范围：src/ 目录下所有项目通过 Version="$(XxxVersion)" 引用此处的版本变量。
+        不启用 CPM (ManagePackageVersionsCentrally)：各 csproj 保留 Version 属性，
+        通过变量复用版本号，升级时只改此文件。
+
+        插件 (plugins/) 不引用本文件，各插件 csproj 自行管理依赖版本。
+        运行时通过 SDK buildTransitive 的 _SharedAssembliesPatterns 由宿主提供共享程序集。
+    -->
     <PropertyGroup>
-        <AvaloniaVersion>12.0.3</AvaloniaVersion>
+        <AvaloniaVersion>12.0.5</AvaloniaVersion>
         <IrihiUrsaVersion>2.0.*</IrihiUrsaVersion>
         <CommunityToolkit>8.4.2</CommunityToolkit>
-        <MicrosoftExtensionsDI>10.0.8</MicrosoftExtensionsDI>
-        <AvaloniaDiagnosticsSupport>2.2.1</AvaloniaDiagnosticsSupport>
-        <EfCoreVersion>10.0.8</EfCoreVersion>
-        <MicrosoftExtensionsLocalization>10.0.8</MicrosoftExtensionsLocalization>
-        <ProDataGridVersion>12.0.0</ProDataGridVersion>
-        <ScottPlotVersion>5.1.58</ScottPlotVersion>
-        <ZLoggerVersion>2.1.0</ZLoggerVersion>
+        <MicrosoftExtensionsDI>10.0.9</MicrosoftExtensionsDI>
+        <AvaloniaDiagnosticsSupport>2.2.3</AvaloniaDiagnosticsSupport>
+        <EfCoreVersion>10.0.9</EfCoreVersion>
+        <MicrosoftExtensionsLocalization>10.0.9</MicrosoftExtensionsLocalization>
+        <ProDataGridVersion>12.0.4</ProDataGridVersion>
+        <ScottPlotVersion>5.1.59</ScottPlotVersion>
+        <ZLoggerVersion>2.5.10</ZLoggerVersion>
+        <!-- SkiaSharp 锁定 3.x：Avalonia 12.x 与 ScottPlot 5.1.x 均依赖 3.x；
+             4.x 是破坏性主版本升级，需待上游兼容后再评估。 -->
+        <SkiaSharpVersion>3.119.4</SkiaSharpVersion>
+        <!-- Tmds.DBus 锁定 0.21.x：0.94+ 是破坏性 API 重构，需要 Linux 平台代码迁移。 -->
+        <TmdsDBusVersion>0.21.2</TmdsDBusVersion>
     </PropertyGroup>
-</Project> 
+</Project>
