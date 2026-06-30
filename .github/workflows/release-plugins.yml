@@ -1,0 +1,176 @@
+name: Release Plugins
+
+# 插件发布工作流（与主体分开打包）
+# 触发标签：
+#   plugins-v*                      例如 plugins-v1.0.0  → 打包全部插件（各插件使用自身 csproj 中的 PluginVersion）
+#   plugin-<ProjectName>-v*         例如 plugin-Avalonia.Plugin.DateTime-v1.2.0 → 仅打包指定插件并覆盖其版本
+# 产物：
+#   - 各插件的 zip 包（含 plugin.json 清单，剥离 .pdb/.xml/.deps.json/.runtimeconfig.json）
+# 依赖：
+#   先构建 Plugin SDK NuGet 包（Generators + Shared），插件 restore 从 bin/nuget/ 本地 feed 解析
+
+on:
+  push:
+    tags:
+      - 'plugins-v*'
+      - 'plugin-*-v*'
+  workflow_dispatch:
+    inputs:
+      plugin_filter:
+        description: '插件过滤器（逗号分隔的 ProjectName，留空=全部）'
+        required: false
+        default: ''
+      plugin_version:
+        description: '插件版本覆盖（留空=使用 csproj PluginVersion）'
+        required: false
+        default: ''
+      tag_name:
+        description: '发布标签名（手动触发必填，如 plugins-v1.0.0）'
+        required: true
+        default: 'plugins-v0.0.0'
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_NOLOGO: 'true'
+  DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+
+jobs:
+  resolve-context:
+    name: Resolve Tag Context
+    runs-on: ubuntu-latest
+    outputs:
+      plugin_filter: ${{ steps.ctx.outputs.plugin_filter }}
+      plugin_version: ${{ steps.ctx.outputs.plugin_version }}
+      release_name: ${{ steps.ctx.outputs.release_name }}
+    steps:
+      - name: Parse tag
+        id: ctx
+        run: |
+          # 手动触发：使用 inputs
+          if [ -n "${{ inputs.tag_name }}" ]; then
+            TAG="${{ inputs.tag_name }}"
+            FILTER="${{ inputs.plugin_filter }}"
+            VERSION="${{ inputs.plugin_version }}"
+          else
+            TAG="${GITHUB_REF_NAME}"
+            FILTER=""
+            VERSION=""
+          fi
+          echo "Tag: $TAG"
+
+          if [[ "$TAG" =~ ^plugins-v([0-9].*)$ ]]; then
+            # 全部插件 bundle 发布：tag 版本仅作为批次标识，不覆盖各插件版本
+            FILTER=""
+            VERSION=""
+            NAME="Plugins ${TAG}"
+          elif [[ "$TAG" =~ ^plugin-(.+)-v([0-9].*)$ ]]; then
+            # 单插件发布：从 tag 解析插件名与版本
+            FILTER="${BASH_REMATCH[1]}"
+            VERSION="${BASH_REMATCH[2]}"
+            NAME="Plugin ${FILTER} v${VERSION}"
+          else
+            echo "::error::无法识别的标签格式: $TAG"
+            echo "支持: plugins-v* 或 plugin-<ProjectName>-v*"
+            exit 1
+          fi
+
+          echo "plugin_filter=$FILTER" >> "$GITHUB_OUTPUT"
+          echo "plugin_version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "release_name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "Resolved: filter='$FILTER' version='$VERSION' name='$NAME'"
+
+  pack-sdk:
+    name: Pack SDK NuGet (for plugin restore)
+    needs: resolve-context
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build SDK + pack NuGet
+        run: |
+          dotnet build/build.cs --build=bin
+
+      - name: Upload SDK NuGet artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-nuget
+          path: bin/nuget/*.nupkg
+          if-no-files-found: error
+          retention-days: 7
+
+  build-plugins:
+    name: Build Plugins
+    needs: [resolve-context, pack-sdk]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore SDK NuGet to local feed
+        uses: actions/download-artifact@v4
+        with:
+          name: sdk-nuget
+          path: bin/nuget
+
+      - name: Verify local feed
+        run: |
+          echo "Local NuGet feed contents:"
+          ls -lh bin/nuget/ || true
+
+      - name: Build & pack plugins
+        run: |
+          ARGS="--build=plugin"
+          if [ -n "${{ needs.resolve-context.outputs.plugin_filter }}" ]; then
+            ARGS="$ARGS --plugin=${{ needs.resolve-context.outputs.plugin_filter }}"
+          fi
+          if [ -n "${{ needs.resolve-context.outputs.plugin_version }}" ]; then
+            ARGS="$ARGS --plugin-version=${{ needs.resolve-context.outputs.plugin_version }}"
+          fi
+          echo "Running: dotnet build/build.cs $ARGS"
+          dotnet build/build.cs $ARGS
+
+      - name: List plugin zips
+        run: |
+          echo "Generated plugin zips:"
+          ls -lh bin/plugins/zip/ || true
+
+      - name: Upload plugin zips
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-zips
+          path: bin/plugins/zip/*.zip
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: GitHub Release
+    needs: [resolve-context, build-plugins]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download plugin zips
+        uses: actions/download-artifact@v4
+        with:
+          name: plugin-zips
+          path: artifacts
+
+      - name: List artifacts
+        run: find artifacts -type f | sort
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ needs.resolve-context.outputs.release_name }}
+          generate_release_notes: true
+          files: |
+            artifacts/*.zip

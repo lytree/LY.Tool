@@ -1,0 +1,149 @@
+name: Release Host
+
+# 主体（Launcher + Plugin SDK NuGet）发布工作流
+# 触发标签：v*           例如 v2.1.0
+# 产物：
+#   - Plugin SDK NuGet 包（Avalonia.Plugin.Generators / Avalonia.Plugin.Shared）
+#   - Launcher 自包含发布包（win-x64 / linux-x64 / osx-x64 / osx-arm64）
+# 可选：配置 NUGET_API_KEY secret 后自动推送到 nuget.org
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Host 版本号（不填则从 tag 推断，手动触发必填）'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_NOLOGO: 'true'
+  DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+
+jobs:
+  pack-sdk:
+    name: Pack SDK NuGet
+    runs-on: ubuntu-latest
+    env:
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Resolve version
+        id: ver
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            V="${{ inputs.version }}"
+          else
+            V="${GITHUB_REF_NAME#v}"
+          fi
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $V"
+
+      - name: Build SDK + pack NuGet
+        run: |
+          dotnet build/build.cs \
+            --build=bin \
+            --host-version=${{ steps.ver.outputs.version }}
+
+      - name: Upload SDK NuGet artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-nuget
+          path: bin/nuget/*.nupkg
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Push NuGet packages (optional)
+        if: env.NUGET_API_KEY != ''
+        run: |
+          for pkg in bin/nuget/*.nupkg; do
+            echo "Pushing $pkg"
+            dotnet nuget push "$pkg" \
+              --api-key "$NUGET_API_KEY" \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate
+          done
+
+  publish-host:
+    name: Publish Launcher (${{ matrix.rid }})
+    needs: pack-sdk
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, rid: win-x64 }
+          - { os: ubuntu-latest,  rid: linux-x64 }
+          - { os: macos-latest,   rid: osx-x64 }
+          - { os: macos-latest,   rid: osx-arm64 }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish launcher
+        shell: bash
+        run: |
+          dotnet build/build.cs \
+            --build=bin \
+            --runtime-identifier=${{ matrix.rid }} \
+            --self-contained=true \
+            --host-version=${{ needs.pack-sdk.outputs.version }}
+
+      - name: Zip published output
+        shell: pwsh
+        run: |
+          Compress-Archive -Path 'bin/bin/*' -DestinationPath 'host-${{ matrix.rid }}.zip' -Force
+
+      - name: Verify zip
+        shell: pwsh
+        run: |
+          Get-Item "host-${{ matrix.rid }}.zip" | Format-List Name, Length, LastWriteTime
+
+      - name: Upload host artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: host-${{ matrix.rid }}
+          path: host-${{ matrix.rid }}.zip
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: GitHub Release
+    needs: [pack-sdk, publish-host]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List artifacts
+        run: find artifacts -type f | sort
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Host ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            artifacts/sdk-nuget/*.nupkg
+            artifacts/host-win-x64/*.zip
+            artifacts/host-linux-x64/*.zip
+            artifacts/host-osx-x64/*.zip
+            artifacts/host-osx-arm64/*.zip
