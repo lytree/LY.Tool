@@ -4,7 +4,7 @@ name: Release Host
 # 触发标签：v*           例如 v2.1.0
 # 产物：
 #   - Plugin SDK NuGet 包（Avalonia.Plugin.Generators / Avalonia.Plugin.Shared）
-#   - Launcher 自包含发布包（win-x64 / linux-x64 / osx-x64 / osx-arm64）
+#   - Launcher 自包含发布包（win-x64 / win-arm64 / linux-x64 / linux-arm64）
 # 可选：配置 NUGET_API_KEY secret 后自动推送到 nuget.org
 
 on:
@@ -83,9 +83,9 @@ jobs:
       matrix:
         include:
           - { os: windows-latest, rid: win-x64 }
+          - { os: windows-latest, rid: win-arm64 }
           - { os: ubuntu-latest,  rid: linux-x64 }
-          - { os: macos-latest,   rid: osx-x64 }
-          - { os: macos-latest,   rid: osx-arm64 }
+          - { os: ubuntu-latest,  rid: linux-arm64 }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -106,7 +106,7 @@ jobs:
       - name: Zip published output
         shell: pwsh
         run: |
-          Compress-Archive -Path 'bin/bin/*' -DestinationPath 'host-${{ matrix.rid }}.zip' -Force
+          Compress-Archive -Path 'bin/bin/${{ matrix.rid }}/*' -DestinationPath 'host-${{ matrix.rid }}.zip' -Force
 
       - name: Verify zip
         shell: pwsh
@@ -144,6 +144,6 @@ jobs:
           files: |
             artifacts/sdk-nuget/*.nupkg
             artifacts/host-win-x64/*.zip
+            artifacts/host-win-arm64/*.zip
             artifacts/host-linux-x64/*.zip
-            artifacts/host-osx-x64/*.zip
-            artifacts/host-osx-arm64/*.zip
+            artifacts/host-linux-arm64/*.zip

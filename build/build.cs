@@ -77,7 +77,14 @@ Task("Clean")
     {
         if (Directory.Exists(dir))
         {
-            ctx.CleanDirectory(dir);
+            try
+            {
+                ctx.CleanDirectory(dir);
+            }
+            catch (DirectoryNotFoundException ex)
+            {
+                ctx.Log.Warning("CleanDirectory skipped due to inaccessible path: {0}", ex.Message);
+            }
         }
     }
 });
@@ -178,6 +185,10 @@ Task("PackBin")
     if (!string.IsNullOrEmpty(buildContext.RuntimeIdentifier))
     {
         settings.Runtime = buildContext.RuntimeIdentifier;
+        settings.OutputDirectory = Path.Combine(buildContext.BinPackagesDir, buildContext.RuntimeIdentifier);
+        // Build 未按 RID 编译，publish 需要重新构建 RID 产物
+        settings.NoBuild = false;
+        settings.NoRestore = false;
     }
 
     if (buildContext.SelfContained)
