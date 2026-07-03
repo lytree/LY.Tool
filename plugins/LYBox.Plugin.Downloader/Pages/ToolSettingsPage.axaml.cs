@@ -4,11 +4,11 @@ using LYBox.Plugin.Downloader.ViewModels;
 
 namespace LYBox.Plugin.Downloader.Pages;
 
-public partial class M3u8DownloaderPage : UserControl
+public partial class ToolSettingsPage : UserControl
 {
-    private M3u8DownloaderViewModel? _currentVm;
+    private ToolSettingsViewModel? _currentVm;
 
-    public M3u8DownloaderPage()
+    public ToolSettingsPage()
     {
         InitializeComponent();
         DataContextChanged += OnDataContextChanged;
@@ -21,7 +21,7 @@ public partial class M3u8DownloaderPage : UserControl
             _currentVm.LogEntries.CollectionChanged -= OnLogEntriesCollectionChanged;
         }
 
-        _currentVm = DataContext as M3u8DownloaderViewModel;
+        _currentVm = DataContext as ToolSettingsViewModel;
 
         if (_currentVm is not null)
         {

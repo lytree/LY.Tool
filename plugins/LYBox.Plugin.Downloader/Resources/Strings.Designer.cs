@@ -27,9 +27,7 @@ public static class Strings
         set => _culture = value;
     }
 
-    public static string NAV_Downloader => ResourceManager.GetString(nameof(NAV_Downloader), Culture)!;
-    public static string NAV_Downloader_M3u8 => ResourceManager.GetString(nameof(NAV_Downloader_M3u8), Culture)!;
-
+    /// <summary>动态获取资源字符串，支持格式化参数。未找到时返回 key 本身。</summary>
     public static string Get(string key, params object[] args)
     {
         var value = ResourceManager.GetString(key, Culture) ?? key;

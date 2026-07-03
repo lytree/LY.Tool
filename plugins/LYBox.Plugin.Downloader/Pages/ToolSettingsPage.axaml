@@ -1,0 +1,165 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:u="https://irihi.tech/ursa"
+             xmlns:vm="clr-namespace:LYBox.Plugin.Downloader.ViewModels"
+             xmlns:models="clr-namespace:LYBox.Plugin.Downloader.Models"
+             x:Class="LYBox.Plugin.Downloader.Pages.ToolSettingsPage"
+             x:CompileBindings="True"
+             x:DataType="vm:ToolSettingsViewModel"
+             mc:Ignorable="d" d:DesignWidth="960" d:DesignHeight="900">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="16" Spacing="12">
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="{Binding GetDisplayName}" Theme="{StaticResource TitleTextBlock}" Classes="H3" />
+                <TextBlock Text="{DynamicResource DESC_SettingsPage}" Classes="Secondary" />
+            </StackPanel>
+
+            <!-- 1. 外部二进制路径 -->
+            <Border Theme="{DynamicResource CardBorder}" Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="{DynamicResource LBL_BinaryPaths}" Classes="SectionTitle" />
+
+                    <Grid ColumnDefinitions="160,*,120" Margin="0 4" MinHeight="32">
+                        <TextBlock Grid.Column="0" Text="{DynamicResource LBL_FfmpegPath}" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding FfmpegPath}"
+                                 PlaceholderText="{DynamicResource HINT_FfmpegPath}"
+                                 HorizontalAlignment="Stretch"
+                                 IsReadOnly="True"
+                                 Margin="0 0 8 0" />
+                        <Button Grid.Column="2"
+                                  Content="{DynamicResource BTN_Browse}"
+                                  Command="{Binding BrowseFfmpegCommand}"
+                                  Theme="{DynamicResource SolidButton}"
+                                  HorizontalAlignment="Stretch"
+                                  HorizontalContentAlignment="Center" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="160,*,120" Margin="0 4" MinHeight="32">
+                        <TextBlock Grid.Column="0" Text="{DynamicResource LBL_Mp4DecryptPath}" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding Mp4DecryptPath}"
+                                 PlaceholderText="{DynamicResource HINT_Mp4DecryptPath}"
+                                 HorizontalAlignment="Stretch"
+                                 IsReadOnly="True"
+                                 Margin="0 0 8 0" />
+                        <Button Grid.Column="2"
+                                  Content="{DynamicResource BTN_Browse}"
+                                  Command="{Binding BrowseMp4DecryptCommand}"
+                                  Theme="{DynamicResource SolidButton}"
+                                  HorizontalAlignment="Stretch"
+                                  HorizontalContentAlignment="Center" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="160,*,120" Margin="0 4" MinHeight="32">
+                        <TextBlock Grid.Column="0" Text="{DynamicResource LBL_MkvmergePath}" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding MkvmergePath}"
+                                 PlaceholderText="{DynamicResource HINT_MkvmergePath}"
+                                 HorizontalAlignment="Stretch"
+                                 IsReadOnly="True"
+                                 Margin="0 0 8 0" />
+                        <Button Grid.Column="2"
+                                  Content="{DynamicResource BTN_Browse}"
+                                  Command="{Binding BrowseMkvmergeCommand}"
+                                  Theme="{DynamicResource SolidButton}"
+                                  HorizontalAlignment="Stretch"
+                                  HorizontalContentAlignment="Center" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="160,*,120" Margin="0 4" MinHeight="32">
+                        <TextBlock Grid.Column="0" Text="{DynamicResource LBL_ShakaPath}" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding ShakaPackagerPath}"
+                                 PlaceholderText="{DynamicResource HINT_ShakaPath}"
+                                 HorizontalAlignment="Stretch"
+                                 IsReadOnly="True"
+                                 Margin="0 0 8 0" />
+                        <Button Grid.Column="2"
+                                  Content="{DynamicResource BTN_Browse}"
+                                  Command="{Binding BrowseShakaCommand}"
+                                  Theme="{DynamicResource SolidButton}"
+                                  HorizontalAlignment="Stretch"
+                                  HorizontalContentAlignment="Center" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- 2. 网络代理 -->
+            <Border Theme="{DynamicResource CardBorder}" Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="{DynamicResource LBL_Network}" Classes="SectionTitle" />
+                    <Grid ColumnDefinitions="160,*" Margin="0 4" MinHeight="32">
+                        <TextBlock Grid.Column="0" Text="{DynamicResource LBL_Proxy}" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Text="{Binding Proxy}" PlaceholderText="{DynamicResource HINT_Proxy}" HorizontalAlignment="Stretch" />
+                    </Grid>
+                    <Border Classes="FluentSettingsCard">
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+                            <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
+                                <TextBlock Classes="FluentSettingsCardTitle" Text="{DynamicResource LBL_UseSystemProxy}" />
+                                <TextBlock Classes="FluentSettingsCardDescription" Text="{DynamicResource DESC_UseSystemProxy}" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="2" IsChecked="{Binding UseSystemProxy}" OnContent="{DynamicResource SW_On}" OffContent="{DynamicResource SW_Off}" />
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- 3. 日志级别 -->
+            <Border Theme="{DynamicResource CardBorder}" Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="{DynamicResource LBL_Logging}" Classes="SectionTitle" />
+                    <Grid ColumnDefinitions="160,*" Margin="0 4" MinHeight="32">
+                        <TextBlock Grid.Column="0" Text="{DynamicResource LBL_LogLevel}" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Text="{Binding LogLevel}" HorizontalAlignment="Stretch" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- 操作按钮 -->
+            <StackPanel Orientation="Horizontal" Spacing="12" Margin="0 4">
+                <Button Content="{DynamicResource BTN_Save}" Command="{Binding SaveCommand}" Theme="{DynamicResource SolidButton}" Classes="Primary" MinWidth="100" />
+                <Button Content="{DynamicResource BTN_Probe}" Command="{Binding ExecuteScriptCommand}" Theme="{DynamicResource SolidButton}" MinWidth="100" IsEnabled="{Binding !IsRunning}" />
+                <Button Content="{DynamicResource BTN_Cancel}" Command="{Binding CancelExecutionCommand}" Theme="{DynamicResource SolidButton}" MinWidth="80" IsVisible="{Binding IsRunning}" />
+                <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" Classes="Tertiary" Margin="12 0 0 0" />
+            </StackPanel>
+
+            <!-- 日志 -->
+            <Border Theme="{DynamicResource CardBorder}" Padding="12" MaxHeight="{Binding LogMaxHeight}">
+                <Grid RowDefinitions="Auto,*">
+                    <Grid ColumnDefinitions="*,Auto" Margin="0 0 0 8">
+                        <TextBlock Grid.Column="0" Text="{DynamicResource LBL_LogOutput}" Classes="SectionTitle" VerticalAlignment="Center" />
+                        <Button Grid.Column="1" Content="{DynamicResource BTN_Clear}" Command="{Binding ClearLogCommand}" Theme="{DynamicResource SolidButton}" Classes="Small" FontSize="12" Padding="8 4" />
+                    </Grid>
+                    <ListBox x:Name="LogListBox" Grid.Row="1"
+                             ItemsSource="{Binding LogEntries}"
+                             SelectionMode="Toggle"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                        <ListBox.Styles>
+                            <Style Selector="ListBoxItem">
+                                <Setter Property="Padding" Value="2 1" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListBox.Styles>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="models:LogEntry">
+                                <SelectableTextBlock Text="{Binding FormattedLine}" FontSize="12" FontFamily="Consolas" TextWrapping="Wrap">
+                                    <SelectableTextBlock.ContextMenu>
+                                        <ContextMenu x:CompileBindings="False">
+                                            <MenuItem Header="{DynamicResource MENU_COPY}" Command="{Binding $parent[ListBox].DataContext.CopyLogEntryCommand}" CommandParameter="{Binding}" />
+                                        </ContextMenu>
+                                    </SelectableTextBlock.ContextMenu>
+                                </SelectableTextBlock>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

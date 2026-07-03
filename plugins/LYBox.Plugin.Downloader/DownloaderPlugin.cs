@@ -12,7 +12,7 @@ public partial class DownloaderPlugin : IPluginMetadata
     public string Name => "Downloader Plugin";
     public string Version => "1.0.0";
     public string Author => "Downloader";
-    public string Description => "M3U8 video downloader plugin supporting AES-128, AES-128-ECB, CHACHA20 encryption and FFmpeg merge.";
+    public string Description => "Pure C# HLS/DASH/MSS downloader (N_m3u8DL-RE compatible): VOD download, live record, decrypt & mux, tool settings. ffmpeg/mp4decrypt/mkvmerge/shaka-packager paths configurable.";
     public IEnumerable<string> Dependencies => [];
     public string PluginId => "B2C3D4E5-F6A7-8901-BCDE-DOWNLOADER001";
 
