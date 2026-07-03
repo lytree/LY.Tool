@@ -53,21 +53,29 @@ public class PlotMenu : SP.IPlotMenu
 
     public async void OpenSaveImageDialog(SP.Plot plot)
     {
-        var topLevel = TopLevel.GetTopLevel(_plotView)
-                       ?? throw new NullReferenceException("Could not find a top level");
-
-        var destinationFile = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions()
+        try
         {
-            SuggestedFileName = DefaultSaveImageFilename,
-            FileTypeChoices = FilePickerFileTypes
-        });
+            var topLevel = TopLevel.GetTopLevel(_plotView)
+                           ?? throw new InvalidOperationException("Could not find a top level");
 
-        string? path = destinationFile?.TryGetLocalPath();
-        if (path is not null && !string.IsNullOrWhiteSpace(path))
+            var destinationFile = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions()
+            {
+                SuggestedFileName = DefaultSaveImageFilename,
+                FileTypeChoices = FilePickerFileTypes
+            });
+
+            string? path = destinationFile?.TryGetLocalPath();
+            if (path is not null && !string.IsNullOrWhiteSpace(path))
+            {
+                SP.PixelSize lastRenderSize = plot.RenderManager.LastRender.FigureRect.Size;
+                plot.Save(path, (int)lastRenderSize.Width, (int)lastRenderSize.Height,
+                    SP.ImageFormats.FromFilename(path));
+            }
+        }
+        catch (Exception ex)
         {
-            SP.PixelSize lastRenderSize = plot.RenderManager.LastRender.FigureRect.Size;
-            plot.Save(path, (int)lastRenderSize.Width, (int)lastRenderSize.Height,
-                SP.ImageFormats.FromFilename(path));
+            // async void 中未捕获的异常会终止进程，必须吞掉并记录
+            System.Diagnostics.Debug.WriteLine($"[ScottPlot] 保存图片失败: {ex.Message}");
         }
     }
 
@@ -83,16 +91,24 @@ public class PlotMenu : SP.IPlotMenu
 
     public async void CopyToClipboard(SP.Plot plot)
     {
-        if (TopLevel.GetTopLevel(_plotView)?.Clipboard is not { } clipboard) return;
+        try
+        {
+            if (TopLevel.GetTopLevel(_plotView)?.Clipboard is not { } clipboard) return;
 
-        SP.PixelSize lastRenderSize = plot.RenderManager.LastRender.FigureRect.Size;
-        var img = plot.GetImage((int)lastRenderSize.Width, (int)lastRenderSize.Height);
-        var bytes = img.GetImageBytes(SP.ImageFormat.Bmp);
+            SP.PixelSize lastRenderSize = plot.RenderManager.LastRender.FigureRect.Size;
+            var img = plot.GetImage((int)lastRenderSize.Width, (int)lastRenderSize.Height);
+            var bytes = img.GetImageBytes(SP.ImageFormat.Bmp);
 
-        using var stream = new System.IO.MemoryStream(bytes, BitmapHeaderSize, bytes.Length - BitmapHeaderSize);
-        var bitmap = new Bitmap(stream);
+            using var stream = new System.IO.MemoryStream(bytes, BitmapHeaderSize, bytes.Length - BitmapHeaderSize);
+            var bitmap = new Bitmap(stream);
 
-        await clipboard.SetBitmapAsync(bitmap);
+            await clipboard.SetBitmapAsync(bitmap);
+        }
+        catch (Exception ex)
+        {
+            // async void 中未捕获的异常会终止进程，必须吞掉并记录
+            System.Diagnostics.Debug.WriteLine($"[ScottPlot] 复制到剪贴板失败: {ex.Message}");
+        }
     }
 
     private const int BitmapHeaderSize = 14 + 40;

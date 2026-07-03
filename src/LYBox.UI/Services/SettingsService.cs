@@ -84,10 +84,16 @@ public class SettingsService : ISettingsService
     public void RegisterSettings(IEnumerable<SettingDefinition> definitions)
     {
         using var db = _dbFactory.CreateDbContext();
-        foreach (var def in definitions)
+        var defList = definitions.ToList();
+        var keys = defList.Select(d => d.Key).ToList();
+        // 批量查询已存在的设置项，避免循环内逐条查 DB（N 次 SQL 往返 → 1 次）
+        var existingDict = db.Settings
+            .Where(s => keys.Contains(s.Key))
+            .ToDictionary(s => s.Key);
+
+        foreach (var def in defList)
         {
-            var existing = db.Settings.FirstOrDefault(s => s.Key == def.Key);
-            if (existing != null)
+            if (existingDict.TryGetValue(def.Key, out var existing))
             {
                 existing.DisplayName = def.DisplayName;
                 existing.Description = def.Description;

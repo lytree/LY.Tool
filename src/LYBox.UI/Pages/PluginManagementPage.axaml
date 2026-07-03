@@ -37,10 +37,15 @@
         <ProgressBar Grid.Row="1" IsVisible="{Binding IsInstalling}" Value="{Binding InstallProgress}"
                      Height="4" Margin="0 40 0 0" IsIndeterminate="False"/>
 
-        <ScrollViewer Grid.Row="3">
-            <StackPanel Spacing="8">
+        <Grid Grid.Row="3">
+            <ScrollViewer>
                 <ItemsControl ItemsSource="{Binding Plugins}">
-                    <ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="viewModels:PluginItemViewModel">
                             <Border Classes="WinUICard" Margin="0 0 0 4">
                                 <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
@@ -99,21 +104,21 @@
                                 </Grid>
                             </Border>
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
+                        </ItemsControl.ItemTemplate>
                 </ItemsControl>
+            </ScrollViewer>
 
-                <!-- Empty State Card -->
-                <Border IsVisible="{Binding Plugins.Count, Converter={x:Static viewModels:PluginStateConverters.IsEmpty}}"
-                        Classes="WinUICard" Padding="32"
-                        HorizontalAlignment="Center" Margin="0 40 0 0">
-                    <StackPanel HorizontalAlignment="Center" Spacing="8">
-                        <TextBlock Text="{DynamicResource NO_PLUGINS_INSTALLED}" FontSize="16"
-                                   Classes="WinUIBody" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{DynamicResource CLICK_INSTALL_PLUGIN}" FontSize="13"
-                                   Classes="WinUICaption" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </ScrollViewer>
+            <!-- Empty State Card overlay -->
+            <Border IsVisible="{Binding Plugins.Count, Converter={x:Static viewModels:PluginStateConverters.IsEmpty}}"
+                    Classes="WinUICard" Padding="32"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 40 0 0">
+                <StackPanel HorizontalAlignment="Center" Spacing="8">
+                    <TextBlock Text="{DynamicResource NO_PLUGINS_INSTALLED}" FontSize="16"
+                               Classes="WinUIBody" HorizontalAlignment="Center"/>
+                    <TextBlock Text="{DynamicResource CLICK_INSTALL_PLUGIN}" FontSize="13"
+                               Classes="WinUICaption" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

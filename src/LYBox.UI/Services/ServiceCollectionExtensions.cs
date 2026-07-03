@@ -34,8 +34,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<IMenuConfigurationService, MenuConfigurationService>();
 
-        services.AddSingleton<PluginLoader>();
-        services.AddSingleton<IPluginLoader>(sp => sp.GetRequiredService<PluginLoader>());
+        // PluginLoader 由 App.Initialize() 提前实例化（阶段1/2需要 DI 尚未构建时使用），
+        // 随后通过 services.AddSingleton(pluginLoader) 注入，此处不再注册以避免产生未使用的孤立实例。
 
         services.AddSingleton<IPluginInstallationManager, PluginInstallationManager>();
 

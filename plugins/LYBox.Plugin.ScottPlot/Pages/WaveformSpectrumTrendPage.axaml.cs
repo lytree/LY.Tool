@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.VisualTree;
 using LYBox.Plugin.ScottPlot.Controls;
 using LYBox.Plugin.ScottPlot.ViewModels;
 
@@ -27,12 +28,25 @@ public partial class WaveformSpectrumTrendPage : UserControl
         _spectrumPlotView.Plot = _vm.SpectrumPlot;
         _trendPlotView.Plot = _vm.TrendPlot;
 
-        _vm.WaveformPlotChanged += () => _waveformPlotView.Refresh();
-        _vm.SpectrumPlotChanged += () => _spectrumPlotView.Refresh();
-        _vm.TrendPlotChanged += () => _trendPlotView.Refresh();
+        _vm.WaveformPlotChanged += OnWaveformPlotChanged;
+        _vm.SpectrumPlotChanged += OnSpectrumPlotChanged;
+        _vm.TrendPlotChanged += OnTrendPlotChanged;
 
         // 使用 PointerReleased 避免与 PlotView 内置交互冲突
         _trendPlotView.PointerReleased += OnTrendPlotPointerReleased;
+    }
+
+    private void OnWaveformPlotChanged() => _waveformPlotView.Refresh();
+    private void OnSpectrumPlotChanged() => _spectrumPlotView.Refresh();
+    private void OnTrendPlotChanged() => _trendPlotView.Refresh();
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        _vm.WaveformPlotChanged -= OnWaveformPlotChanged;
+        _vm.SpectrumPlotChanged -= OnSpectrumPlotChanged;
+        _vm.TrendPlotChanged -= OnTrendPlotChanged;
+        _trendPlotView.PointerReleased -= OnTrendPlotPointerReleased;
+        base.OnDetachedFromVisualTree(e);
     }
 
     private void OnTrendPlotPointerReleased(object? sender, PointerReleasedEventArgs e)

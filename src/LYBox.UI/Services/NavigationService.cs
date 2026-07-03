@@ -17,14 +17,27 @@ public class NavigationService : INavigationService
     private readonly Dictionary<string, LinkedListNode<CacheEntry>> _viewModelCache = [];
     private readonly LinkedList<CacheEntry> _lruList = new();
 
+    private readonly ISettingsService _settingsService;
+    private readonly ILocalizationService _localizationService;
+    private readonly IPluginLoader _pluginLoader;
+    private readonly IPluginInstallationManager _pluginInstallationManager;
+
     private sealed class CacheEntry(string key, object viewModel)
     {
         public string Key { get; } = key;
         public object ViewModel { get; } = viewModel;
     }
 
-    public NavigationService()
+    public NavigationService(
+        ISettingsService settingsService,
+        ILocalizationService localizationService,
+        IPluginLoader pluginLoader,
+        IPluginInstallationManager pluginInstallationManager)
     {
+        _settingsService = settingsService;
+        _localizationService = localizationService;
+        _pluginLoader = pluginLoader;
+        _pluginInstallationManager = pluginInstallationManager;
         RegisterDefaultNavigations();
     }
 
@@ -41,12 +54,8 @@ public class NavigationService : INavigationService
     private void RegisterDefaultNavigations()
     {
         RegisterNavigation("Introduction", () => new IntroductionDemoViewModel());
-        RegisterNavigation("Settings", () => new SettingsPageViewModel(
-            ServiceLocator.GetService<ISettingsService>(),
-            ServiceLocator.GetService<ILocalizationService>()));
-        RegisterNavigation("PluginManagement", () => new PluginManagementViewModel(
-            ServiceLocator.GetService<IPluginLoader>(),
-            ServiceLocator.GetService<IPluginInstallationManager>()));
+        RegisterNavigation("Settings", () => new SettingsPageViewModel(_settingsService, _localizationService));
+        RegisterNavigation("PluginManagement", () => new PluginManagementViewModel(_pluginLoader, _pluginInstallationManager));
 
         ViewLocator.Register<IntroductionDemoViewModel, IntroductionDemo>();
         ViewLocator.Register<SettingsPageViewModel, SettingsPage>();

@@ -126,9 +126,11 @@ public abstract partial class DownloaderViewModelBase : ViewModelBase
         Dispatcher.UIThread.Post(() =>
         {
             LogEntries.Add(entry);
-            if (LogEntries.Count > 1000)
+            if (LogEntries.Count > 1100)
             {
-                LogEntries.RemoveAt(0);
+                // 批量裁剪：一次移除 100 条，避免每条新日志都触发 O(N) 数组移位
+                for (int i = 0; i < 100; i++)
+                    LogEntries.RemoveAt(0);
             }
         });
     }

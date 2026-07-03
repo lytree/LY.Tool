@@ -17,6 +17,11 @@ public interface IPluginLoader
     void MarkForUninstall(string pluginId);
 
     /// <summary>
+    /// 将插件标记为 Error 状态并持久化到 manifest，使用户能感知插件故障。
+    /// </summary>
+    void MarkPluginError(string pluginId, string errorMessage);
+
+    /// <summary>
     /// 将插件标记为待升级状态（PendingUpgrade），并写入 .pending/{PluginId}.upgrade.json。
     /// 调用方负责把新版本解压到 <paramref name="info"/>.NewVersionPath 指定的目录。
     /// 实现依据：docs/Plugin-Upgrade-Evaluation.md

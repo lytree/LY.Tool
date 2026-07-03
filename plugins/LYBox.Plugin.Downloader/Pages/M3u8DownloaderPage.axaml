@@ -25,6 +25,11 @@
 					</Grid>
 
 					<ItemsControl ItemsSource="{Binding UrlEntries}">
+						<ItemsControl.ItemsPanel>
+							<ItemsPanelTemplate>
+								<VirtualizingStackPanel />
+							</ItemsPanelTemplate>
+						</ItemsControl.ItemsPanel>
 						<ItemsControl.DataTemplates>
 							<DataTemplate x:DataType="models:M3u8UrlEntry">
 								<Grid ColumnDefinitions="*,200,32" Margin="0 4" MinHeight="32">

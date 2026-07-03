@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Avalonia.Controls;
+using Avalonia.VisualTree;
 using Ursa.Controls;
 
 namespace LYBox.Plugin.ButtonsInputs.Pages;
@@ -18,6 +19,12 @@ public partial class NumericUpDownDemo : UserControl
         {
             Trace.WriteLine($"{i.Name} {e.OldValue} {e.NewValue}");
         }
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        numd.ValueChanged -= Numd_ValueChanged;
+        base.OnDetachedFromVisualTree(e);
     }
 }
 

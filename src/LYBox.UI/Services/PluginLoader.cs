@@ -5,6 +5,8 @@ using LYBox.Plugin.Shared;
 using LYBox.Plugin.Shared.Models;
 using LYBox.Plugin.Shared.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace LYBox.UI.Services;
 
@@ -23,6 +25,7 @@ public class PluginLoader : IPluginLoader, IDisposable
     private readonly string? _extraPluginPath;
     private readonly object _sync = new();
     private List<PluginInfo>? _cachedPluginList;
+    private static ILogger _logger = NullLogger<PluginLoader>.Instance;
 
     public event EventHandler<PluginInfo>? PluginLoaded;
     public event EventHandler<PluginInfo>? PluginUnloaded;
@@ -41,6 +44,12 @@ public class PluginLoader : IPluginLoader, IDisposable
         LoadAllPluginManifests();
         RestorePendingUpgradeStates();
     }
+
+    /// <summary>
+    /// 在 ServiceProvider 构建后注入 logger，替换构造期使用的 NullLogger。
+    /// PluginLoader 在 DI 容器构建前提前实例化，无法通过构造函数注入 ILogger。
+    /// </summary>
+    public static void SetLogger(ILogger logger) => _logger = logger;
 
     public IReadOnlyList<PluginInfo> GetInstalledPlugins()
     {
@@ -441,6 +450,8 @@ public class PluginLoader : IPluginLoader, IDisposable
 
     public void EnablePlugin(string pluginId)
     {
+        // 与 DisablePlugin 对称：仅修改状态字段并持久化到 manifest，下次启动时按新状态加载。
+        // AGENTS.md 声明"当前项目不支持运行时插件增删"，热加载会违反约束且导航/菜单/视图不会被注册。
         PluginInfo? info = null;
 
         lock (_sync)
@@ -457,7 +468,6 @@ public class PluginLoader : IPluginLoader, IDisposable
         if (info is not null)
         {
             PluginStateChanged?.Invoke(this, info);
-            LoadPluginAsync(info).GetAwaiter().GetResult();
         }
     }
 
@@ -600,7 +610,7 @@ public class PluginLoader : IPluginLoader, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to load extra plugin from '{dllPath}': {ex.Message}");
+            _logger.LogError(ex, "Failed to load extra plugin from '{DllPath}'", dllPath);
         }
     }
 
@@ -627,7 +637,7 @@ public class PluginLoader : IPluginLoader, IDisposable
             catch (Exception ex)
             {
                 // 单个失败不影响其他插件
-                Console.WriteLine($"[PluginUpgrade] Failed to process '{upgradeJson}': {ex.Message}");
+                _logger.LogError(ex, "[PluginUpgrade] Failed to process '{UpgradeJson}'", upgradeJson);
             }
         }
     }
@@ -638,7 +648,7 @@ public class PluginLoader : IPluginLoader, IDisposable
         var info = JsonSerializer.Deserialize<PendingUpgradeInfo>(json, JsonOptions);
         if (info == null || string.IsNullOrEmpty(info.PluginId))
         {
-            Console.WriteLine($"[PluginUpgrade] Invalid upgrade json '{upgradeJsonPath}', deleting.");
+            _logger.LogError("[PluginUpgrade] Invalid upgrade json '{UpgradeJsonPath}', deleting.", upgradeJsonPath);
             TryDeleteFile(upgradeJsonPath);
             return;
         }
@@ -654,8 +664,7 @@ public class PluginLoader : IPluginLoader, IDisposable
         // 潜在问题 6：.new/ 缺失 → 告警并清理 .upgrade.json
         if (!Directory.Exists(newVersionDir))
         {
-            Console.WriteLine($"[PluginUpgrade] '{pluginId}': new version directory '{newVersionDir}' missing. " +
-                              "Clearing stale upgrade marker. Old version will be kept.");
+            _logger.LogError("[PluginUpgrade] '{PluginId}': new version directory '{NewVersionDir}' missing. Manual cleanup may be required.", pluginId, newVersionDir);
             TryDeleteFile(upgradeJsonPath);
             return;
         }
@@ -671,8 +680,7 @@ public class PluginLoader : IPluginLoader, IDisposable
         // 潜在问题 5：迁移前再次 SDK 校验，若失败保留旧版本，仅清理 .pending/
         if (!TryValidateSdkCompatibility(newVersionDir, out var newManifest, out var sdkError))
         {
-            Console.WriteLine($"[PluginUpgrade] '{pluginId}': new version is SDK-incompatible ({sdkError}). " +
-                              "Keeping old version. Cleaning .pending/.");
+            _logger.LogError("[PluginUpgrade] '{PluginId}': new version is SDK-incompatible ({SdkError}). Old version retained.", pluginId, sdkError);
             TryDeleteDirectory(newVersionDir);
             TryDeleteFile(upgradeJsonPath);
             return;
@@ -686,7 +694,7 @@ public class PluginLoader : IPluginLoader, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[PluginUpgrade] '{pluginId}': step 1 (copy to staging) failed: {ex.Message}");
+            _logger.LogError(ex, "[PluginUpgrade] '{PluginId}': step 1 (copy to staging) failed", pluginId);
             TryDeleteDirectory(stagingDir);
             // 旧版本未触碰，保持原状，仅清理 .pending
             TryDeleteDirectory(newVersionDir);
@@ -705,7 +713,7 @@ public class PluginLoader : IPluginLoader, IDisposable
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[PluginUpgrade] '{pluginId}': step 2 (rename old → .old) failed: {ex.Message}");
+                _logger.LogError(ex, "[PluginUpgrade] '{PluginId}': step 2 (rename old → .old) failed", pluginId);
                 // 回滚步骤 1
                 TryDeleteDirectory(stagingDir);
                 TryDeleteDirectory(newVersionDir);
@@ -721,15 +729,14 @@ public class PluginLoader : IPluginLoader, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[PluginUpgrade] '{pluginId}': step 3 (rename staging → target) failed: {ex.Message}");
+            _logger.LogError(ex, "[PluginUpgrade] '{PluginId}': step 3 (rename staging → target) failed", pluginId);
             // 回滚：把 .old 移回原位
             if (oldManifestExists)
             {
                 try { Directory.Move(oldBackupDir, targetDir); }
                 catch (Exception rollbackEx)
                 {
-                    Console.WriteLine($"[PluginUpgrade] '{pluginId}': FATAL rollback failed: {rollbackEx.Message}. " +
-                                      $"Old version preserved at '{oldBackupDir}'.");
+                    _logger.LogError(rollbackEx, "[PluginUpgrade] '{PluginId}': FATAL rollback failed. Manual intervention required.", pluginId);
                 }
             }
             TryDeleteDirectory(stagingDir);
@@ -748,7 +755,7 @@ public class PluginLoader : IPluginLoader, IDisposable
             catch (Exception ex)
             {
                 // 非致命：新版本已就位，旧版本残留 .old 不会影响加载
-                Console.WriteLine($"[PluginUpgrade] '{pluginId}': step 4 (delete .old) failed (non-fatal): {ex.Message}");
+                _logger.LogError(ex, "[PluginUpgrade] '{PluginId}': step 4 (delete .old) failed (non-fatal)", pluginId);
             }
         }
 
@@ -761,7 +768,7 @@ public class PluginLoader : IPluginLoader, IDisposable
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[PluginUpgrade] '{pluginId}': state merge failed (non-fatal): {ex.Message}");
+                _logger.LogError(ex, "[PluginUpgrade] '{PluginId}': state merge failed (non-fatal)", pluginId);
             }
         }
 
@@ -769,7 +776,7 @@ public class PluginLoader : IPluginLoader, IDisposable
         TryDeleteDirectory(newVersionDir);
         TryDeleteFile(upgradeJsonPath);
 
-        Console.WriteLine($"[PluginUpgrade] '{pluginId}': successfully upgraded to v{info.NewVersion}.");
+        _logger.LogInformation("[PluginUpgrade] '{PluginId}': successfully upgraded to v{NewVersion}.", pluginId, info.NewVersion);
     }
 
     /// <summary>
@@ -874,7 +881,7 @@ public class PluginLoader : IPluginLoader, IDisposable
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[PluginUpgrade] Failed to restore pending state from '{upgradeJson}': {ex.Message}");
+                _logger.LogError(ex, "[PluginUpgrade] Failed to restore pending state from '{UpgradeJson}'", upgradeJson);
             }
         }
     }
@@ -882,13 +889,13 @@ public class PluginLoader : IPluginLoader, IDisposable
     private static void TryDeleteFile(string path)
     {
         try { if (File.Exists(path)) File.Delete(path); }
-        catch (Exception ex) { Console.WriteLine($"[PluginUpgrade] Failed to delete file '{path}': {ex.Message}"); }
+        catch (Exception ex) { _logger.LogError(ex, "[PluginUpgrade] Failed to delete file '{Path}'", path); }
     }
 
     private static void TryDeleteDirectory(string path)
     {
         try { if (Directory.Exists(path)) Directory.Delete(path, true); }
-        catch (Exception ex) { Console.WriteLine($"[PluginUpgrade] Failed to delete directory '{path}': {ex.Message}"); }
+        catch (Exception ex) { _logger.LogError(ex, "[PluginUpgrade] Failed to delete directory '{Path}'", path); }
     }
 
     private static void CopyDirectory(string sourceDir, string destDir)
@@ -972,7 +979,7 @@ public class PluginLoader : IPluginLoader, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[PluginUpgrade] Failed to delete '{upgradeJson}': {ex.Message}");
+            _logger.LogError(ex, "[PluginUpgrade] Failed to delete '{UpgradeJson}'", upgradeJson);
         }
         try
         {
@@ -980,7 +987,7 @@ public class PluginLoader : IPluginLoader, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[PluginUpgrade] Failed to delete '{newVersionDir}': {ex.Message}");
+            _logger.LogError(ex, "[PluginUpgrade] Failed to delete '{NewVersionDir}'", newVersionDir);
         }
         return any;
     }
@@ -1025,13 +1032,13 @@ public class PluginLoader : IPluginLoader, IDisposable
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Failed to delete plugin directory '{pluginDir}': {ex.Message}");
+                        _logger.LogError(ex, "Failed to delete plugin directory '{PluginDir}'", pluginDir);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to process plugin manifest '{manifestPath}': {ex.Message}");
+                _logger.LogError(ex, "Failed to process plugin manifest '{ManifestPath}'", manifestPath);
             }
         }
     }
@@ -1063,7 +1070,7 @@ public class PluginLoader : IPluginLoader, IDisposable
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to load plugin manifest '{manifestPath}': {ex.Message}");
+                _logger.LogError(ex, "Failed to load plugin manifest '{ManifestPath}'", manifestPath);
             }
         }
     }
@@ -1132,7 +1139,7 @@ public class PluginLoader : IPluginLoader, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to save plugin manifest for '{pluginInfo.PluginId}': {ex.Message}");
+            _logger.LogError(ex, "Failed to save plugin manifest for '{PluginId}'", pluginInfo.PluginId);
         }
     }
 
@@ -1150,7 +1157,7 @@ public class PluginLoader : IPluginLoader, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to delete plugin manifest for '{pluginId}': {ex.Message}");
+            _logger.LogError(ex, "Failed to delete plugin manifest for '{PluginId}'", pluginId);
         }
     }
 
@@ -1178,7 +1185,7 @@ public class PluginLoader : IPluginLoader, IDisposable
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Plugin ShutdownAsync failed: {ex.Message}");
+                _logger.LogError(ex, "Plugin ShutdownAsync failed");
             }
         }
     }
@@ -1217,7 +1224,7 @@ public class PluginLoader : IPluginLoader, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"ShutdownAllPluginsAsync failed during Dispose: {ex.Message}");
+            _logger.LogError(ex, "ShutdownAllPluginsAsync failed during Dispose");
         }
 
         lock (_sync)
@@ -1236,8 +1243,11 @@ public class PluginLoader : IPluginLoader, IDisposable
 
     /// <summary>
     /// 校验插件声明的 MinPluginSdkVersion 是否被当前宿主链接的 Plugin SDK 满足。
-    /// 规则：required &lt;= current 即兼容。null/空视为无约束（通过）。
-    /// 仅比较 Major.Minor.Build 三段；预发布标签忽略。
+    /// 规则遵循 SemVer：
+    /// - 主版本号必须相等（主版本递增代表破坏性变更，跨主版本不兼容）。
+    /// - 次版本号：宿主 &gt;= 插件要求即兼容（次版本递增代表向后兼容的新增功能）。
+    /// - 修订号：宿主 &gt;= 插件要求即兼容。
+    /// null/空视为无约束（通过）。仅比较 Major.Minor.Build 三段；预发布标签忽略。
     /// 解析失败：拒绝加载（fail-closed）。版本不明不应放行，避免不兼容插件运行时崩溃。
     /// </summary>
     public static bool IsPluginSdkCompatible(string? required)
@@ -1245,12 +1255,13 @@ public class PluginLoader : IPluginLoader, IDisposable
         if (string.IsNullOrWhiteSpace(required)) return true;
 
         if (!TryParseSemVer(required, out var reqMajor, out var reqMinor, out var reqBuild))
-            return false; // 修复：解析失败拒绝放行（fail-closed），避免误判不兼容插件
+            return false; // 解析失败拒绝放行（fail-closed），避免误判不兼容插件
 
         if (!TryParseSemVer(PluginSdkContract.CurrentVersion, out var curMajor, out var curMinor, out var curBuild))
             return false; // 宿主 SDK 版本无法解析时拒绝（fail-closed）
 
-        if (curMajor != reqMajor) return curMajor > reqMajor;
+        // 主版本号不同视为不兼容：SemVer 规范下主版本递增代表破坏性变更
+        if (curMajor != reqMajor) return false;
         if (curMinor != reqMinor) return curMinor > reqMinor;
         return curBuild >= reqBuild;
     }

@@ -86,10 +86,7 @@ public class TdlClientManager : IDisposable
             .OnFileUpdate(HandleFileUpdate)
             .OnAuthStateChanged(() => AuthStateChanged?.Invoke());
 
-        _client.UpdateReceived += async (_, update) =>
-        {
-            await _updateHandler.ProcessUpdates(_client, update, TdlRoot);
-        };
+        _client.UpdateReceived += OnUpdateReceived;
 
         lock (_initLock)
         {
@@ -224,12 +221,31 @@ public class TdlClientManager : IDisposable
         return Task.CompletedTask;
     }
 
+    private async void OnUpdateReceived(TdClient _, TdApi.Update update)
+    {
+        try
+        {
+            if (_updateHandler is not null && _client is not null)
+            {
+                await _updateHandler.ProcessUpdates(_client, update, TdlRoot);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "处理 TDLib 更新时发生未捕获异常");
+        }
+    }
+
     public void Dispose()
     {
         if (_disposed) return;
         _disposed = true;
 
-        _client?.Dispose();
+        if (_client is not null)
+        {
+            _client.UpdateReceived -= OnUpdateReceived;
+            _client.Dispose();
+        }
         _ready.Dispose();
     }
 }

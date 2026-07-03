@@ -19,6 +19,12 @@ public partial class TdlService
         _logger = logger;
     }
 
+    [GeneratedRegex(@"(?:https?:\/\/)?(?:t\.me|telegram\.me)\/(?<name>[^\/\?\#]+)", RegexOptions.IgnoreCase)]
+    private static partial Regex TelegramLinkRegex();
+
+    [GeneratedRegex(@"(\d+)")]
+    private static partial Regex DigitRegex();
+
     public TdClient Client => _clientManager.Client;
 
     public async Task EnsureReadyAsync()
@@ -233,9 +239,7 @@ public partial class TdlService
         if (input.StartsWith("@")) return input.Substring(1);
         if (!input.Contains("/")) return null;
 
-        var match = Regex.Match(input,
-            @"(?:https?:\/\/)?(?:t\.me|telegram\.me)\/(?<name>[^\/\?\#]+)",
-            RegexOptions.IgnoreCase);
+        var match = TelegramLinkRegex().Match(input);
 
         if (!match.Success) return null;
         var name = match.Groups["name"].Value;
@@ -263,7 +267,7 @@ public partial class TdlService
 
     int ParseRetryAfterFromMessage(string message)
     {
-        var match = Regex.Match(message, @"(\d+)");
+        var match = DigitRegex().Match(message);
         if (match.Success && int.TryParse(match.Groups[1].Value, out int seconds) && seconds > 0)
         {
             return Math.Min(seconds + 2, 300);

@@ -77,15 +77,19 @@ public partial class App : Application
         // 阶段2：调用插件 InitializeAsync(IServiceCollection)，注册 DI 服务
         pluginLoader.InitializeAllPluginsAsync(services).GetAwaiter().GetResult();
 
-        services.AddSingleton<IPluginLoader>(sp =>
-        {
-            var navigationService = sp.GetRequiredService<INavigationService>() as NavigationService;
-            navigationService?.AttachPluginLoader(pluginLoader);
-            return pluginLoader;
-        });
+        // 统一注入：将提前实例化的 pluginLoader 注册到 DI（避免双重注册产生孤立实例）
+        services.AddSingleton<PluginLoader>(pluginLoader);
+        services.AddSingleton<IPluginLoader>(pluginLoader);
 
         ServiceProvider = services.BuildServiceProvider();
         ServiceLocator.Initialize(ServiceProvider);
+
+        // 注入 logger 到 PluginLoader（构造期使用 NullLogger）
+        PluginLoader.SetLogger(ServiceProvider.GetRequiredService<ILogger<PluginLoader>>());
+
+        // 显式连接 NavigationService 与 PluginLoader（原嵌入在 DI 工厂中的副作用，移出以保证时序确定）
+        var navigationService = ServiceProvider.GetRequiredService<INavigationService>() as NavigationService;
+        navigationService?.AttachPluginLoader(pluginLoader);
 
         // 记录应用启动日志
         var logger = ServiceProvider.GetRequiredService<ILogger<App>>();
@@ -137,7 +141,6 @@ public partial class App : Application
         // 修复 #12：原 catch 仅 Console.WriteLine，未持久化插件错误状态，UI 上仍显示为已加载，
         // 用户无法感知插件故障。改为：失败时调用 MarkPluginError 持久化状态，并记录结构化日志。
         var logger = ServiceProvider?.GetRequiredService<ILogger<App>>();
-        var concreteLoader = pluginLoader as PluginLoader;
 
         foreach (var pluginInfo in pluginLoader.GetInstalledPlugins())
         {
@@ -160,7 +163,7 @@ public partial class App : Application
             catch (Exception ex)
             {
                 logger?.LogError(ex, "注册插件 {PluginId} 导航/菜单失败", pluginInfo.PluginId);
-                concreteLoader?.MarkPluginError(pluginInfo.PluginId, $"Registration failed: {ex.Message}");
+                pluginLoader.MarkPluginError(pluginInfo.PluginId, $"Registration failed: {ex.Message}");
             }
         }
     }
