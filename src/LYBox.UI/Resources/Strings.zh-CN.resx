@@ -110,6 +110,7 @@
   <data name="STATE_NOT_INSTALLED" xml:space="preserve"><value>未安装</value></data>
   <data name="PLUGIN_INSTALLED_SUCCESS" xml:space="preserve"><value>插件 '{0}' 安装成功</value></data>
   <data name="INSTALLATION_FAILED" xml:space="preserve"><value>安装失败：{0}</value></data>
+  <data name="INSTALLATION_FAILED_TITLE" xml:space="preserve"><value>安装失败</value></data>
   <data name="PLUGIN_UNINSTALL_AFTER_RESTART" xml:space="preserve"><value>插件 '{0}' 将在重启后卸载</value></data>
   <data name="PLUGIN_UPGRADE_SCHEDULED" xml:space="preserve"><value>插件 '{0}' 升级已就绪，重启后生效</value></data>
   <data name="PLUGIN_UPGRADE_CANCELLED" xml:space="preserve"><value>插件 '{0}' 升级已取消</value></data>

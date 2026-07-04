@@ -238,6 +238,9 @@
   <data name="INSTALLATION_FAILED" xml:space="preserve">
     <value>Installation failed: {0}</value>
   </data>
+  <data name="INSTALLATION_FAILED_TITLE" xml:space="preserve">
+    <value>Installation Failed</value>
+  </data>
   <data name="PLUGIN_UNINSTALL_AFTER_RESTART" xml:space="preserve">
     <value>Plugin '{0}' will be uninstalled after restart</value>
   </data>

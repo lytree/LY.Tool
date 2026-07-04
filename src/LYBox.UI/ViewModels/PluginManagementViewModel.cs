@@ -5,6 +5,7 @@ using LYBox.Plugin.Shared.Services;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Ursa.Controls;
 
 namespace LYBox.UI.ViewModels;
 
@@ -106,7 +107,12 @@ public partial class PluginManagementViewModel : ViewModelBase
         }
         else
         {
-            StatusMessage = _localizationService.GetString("INSTALLATION_FAILED", "Installation failed: {0}", result.ErrorMessage ?? "");
+            // 显示安装失败提示对话框，展示具体原因
+            var reason = result.ErrorMessage ?? "";
+            StatusMessage = _localizationService.GetString("INSTALLATION_FAILED", reason);
+            var title = _localizationService.GetString("INSTALLATION_FAILED_TITLE", "Installation Failed");
+            await OverlayMessageBox.ShowAsync(StatusMessage, title,
+                icon: MessageBoxIcon.Error, button: MessageBoxButton.OK);
         }
     }
 

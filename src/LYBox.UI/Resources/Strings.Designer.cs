@@ -82,6 +82,7 @@ public static class Strings
     public static string STATE_NOT_INSTALLED => ResourceManager.GetString(nameof(STATE_NOT_INSTALLED), Culture)!;
     public static string PLUGIN_INSTALLED_SUCCESS => ResourceManager.GetString(nameof(PLUGIN_INSTALLED_SUCCESS), Culture)!;
     public static string INSTALLATION_FAILED => ResourceManager.GetString(nameof(INSTALLATION_FAILED), Culture)!;
+    public static string INSTALLATION_FAILED_TITLE => ResourceManager.GetString(nameof(INSTALLATION_FAILED_TITLE), Culture)!;
     public static string PLUGIN_UNINSTALL_AFTER_RESTART => ResourceManager.GetString(nameof(PLUGIN_UNINSTALL_AFTER_RESTART), Culture)!;
     public static string SETTINGS_TITLE => ResourceManager.GetString(nameof(SETTINGS_TITLE), Culture)!;
     public static string RESET => ResourceManager.GetString(nameof(RESET), Culture)!;

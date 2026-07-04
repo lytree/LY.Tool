@@ -12,7 +12,7 @@
 		<Version>$(PluginVersion)</Version>
 		<AssemblyVersion>$(PluginVersion)</AssemblyVersion>
 		<FileVersion>$(PluginVersion)</FileVersion>
-		<MinPluginSdkVersion>1.0.0</MinPluginSdkVersion>
+		<MinPluginSdkVersion>2.0.0</MinPluginSdkVersion>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Update="Resources\Strings.Designer.cs">
