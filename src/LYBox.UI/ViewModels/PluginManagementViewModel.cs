@@ -49,7 +49,9 @@ public partial class PluginManagementViewModel : ViewModelBase
         }
 
         NeedsRestart = installedPlugins.Any(p =>
-            p.State == PluginState.PendingUninstall || p.State == PluginState.PendingUpgrade);
+            p.State == PluginState.PendingUninstall ||
+            p.State == PluginState.PendingUpgrade ||
+            p.State == PluginState.Installed);
     }
 
     [RelayCommand]
@@ -151,7 +153,9 @@ public partial class PluginManagementViewModel : ViewModelBase
             // 取消后可能不再需要重启
             var installed = _pluginLoader.GetInstalledPlugins();
             NeedsRestart = installed.Any(p =>
-                p.State == PluginState.PendingUninstall || p.State == PluginState.PendingUpgrade);
+                p.State == PluginState.PendingUninstall ||
+                p.State == PluginState.PendingUpgrade ||
+                p.State == PluginState.Installed);
         }
     }
 

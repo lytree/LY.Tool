@@ -67,76 +67,61 @@
             Foreground="{DynamicResource SemiColorText2}"
             Text="{DynamicResource SEARCH_NO_RESULTS}"
             ZIndex="1" />
-        <!-- 使用 ListBox 替代 ScrollViewer+ItemsControl，获得 VirtualizingStackPanel 虚拟化支持 -->
-        <ListBox
-        ItemsSource="{Binding FilteredGroups}"
-        SelectionMode="Toggle"
-        SelectedIndex="-1"
-        Padding="0,0,24,24"
-        HorizontalAlignment="Stretch"
-        VerticalAlignment="Stretch"
-        Background="Transparent"
-        BorderThickness="0">
-        <ListBox.Styles>
-            <!-- 去除 ListBox 选中/hover 背景和边框 -->
-            <Style Selector="ListBoxItem">
-                <Setter Property="Padding" Value="0" />
-                <Setter Property="Margin" Value="0" />
-                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                <Setter Property="Background" Value="Transparent" />
-                <Setter Property="BorderThickness" Value="0" />
-            </Style>
-            <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter#ContentPresenter">
-                <Setter Property="Background" Value="Transparent" />
-            </Style>
-            <Style Selector="ListBoxItem:selected /template/ ContentPresenter#ContentPresenter">
-                <Setter Property="Background" Value="Transparent" />
-            </Style>
-            <Style Selector="ListBoxItem:selectedactive /template/ ContentPresenter#ContentPresenter">
-                <Setter Property="Background" Value="Transparent" />
-            </Style>
-        </ListBox.Styles>
-        <ListBox.ItemTemplate>
-            <DataTemplate x:DataType="vm:ToolGroup">
-                <StackPanel HorizontalAlignment="Stretch" Margin="0,0,0,24">
-                    <TextBlock Classes="GroupHeader" Text="{Binding GroupName}" />
-                    <ItemsControl
-                        ItemsSource="{Binding Items}"
-                        HorizontalAlignment="Stretch">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <u:ElasticWrapPanel
-                                    IsFillHorizontal="True"
-                                    ItemSpacing="12"
-                                    LineSpacing="12" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="vm:ToolItem">
-                                <Button
-                                    Classes="ToolCard"
-                                    HorizontalAlignment="Stretch"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="{Binding Key}">
-                                    <Grid ColumnDefinitions="*,Auto">
-                                        <TextBlock
-                                            Grid.Column="0"
-                                            Classes="ToolName"
-                                            Text="{Binding Name}"
-                                            TextTrimming="CharacterEllipsis" />
-                                        <u:Badge
-                                            Grid.Column="1"
-                                            Classes="ToolStatus"
-                                            Content="{Binding Status}"
-                                            IsVisible="{Binding Status, Converter={x:Static ObjectConverters.IsNotNull}}" />
-                                    </Grid>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </DataTemplate>
-        </ListBox.ItemTemplate>
-    </ListBox>
+        <!-- ElasticWrapPanel 设置 ItemHeight 后，panel 可基于固定行高正确计算
+             换行后的总高度（rows × ItemHeight + (rows-1) × LineSpacing），
+             避免作为 ItemsPanel 时只报告单行高度导致换行按钮被裁剪。 -->
+    <ScrollViewer
+        HorizontalScrollBarVisibility="Disabled"
+        VerticalScrollBarVisibility="Auto">
+        <ItemsControl
+            ItemsSource="{Binding FilteredGroups}"
+            Padding="0,0,24,24"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Top"
+            Background="Transparent">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:ToolGroup">
+                    <StackPanel HorizontalAlignment="Stretch" Margin="0,0,0,24">
+                        <TextBlock Classes="GroupHeader" Text="{Binding GroupName}" />
+                        <ItemsControl
+                            ItemsSource="{Binding Items}"
+                            HorizontalAlignment="Stretch">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <u:ElasticWrapPanel
+                                        IsFillHorizontal="True"
+                                        ItemHeight="56"
+                                        ItemSpacing="12"
+                                        LineSpacing="12" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ToolItem">
+                                    <Button
+                                        Classes="ToolCard"
+                                        HorizontalAlignment="Stretch"
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="{Binding Key}">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock
+                                                Grid.Column="0"
+                                                Classes="ToolName"
+                                                Text="{Binding Name}"
+                                                TextTrimming="CharacterEllipsis" />
+                                            <u:Badge
+                                                Grid.Column="1"
+                                                Classes="ToolStatus"
+                                                Content="{Binding Status}"
+                                                IsVisible="{Binding Status, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                                        </Grid>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
     </Panel>
 </UserControl>

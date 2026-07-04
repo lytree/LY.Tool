@@ -1,11 +1,15 @@
 using System.Text.Json;
 using LYBox.Plugin.Downloader.Models;
+using LYBox.Plugin.Shared;
+using LYBox.Plugin.Shared.Services;
 
 namespace LYBox.Plugin.Downloader.Services;
 
 /// <summary>
-/// 二进制路径与全局设置的 JSON 持久化。
-/// 存储位置：%LOCALAPPDATA%/LYBox/DownloaderPlugin/settings.json（跨平台用 LocalApplicationData）。
+/// 二进制路径与全局设置的持久化。
+/// 优先通过宿主 <see cref="ISettingsService"/>（SQLite 持久化，统一在设置页管理）；
+/// 若 <see cref="ServiceLocator"/> 尚未初始化（如插件早期初始化阶段），回退到本地 JSON 文件。
+/// JSON 路径：%LOCALAPPDATA%/LYBox/DownloaderPlugin/settings.json。
 /// </summary>
 public static class DownloadSettingsStore
 {
@@ -28,10 +32,54 @@ public static class DownloadSettingsStore
 
     private static string SettingsPath => Path.Combine(SettingsDir, "settings.json");
 
-    /// <summary>当前内存中的设置（启动时加载，修改后调用 Save 持久化）</summary>
-    public static BinaryPaths Current { get; private set; } = Load();
+    /// <summary>
+    /// 当前设置（每次访问都从 ISettingsService 读取最新值，确保设置页修改立即生效）。
+    /// 若 ServiceLocator 不可用则回退到 JSON。
+    /// </summary>
+    public static BinaryPaths Current => Load();
 
+    private static ISettingsService? TryGetSettingsService()
+        => ServiceLocator.TryGetService(out ISettingsService? svc) ? svc : null;
+
+    /// <summary>从 ISettingsService 读取设置；服务不可用时回退到 JSON。</summary>
     public static BinaryPaths Load()
+    {
+        var svc = TryGetSettingsService();
+        if (svc != null)
+        {
+            return new BinaryPaths
+            {
+                FfmpegPath = svc.GetValue<string>("DL.FfmpegPath") ?? string.Empty,
+                Mp4DecryptPath = svc.GetValue<string>("DL.Mp4DecryptPath") ?? string.Empty,
+                MkvmergePath = svc.GetValue<string>("DL.MkvmergePath") ?? string.Empty,
+                ShakaPackagerPath = svc.GetValue<string>("DL.ShakaPackagerPath") ?? string.Empty,
+                Proxy = svc.GetValue<string>("DL.Proxy"),
+                UseSystemProxy = svc.GetValue<bool>("DL.UseSystemProxy"),
+                LogLevel = svc.GetValue<string>("DL.LogLevel") ?? "INFO",
+            };
+        }
+        return LoadFromJson();
+    }
+
+    /// <summary>保存设置到 ISettingsService；服务不可用时回退到 JSON。</summary>
+    public static void Save(BinaryPaths cfg)
+    {
+        var svc = TryGetSettingsService();
+        if (svc != null)
+        {
+            svc.SetValue("DL.FfmpegPath", cfg.FfmpegPath);
+            svc.SetValue("DL.Mp4DecryptPath", cfg.Mp4DecryptPath);
+            svc.SetValue("DL.MkvmergePath", cfg.MkvmergePath);
+            svc.SetValue("DL.ShakaPackagerPath", cfg.ShakaPackagerPath);
+            svc.SetValue("DL.Proxy", cfg.Proxy);
+            svc.SetValue("DL.UseSystemProxy", cfg.UseSystemProxy);
+            svc.SetValue("DL.LogLevel", cfg.LogLevel);
+            return;
+        }
+        SaveToJson(cfg);
+    }
+
+    private static BinaryPaths LoadFromJson()
     {
         try
         {
@@ -46,9 +94,8 @@ public static class DownloadSettingsStore
         return new BinaryPaths();
     }
 
-    public static void Save(BinaryPaths cfg)
+    private static void SaveToJson(BinaryPaths cfg)
     {
-        Current = cfg;
         try
         {
             var json = JsonSerializer.Serialize(cfg, JsonOpts);
