@@ -16,7 +16,7 @@
     WindowStartupLocation="CenterScreen"
     MinWidth="640"
     MinHeight="480"
-    Icon="/Assets/irihi.ico"
+    Icon="/Assets/lybox.ico"
     Background="{DynamicResource FluentColorBackground0}"
     mc:Ignorable="d">
     <views:MainView />
