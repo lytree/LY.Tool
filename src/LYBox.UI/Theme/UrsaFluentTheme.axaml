@@ -1,4 +1,4 @@
-<Styles x:Class="LYBox.UI.Theme.UrsaSemiTheme"
+<Styles x:Class="LYBox.UI.Theme.UrsaFluentTheme"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:fluentDesign="using:LYBox.UI.Theme.FluentDesign"

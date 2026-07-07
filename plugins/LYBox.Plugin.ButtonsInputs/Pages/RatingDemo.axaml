@@ -37,8 +37,8 @@
                         Value="{Binding Value}"
                         Count="{Binding Count}"
                         DefaultValue="{Binding DefaultValue}"
-                        Foreground="{StaticResource SemiRed5}"
-                        Character="{StaticResource SemiIconLikeHeart}" />
+                        Foreground="{StaticResource FluentRed5}"
+                        Character="{StaticResource FluentIconLikeHeart}" />
                 </StackPanel>
             </Grid>
             <Border Grid.Column="1" VerticalAlignment="Top">

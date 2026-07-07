@@ -21,7 +21,7 @@
         </StackPanel>
     </Design.PreviewWith>
 
-    <ControlTheme x:Key="SemiSplitButtonElement" TargetType="Button">
+    <ControlTheme x:Key="FluentSplitButtonElement" TargetType="Button">
         <Setter Property="Padding" Value="{DynamicResource ButtonDefaultPadding}" />
         <Setter Property="Foreground" Value="{DynamicResource ButtonDefaultPrimaryForeground}" />
         <Setter Property="BorderThickness" Value="{DynamicResource ButtonBorderThickness}" />
@@ -94,7 +94,7 @@
                         FontFamily="{TemplateBinding FontFamily}"
                         FontSize="{TemplateBinding FontSize}"
                         FontWeight="{TemplateBinding FontWeight}"
-                        Theme="{DynamicResource SemiSplitButtonElement}" />
+                        Theme="{DynamicResource FluentSplitButtonElement}" />
                     <Button
                         Name="PART_SecondaryButton"
                         Grid.Column="1"
@@ -103,7 +103,7 @@
                         MinWidth="{Binding $self.MinHeight}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="{TemplateBinding CornerRadius, Converter={iri:CornerRadiusMixerConverter Right}}"
-                        Theme="{DynamicResource SemiSplitButtonElement}">
+                        Theme="{DynamicResource FluentSplitButtonElement}">
                         <PathIcon
                             Theme="{DynamicResource InnerPathIcon}"
                             Data="{DynamicResource SplitButtonIconGlyph}"

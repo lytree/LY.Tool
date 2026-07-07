@@ -1,9 +1,9 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="BannerInformationIconGeometry" ResourceKey="SemiIconInfoCircle" />
-    <StaticResource x:Key="BannerSuccessIconGeometry" ResourceKey="SemiIconTickCircle" />
-    <StaticResource x:Key="BannerWarningIconGeometry" ResourceKey="SemiIconAlertTriangle" />
-    <StaticResource x:Key="BannerErrorIconGeometry" ResourceKey="SemiIconAlertCircle" />
-    <StaticResource x:Key="BannerCloseIconGeometry" ResourceKey="SemiIconClose" />
+    <StaticResource x:Key="BannerInformationIconGeometry" ResourceKey="FluentIconInfoCircle" />
+    <StaticResource x:Key="BannerSuccessIconGeometry" ResourceKey="FluentIconTickCircle" />
+    <StaticResource x:Key="BannerWarningIconGeometry" ResourceKey="FluentIconAlertTriangle" />
+    <StaticResource x:Key="BannerErrorIconGeometry" ResourceKey="FluentIconAlertCircle" />
+    <StaticResource x:Key="BannerCloseIconGeometry" ResourceKey="FluentIconClose" />
 
     <CornerRadius x:Key="BannerCornerRadius">3</CornerRadius>
     <Thickness x:Key="BannerBorderPadding">12</Thickness>

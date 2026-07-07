@@ -110,10 +110,10 @@
                         <TextBlock
                             Margin="16"
                             VerticalAlignment="Bottom"
-                            Classes="WinUIBody"
+                            Classes="FluentBody"
                             FontWeight="SemiBold"
                             Text="{DynamicResource WELCOME_IRIHI}"
-                            Foreground="{DynamicResource SemiColorText0}" />
+                            Foreground="{DynamicResource FluentColorText0}" />
                     </Grid>
                 </Border>
 
@@ -124,35 +124,35 @@
                     RowDefinitions="Auto,Auto"
                     ColumnSpacing="14">
                     <Grid Grid.RowSpan="2" Width="82" Height="82" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Border Name="HaloPulse" Background="{DynamicResource SemiColorPrimary}" CornerRadius="41" Opacity="0.15" />
+                        <Border Name="HaloPulse" Background="{DynamicResource FluentColorPrimary}" CornerRadius="41" Opacity="0.15" />
                         <iri:IrihiLogo
                             Name="BrandLogo"
                             Width="56"
                             Height="56"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            Fill="{DynamicResource SemiColorPrimary}" />
+                            Fill="{DynamicResource FluentColorPrimary}" />
                     </Grid>
 
                     <TextBlock
                         Grid.Column="1"
                         VerticalAlignment="Bottom"
-                        Classes="WinUILargeTitle"
+                        Classes="FluentLargeTitle"
                         Text="{DynamicResource SPLASH_TITLE}" />
                     <TextBlock
                         Grid.Row="1"
                         Grid.Column="1"
-                        Classes="WinUIBody"
+                        Classes="FluentBody"
                         Text="{DynamicResource SPLASH_SUBTITLE}" />
                 </Grid>
 
                 <StackPanel Grid.Row="2" Spacing="4">
-                    <TextBlock HorizontalAlignment="Center" Classes="WinUIBody" Text="{DynamicResource SPLASH_WELCOME}" TextWrapping="Wrap" />
+                    <TextBlock HorizontalAlignment="Center" Classes="FluentBody" Text="{DynamicResource SPLASH_WELCOME}" TextWrapping="Wrap" />
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Spacing="8">
                     <ProgressBar IsIndeterminate="True" Height="5" CornerRadius="999" />
-                    <TextBlock HorizontalAlignment="Center" Classes="WinUICaption" Text="{DynamicResource LOADING_MODULES}" />
+                    <TextBlock HorizontalAlignment="Center" Classes="FluentCaption" Text="{DynamicResource LOADING_MODULES}" />
                 </StackPanel>
             </Grid>
         </Border>

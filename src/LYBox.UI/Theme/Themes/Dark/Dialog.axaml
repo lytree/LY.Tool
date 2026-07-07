@@ -1,13 +1,13 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
  
 
-    <StaticResource x:Key="OverlayDialogMaskBrush" ResourceKey="SemiColorOverlayBackground" />
-    <StaticResource x:Key="DialogBackground" ResourceKey="SemiColorBackground2" />
-    <StaticResource x:Key="DialogInfoIconForeground" ResourceKey="SemiColorPrimary" />
-    <StaticResource x:Key="DialogQuestionIconForeground" ResourceKey="SemiColorPrimary" />
-    <StaticResource x:Key="DialogExclamationIconForeground" ResourceKey="SemiYellow5" />
-    <StaticResource x:Key="DialogSuccessIconForeground" ResourceKey="SemiColorSuccess" />
-    <StaticResource x:Key="DialogWarningIconForeground" ResourceKey="SemiColorWarning" />
-    <StaticResource x:Key="DialogErrorIconForeground" ResourceKey="SemiColorDanger" />
-    <StaticResource x:Key="DialogBoxShadow" ResourceKey="SemiShadowElevated" />
+    <StaticResource x:Key="OverlayDialogMaskBrush" ResourceKey="FluentColorOverlayBackground" />
+    <StaticResource x:Key="DialogBackground" ResourceKey="FluentColorBackground2" />
+    <StaticResource x:Key="DialogInfoIconForeground" ResourceKey="FluentColorPrimary" />
+    <StaticResource x:Key="DialogQuestionIconForeground" ResourceKey="FluentColorPrimary" />
+    <StaticResource x:Key="DialogExclamationIconForeground" ResourceKey="FluentYellow5" />
+    <StaticResource x:Key="DialogSuccessIconForeground" ResourceKey="FluentColorSuccess" />
+    <StaticResource x:Key="DialogWarningIconForeground" ResourceKey="FluentColorWarning" />
+    <StaticResource x:Key="DialogErrorIconForeground" ResourceKey="FluentColorDanger" />
+    <StaticResource x:Key="DialogBoxShadow" ResourceKey="FluentShadowElevated" />
 </ResourceDictionary>

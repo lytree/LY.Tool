@@ -30,7 +30,7 @@
                                 Height="{Binding $parent[u:Avatar].Height}" />
                             <PathIcon
                                 Theme="{StaticResource InnerPathIcon}"
-                                Data="{StaticResource SemiIconCamera}"
+                                Data="{StaticResource FluentIconCamera}"
                                 Width="{Binding $parent[u:Avatar].FontSize}"
                                 Height="{Binding $parent[u:Avatar].FontSize}" />
                         </Panel>
@@ -85,7 +85,7 @@
                                 Height="{Binding $parent[u:Avatar].Height}" />
                             <PathIcon
                                 Theme="{StaticResource InnerPathIcon}"
-                                Data="{StaticResource SemiIconCamera}"
+                                Data="{StaticResource FluentIconCamera}"
                                 Width="{Binding $parent[u:Avatar].FontSize}"
                                 Height="{Binding $parent[u:Avatar].FontSize}" />
                         </Panel>
@@ -95,8 +95,8 @@
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="8">
             <u:Avatar Content="AS" />
-            <u:Avatar Content="Semi" Padding="4" />
-            <u:Avatar Content="Semi" Padding="10" />
+            <u:Avatar Content="LY" Padding="4" />
+            <u:Avatar Content="LY" Padding="10" />
         </StackPanel>
 
     </StackPanel>

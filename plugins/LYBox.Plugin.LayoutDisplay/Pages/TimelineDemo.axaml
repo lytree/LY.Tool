@@ -15,11 +15,11 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <templateselectors:TimelineIconTemplateSelector x:Key="IconSelector">
-                <SolidColorBrush x:Key="Default" Color="{DynamicResource SemiGray6Color}" />
-                <SolidColorBrush x:Key="Ongoing" Color="{DynamicResource SemiBlue6Color}" />
-                <SolidColorBrush x:Key="Success" Color="{DynamicResource SemiGreen6Color}" />
-                <SolidColorBrush x:Key="Warning" Color="{DynamicResource SemiOrange6Color}" />
-                <SolidColorBrush x:Key="Error" Color="{DynamicResource SemiRed6Color}" />
+                <SolidColorBrush x:Key="Default" Color="{DynamicResource FluentGray6Color}" />
+                <SolidColorBrush x:Key="Ongoing" Color="{DynamicResource FluentBlue6Color}" />
+                <SolidColorBrush x:Key="Success" Color="{DynamicResource FluentGreen6Color}" />
+                <SolidColorBrush x:Key="Warning" Color="{DynamicResource FluentOrange6Color}" />
+                <SolidColorBrush x:Key="Error" Color="{DynamicResource FluentRed6Color}" />
             </templateselectors:TimelineIconTemplateSelector>
         </ResourceDictionary>
     </UserControl.Resources>

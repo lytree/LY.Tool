@@ -32,7 +32,7 @@
                         Margin="0,8"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Stretch"
-                        Background="{DynamicResource SemiBlue6}"
+                        Background="{DynamicResource FluentBlue6}"
                         CornerRadius="4" />
                 </Border>
             </u:SelectionList.Indicator>
@@ -46,7 +46,7 @@
                             Text="{Binding}">
                             <TextBlock.Styles>
                                 <Style Selector="TextBlock.Active">
-                                    <Setter Property="Foreground" Value="{DynamicResource SemiOrange6}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource FluentOrange6}" />
                                 </Style>
                             </TextBlock.Styles>
                         </TextBlock>

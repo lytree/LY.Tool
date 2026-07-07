@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="ToggleButtonDefaultFontSize" ResourceKey="SemiFontSizeRegular" />
-    <StaticResource x:Key="ToggleButtonDefaultFontWeight" ResourceKey="SemiFontWeightBold" />
-    <StaticResource x:Key="ToggleButtonBorderThickness" ResourceKey="SemiBorderThicknessControl" />
-    <StaticResource x:Key="ToggleButtonCornerRadius" ResourceKey="SemiBorderRadiusSmall" />
+    <StaticResource x:Key="ToggleButtonDefaultFontSize" ResourceKey="FluentFontSizeRegular" />
+    <StaticResource x:Key="ToggleButtonDefaultFontWeight" ResourceKey="FluentFontWeightBold" />
+    <StaticResource x:Key="ToggleButtonBorderThickness" ResourceKey="FluentBorderThicknessControl" />
+    <StaticResource x:Key="ToggleButtonCornerRadius" ResourceKey="FluentBorderRadiusSmall" />
 </ResourceDictionary>

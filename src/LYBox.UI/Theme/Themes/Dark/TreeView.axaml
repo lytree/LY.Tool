@@ -1,14 +1,14 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="TreeViewItemDefaultForeground" ResourceKey="SemiColorText0" />
-    <StaticResource x:Key="TreeViewItemIconDefaultForeground" ResourceKey="SemiColorText2" />
-    <StaticResource x:Key="TreeViewItemIconHoverForeground" ResourceKey="SemiColorText0" />
-    <StaticResource x:Key="TreeViewItemDisabledForeground" ResourceKey="SemiColorDisabledText" />
+    <StaticResource x:Key="TreeViewItemDefaultForeground" ResourceKey="FluentColorText0" />
+    <StaticResource x:Key="TreeViewItemIconDefaultForeground" ResourceKey="FluentColorText2" />
+    <StaticResource x:Key="TreeViewItemIconHoverForeground" ResourceKey="FluentColorText0" />
+    <StaticResource x:Key="TreeViewItemDisabledForeground" ResourceKey="FluentColorDisabledText" />
     <SolidColorBrush x:Key="TreeViewItemDefaultBackground" Color="Transparent" />
-    <StaticResource x:Key="TreeViewItemPointeroverForeground" ResourceKey="SemiColorText0" />
-    <StaticResource x:Key="TreeViewItemPointeroverBackground" ResourceKey="SemiColorFill0" />
-    <StaticResource x:Key="TreeViewItemPressedBackground" ResourceKey="SemiColorFill1" />
-    <StaticResource x:Key="TreeViewItemSelectedForeground" ResourceKey="SemiColorText0" />
-    <StaticResource x:Key="TreeViewItemSelectedBackground" ResourceKey="SemiColorPrimaryLight" />
+    <StaticResource x:Key="TreeViewItemPointeroverForeground" ResourceKey="FluentColorText0" />
+    <StaticResource x:Key="TreeViewItemPointeroverBackground" ResourceKey="FluentColorFill0" />
+    <StaticResource x:Key="TreeViewItemPressedBackground" ResourceKey="FluentColorFill1" />
+    <StaticResource x:Key="TreeViewItemSelectedForeground" ResourceKey="FluentColorText0" />
+    <StaticResource x:Key="TreeViewItemSelectedBackground" ResourceKey="FluentColorPrimaryLight" />
     <SolidColorBrush x:Key="TreeViewItemDisabledBackground" Color="Transparent" />
-    <StaticResource x:Key="TreeViewItemSelectedDisabledBackground" ResourceKey="SemiColorDisabledFill" />
+    <StaticResource x:Key="TreeViewItemSelectedDisabledBackground" ResourceKey="FluentColorDisabledFill" />
 </ResourceDictionary>

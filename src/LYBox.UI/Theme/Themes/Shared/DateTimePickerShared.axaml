@@ -1,15 +1,15 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="DateTimePickerButtonUpGlyph" ResourceKey="SemiIconTriangleUp" />
-    <StaticResource x:Key="DateTimePickerButtonDownGlyph" ResourceKey="SemiIconTriangleDown" />
-    <StaticResource x:Key="DateTimePickerAcceptGlyph" ResourceKey="SemiIconTick" />
-    <StaticResource x:Key="DateTimePickerDismissGlyph" ResourceKey="SemiIconClose" />
-    <StaticResource x:Key="DateTimePickerPopupCornerRadius" ResourceKey="SemiBorderRadiusMedium" />
+    <StaticResource x:Key="DateTimePickerButtonUpGlyph" ResourceKey="FluentIconTriangleUp" />
+    <StaticResource x:Key="DateTimePickerButtonDownGlyph" ResourceKey="FluentIconTriangleDown" />
+    <StaticResource x:Key="DateTimePickerAcceptGlyph" ResourceKey="FluentIconTick" />
+    <StaticResource x:Key="DateTimePickerDismissGlyph" ResourceKey="FluentIconClose" />
+    <StaticResource x:Key="DateTimePickerPopupCornerRadius" ResourceKey="FluentBorderRadiusMedium" />
     <x:Double x:Key="DateTimePickerListBoxItemHeight">36</x:Double>
-    <StaticResource x:Key="DateTimePickerFlyoutPadding" ResourceKey="SemiThicknessNone" />
-    <StaticResource x:Key="DateTimePickerFlyoutBorderMargin" ResourceKey="SemiThicknessTight" />
-    <StaticResource x:Key="DateTimePickerButtonSmallHeight" ResourceKey="SemiFontSizeHeader3" />
-    <StaticResource x:Key="DateTimePickerButtonDefaultHeight" ResourceKey="SemiFontSizeHeader1" />
-    <StaticResource x:Key="DateTimePickerButtonLargeHeight" ResourceKey="SemiHeightControlLarge" />
-    <StaticResource x:Key="DateTimePickerButtonBorderThickness" ResourceKey="SemiBorderThicknessControl" />
-    <StaticResource x:Key="DateTimePickerButtonCornerRadius" ResourceKey="SemiBorderRadiusSmall" />
+    <StaticResource x:Key="DateTimePickerFlyoutPadding" ResourceKey="FluentThicknessNone" />
+    <StaticResource x:Key="DateTimePickerFlyoutBorderMargin" ResourceKey="FluentThicknessTight" />
+    <StaticResource x:Key="DateTimePickerButtonSmallHeight" ResourceKey="FluentFontSizeHeader3" />
+    <StaticResource x:Key="DateTimePickerButtonDefaultHeight" ResourceKey="FluentFontSizeHeader1" />
+    <StaticResource x:Key="DateTimePickerButtonLargeHeight" ResourceKey="FluentHeightControlLarge" />
+    <StaticResource x:Key="DateTimePickerButtonBorderThickness" ResourceKey="FluentBorderThicknessControl" />
+    <StaticResource x:Key="DateTimePickerButtonCornerRadius" ResourceKey="FluentBorderRadiusSmall" />
 </ResourceDictionary>

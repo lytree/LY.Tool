@@ -13,6 +13,6 @@
             IsActive="{Binding ElementName=active, Path=IsChecked}"
             Width="{Binding #width.Value}"
             Height="{Binding #width.Value}"
-            Data="{StaticResource SemiIconHome}" />
+            Data="{StaticResource FluentIconHome}" />
     </StackPanel>
 </UserControl>

@@ -1,24 +1,24 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <!--  CommandBarButton / CommandBarToggleButton  -->
     <SolidColorBrush x:Key="CommandBarButtonBackground" Color="Transparent" />
-    <StaticResource x:Key="CommandBarButtonForeground" ResourceKey="SemiColorText0" />
-    <StaticResource x:Key="CommandBarButtonPointeroverBackground" ResourceKey="SemiColorFill0" />
-    <StaticResource x:Key="CommandBarButtonPressedBackground" ResourceKey="SemiColorFill1" />
-    <StaticResource x:Key="CommandBarButtonDisabledForeground" ResourceKey="SemiColorDisabledText" />
+    <StaticResource x:Key="CommandBarButtonForeground" ResourceKey="FluentColorText0" />
+    <StaticResource x:Key="CommandBarButtonPointeroverBackground" ResourceKey="FluentColorFill0" />
+    <StaticResource x:Key="CommandBarButtonPressedBackground" ResourceKey="FluentColorFill1" />
+    <StaticResource x:Key="CommandBarButtonDisabledForeground" ResourceKey="FluentColorDisabledText" />
     <!--  CommandBarToggleButton checked state  -->
-    <StaticResource x:Key="CommandBarToggleButtonCheckedForeground" ResourceKey="SemiColorPrimary" />
-    <StaticResource x:Key="CommandBarToggleButtonCheckedBackground" ResourceKey="SemiColorPrimaryLight" />
-    <StaticResource x:Key="CommandBarToggleButtonCheckedPointeroverBackground" ResourceKey="SemiColorPrimaryLightPointerover" />
-    <StaticResource x:Key="CommandBarToggleButtonCheckedPressedBackground" ResourceKey="SemiColorPrimaryLightActive" />
-    <StaticResource x:Key="CommandBarToggleButtonCheckedDisabledForeground" ResourceKey="SemiColorPrimaryDisabled" />
+    <StaticResource x:Key="CommandBarToggleButtonCheckedForeground" ResourceKey="FluentColorPrimary" />
+    <StaticResource x:Key="CommandBarToggleButtonCheckedBackground" ResourceKey="FluentColorPrimaryLight" />
+    <StaticResource x:Key="CommandBarToggleButtonCheckedPointeroverBackground" ResourceKey="FluentColorPrimaryLightPointerover" />
+    <StaticResource x:Key="CommandBarToggleButtonCheckedPressedBackground" ResourceKey="FluentColorPrimaryLightActive" />
+    <StaticResource x:Key="CommandBarToggleButtonCheckedDisabledForeground" ResourceKey="FluentColorPrimaryDisabled" />
     <!--  CommandBarSeparator  -->
-    <StaticResource x:Key="CommandBarSeparatorBackground" ResourceKey="SemiColorBorder" />
+    <StaticResource x:Key="CommandBarSeparatorBackground" ResourceKey="FluentColorBorder" />
     <!--  CommandBar  -->
-    <StaticResource x:Key="CommandBarBackground" ResourceKey="SemiColorBackground1" />
-    <StaticResource x:Key="CommandBarForeground" ResourceKey="SemiColorText0" />
-    <StaticResource x:Key="CommandBarBorderBrush" ResourceKey="SemiColorBorder" />
+    <StaticResource x:Key="CommandBarBackground" ResourceKey="FluentColorBackground1" />
+    <StaticResource x:Key="CommandBarForeground" ResourceKey="FluentColorText0" />
+    <StaticResource x:Key="CommandBarBorderBrush" ResourceKey="FluentColorBorder" />
     <!--  CommandBar overflow popup  -->
-    <StaticResource x:Key="CommandBarOverflowBackground" ResourceKey="SemiColorBackground3" />
-    <StaticResource x:Key="CommandBarOverflowBorderBrush" ResourceKey="SemiColorBorder" />
-    <StaticResource x:Key="CommandBarOverflowBoxShadow" ResourceKey="SemiShadowElevated" />
+    <StaticResource x:Key="CommandBarOverflowBackground" ResourceKey="FluentColorBackground3" />
+    <StaticResource x:Key="CommandBarOverflowBorderBrush" ResourceKey="FluentColorBorder" />
+    <StaticResource x:Key="CommandBarOverflowBoxShadow" ResourceKey="FluentShadowElevated" />
 </ResourceDictionary>

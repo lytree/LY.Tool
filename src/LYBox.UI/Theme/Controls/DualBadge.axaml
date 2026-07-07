@@ -1,4 +1,4 @@
-﻿<ResourceDictionary
+<ResourceDictionary
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:u="https://irihi.tech/ursa"
@@ -6,7 +6,7 @@
     <Design.PreviewWith>
         <StackPanel>
             <u:DualBadge
-                Icon="{StaticResource SemiIconDownload}"
+                Icon="{StaticResource FluentIconDownload}"
                 Header="downloads"
                 Content="35k" />
         </StackPanel>

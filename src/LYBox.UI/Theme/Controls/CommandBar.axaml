@@ -28,18 +28,18 @@
                     DefaultLabelPosition="{Binding #lc.SelectedValue}"
                     IsDynamicOverflowEnabled="{Binding #idfe.IsChecked}"
                     Width="{Binding #ws.Value}">
-                    <CommandBarButton Label="New" Icon="{DynamicResource SemiIconPlus}" />
-                    <CommandBarButton Label="Save" Icon="{DynamicResource SemiIconSave}" />
+                    <CommandBarButton Label="New" Icon="{DynamicResource FluentIconPlus}" />
+                    <CommandBarButton Label="Save" Icon="{DynamicResource FluentIconSave}" />
                     <CommandBarSeparator />
-                    <CommandBarToggleButton Label="Bold" Icon="{DynamicResource SemiIconBold}" />
-                    <CommandBarToggleButton Label="Italic" Icon="{DynamicResource SemiIconItalic}" />
-                    <CommandBarToggleButton IsEnabled="False" IsChecked="True" Label="Underline" Icon="{DynamicResource SemiIconUnderline}" />
+                    <CommandBarToggleButton Label="Bold" Icon="{DynamicResource FluentIconBold}" />
+                    <CommandBarToggleButton Label="Italic" Icon="{DynamicResource FluentIconItalic}" />
+                    <CommandBarToggleButton IsEnabled="False" IsChecked="True" Label="Underline" Icon="{DynamicResource FluentIconUnderline}" />
                     <CommandBarSeparator />
-                    <CommandBarButton Label="Share" Icon="{DynamicResource SemiIconShare}" />
-                    <CommandBarButton Label="Export" Icon="{DynamicResource SemiIconExport}" />
-                    <CommandBarButton Label="Print" Icon="{DynamicResource SemiIconPrint}" />
+                    <CommandBarButton Label="Share" Icon="{DynamicResource FluentIconShare}" />
+                    <CommandBarButton Label="Export" Icon="{DynamicResource FluentIconExport}" />
+                    <CommandBarButton Label="Print" Icon="{DynamicResource FluentIconPrint}" />
                     <CommandBarSeparator />
-                    <CommandBarButton Label="Delete" Icon="{DynamicResource SemiIconDelete}" />
+                    <CommandBarButton Label="Delete" Icon="{DynamicResource FluentIconDelete}" />
                 </CommandBar>
             </StackPanel>
         </GroupBox>

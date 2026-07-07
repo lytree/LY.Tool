@@ -73,12 +73,12 @@
                 <ToggleButton Name="bold">
                     <PathIcon
                         Theme="{StaticResource InnerPathIcon}"
-                        Data="{DynamicResource SemiIconBold}" />
+                        Data="{DynamicResource FluentIconBold}" />
                 </ToggleButton>
                 <ToggleButton Name="italic">
                     <PathIcon
                         Theme="{StaticResource InnerPathIcon}"
-                        Data="{DynamicResource SemiIconItalic}" />
+                        Data="{DynamicResource FluentIconItalic}" />
                 </ToggleButton>
                 <u:ToolBarSeparator />
                 <StackPanel Orientation="Horizontal">

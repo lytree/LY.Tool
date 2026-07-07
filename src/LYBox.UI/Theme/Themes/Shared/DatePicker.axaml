@@ -25,6 +25,6 @@
     <x:Double x:Key="CalenderViewMinHeight">260</x:Double>
     <x:Double x:Key="CalenderViewPathIconWidth">12</x:Double>
     <x:Double x:Key="CalenderViewPathIconHeight">12</x:Double>
-    <StaticResource x:Key="CalendarViewFastForwardGlyph" ResourceKey="SemiIconDoubleChevronLeft" />
-    <StaticResource x:Key="CalendarViewFastBackwardGlyph" ResourceKey="SemiIconDoubleChevronRight" />
+    <StaticResource x:Key="CalendarViewFastForwardGlyph" ResourceKey="FluentIconDoubleChevronLeft" />
+    <StaticResource x:Key="CalendarViewFastBackwardGlyph" ResourceKey="FluentIconDoubleChevronRight" />
 </ResourceDictionary>

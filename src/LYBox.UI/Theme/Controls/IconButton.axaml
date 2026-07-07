@@ -5,7 +5,7 @@
     xmlns:converters="using:LYBox.UI.Theme.Converters">
     <Design.PreviewWith>
         <ThemeVariantScope RequestedThemeVariant="Dark">
-            <StackPanel Spacing="16" Background="{DynamicResource SemiColorBackground0}">
+            <StackPanel Spacing="16" Background="{DynamicResource FluentColorBackground0}">
                 <Control.Styles>
                     <Style Selector="Label">
                         <Setter Property="Classes.Tertiary" Value="True" />

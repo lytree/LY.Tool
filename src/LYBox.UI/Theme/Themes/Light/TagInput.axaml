@@ -1,8 +1,8 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="ClosableTagForeground" ResourceKey="SemiColorText0" />
-    <StaticResource x:Key="ClosableTagBackground" ResourceKey="SemiColorBackground4" />
-    <SolidColorBrush x:Key="ClosableTagBorder" Opacity="0.7" Color="{StaticResource SemiGrey2Color}" />
-    <StaticResource x:Key="ClosableTagCloseButtonForeground" ResourceKey="SemiColorText2" />
-    <StaticResource x:Key="ClosableTagCloseButtonPointeroverForeground" ResourceKey="SemiColorText1" />
-    <StaticResource x:Key="ClosableTagCloseButtonPressedForeground" ResourceKey="SemiColorText0" />
+    <StaticResource x:Key="ClosableTagForeground" ResourceKey="FluentColorText0" />
+    <StaticResource x:Key="ClosableTagBackground" ResourceKey="FluentColorBackground4" />
+    <SolidColorBrush x:Key="ClosableTagBorder" Opacity="0.7" Color="{StaticResource FluentGrey2Color}" />
+    <StaticResource x:Key="ClosableTagCloseButtonForeground" ResourceKey="FluentColorText2" />
+    <StaticResource x:Key="ClosableTagCloseButtonPointeroverForeground" ResourceKey="FluentColorText1" />
+    <StaticResource x:Key="ClosableTagCloseButtonPressedForeground" ResourceKey="FluentColorText0" />
 </ResourceDictionary>

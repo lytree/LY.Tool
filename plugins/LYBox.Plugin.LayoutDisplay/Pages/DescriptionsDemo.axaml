@@ -57,8 +57,8 @@
                             Theme="{DynamicResource InnerPathIcon}"
                             Classes="Small"
                             Margin="2 0 0 0"
-                            Data="{DynamicResource SemiIconArrowUp}"
-                            Foreground="{DynamicResource SemiGreen5}" />
+                            Data="{DynamicResource FluentIconArrowUp}"
+                            Foreground="{DynamicResource FluentGreen5}" />
                     </StackPanel>
                 </u:DescriptionsItem>
                 <u:DescriptionsItem Label="{DynamicResource LBL_SecurityLevel}" Content="{DynamicResource LBL_Level3}" />

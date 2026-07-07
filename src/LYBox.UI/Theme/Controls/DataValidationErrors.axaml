@@ -96,7 +96,7 @@
                     </ToolTip.Tip>
                     <PathIcon
                         Theme="{StaticResource InnerPathIcon}"
-                        Data="{StaticResource SemiIconIssueStroked}"
+                        Data="{StaticResource FluentIconIssueStroked}"
                         Foreground="{DynamicResource DataValidationErrorsForeground}" />
                 </Panel>
             </DataTemplate>

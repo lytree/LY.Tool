@@ -13,19 +13,19 @@ using LYBox.UI.Theme.Animations;
 
 namespace LYBox.UI.Theme;
 
-public partial class UrsaSemiTheme : Styles
+public partial class UrsaFluentTheme : Styles
 {
-    private static UrsaSemiTheme? _instance;
+    private static UrsaFluentTheme? _instance;
 
-    public static UrsaSemiTheme? Instance => _instance;
+    public static UrsaFluentTheme? Instance => _instance;
 
-    public UrsaSemiTheme(IServiceProvider? provider = null)
+    public UrsaFluentTheme(IServiceProvider? provider = null)
     {
         AvaloniaXamlLoader.Load(provider, this);
 
         // FontFamily 不支持 XAML 元素语法实例化，需在代码中注册
         // 使用跨平台回退链：Windows → macOS → Linux → 通用
-        Resources["SemiFontFamilyRegular"] = new FontFamily(
+        Resources["FluentFontFamilyRegular"] = new FontFamily(
             "Microsoft YaHei, PingFang SC, Noto Sans CJK SC, WenQuanYi Micro Hei, sans-serif");
         Resources["CodeFontFamily"] = new FontFamily(
             "Cascadia Code, Consolas, SF Mono, Menlo, DejaVu Sans Mono, Inconsolata, monospace");

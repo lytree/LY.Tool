@@ -2,7 +2,7 @@ using System.Globalization;
 using Avalonia.Media;
 using Irihi.Avalonia.Shared.Converters;
 
-namespace Ursa.Themes.Semi.Converters;
+namespace LYBox.Plugin.Shared.Converters;
 
 public class BrushToColorConverter : MarkupValueConverter
 {

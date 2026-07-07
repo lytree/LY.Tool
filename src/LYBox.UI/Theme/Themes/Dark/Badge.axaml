@@ -2,29 +2,29 @@
     <SolidColorBrush x:Key="BadgeBorderBrush" Color="#1A1A1A" />
     <SolidColorBrush x:Key="BadgeForeground" Color="#1A1A1A" />
     <SolidColorBrush x:Key="BadgeContentForeground" Color="White" />
-    <StaticResource x:Key="BadgePrimaryBadgeBackground" ResourceKey="SemiColorPrimary" />
-    <StaticResource x:Key="BadgeSecondaryBadgeBackground" ResourceKey="SemiColorSecondary" />
-    <StaticResource x:Key="BadgeTertiaryBadgeBackground" ResourceKey="SemiColorTertiary" />
-    <StaticResource x:Key="BadgeSuccessBadgeBackground" ResourceKey="SemiColorSuccess" />
-    <StaticResource x:Key="BadgeWarningBadgeBackground" ResourceKey="SemiColorWarning" />
-    <StaticResource x:Key="BadgeDangerBadgeBackground" ResourceKey="SemiColorDanger" />
-    <StaticResource x:Key="BadgeLightPrimaryBadgeForeground" ResourceKey="SemiColorPrimary" />
+    <StaticResource x:Key="BadgePrimaryBadgeBackground" ResourceKey="FluentColorPrimary" />
+    <StaticResource x:Key="BadgeSecondaryBadgeBackground" ResourceKey="FluentColorSecondary" />
+    <StaticResource x:Key="BadgeTertiaryBadgeBackground" ResourceKey="FluentColorTertiary" />
+    <StaticResource x:Key="BadgeSuccessBadgeBackground" ResourceKey="FluentColorSuccess" />
+    <StaticResource x:Key="BadgeWarningBadgeBackground" ResourceKey="FluentColorWarning" />
+    <StaticResource x:Key="BadgeDangerBadgeBackground" ResourceKey="FluentColorDanger" />
+    <StaticResource x:Key="BadgeLightPrimaryBadgeForeground" ResourceKey="FluentColorPrimary" />
     <SolidColorBrush x:Key="BadgeLightPrimaryBadgeBackground" Color="#001D40" />
-    <StaticResource x:Key="BadgeLightSecondaryBadgeForeground" ResourceKey="SemiColorSecondary" />
+    <StaticResource x:Key="BadgeLightSecondaryBadgeForeground" ResourceKey="FluentColorSecondary" />
     <SolidColorBrush x:Key="BadgeLightSecondaryBadgeBackground" Color="#033755" />
-    <StaticResource x:Key="BadgeLightTertiaryBadgeForeground" ResourceKey="SemiColorTertiary" />
+    <StaticResource x:Key="BadgeLightTertiaryBadgeForeground" ResourceKey="FluentColorTertiary" />
     <SolidColorBrush x:Key="BadgeLightTertiaryBadgeBackground" Color="#1A1A1A" />
-    <StaticResource x:Key="BadgeLightSuccessBadgeForeground" ResourceKey="SemiColorSuccess" />
+    <StaticResource x:Key="BadgeLightSuccessBadgeForeground" ResourceKey="FluentColorSuccess" />
     <SolidColorBrush x:Key="BadgeLightSuccessBadgeBackground" Color="#052C05" />
-    <StaticResource x:Key="BadgeLightWarningBadgeForeground" ResourceKey="SemiColorWarning" />
+    <StaticResource x:Key="BadgeLightWarningBadgeForeground" ResourceKey="FluentColorWarning" />
     <SolidColorBrush x:Key="BadgeLightWarningBadgeBackground" Color="#4A1601" />
-    <StaticResource x:Key="BadgeLightDangerBadgeForeground" ResourceKey="SemiColorDanger" />
+    <StaticResource x:Key="BadgeLightDangerBadgeForeground" ResourceKey="FluentColorDanger" />
     <SolidColorBrush x:Key="BadgeLightDangerBadgeBackground" Color="#3B1215" />
     <SolidColorBrush x:Key="BadgeInvertedBadgeBackground" Color="#1A1A1A" />
-    <StaticResource x:Key="BadgeInvertedPrimaryBadgeForeground" ResourceKey="SemiColorPrimary" />
-    <StaticResource x:Key="BadgeInvertedSecondaryBadgeForeground" ResourceKey="SemiColorSecondary" />
-    <StaticResource x:Key="BadgeInvertedTertiaryBadgeForeground" ResourceKey="SemiColorTertiary" />
-    <StaticResource x:Key="BadgeInvertedSuccessBadgeForeground" ResourceKey="SemiColorSuccess" />
-    <StaticResource x:Key="BadgeInvertedWarningBadgeForeground" ResourceKey="SemiColorWarning" />
-    <StaticResource x:Key="BadgeInvertedDangerBadgeForeground" ResourceKey="SemiColorDanger" />
+    <StaticResource x:Key="BadgeInvertedPrimaryBadgeForeground" ResourceKey="FluentColorPrimary" />
+    <StaticResource x:Key="BadgeInvertedSecondaryBadgeForeground" ResourceKey="FluentColorSecondary" />
+    <StaticResource x:Key="BadgeInvertedTertiaryBadgeForeground" ResourceKey="FluentColorTertiary" />
+    <StaticResource x:Key="BadgeInvertedSuccessBadgeForeground" ResourceKey="FluentColorSuccess" />
+    <StaticResource x:Key="BadgeInvertedWarningBadgeForeground" ResourceKey="FluentColorWarning" />
+    <StaticResource x:Key="BadgeInvertedDangerBadgeForeground" ResourceKey="FluentColorDanger" />
 </ResourceDictionary>

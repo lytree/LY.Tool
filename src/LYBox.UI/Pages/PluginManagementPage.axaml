@@ -8,29 +8,29 @@
              mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600">
     <Grid Margin="36,24" RowDefinitions="Auto,Auto,Auto,*">
 
-        <!-- WinUI Gallery Page Header -->
-        <StackPanel Grid.Row="0" Classes="WinUIPageHeader" Spacing="4">
-            <TextBlock Text="{DynamicResource PLUGIN_MANAGEMENT_TITLE}" Classes="WinUILargeTitle" />
-            <TextBlock Text="{DynamicResource PLUGIN_MANAGEMENT_DESC}" Classes="WinUIPageDescription" />
+        <!-- Fluent Page Header -->
+        <StackPanel Grid.Row="0" Classes="FluentPageHeader" Spacing="4">
+            <TextBlock Text="{DynamicResource PLUGIN_MANAGEMENT_TITLE}" Classes="FluentLargeTitle" />
+            <TextBlock Text="{DynamicResource PLUGIN_MANAGEMENT_DESC}" Classes="FluentPageDescription" />
         </StackPanel>
 
         <!-- Action Bar -->
         <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0 0 0 16">
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <Button Content="{DynamicResource INSTALL_PLUGIN}" Command="{Binding InstallPluginCommand}" IsEnabled="{Binding !IsInstalling}"
-                        Classes="WinUIAccent"/>
-                <Button Content="{DynamicResource REFRESH}" Command="{Binding RefreshPluginsCommand}" Classes="WinUISubtle"/>
+                        Classes="FluentAccent"/>
+                <Button Content="{DynamicResource REFRESH}" Command="{Binding RefreshPluginsCommand}" Classes="FluentStandard"/>
             </StackPanel>
-            <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" VerticalAlignment="Center" Classes="WinUICaption" />
+            <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" VerticalAlignment="Center" Classes="FluentCaption" />
         </Grid>
 
-        <!-- WinUI Gallery InfoBar Warning -->
+        <!-- Fluent InfoBar Warning -->
         <Border Grid.Row="2" IsVisible="{Binding NeedsRestart}"
-                Classes="WinUIInfoBarWarning" Margin="0 0 0 12">
+                Classes="FluentInfoBar FluentInfoBarSeverityWarning" Margin="0 0 0 12">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock Text="&#x26A0;" FontSize="18" VerticalAlignment="Center"
-                           Foreground="{DynamicResource SemiColorWarning}"/>
-                <TextBlock Text="{DynamicResource RESTART_REQUIRED}" Classes="WinUIBody" VerticalAlignment="Center"/>
+                           Foreground="{DynamicResource FluentColorWarning}"/>
+                <TextBlock Text="{DynamicResource RESTART_REQUIRED}" Classes="FluentBody" VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
 
@@ -47,13 +47,13 @@
                     </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="viewModels:PluginItemViewModel">
-                            <Border Classes="WinUICard" Margin="0 0 0 4">
+                            <Border Classes="FluentCard" Margin="0 0 0 4">
                                 <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
 
                                     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Spacing="8">
-                                        <TextBlock Text="{Binding Name}" Classes="WinUISubtitle" />
-                                        <Border Classes="WinUIBadge" Background="{Binding StateColor}">
-                                            <TextBlock Text="{Binding StateText}" FontSize="11" Foreground="{DynamicResource SemiColorText0}"/>
+                                        <TextBlock Text="{Binding Name}" Classes="FluentSubtitle" />
+                                        <Border Classes="FluentInfoBadge" Background="{Binding StateColor}">
+                                            <TextBlock Text="{Binding StateText}" FontSize="11" Foreground="{DynamicResource FluentColorText0}"/>
                                         </Border>
                                     </StackPanel>
 
@@ -62,43 +62,43 @@
                                                 Command="{Binding $parent[UserControl].DataContext.EnablePluginCommand}"
                                                 CommandParameter="{Binding}"
                                                 IsVisible="{Binding CanEnable}"
-                                                Classes="WinUISubtle small"/>
+                                                Classes="FluentStandard small"/>
                                         <Button Content="{DynamicResource DISABLE}"
                                                 Command="{Binding $parent[UserControl].DataContext.DisablePluginCommand}"
                                                 CommandParameter="{Binding}"
                                                 IsVisible="{Binding CanDisable}"
-                                                Classes="WinUISubtle small"/>
+                                                Classes="FluentStandard small"/>
                                         <Button Content="{DynamicResource UNINSTALL}"
                                                 Command="{Binding $parent[UserControl].DataContext.UninstallPluginCommand}"
                                                 CommandParameter="{Binding}"
                                                 IsVisible="{Binding CanUninstall}"
-                                                Classes="WinUISubtle small"/>
+                                                Classes="FluentStandard small"/>
                                         <Button Content="{DynamicResource CANCEL_UPGRADE}"
                                                 Command="{Binding $parent[UserControl].DataContext.CancelUpgradeCommand}"
                                                 CommandParameter="{Binding}"
                                                 IsVisible="{Binding CanCancelUpgrade}"
-                                                Classes="WinUISubtle small"/>
+                                                Classes="FluentStandard small"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="16" Margin="0 4 0 0">
-                                        <TextBlock FontSize="12" Classes="WinUICaption">
+                                        <TextBlock FontSize="12" Classes="FluentCaption">
                                             <Run Text="{DynamicResource VERSION_LABEL}"/><Run Text="{Binding Version}"/>
                                         </TextBlock>
-                                        <TextBlock FontSize="12" Classes="WinUICaption"
+                                        <TextBlock FontSize="12" Classes="FluentCaption"
                                                    IsVisible="{Binding PendingUpgradeVersion, Converter={x:Static ObjectConverters.IsNotNull}}">
                                             <Run Text="{DynamicResource PENDING_VERSION_LABEL}"/><Run Text="{Binding PendingUpgradeVersion}"/>
                                         </TextBlock>
-                                        <TextBlock FontSize="12" Classes="WinUICaption">
+                                        <TextBlock FontSize="12" Classes="FluentCaption">
                                             <Run Text="{DynamicResource AUTHOR_LABEL}"/><Run Text="{Binding Author}"/>
                                         </TextBlock>
                                     </StackPanel>
 
                                     <TextBlock Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding Description}"
-                                               Classes="WinUIBody" Margin="0 4 0 0"
+                                               Classes="FluentBody" Margin="0 4 0 0"
                                                TextWrapping="Wrap" MaxHeight="40"/>
 
                                     <TextBlock Grid.Row="3" Grid.ColumnSpan="2" Text="{Binding ErrorMessage}"
-                                               FontSize="12" Classes="WinUICaption" Foreground="{DynamicResource SemiColorDanger}" Margin="0 4 0 0"
+                                               FontSize="12" Classes="FluentCaption" Foreground="{DynamicResource FluentColorDanger}" Margin="0 4 0 0"
                                                IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}"
                                                TextWrapping="Wrap"/>
                                 </Grid>
@@ -110,13 +110,13 @@
 
             <!-- Empty State Card overlay -->
             <Border IsVisible="{Binding Plugins.Count, Converter={x:Static viewModels:PluginStateConverters.IsEmpty}}"
-                    Classes="WinUICard" Padding="32"
+                    Classes="FluentCard" Padding="32"
                     HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 40 0 0">
                 <StackPanel HorizontalAlignment="Center" Spacing="8">
                     <TextBlock Text="{DynamicResource NO_PLUGINS_INSTALLED}" FontSize="16"
-                               Classes="WinUIBody" HorizontalAlignment="Center"/>
+                               Classes="FluentBody" HorizontalAlignment="Center"/>
                     <TextBlock Text="{DynamicResource CLICK_INSTALL_PLUGIN}" FontSize="13"
-                               Classes="WinUICaption" HorizontalAlignment="Center"/>
+                               Classes="FluentCaption" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
         </Grid>

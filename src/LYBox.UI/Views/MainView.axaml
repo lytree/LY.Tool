@@ -29,25 +29,25 @@
 			</Style>
 		</Panel.Styles>
 		<Grid Classes.Blur="{Binding $parent[u:UrsaWindow].(u:OverlayDialogHost.IsInModalStatus)}" RowDefinitions="Auto, *">
-			<!-- ===== Row 0: WinUI Gallery Full-Width Title Bar (top-bottom structure) ===== -->
-			<Border Classes="WinUITitleBar">
+			<!-- ===== Row 0: Fluent Full-Width Title Bar (top-bottom structure) ===== -->
+			<Border Classes="FluentTitleBar">
 				<Grid ColumnDefinitions="Auto, *, Auto">
-					<!-- Col 0: Hamburger Toggle Button (WinUI Gallery GlobalNavButton icon) -->
+					<!-- Col 0: Hamburger Toggle Button (Fluent GlobalNavButton icon) -->
 					<Button
-						Classes="WinUIHamburger"
+						Classes="FluentHamburger"
 						ToolTip.Tip="{DynamicResource TOOLTIP_TOGGLE_SIDEBAR}"
 						Command="{Binding ToggleCollapseCommand}"
 						VerticalAlignment="Center">
 						<PathIcon Width="20" Height="20"
 							Data="{DynamicResource FluentLineHorizontal320Regular}"
-							Foreground="{DynamicResource SemiColorText0}" />
+							Foreground="{DynamicResource FluentColorText0}" />
 					</Button>
 
 					<!-- Col 1: Search Box (centered) -->
 					<TextBox
 						Name="SearchBox"
 						Grid.Column="1"
-						Classes="WinUISearchBox"
+						Classes="FluentSearchBox"
 						Width="240"
 						HorizontalAlignment="Center"
 						VerticalAlignment="Center"
@@ -56,7 +56,7 @@
 						<TextBox.InnerLeftContent>
 							<Path Width="14" Height="14"
 								Data="{DynamicResource FluentSearch20Regular}"
-								Fill="{DynamicResource SemiColorText2}" />
+								Fill="{DynamicResource FluentColorText2}" />
 						</TextBox.InnerLeftContent>
 					</TextBox>
 
@@ -69,7 +69,7 @@
 						Margin="0,0,12,0">
 						<u:IconButton
 						Theme="{StaticResource BorderlessIconButton}"
-						Icon="{StaticResource SemiIconGithubLogo}"
+						Icon="{StaticResource FluentIconGithubLogo}"
 						Click="OpenRepository" />
 						<u:ThemeToggleButton
 							IsThreeState="True"
@@ -80,10 +80,10 @@
 
 			<!-- ===== Row 1: Navigation Pane (left) + Content (right) ===== -->
 			<Grid Grid.Row="1" ColumnDefinitions="Auto, *">
-				<!-- WinUI Gallery Navigation Pane (no logo) -->
+				<!-- Fluent Navigation Pane (no logo) -->
 				<Border
 					VerticalAlignment="Stretch"
-					Classes="WinUINavPane"
+					Classes="FluentNavPane"
 					IsVisible="{Binding !IsSidebarHidden}">
 					<u:NavMenu
 						Name="menu"
@@ -109,9 +109,9 @@
 									ActiveForeground="{DynamicResource FluentAccentBrush}"
 									ActiveStrokeBrush="{DynamicResource FluentAccentBrush}"
 									Data="{Binding Converter={StaticResource IconConverter}}"
-									Foreground="{DynamicResource SemiColorText1}"
+									Foreground="{DynamicResource FluentColorText1}"
 									IsActive="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=u:NavMenuItem}, Path=IsHighlighted, Mode=TwoWay}"
-									StrokeBrush="{DynamicResource SemiColorText1}" />
+									StrokeBrush="{DynamicResource FluentColorText1}" />
 							</DataTemplate>
 						</u:NavMenu.IconTemplate>
 						<u:NavMenu.HeaderTemplate>
@@ -134,12 +134,12 @@
 								<Border Classes="FluentDivider" Margin="8,0,8,8" />
 								<StackPanel.Styles>
 									<Style Selector="Button.NavFooterItem">
-										<Setter Property="Foreground" Value="{DynamicResource SemiColorText1}" />
+										<Setter Property="Foreground" Value="{DynamicResource FluentColorText1}" />
 										<Setter Property="HorizontalContentAlignment" Value="Stretch" />
 									</Style>
 									<Style Selector="Button.NavFooterItem:pointerover">
 										<Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
-										<Setter Property="Foreground" Value="{DynamicResource SemiColorText0}" />
+										<Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
 									</Style>
 									<Style Selector="Button.NavFooterItem:pressed">
 										<Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
@@ -160,7 +160,7 @@
 										Width="20" Height="20"
 										Margin="14,8,8,8"
 										Data="{DynamicResource FluentSettings20Regular}"
-										Foreground="{DynamicResource SemiColorText1}" />
+										Foreground="{DynamicResource FluentColorText1}" />
 										<TextBlock
 											Grid.Column="1"
 											Margin="0,8,8,8"
@@ -185,7 +185,7 @@
 										Width="20" Height="20"
 										Margin="14,8,8,8"
 										Data="{DynamicResource FluentPuzzlePiece20Regular}"
-										Foreground="{DynamicResource SemiColorText1}" />
+										Foreground="{DynamicResource FluentColorText1}" />
 										<TextBlock
 											Grid.Column="1"
 											Margin="0,8,8,8"

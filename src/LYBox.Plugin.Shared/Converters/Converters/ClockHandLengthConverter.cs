@@ -1,7 +1,7 @@
-﻿using System.Globalization;
+using System.Globalization;
 using Irihi.Avalonia.Shared.Converters;
 
-namespace Ursa.Themes.Semi.Converters;
+namespace LYBox.Plugin.Shared.Converters;
 
 public class ClockHandLengthConverter(double ratio) : MarkupValueConverter
 {

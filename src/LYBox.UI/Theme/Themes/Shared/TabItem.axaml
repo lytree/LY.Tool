@@ -1,5 +1,5 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="TabItemIconHeaderSpacing" ResourceKey="SemiSpacingTight" />
-    <StaticResource x:Key="TabItemSelectedFontWeight" ResourceKey="SemiFontWeightBold" />
-    <StaticResource x:Key="TabItemCardDefaultHeight" ResourceKey="SemiHeightControlDefault" />
+    <StaticResource x:Key="TabItemIconHeaderSpacing" ResourceKey="FluentSpacingTight" />
+    <StaticResource x:Key="TabItemSelectedFontWeight" ResourceKey="FluentFontWeightBold" />
+    <StaticResource x:Key="TabItemCardDefaultHeight" ResourceKey="FluentHeightControlDefault" />
 </ResourceDictionary>

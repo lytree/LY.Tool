@@ -1,8 +1,8 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="AnchorPipeBackground" ResourceKey="SemiColorBorder" />
-    <StaticResource x:Key="AnchorForeground" ResourceKey="SemiColorText2" />
-    <StaticResource x:Key="AnchorSelectedForeground" ResourceKey="SemiColorText0" />
-    <StaticResource x:Key="AnchorPipeSelectedBackground" ResourceKey="SemiColorPrimary" />
-    <StaticResource x:Key="AnchorPipeSelectedPrimaryBackground" ResourceKey="SemiColorPrimary" />
-    <StaticResource x:Key="AnchorPipeSelectedTertiaryBackground" ResourceKey="SemiColorTertiary" />
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StaticResource x:Key="AnchorPipeBackground" ResourceKey="FluentColorBorder" />
+    <StaticResource x:Key="AnchorForeground" ResourceKey="FluentColorText2" />
+    <StaticResource x:Key="AnchorSelectedForeground" ResourceKey="FluentColorText0" />
+    <StaticResource x:Key="AnchorPipeSelectedBackground" ResourceKey="FluentColorPrimary" />
+    <StaticResource x:Key="AnchorPipeSelectedPrimaryBackground" ResourceKey="FluentColorPrimary" />
+    <StaticResource x:Key="AnchorPipeSelectedTertiaryBackground" ResourceKey="FluentColorTertiary" />
 </ResourceDictionary>

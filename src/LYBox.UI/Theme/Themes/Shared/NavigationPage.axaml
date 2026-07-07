@@ -4,5 +4,5 @@
     <x:Double x:Key="NavigationPageBarLargeMinHeight">48</x:Double>
     <Thickness x:Key="NavigationPageBarPadding">4 0</Thickness>
     <Thickness x:Key="NavigationPageBarBorderThickness">0 0 0 1</Thickness>
-    <StaticResource x:Key="NavigationPageBackButtonGlyph" ResourceKey="SemiIconChevronLeft" />
+    <StaticResource x:Key="NavigationPageBackButtonGlyph" ResourceKey="FluentIconChevronLeft" />
 </ResourceDictionary>

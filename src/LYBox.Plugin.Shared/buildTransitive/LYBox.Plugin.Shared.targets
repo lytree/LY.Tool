@@ -21,7 +21,7 @@
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'Avalonia'" />
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'SkiaSharp'" />
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'HarfBuzzSharp'" />
-      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'MicroCom.Runtime'" />
+      
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'Microsoft.Bcl.AsyncInterfaces'" />
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'LYBox.Plugin.Shared'" />
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'Microsoft.Extensions.DependencyInjection'" />
@@ -61,7 +61,7 @@
       <_ExcludedPublished Include="@(_PublishedFiles)" Condition="'%(Filename)' == 'Avalonia'" />
       <_ExcludedPublished Include="@(_PublishedFiles)" Condition="'%(Filename)' == 'SkiaSharp'" />
       <_ExcludedPublished Include="@(_PublishedFiles)" Condition="'%(Filename)' == 'HarfBuzzSharp'" />
-      <_ExcludedPublished Include="@(_PublishedFiles)" Condition="'%(Filename)' == 'MicroCom.Runtime'" />
+      
       <_ExcludedPublished Include="@(_PublishedFiles)" Condition="'%(Filename)' == 'Microsoft.Bcl.AsyncInterfaces'" />
       <_ExcludedPublished Include="@(_PublishedFiles)" Condition="'%(Filename)' == 'LYBox.Plugin.Shared'" />
       <_ExcludedPublished Include="@(_PublishedFiles)" Condition="'%(Filename)' == 'Microsoft.Extensions.DependencyInjection'" />

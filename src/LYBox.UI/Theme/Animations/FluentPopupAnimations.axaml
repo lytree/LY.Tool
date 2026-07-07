@@ -1,5 +1,5 @@
 <Styles
-    x:Class="LYBox.UI.Theme.SizeAnimations.SemiPopupAnimations"
+    x:Class="LYBox.UI.Theme.SizeAnimations.FluentPopupAnimations"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="using:LYBox.Plugin.Shared.Converters"

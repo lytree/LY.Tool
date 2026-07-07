@@ -1,59 +1,59 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="ButtonGroupSeparatorForeground" ResourceKey="SemiColorBorder" />
+    <StaticResource x:Key="ButtonGroupSeparatorForeground" ResourceKey="FluentColorBorder" />
     <!--  Light  -->
-    <StaticResource x:Key="ButtonGroupDefaultPrimaryForeground" ResourceKey="SemiColorPrimary" />
-    <StaticResource x:Key="ButtonGroupDefaultSecondaryForeground" ResourceKey="SemiColorSecondary" />
-    <StaticResource x:Key="ButtonGroupDefaultTertiaryForeground" ResourceKey="SemiColorTertiary" />
-    <StaticResource x:Key="ButtonGroupDefaultSuccessForeground" ResourceKey="SemiColorSuccess" />
-    <StaticResource x:Key="ButtonGroupDefaultWarningForeground" ResourceKey="SemiColorWarning" />
-    <StaticResource x:Key="ButtonGroupDefaultDangerForeground" ResourceKey="SemiColorDanger" />
-    <StaticResource x:Key="ButtonGroupDefaultDisabledForeground" ResourceKey="SemiColorDisabledText" />
-    <StaticResource x:Key="ButtonGroupDefaultBackground" ResourceKey="SemiColorFill0" />
-    <StaticResource x:Key="ButtonGroupDefaultPointeroverBackground" ResourceKey="SemiColorFill1" />
-    <StaticResource x:Key="ButtonGroupDefaultPressedBackground" ResourceKey="SemiColorFill2" />
-    <StaticResource x:Key="ButtonGroupDefaultDisabledBackground" ResourceKey="SemiColorDisabledFill" />
+    <StaticResource x:Key="ButtonGroupDefaultPrimaryForeground" ResourceKey="FluentColorPrimary" />
+    <StaticResource x:Key="ButtonGroupDefaultSecondaryForeground" ResourceKey="FluentColorSecondary" />
+    <StaticResource x:Key="ButtonGroupDefaultTertiaryForeground" ResourceKey="FluentColorTertiary" />
+    <StaticResource x:Key="ButtonGroupDefaultSuccessForeground" ResourceKey="FluentColorSuccess" />
+    <StaticResource x:Key="ButtonGroupDefaultWarningForeground" ResourceKey="FluentColorWarning" />
+    <StaticResource x:Key="ButtonGroupDefaultDangerForeground" ResourceKey="FluentColorDanger" />
+    <StaticResource x:Key="ButtonGroupDefaultDisabledForeground" ResourceKey="FluentColorDisabledText" />
+    <StaticResource x:Key="ButtonGroupDefaultBackground" ResourceKey="FluentColorFill0" />
+    <StaticResource x:Key="ButtonGroupDefaultPointeroverBackground" ResourceKey="FluentColorFill1" />
+    <StaticResource x:Key="ButtonGroupDefaultPressedBackground" ResourceKey="FluentColorFill2" />
+    <StaticResource x:Key="ButtonGroupDefaultDisabledBackground" ResourceKey="FluentColorDisabledFill" />
     <SolidColorBrush x:Key="ButtonGroupDefaultBorderBrush" Color="Transparent" />
     <SolidColorBrush x:Key="ButtonGroupDefaultPointeroverBorderBrush" Color="Transparent" />
     <SolidColorBrush x:Key="ButtonGroupDefaultPressedBorderBrush" Color="Transparent" />
     <SolidColorBrush x:Key="ButtonGroupDefaultDisabledBorderBrush" Color="Transparent" />
     <!--  end Light  -->
     <!--  Solid  -->
-    <StaticResource x:Key="ButtonGroupSolidForeground" ResourceKey="SemiColorWhite" />
-    <StaticResource x:Key="ButtonGroupSolidPrimaryBackground" ResourceKey="SemiColorPrimary" />
-    <StaticResource x:Key="ButtonGroupSolidPrimaryPointeroverBackground" ResourceKey="SemiColorPrimaryPointerover" />
-    <StaticResource x:Key="ButtonGroupSolidPrimaryPressedBackground" ResourceKey="SemiColorPrimaryActive" />
-    <StaticResource x:Key="ButtonGroupSolidSecondaryBackground" ResourceKey="SemiColorSecondary" />
-    <StaticResource x:Key="ButtonGroupSolidSecondaryPointeroverBackground" ResourceKey="SemiColorSecondaryPointerover" />
-    <StaticResource x:Key="ButtonGroupSolidSecondaryPressedBackground" ResourceKey="SemiColorSecondaryActive" />
-    <StaticResource x:Key="ButtonGroupSolidTertiaryBackground" ResourceKey="SemiColorTertiary" />
-    <StaticResource x:Key="ButtonGroupSolidTertiaryPointeroverBackground" ResourceKey="SemiColorTertiaryPointerover" />
-    <StaticResource x:Key="ButtonGroupSolidTertiaryPressedBackground" ResourceKey="SemiColorTertiaryActive" />
-    <StaticResource x:Key="ButtonGroupSolidSuccessBackground" ResourceKey="SemiColorSuccess" />
-    <StaticResource x:Key="ButtonGroupSolidSuccessPointeroverBackground" ResourceKey="SemiColorSuccessPointerover" />
-    <StaticResource x:Key="ButtonGroupSolidSuccessPressedBackground" ResourceKey="SemiColorSuccessActive" />
-    <StaticResource x:Key="ButtonGroupSolidWarningBackground" ResourceKey="SemiColorWarning" />
-    <StaticResource x:Key="ButtonGroupSolidWarningPointeroverBackground" ResourceKey="SemiColorWarningPointerover" />
-    <StaticResource x:Key="ButtonGroupSolidWarningPressedBackground" ResourceKey="SemiColorWarningActive" />
-    <StaticResource x:Key="ButtonGroupSolidDangerBackground" ResourceKey="SemiColorDanger" />
-    <StaticResource x:Key="ButtonGroupSolidDangerPointeroverBackground" ResourceKey="SemiColorDangerPointerover" />
-    <StaticResource x:Key="ButtonGroupSolidDangerPressedBackground" ResourceKey="SemiColorDangerActive" />
-    <StaticResource x:Key="ButtonGroupSolidPrimaryBorderBrush" ResourceKey="SemiColorPrimary" />
-    <StaticResource x:Key="ButtonGroupSolidPrimaryPointeroverBorderBrush" ResourceKey="SemiColorPrimaryPointerover" />
-    <StaticResource x:Key="ButtonGroupSolidPrimaryPressedBorderBrush" ResourceKey="SemiColorPrimaryActive" />
-    <StaticResource x:Key="ButtonGroupSolidSecondaryBorderBrush" ResourceKey="SemiColorSecondary" />
-    <StaticResource x:Key="ButtonGroupSolidSecondaryPointeroverBorderBrush" ResourceKey="SemiColorSecondaryPointerover" />
-    <StaticResource x:Key="ButtonGroupSolidSecondaryPressedBorderBrush" ResourceKey="SemiColorSecondaryActive" />
-    <StaticResource x:Key="ButtonGroupSolidTertiaryBorderBrush" ResourceKey="SemiColorTertiary" />
-    <StaticResource x:Key="ButtonGroupSolidTertiaryPointeroverBorderBrush" ResourceKey="SemiColorTertiaryPointerover" />
-    <StaticResource x:Key="ButtonGroupSolidTertiaryPressedBorderBrush" ResourceKey="SemiColorTertiaryActive" />
-    <StaticResource x:Key="ButtonGroupSolidSuccessBorderBrush" ResourceKey="SemiColorSuccess" />
-    <StaticResource x:Key="ButtonGroupSolidSuccessPointeroverBorderBrush" ResourceKey="SemiColorSuccessPointerover" />
-    <StaticResource x:Key="ButtonGroupSolidSuccessPressedBorderBrush" ResourceKey="SemiColorSuccessActive" />
-    <StaticResource x:Key="ButtonGroupSolidWarningBorderBrush" ResourceKey="SemiColorWarning" />
-    <StaticResource x:Key="ButtonGroupSolidWarningPointeroverBorderBrush" ResourceKey="SemiColorWarningPointerover" />
-    <StaticResource x:Key="ButtonGroupSolidWarningPressedBorderBrush" ResourceKey="SemiColorWarningActive" />
-    <StaticResource x:Key="ButtonGroupSolidDangerBorderBrush" ResourceKey="SemiColorDanger" />
-    <StaticResource x:Key="ButtonGroupSolidDangerPointeroverBorderBrush" ResourceKey="SemiColorDangerPointerover" />
-    <StaticResource x:Key="ButtonGroupSolidDangerPressedBorderBrush" ResourceKey="SemiColorDangerActive" />
+    <StaticResource x:Key="ButtonGroupSolidForeground" ResourceKey="FluentColorWhite" />
+    <StaticResource x:Key="ButtonGroupSolidPrimaryBackground" ResourceKey="FluentColorPrimary" />
+    <StaticResource x:Key="ButtonGroupSolidPrimaryPointeroverBackground" ResourceKey="FluentColorPrimaryPointerover" />
+    <StaticResource x:Key="ButtonGroupSolidPrimaryPressedBackground" ResourceKey="FluentColorPrimaryActive" />
+    <StaticResource x:Key="ButtonGroupSolidSecondaryBackground" ResourceKey="FluentColorSecondary" />
+    <StaticResource x:Key="ButtonGroupSolidSecondaryPointeroverBackground" ResourceKey="FluentColorSecondaryPointerover" />
+    <StaticResource x:Key="ButtonGroupSolidSecondaryPressedBackground" ResourceKey="FluentColorSecondaryActive" />
+    <StaticResource x:Key="ButtonGroupSolidTertiaryBackground" ResourceKey="FluentColorTertiary" />
+    <StaticResource x:Key="ButtonGroupSolidTertiaryPointeroverBackground" ResourceKey="FluentColorTertiaryPointerover" />
+    <StaticResource x:Key="ButtonGroupSolidTertiaryPressedBackground" ResourceKey="FluentColorTertiaryActive" />
+    <StaticResource x:Key="ButtonGroupSolidSuccessBackground" ResourceKey="FluentColorSuccess" />
+    <StaticResource x:Key="ButtonGroupSolidSuccessPointeroverBackground" ResourceKey="FluentColorSuccessPointerover" />
+    <StaticResource x:Key="ButtonGroupSolidSuccessPressedBackground" ResourceKey="FluentColorSuccessActive" />
+    <StaticResource x:Key="ButtonGroupSolidWarningBackground" ResourceKey="FluentColorWarning" />
+    <StaticResource x:Key="ButtonGroupSolidWarningPointeroverBackground" ResourceKey="FluentColorWarningPointerover" />
+    <StaticResource x:Key="ButtonGroupSolidWarningPressedBackground" ResourceKey="FluentColorWarningActive" />
+    <StaticResource x:Key="ButtonGroupSolidDangerBackground" ResourceKey="FluentColorDanger" />
+    <StaticResource x:Key="ButtonGroupSolidDangerPointeroverBackground" ResourceKey="FluentColorDangerPointerover" />
+    <StaticResource x:Key="ButtonGroupSolidDangerPressedBackground" ResourceKey="FluentColorDangerActive" />
+    <StaticResource x:Key="ButtonGroupSolidPrimaryBorderBrush" ResourceKey="FluentColorPrimary" />
+    <StaticResource x:Key="ButtonGroupSolidPrimaryPointeroverBorderBrush" ResourceKey="FluentColorPrimaryPointerover" />
+    <StaticResource x:Key="ButtonGroupSolidPrimaryPressedBorderBrush" ResourceKey="FluentColorPrimaryActive" />
+    <StaticResource x:Key="ButtonGroupSolidSecondaryBorderBrush" ResourceKey="FluentColorSecondary" />
+    <StaticResource x:Key="ButtonGroupSolidSecondaryPointeroverBorderBrush" ResourceKey="FluentColorSecondaryPointerover" />
+    <StaticResource x:Key="ButtonGroupSolidSecondaryPressedBorderBrush" ResourceKey="FluentColorSecondaryActive" />
+    <StaticResource x:Key="ButtonGroupSolidTertiaryBorderBrush" ResourceKey="FluentColorTertiary" />
+    <StaticResource x:Key="ButtonGroupSolidTertiaryPointeroverBorderBrush" ResourceKey="FluentColorTertiaryPointerover" />
+    <StaticResource x:Key="ButtonGroupSolidTertiaryPressedBorderBrush" ResourceKey="FluentColorTertiaryActive" />
+    <StaticResource x:Key="ButtonGroupSolidSuccessBorderBrush" ResourceKey="FluentColorSuccess" />
+    <StaticResource x:Key="ButtonGroupSolidSuccessPointeroverBorderBrush" ResourceKey="FluentColorSuccessPointerover" />
+    <StaticResource x:Key="ButtonGroupSolidSuccessPressedBorderBrush" ResourceKey="FluentColorSuccessActive" />
+    <StaticResource x:Key="ButtonGroupSolidWarningBorderBrush" ResourceKey="FluentColorWarning" />
+    <StaticResource x:Key="ButtonGroupSolidWarningPointeroverBorderBrush" ResourceKey="FluentColorWarningPointerover" />
+    <StaticResource x:Key="ButtonGroupSolidWarningPressedBorderBrush" ResourceKey="FluentColorWarningActive" />
+    <StaticResource x:Key="ButtonGroupSolidDangerBorderBrush" ResourceKey="FluentColorDanger" />
+    <StaticResource x:Key="ButtonGroupSolidDangerPointeroverBorderBrush" ResourceKey="FluentColorDangerPointerover" />
+    <StaticResource x:Key="ButtonGroupSolidDangerPressedBorderBrush" ResourceKey="FluentColorDangerActive" />
     <!--  end Solid  -->
 </ResourceDictionary>

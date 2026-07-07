@@ -27,7 +27,7 @@
         <TmdsDBusVersion>0.21.2</TmdsDBusVersion>
         <!-- Avalonia 递归依赖（版本跟随 Avalonia 12.x 发布） -->
         <HarfBuzzSharpVersion>8.3.1.6</HarfBuzzSharpVersion>
-        <MicroComRuntimeVersion>0.11.6</MicroComRuntimeVersion>
+        
         <!-- Ursa 递归依赖（版本跟随 Irihi.Ursa 2.1.x 发布） -->
         <IrihiAvaloniaSharedVersion>0.4.0</IrihiAvaloniaSharedVersion>
     </PropertyGroup>

@@ -1,4 +1,4 @@
-﻿<ResourceDictionary
+<ResourceDictionary
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:u="https://irihi.tech/ursa"
@@ -79,7 +79,7 @@
                 <MenuFlyout>
                     <MenuItem Command="{Binding $parent[u:DialogControlBase].Close}" Header="{DynamicResource MENU_DIALOG_CLOSE}">
                         <MenuItem.Icon>
-                            <PathIcon Data="{DynamicResource SemiIconClose}" Theme="{StaticResource InnerPathIcon}" />
+                            <PathIcon Data="{DynamicResource FluentIconClose}" Theme="{StaticResource InnerPathIcon}" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuFlyout>
@@ -122,7 +122,7 @@
                     </MenuItem>
                     <MenuItem Command="{Binding $parent[u:DialogControlBase].Close}" Header="{DynamicResource MENU_DIALOG_CLOSE}">
                         <MenuItem.Icon>
-                            <PathIcon Data="{DynamicResource SemiIconClose}" Theme="{StaticResource InnerPathIcon}" />
+                            <PathIcon Data="{DynamicResource FluentIconClose}" Theme="{StaticResource InnerPathIcon}" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuFlyout>
@@ -375,7 +375,7 @@
                 <MenuFlyout>
                     <MenuItem Command="{Binding $parent[u:DialogControlBase].Close}" Header="{DynamicResource MENU_DIALOG_CLOSE}">
                         <MenuItem.Icon>
-                            <PathIcon Data="{DynamicResource SemiIconClose}" Theme="{StaticResource InnerPathIcon}" />
+                            <PathIcon Data="{DynamicResource FluentIconClose}" Theme="{StaticResource InnerPathIcon}" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuFlyout>
@@ -421,7 +421,7 @@
                         CommandParameter="{x:Static u:DialogLayerChangeType.BringForward}"
                         Header="{DynamicResource MENU_DIALOG_CLOSE}">
                         <MenuItem.Icon>
-                            <PathIcon Data="{DynamicResource SemiIconClose}" Theme="{StaticResource InnerPathIcon}" />
+                            <PathIcon Data="{DynamicResource FluentIconClose}" Theme="{StaticResource InnerPathIcon}" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuFlyout>

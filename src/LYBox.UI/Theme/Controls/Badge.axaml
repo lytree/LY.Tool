@@ -15,7 +15,7 @@
                 <u:Badge.Header>
                     <PathIcon
                         Theme="{StaticResource InnerPathIcon}"
-                        Data="{StaticResource SemiIconLock}" />
+                        Data="{StaticResource FluentIconLock}" />
                 </u:Badge.Header>
                 <u:Avatar Classes="Square Blue" Content="YL" />
             </u:Badge>

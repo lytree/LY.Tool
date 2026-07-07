@@ -214,7 +214,7 @@
                         Theme="{DynamicResource CarouselButton}"
                         Margin="{DynamicResource CarouselButtonMargin}"
                         Foreground="{DynamicResource CarouselButtonForeground}"
-                        Content="{StaticResource SemiIconChevronLeft}"
+                        Content="{StaticResource FluentIconChevronLeft}"
                         IsVisible="{TemplateBinding ItemCount, Converter={x:Static converters:ItemConverter.ItemVisibleConverter}}"
                         Command="{Binding $parent[Carousel].Previous}" />
                     <Button
@@ -224,7 +224,7 @@
                         Theme="{DynamicResource CarouselButton}"
                         Margin="{DynamicResource CarouselButtonMargin}"
                         Foreground="{DynamicResource CarouselButtonForeground}"
-                        Content="{StaticResource SemiIconChevronRight}"
+                        Content="{StaticResource FluentIconChevronRight}"
                         IsVisible="{TemplateBinding ItemCount, Converter={x:Static converters:ItemConverter.ItemVisibleConverter}}"
                         Command="{Binding $parent[Carousel].Next}" />
                 </Grid>

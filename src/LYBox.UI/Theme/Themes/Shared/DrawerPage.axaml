@@ -3,9 +3,9 @@
     <x:Double x:Key="DrawerPageTopBarMinHeight">32</x:Double>
 
     <!--  DrawerPage pane button  -->
-    <StaticResource x:Key="DrawerPageMenuGlyph" ResourceKey="SemiIconMenu" />
+    <StaticResource x:Key="DrawerPageMenuGlyph" ResourceKey="FluentIconMenu" />
 
-    <StaticResource x:Key="DrawerPageTitleFontSize" ResourceKey="SemiFontSizeHeader6" />
-    <StaticResource x:Key="DrawerPageTitleFontWeight" ResourceKey="SemiFontWeightBold" />
+    <StaticResource x:Key="DrawerPageTitleFontSize" ResourceKey="FluentFontSizeHeader6" />
+    <StaticResource x:Key="DrawerPageTitleFontWeight" ResourceKey="FluentFontWeightBold" />
     <Thickness x:Key="DrawerPageTitleMargin">8 0 0 0</Thickness>
 </ResourceDictionary>

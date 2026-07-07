@@ -1,4 +1,4 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="ToastCardContentForeground" ResourceKey="SemiColorText0" />
-    <StaticResource x:Key="ToastCardBackground" ResourceKey="SemiColorBackground3" />
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StaticResource x:Key="ToastCardContentForeground" ResourceKey="FluentColorText0" />
+    <StaticResource x:Key="ToastCardBackground" ResourceKey="FluentColorBackground3" />
 </ResourceDictionary>

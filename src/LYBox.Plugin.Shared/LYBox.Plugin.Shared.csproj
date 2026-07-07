@@ -63,7 +63,7 @@
 		<!-- Avalonia 渲染递归依赖（Avalonia / Avalonia.Skia 的传递依赖） -->
 		<PackageReference Include="SkiaSharp" Version="$(SkiaSharpVersion)" />
 		<PackageReference Include="HarfBuzzSharp" Version="$(HarfBuzzSharpVersion)" />
-		<PackageReference Include="MicroCom.Runtime" Version="$(MicroComRuntimeVersion)" />
+		
 
 		<!-- Ursa 递归依赖（Irihi.Ursa 的传递依赖） -->
 		<PackageReference Include="Irihi.Avalonia.Shared" Version="$(IrihiAvaloniaSharedVersion)" />

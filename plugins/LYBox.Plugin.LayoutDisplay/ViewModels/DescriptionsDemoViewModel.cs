@@ -26,7 +26,7 @@ public partial class DescriptionsDemoViewModel : ObservableObject
         };
         Items2 = new ObservableCollection<DescriptionItemViewModel>()
         {
-            new() { Label = "抖音号", Description = "SemiDesign" },
+            new() { Label = "抖音号", Description = "FluentDesign" },
             new() { Label = "主播类型", Description = "自由主播" },
             new() { Label = "安全等级", Description = "3级" },
             new() { Label = "垂类标签", Description = "编程" },

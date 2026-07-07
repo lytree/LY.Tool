@@ -24,8 +24,8 @@
     </ControlTheme>
 
     <ControlTheme x:Key="InnerPathIcon" TargetType="PathIcon">
-        <Setter Property="Width" Value="{StaticResource SemiWidthIconMedium}" />
-        <Setter Property="Height" Value="{StaticResource SemiWidthIconMedium}" />
+        <Setter Property="Width" Value="{StaticResource FluentWidthIconMedium}" />
+        <Setter Property="Height" Value="{StaticResource FluentWidthIconMedium}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Template">
             <ControlTemplate TargetType="PathIcon">
@@ -47,20 +47,20 @@
             <Setter Property="Fill" Value="{TemplateBinding BorderBrush}" />
         </Style>
         <Style Selector="^.ExtraSmall">
-            <Setter Property="Width" Value="{StaticResource SemiWidthIconExtraSmall}" />
-            <Setter Property="Height" Value="{StaticResource SemiWidthIconExtraSmall}" />
+            <Setter Property="Width" Value="{StaticResource FluentWidthIconExtraSmall}" />
+            <Setter Property="Height" Value="{StaticResource FluentWidthIconExtraSmall}" />
         </Style>
         <Style Selector="^.Small">
-            <Setter Property="Width" Value="{StaticResource SemiWidthIconSmall}" />
-            <Setter Property="Height" Value="{StaticResource SemiWidthIconSmall}" />
+            <Setter Property="Width" Value="{StaticResource FluentWidthIconSmall}" />
+            <Setter Property="Height" Value="{StaticResource FluentWidthIconSmall}" />
         </Style>
         <Style Selector="^.Large">
-            <Setter Property="Width" Value="{StaticResource SemiWidthIconLarge}" />
-            <Setter Property="Height" Value="{StaticResource SemiWidthIconLarge}" />
+            <Setter Property="Width" Value="{StaticResource FluentWidthIconLarge}" />
+            <Setter Property="Height" Value="{StaticResource FluentWidthIconLarge}" />
         </Style>
         <Style Selector="^.ExtraLarge">
-            <Setter Property="Width" Value="{StaticResource SemiWidthIconExtraLarge}" />
-            <Setter Property="Height" Value="{StaticResource SemiWidthIconExtraLarge}" />
+            <Setter Property="Width" Value="{StaticResource FluentWidthIconExtraLarge}" />
+            <Setter Property="Height" Value="{StaticResource FluentWidthIconExtraLarge}" />
         </Style>
     </ControlTheme>
 </ResourceDictionary>

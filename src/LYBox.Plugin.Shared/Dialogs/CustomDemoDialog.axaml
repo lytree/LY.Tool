@@ -12,9 +12,9 @@
     mc:Ignorable="d">
     <UserControl.Background>
         <LinearGradientBrush StartPoint="5%, 5%" EndPoint="80%, 80%">
-            <GradientStop Offset="0.0" Color="{DynamicResource SemiLightBlue0Color}" />
-            <GradientStop Offset="0.4" Color="{DynamicResource SemiLightBlue2Color}" />
-            <GradientStop Offset="0.9" Color="{DynamicResource SemiLightBlue1Color}" />
+            <GradientStop Offset="0.0" Color="{DynamicResource FluentLightBlue0Color}" />
+            <GradientStop Offset="0.4" Color="{DynamicResource FluentLightBlue2Color}" />
+            <GradientStop Offset="0.9" Color="{DynamicResource FluentLightBlue1Color}" />
         </LinearGradientBrush>
     </UserControl.Background>
     <Grid

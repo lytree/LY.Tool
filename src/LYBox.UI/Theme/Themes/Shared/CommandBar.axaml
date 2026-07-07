@@ -5,8 +5,8 @@
     <x:Double x:Key="CommandBarButtonMinHeight">40</x:Double>
     <Thickness x:Key="CommandBarButtonPadding">8 4</Thickness>
     <x:Double x:Key="CommandBarButtonPanelSpacing">4</x:Double>
-    <StaticResource x:Key="CommandBarButtonCornerRadius" ResourceKey="SemiBorderRadiusSmall" />
-    <StaticResource x:Key="CommandBarButtonLabelFontSize" ResourceKey="SemiFontSizeSmall" />
+    <StaticResource x:Key="CommandBarButtonCornerRadius" ResourceKey="FluentBorderRadiusSmall" />
+    <StaticResource x:Key="CommandBarButtonLabelFontSize" ResourceKey="FluentFontSizeSmall" />
     <x:Double x:Key="CommandBarButtonOverflowMinHeight">36</x:Double>
     <Thickness x:Key="CommandBarButtonOverflowPadding">12 6</Thickness>
     <!--  CommandBarSeparator  -->
@@ -18,15 +18,15 @@
     <!--  CommandBar  -->
     <x:Double x:Key="CommandBarMinHeight">48</x:Double>
     <Thickness x:Key="CommandBarPadding">4 0</Thickness>
-    <StaticResource x:Key="CommandBarCornerRadius" ResourceKey="SemiBorderRadiusMedium" />
-    <StaticResource x:Key="CommandBarBorderThickness" ResourceKey="SemiBorderThicknessControl" />
+    <StaticResource x:Key="CommandBarCornerRadius" ResourceKey="FluentBorderRadiusMedium" />
+    <StaticResource x:Key="CommandBarBorderThickness" ResourceKey="FluentBorderThicknessControl" />
     <!--  CommandBar overflow popup  -->
-    <StaticResource x:Key="CommandBarOverflowCornerRadius" ResourceKey="SemiBorderRadiusMedium" />
+    <StaticResource x:Key="CommandBarOverflowCornerRadius" ResourceKey="FluentBorderRadiusMedium" />
     <x:Double x:Key="CommandBarOverflowMinHeight">16</x:Double>
     <x:Double x:Key="CommandBarOverflowMaxHeight">400</x:Double>
     <x:Double x:Key="CommandBarOverflowMaxWidth">600</x:Double>
     <Thickness x:Key="CommandBarOverflowPadding">0 4</Thickness>
     <Thickness x:Key="CommandBarOverflowMargin">8</Thickness>
     <!--  Overflow button glyph  -->
-    <StaticResource x:Key="CommandBarOverflowButtonGlyph" ResourceKey="SemiIconMore" />
+    <StaticResource x:Key="CommandBarOverflowButtonGlyph" ResourceKey="FluentIconMore" />
 </ResourceDictionary>

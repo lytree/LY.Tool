@@ -214,15 +214,15 @@
         </Style>
     </ControlTheme>
 
-    <StaticResource x:Key="WindowCloseIconGlyph" ResourceKey="SemiIconClose" />
-    <StaticResource x:Key="WindowMinimizeGlyph" ResourceKey="SemiIconMinus" />
-    <StaticResource x:Key="WindowExpandGlyph" ResourceKey="SemiIconExpand" />
-    <StaticResource x:Key="WindowCollapseGlyph" ResourceKey="SemiIconShrink" />
-    <StaticResource x:Key="WindowMaximizeGlyph" ResourceKey="SemiIconMaximize2" />
-    <StaticResource x:Key="WindowRestoreGlyph" ResourceKey="SemiIconRestore" />
+    <StaticResource x:Key="WindowCloseIconGlyph" ResourceKey="FluentIconClose" />
+    <StaticResource x:Key="WindowMinimizeGlyph" ResourceKey="FluentIconMinus" />
+    <StaticResource x:Key="WindowExpandGlyph" ResourceKey="FluentIconExpand" />
+    <StaticResource x:Key="WindowCollapseGlyph" ResourceKey="FluentIconShrink" />
+    <StaticResource x:Key="WindowMaximizeGlyph" ResourceKey="FluentIconMaximize2" />
+    <StaticResource x:Key="WindowRestoreGlyph" ResourceKey="FluentIconRestore" />
 
-    <StaticResource x:Key="CaptionButtonCornerRadius" ResourceKey="SemiBorderRadiusSmall" />
-    <StaticResource x:Key="CaptionButtonWidth" ResourceKey="SemiSpacingExtraLoose" />
-    <StaticResource x:Key="CaptionButtonHeight" ResourceKey="SemiSpacingExtraLoose" />
-    <StaticResource x:Key="CaptionButtonPadding" ResourceKey="SemiThicknessTight" />
+    <StaticResource x:Key="CaptionButtonCornerRadius" ResourceKey="FluentBorderRadiusSmall" />
+    <StaticResource x:Key="CaptionButtonWidth" ResourceKey="FluentSpacingExtraLoose" />
+    <StaticResource x:Key="CaptionButtonHeight" ResourceKey="FluentSpacingExtraLoose" />
+    <StaticResource x:Key="CaptionButtonPadding" ResourceKey="FluentThicknessTight" />
 </ResourceDictionary>

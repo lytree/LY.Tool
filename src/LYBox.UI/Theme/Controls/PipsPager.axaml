@@ -68,7 +68,7 @@
                         Theme="{TemplateBinding PreviousButtonTheme}"
                         IsVisible="{TemplateBinding IsPreviousButtonVisible}"
                         Foreground="{DynamicResource PipsPagerButtonForeground}"
-                        Content="{StaticResource SemiIconSmallTriangleLeft}" />
+                        Content="{StaticResource FluentIconSmallTriangleLeft}" />
 
                     <ListBox
                         Name="PART_PipsPagerList"
@@ -91,7 +91,7 @@
                         Name="PART_NextButton"
                         Theme="{TemplateBinding NextButtonTheme}"
                         Foreground="{DynamicResource PipsPagerButtonForeground}"
-                        Content="{StaticResource SemiIconSmallTriangleRight}"
+                        Content="{StaticResource FluentIconSmallTriangleRight}"
                         IsVisible="{TemplateBinding IsNextButtonVisible}" />
                 </StackPanel>
             </ControlTemplate>
@@ -109,10 +109,10 @@
             </Style>
 
             <Style Selector="^ /template/ Button#PART_PreviousButton">
-                <Setter Property="Content" Value="{DynamicResource SemiIconSmallTriangleTop}" />
+                <Setter Property="Content" Value="{DynamicResource FluentIconSmallTriangleTop}" />
             </Style>
             <Style Selector="^ /template/ Button#PART_NextButton">
-                <Setter Property="Content" Value="{DynamicResource SemiIconSmallTriangleDown}" />
+                <Setter Property="Content" Value="{DynamicResource FluentIconSmallTriangleDown}" />
             </Style>
         </Style>
 

@@ -113,7 +113,7 @@ Program.cs → App.Initialize()
 | 3 | **项目自定义 Fluent 补充样式**（`src/LYBox.UI/Theme/FluentDesign/FluentDesignStyles.axaml`） | `Button.FluentSettingsCard`、`Border.FluentInfoBadge`、`ProgressBar.circular.FluentProgressRing`、`Button.FluentBreadcrumbItem`、`Border.FluentContentDialogSurface` | Ursa 未提供的 WinUI 风格控件。详见下表。 |
 | 4 | **CommunityToolkit.Mvvm** | `ObservableObject`、`[ObservableProperty]`、`[RelayCommand]` | ViewModel 基础设施（与组件选型并列，但所有 VM 必须用此库）。 |
 
-**禁止**：直接引入 `Avalonia-Fluent-UI`（`AvaloniaFluentUI` NuGet/项目引用）整库。该库与 Irihi.Ursa 大量功能重叠且未发布到 NuGet，仅在风格上作为参考。需要 WinUI 风格控件时，使用上述第 3 级的项目内补充样式。
+**禁止**：引入 `Avalonia-Fluent-UI`（`AvaloniaFluentUI`）NuGet 包或项目引用。该库与 Irihi.Ursa 大量功能重叠且未发布到 NuGet。需要 WinUI 风格控件时，使用上述第 3 级的项目内补充样式。
 
 ### 2. 自定义 Fluent 补充样式速查表
 

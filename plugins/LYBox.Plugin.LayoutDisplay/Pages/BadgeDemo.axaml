@@ -43,7 +43,7 @@
                 <!--     <u:Badge.Header> -->
                 <!--         <PathIcon -->
                 <!--             Theme="{StaticResource PathIcon}" -->
-                <!--             Data="{StaticResource SemiIconLock}" /> -->
+                <!--             Data="{StaticResource FluentIconLock}" /> -->
                 <!--     </u:Badge.Header> -->
                 <!--     <u:Avatar Classes="Square Blue" Content="YL" /> -->
                 <!-- </u:Badge> -->
@@ -99,7 +99,7 @@
                     <u:Avatar Classes="Square Lime" Content="HW" />
                 </u:Badge>
                 <Border
-                    Background="{DynamicResource SemiColorFill0}"
+                    Background="{DynamicResource FluentColorFill0}"
                     CornerRadius="4">
                     <u:Badge Header="5" Classes="Inverted" Dot="True">
                         <u:Avatar Classes="Square Lime" Content="XM" />
@@ -291,7 +291,7 @@
                 </u:Badge>
             </StackPanel>
 
-            <Border Background="{DynamicResource SemiColorFill0}" CornerRadius="4">
+            <Border Background="{DynamicResource FluentColorFill0}" CornerRadius="4">
                 <StackPanel Orientation="Horizontal">
                     <u:Badge
                         Header="URSA"

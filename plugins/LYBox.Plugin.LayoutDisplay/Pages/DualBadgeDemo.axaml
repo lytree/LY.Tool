@@ -20,33 +20,33 @@
             <TextBlock Text="Flat:" />
             <StackPanel Orientation="Horizontal">
                 <u:DualBadge Content="35k" />
-                <u:DualBadge Content="35k" Icon="{StaticResource SemiIconDownload}" />
+                <u:DualBadge Content="35k" Icon="{StaticResource FluentIconDownload}" />
                 <u:DualBadge Content="35k" Header="downloads" />
-                <u:DualBadge Content="35k" Header="downloads" Icon="{StaticResource SemiIconDownload}" />
+                <u:DualBadge Content="35k" Header="downloads" Icon="{StaticResource FluentIconDownload}" />
             </StackPanel>
 
             <TextBlock Text="FlatSquare:" />
             <StackPanel Orientation="Horizontal">
                 <u:DualBadge Classes="FlatSquare" Content="35k" />
-                <u:DualBadge Classes="FlatSquare" Content="35k" Icon="{StaticResource SemiIconDownload}" />
+                <u:DualBadge Classes="FlatSquare" Content="35k" Icon="{StaticResource FluentIconDownload}" />
                 <u:DualBadge Classes="FlatSquare" Content="35k" Header="downloads" />
-                <u:DualBadge Classes="FlatSquare" Content="35k" Header="downloads" Icon="{StaticResource SemiIconDownload}" />
+                <u:DualBadge Classes="FlatSquare" Content="35k" Header="downloads" Icon="{StaticResource FluentIconDownload}" />
             </StackPanel>
 
             <TextBlock Text="Plastic:" />
             <StackPanel Orientation="Horizontal">
                 <u:DualBadge Classes="Plastic" Content="35k" />
-                <u:DualBadge Classes="Plastic" Content="35k" Icon="{StaticResource SemiIconDownload}" />
+                <u:DualBadge Classes="Plastic" Content="35k" Icon="{StaticResource FluentIconDownload}" />
                 <u:DualBadge Classes="Plastic" Content="35k" Header="downloads" />
-                <u:DualBadge Classes="Plastic" Content="35k" Header="downloads" Icon="{StaticResource SemiIconDownload}" />
+                <u:DualBadge Classes="Plastic" Content="35k" Header="downloads" Icon="{StaticResource FluentIconDownload}" />
             </StackPanel>
 
             <TextBlock Text="ForTheBadge:" />
             <StackPanel Orientation="Horizontal">
                 <u:DualBadge Classes="ForTheBadge" Content="35K" />
-                <u:DualBadge Classes="ForTheBadge" Content="35K" Icon="{StaticResource SemiIconDownload}" />
+                <u:DualBadge Classes="ForTheBadge" Content="35K" Icon="{StaticResource FluentIconDownload}" />
                 <u:DualBadge Classes="ForTheBadge" Content="35K" Header="DOWNLOADS" />
-                <u:DualBadge Classes="ForTheBadge" Content="35K" Header="DOWNLOADS" Icon="{StaticResource SemiIconDownload}" />
+                <u:DualBadge Classes="ForTheBadge" Content="35K" Header="DOWNLOADS" Icon="{StaticResource FluentIconDownload}" />
             </StackPanel>
 
             <WrapPanel>

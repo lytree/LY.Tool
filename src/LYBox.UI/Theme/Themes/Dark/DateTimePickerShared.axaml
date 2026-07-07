@@ -1,23 +1,23 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <SolidColorBrush x:Key="DateTimePickerListItemBackground" Color="Transparent" />
-    <StaticResource x:Key="DateTimePickerPopupBackground" ResourceKey="SemiColorBackground3" />
+    <StaticResource x:Key="DateTimePickerPopupBackground" ResourceKey="FluentColorBackground3" />
     <SolidColorBrush x:Key="DateTimePickerPopupBorderBrush" Color="Transparent" />
-    <StaticResource x:Key="DateTimePickerFlyoutButtonForeground" ResourceKey="SemiColorText2" />
-    <StaticResource x:Key="DateTimePickerFlyoutButtonPointeroverForeground" ResourceKey="SemiColorText0" />
-    <StaticResource x:Key="DateTimePickerFlyoutButtonPressedForeground" ResourceKey="SemiColorText0" />
+    <StaticResource x:Key="DateTimePickerFlyoutButtonForeground" ResourceKey="FluentColorText2" />
+    <StaticResource x:Key="DateTimePickerFlyoutButtonPointeroverForeground" ResourceKey="FluentColorText0" />
+    <StaticResource x:Key="DateTimePickerFlyoutButtonPressedForeground" ResourceKey="FluentColorText0" />
     <SolidColorBrush x:Key="DateTimePickerFlyoutButtonBackground" Color="Transparent" />
-    <StaticResource x:Key="DateTimePickerFlyoutButtonPointeroverBackground" ResourceKey="SemiColorFill1" />
-    <StaticResource x:Key="DateTimePickerFlyoutButtonPressedBackground" ResourceKey="SemiColorFill2" />
-    <StaticResource x:Key="DateTimePickerSeparatorBackground" ResourceKey="SemiColorBorder" />
+    <StaticResource x:Key="DateTimePickerFlyoutButtonPointeroverBackground" ResourceKey="FluentColorFill1" />
+    <StaticResource x:Key="DateTimePickerFlyoutButtonPressedBackground" ResourceKey="FluentColorFill2" />
+    <StaticResource x:Key="DateTimePickerSeparatorBackground" ResourceKey="FluentColorBorder" />
     <SolidColorBrush x:Key="DateTimePickerButtonBorderBrush" Color="Transparent" />
-    <StaticResource x:Key="DateTimePickerButtonBackground" ResourceKey="SemiColorFill0" />
-    <StaticResource x:Key="DateTimePickerButtonForeground" ResourceKey="SemiColorText0" />
-    <StaticResource x:Key="DateTimePickerIconForeground" ResourceKey="SemiColorText2" />
-    <StaticResource x:Key="DateTimePickerEmptyForeground" ResourceKey="SemiColorText2" />
-    <StaticResource x:Key="DateTimePickerButtonPointeroverBackground" ResourceKey="SemiColorFill1" />
+    <StaticResource x:Key="DateTimePickerButtonBackground" ResourceKey="FluentColorFill0" />
+    <StaticResource x:Key="DateTimePickerButtonForeground" ResourceKey="FluentColorText0" />
+    <StaticResource x:Key="DateTimePickerIconForeground" ResourceKey="FluentColorText2" />
+    <StaticResource x:Key="DateTimePickerEmptyForeground" ResourceKey="FluentColorText2" />
+    <StaticResource x:Key="DateTimePickerButtonPointeroverBackground" ResourceKey="FluentColorFill1" />
     <SolidColorBrush x:Key="DateTimePickerButtonPointeroverBorderBrush" Color="Transparent" />
     <SolidColorBrush x:Key="DateTimePickerButtonDisabledBorderBrush" Color="Transparent" />
-    <StaticResource x:Key="DateTimePickerButtonDisabledBackground" ResourceKey="SemiColorDisabledFill" />
-    <StaticResource x:Key="DateTimePickerButtonDisabledIconForeground" ResourceKey="SemiColorDisabledText" />
-    <StaticResource x:Key="DateTimePickerFlyoutBoxShadow" ResourceKey="SemiShadowElevated" />
+    <StaticResource x:Key="DateTimePickerButtonDisabledBackground" ResourceKey="FluentColorDisabledFill" />
+    <StaticResource x:Key="DateTimePickerButtonDisabledIconForeground" ResourceKey="FluentColorDisabledText" />
+    <StaticResource x:Key="DateTimePickerFlyoutBoxShadow" ResourceKey="FluentShadowElevated" />
 </ResourceDictionary>

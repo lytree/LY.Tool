@@ -1,4 +1,4 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="FormGroupForeground" ResourceKey="SemiColorBorder" />
-    <StaticResource x:Key="FormAsteriskForeground" ResourceKey="SemiColorDangerPointerover" />
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StaticResource x:Key="FormGroupForeground" ResourceKey="FluentColorBorder" />
+    <StaticResource x:Key="FormAsteriskForeground" ResourceKey="FluentColorDangerPointerover" />
 </ResourceDictionary>

@@ -1,6 +1,6 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="TwoTonePathIconForeground" ResourceKey="SemiColorPrimaryDisabled" />
-    <StaticResource x:Key="TwoTonePathIconStrokeBrush" ResourceKey="SemiColorPrimaryPointerover" />
-    <StaticResource x:Key="TwoTonePathIconActiveForeground" ResourceKey="SemiColorPrimaryPointerover" />
-    <StaticResource x:Key="TwoTonePathIconActiveStrokeBrush" ResourceKey="SemiColorPrimaryPointerover" />
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StaticResource x:Key="TwoTonePathIconForeground" ResourceKey="FluentColorPrimaryDisabled" />
+    <StaticResource x:Key="TwoTonePathIconStrokeBrush" ResourceKey="FluentColorPrimaryPointerover" />
+    <StaticResource x:Key="TwoTonePathIconActiveForeground" ResourceKey="FluentColorPrimaryPointerover" />
+    <StaticResource x:Key="TwoTonePathIconActiveStrokeBrush" ResourceKey="FluentColorPrimaryPointerover" />
 </ResourceDictionary>

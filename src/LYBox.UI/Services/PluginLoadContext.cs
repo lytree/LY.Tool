@@ -21,7 +21,7 @@ internal class PluginLoadContext : AssemblyLoadContext
         "SkiaSharp.*",
         "HarfBuzzSharp",
         "HarfBuzzSharp.*",
-        "MicroCom.Runtime",
+        
         "LYBox.Plugin.Shared",
         "CommunityToolkit.*",
         "Microsoft.Extensions.DependencyInjection",

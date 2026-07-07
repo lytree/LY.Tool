@@ -1,10 +1,10 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="ScrollBarThickness" ResourceKey="SemiSpacingTight" />
+    <StaticResource x:Key="ScrollBarThickness" ResourceKey="FluentSpacingTight" />
     <x:Double x:Key="ScrollBarMinLength">24</x:Double>
-    <StaticResource x:Key="ScrollBarThumbThickness" ResourceKey="SemiSpacingTight" />
-    <StaticResource x:Key="ScrollBarThumbCornerRadius" ResourceKey="SemiBorderRadiusMedium" />
-    <StaticResource x:Key="ScrollBarUpGlyph" ResourceKey="SemiIconSmallTriangleTop" />
-    <StaticResource x:Key="ScrollBarDownGlyph" ResourceKey="SemiIconSmallTriangleDown" />
-    <StaticResource x:Key="ScrollBarLeftGlyph" ResourceKey="SemiIconSmallTriangleLeft" />
-    <StaticResource x:Key="ScrollBarRightGlyph" ResourceKey="SemiIconSmallTriangleRight" />
+    <StaticResource x:Key="ScrollBarThumbThickness" ResourceKey="FluentSpacingTight" />
+    <StaticResource x:Key="ScrollBarThumbCornerRadius" ResourceKey="FluentBorderRadiusMedium" />
+    <StaticResource x:Key="ScrollBarUpGlyph" ResourceKey="FluentIconSmallTriangleTop" />
+    <StaticResource x:Key="ScrollBarDownGlyph" ResourceKey="FluentIconSmallTriangleDown" />
+    <StaticResource x:Key="ScrollBarLeftGlyph" ResourceKey="FluentIconSmallTriangleLeft" />
+    <StaticResource x:Key="ScrollBarRightGlyph" ResourceKey="FluentIconSmallTriangleRight" />
 </ResourceDictionary>

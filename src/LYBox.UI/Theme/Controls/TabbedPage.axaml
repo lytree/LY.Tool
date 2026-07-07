@@ -3,9 +3,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Design.PreviewWith>
         <TabbedPage Width="400" Height="800" TabPlacement="Bottom">
-            <ContentPage Icon="{DynamicResource SemiIconHome}" Header="Home" />
-            <ContentPage Icon="{DynamicResource SemiIconSearch}" Header="Search" />
-            <ContentPage Icon="{DynamicResource SemiIconSetting}" Header="Settings" />
+            <ContentPage Icon="{DynamicResource FluentIconHome}" Header="Home" />
+            <ContentPage Icon="{DynamicResource FluentIconSearch}" Header="Search" />
+            <ContentPage Icon="{DynamicResource FluentIconSetting}" Header="Settings" />
         </TabbedPage>
     </Design.PreviewWith>
 

@@ -1,5 +1,5 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="ThemeSelectorButtonDarkGlyph" ResourceKey="SemiIconMoon" />
-    <StaticResource x:Key="ThemeSelectorButtonLightGlyph" ResourceKey="SemiIconSun" />
-    <StaticResource x:Key="ThemeSelectorButtonDefaultGlyph" ResourceKey="SemiIconContrast" />
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StaticResource x:Key="ThemeSelectorButtonDarkGlyph" ResourceKey="FluentIconMoon" />
+    <StaticResource x:Key="ThemeSelectorButtonLightGlyph" ResourceKey="FluentIconSun" />
+    <StaticResource x:Key="ThemeSelectorButtonDefaultGlyph" ResourceKey="FluentIconContrast" />
 </ResourceDictionary>

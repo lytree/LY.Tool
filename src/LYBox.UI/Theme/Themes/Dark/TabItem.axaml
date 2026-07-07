@@ -1,25 +1,25 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <!--  Line  -->
     <SolidColorBrush x:Key="TabItemLinePipeBackground" Color="Transparent" />
-    <StaticResource x:Key="TabItemLinePipeSelectedBackground" ResourceKey="SemiColorPrimary" />
-    <StaticResource x:Key="TabItemLinePipePointeroverBorderBrush" ResourceKey="SemiColorFill1" />
-    <StaticResource x:Key="TabItemLinePipePressedBorderBrush" ResourceKey="SemiColorFill2" />
-    <StaticResource x:Key="TabItemLineHeaderForeground" ResourceKey="SemiColorText2" />
-    <StaticResource x:Key="TabItemLineHeaderPointeroverForeground" ResourceKey="SemiColorText0" />
-    <StaticResource x:Key="TabItemLineHeaderSelectedForeground" ResourceKey="SemiColorText0" />
-    <StaticResource x:Key="TabItemLineHeaderSelectedBackground" ResourceKey="SemiColorPrimaryLight" />
-    <StaticResource x:Key="TabItemLineHeaderPointeroverBackground" ResourceKey="SemiColorFill0" />
-    <StaticResource x:Key="TabItemLineHeaderPressedBackground" ResourceKey="SemiColorFill1" />
+    <StaticResource x:Key="TabItemLinePipeSelectedBackground" ResourceKey="FluentColorPrimary" />
+    <StaticResource x:Key="TabItemLinePipePointeroverBorderBrush" ResourceKey="FluentColorFill1" />
+    <StaticResource x:Key="TabItemLinePipePressedBorderBrush" ResourceKey="FluentColorFill2" />
+    <StaticResource x:Key="TabItemLineHeaderForeground" ResourceKey="FluentColorText2" />
+    <StaticResource x:Key="TabItemLineHeaderPointeroverForeground" ResourceKey="FluentColorText0" />
+    <StaticResource x:Key="TabItemLineHeaderSelectedForeground" ResourceKey="FluentColorText0" />
+    <StaticResource x:Key="TabItemLineHeaderSelectedBackground" ResourceKey="FluentColorPrimaryLight" />
+    <StaticResource x:Key="TabItemLineHeaderPointeroverBackground" ResourceKey="FluentColorFill0" />
+    <StaticResource x:Key="TabItemLineHeaderPressedBackground" ResourceKey="FluentColorFill1" />
     <!--  Card  -->
-    <StaticResource x:Key="TabItemCardHeaderSelectedBackground" ResourceKey="SemiColorBackground0" />
-    <StaticResource x:Key="TabItemCardHeaderPointeroverBackground" ResourceKey="SemiColorFill0" />
-    <StaticResource x:Key="TabItemCardHeaderPressedBackground" ResourceKey="SemiColorFill1" />
+    <StaticResource x:Key="TabItemCardHeaderSelectedBackground" ResourceKey="FluentColorBackground0" />
+    <StaticResource x:Key="TabItemCardHeaderPointeroverBackground" ResourceKey="FluentColorFill0" />
+    <StaticResource x:Key="TabItemCardHeaderPressedBackground" ResourceKey="FluentColorFill1" />
     <!--  Button  -->
-    <StaticResource x:Key="TabItemButtonHeaderSelectedForeground" ResourceKey="SemiColorPrimary" />
-    <StaticResource x:Key="TabItemButtonHeaderSelectedBackground" ResourceKey="SemiColorPrimaryLight" />
-    <StaticResource x:Key="TabItemButtonHeaderPointeroverBackground" ResourceKey="SemiColorFill0" />
-    <StaticResource x:Key="TabItemButtonHeaderPressedBackground" ResourceKey="SemiColorFill1" />
+    <StaticResource x:Key="TabItemButtonHeaderSelectedForeground" ResourceKey="FluentColorPrimary" />
+    <StaticResource x:Key="TabItemButtonHeaderSelectedBackground" ResourceKey="FluentColorPrimaryLight" />
+    <StaticResource x:Key="TabItemButtonHeaderPointeroverBackground" ResourceKey="FluentColorFill0" />
+    <StaticResource x:Key="TabItemButtonHeaderPressedBackground" ResourceKey="FluentColorFill1" />
 
-    <StaticResource x:Key="TabItemIconSelectedForeground" ResourceKey="SemiColorPrimary" />
-    <StaticResource x:Key="TabItemHeaderDisabledForeground" ResourceKey="SemiColorDisabledText" />
+    <StaticResource x:Key="TabItemIconSelectedForeground" ResourceKey="FluentColorPrimary" />
+    <StaticResource x:Key="TabItemHeaderDisabledForeground" ResourceKey="FluentColorDisabledText" />
 </ResourceDictionary>

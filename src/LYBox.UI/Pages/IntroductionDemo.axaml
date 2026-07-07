@@ -20,7 +20,7 @@
         <Style Selector="TextBlock.GroupHeader">
             <Setter Property="FontSize" Value="20" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}" />
+            <Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
             <Setter Property="Margin" Value="0,8,0,12" />
         </Style>
         <Style Selector="Button.ToolCard">
@@ -49,7 +49,7 @@
         <Style Selector="TextBlock.ToolName">
             <Setter Property="FontSize" Value="14" />
             <Setter Property="FontWeight" Value="Medium" />
-            <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}" />
+            <Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
         </Style>
         <Style Selector="u|Badge.ToolStatus">
             <Setter Property="VerticalAlignment" Value="Center" />
@@ -64,7 +64,7 @@
             VerticalAlignment="Center"
             Margin="0,48"
             FontSize="16"
-            Foreground="{DynamicResource SemiColorText2}"
+            Foreground="{DynamicResource FluentColorText2}"
             Text="{DynamicResource SEARCH_NO_RESULTS}"
             ZIndex="1" />
         <!-- ElasticWrapPanel 设置 ItemHeight 后，panel 可基于固定行高正确计算

@@ -1,4 +1,4 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="GridSplitterBackground" ResourceKey="SemiColorBorder" />
-    <StaticResource x:Key="GridSplitterPreviewBackground" ResourceKey="SemiColorPrimaryLightActive" />
+    <StaticResource x:Key="GridSplitterBackground" ResourceKey="FluentColorBorder" />
+    <StaticResource x:Key="GridSplitterPreviewBackground" ResourceKey="FluentColorPrimaryLightActive" />
 </ResourceDictionary>

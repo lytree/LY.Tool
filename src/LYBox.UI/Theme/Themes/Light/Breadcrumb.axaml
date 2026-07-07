@@ -1,6 +1,6 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="BreadcrumbItemForeground" ResourceKey="SemiColorText2" />
-    <StaticResource x:Key="BreadcrumbItemSeparatorForeground" ResourceKey="SemiColorDisabledText" />
-    <StaticResource x:Key="BreadcrumbItemLastForeground" ResourceKey="SemiColorText0" />
-    <StaticResource x:Key="BreadcrumbItemPointeroverForeground" ResourceKey="SemiColorPrimary" />
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StaticResource x:Key="BreadcrumbItemForeground" ResourceKey="FluentColorText2" />
+    <StaticResource x:Key="BreadcrumbItemSeparatorForeground" ResourceKey="FluentColorDisabledText" />
+    <StaticResource x:Key="BreadcrumbItemLastForeground" ResourceKey="FluentColorText0" />
+    <StaticResource x:Key="BreadcrumbItemPointeroverForeground" ResourceKey="FluentColorPrimary" />
 </ResourceDictionary>

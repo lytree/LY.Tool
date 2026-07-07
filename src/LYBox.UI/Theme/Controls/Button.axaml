@@ -397,8 +397,8 @@
     </ControlTheme>
 
     <ControlTheme x:Key="InnerIconButton" TargetType="Button">
-        <Setter Property="Width" Value="{DynamicResource SemiWidthIconMedium}" />
-        <Setter Property="Height" Value="{DynamicResource SemiWidthIconMedium}" />
+        <Setter Property="Width" Value="{DynamicResource FluentWidthIconMedium}" />
+        <Setter Property="Height" Value="{DynamicResource FluentWidthIconMedium}" />
         <Setter Property="Foreground" Value="{DynamicResource ButtonInputInnerForeground}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Cursor" Value="Hand" />

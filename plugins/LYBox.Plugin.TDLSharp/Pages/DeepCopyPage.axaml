@@ -16,7 +16,7 @@
 					<TextBlock Text="{Binding Script.Description}" Classes="Secondary" />
 				</StackPanel>
 				<Button Grid.Column="1" Command="{Binding ShowExecutionHistoryCommand}" ToolTip.Tip="{DynamicResource LBL_ExecutionHistory}" VerticalAlignment="Center" Padding="6">
-					<PathIcon Data="{DynamicResource SemiIconHistory}" Width="20" Height="20" />
+					<PathIcon Data="{DynamicResource FluentIconHistory}" Width="20" Height="20" />
 				</Button>
 			</Grid>
 

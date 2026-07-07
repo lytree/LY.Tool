@@ -1,13 +1,13 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="TextBlockCodeFontSize" ResourceKey="SemiFontSizeSmall" />
-    <StaticResource x:Key="TextBlockFontSize" ResourceKey="SemiFontSizeRegular" />
-    <StaticResource x:Key="TextBlockTitleH1FontSize" ResourceKey="SemiFontSizeHeader1" />
-    <StaticResource x:Key="TextBlockTitleH2FontSize" ResourceKey="SemiFontSizeHeader2" />
-    <StaticResource x:Key="TextBlockTitleH3FontSize" ResourceKey="SemiFontSizeHeader3" />
-    <StaticResource x:Key="TextBlockTitleH4FontSize" ResourceKey="SemiFontSizeHeader4" />
-    <StaticResource x:Key="TextBlockTitleH5FontSize" ResourceKey="SemiFontSizeHeader5" />
-    <StaticResource x:Key="TextBlockTitleH6FontSize" ResourceKey="SemiFontSizeHeader6" />
-    <StaticResource x:Key="TextBlockFontWeight" ResourceKey="SemiFontWeightRegular" />
-    <StaticResource x:Key="TextBlockTitleFontWeight" ResourceKey="SemiFontWeightBold" />
+    <StaticResource x:Key="TextBlockCodeFontSize" ResourceKey="FluentFontSizeSmall" />
+    <StaticResource x:Key="TextBlockFontSize" ResourceKey="FluentFontSizeRegular" />
+    <StaticResource x:Key="TextBlockTitleH1FontSize" ResourceKey="FluentFontSizeHeader1" />
+    <StaticResource x:Key="TextBlockTitleH2FontSize" ResourceKey="FluentFontSizeHeader2" />
+    <StaticResource x:Key="TextBlockTitleH3FontSize" ResourceKey="FluentFontSizeHeader3" />
+    <StaticResource x:Key="TextBlockTitleH4FontSize" ResourceKey="FluentFontSizeHeader4" />
+    <StaticResource x:Key="TextBlockTitleH5FontSize" ResourceKey="FluentFontSizeHeader5" />
+    <StaticResource x:Key="TextBlockTitleH6FontSize" ResourceKey="FluentFontSizeHeader6" />
+    <StaticResource x:Key="TextBlockFontWeight" ResourceKey="FluentFontWeightRegular" />
+    <StaticResource x:Key="TextBlockTitleFontWeight" ResourceKey="FluentFontWeightBold" />
     <CornerRadius x:Key="TextBlockCodeCornerRadius">2</CornerRadius>
 </ResourceDictionary>

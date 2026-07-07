@@ -106,7 +106,7 @@ public class LocalizationService : ILocalizationService
     private void RebuildCacheAndSyncResources()
     {
         var app = Application.Current;
-        var themeInstance = UrsaSemiTheme.Instance;
+        var themeInstance = UrsaFluentTheme.Instance;
         var cache = new ConcurrentDictionary<string, string>();
 
         // 记录本次注册的资源键，便于切换文化时清理上一轮残留键，避免 Application.Resources

@@ -1,4 +1,4 @@
-﻿<ResourceDictionary
+<ResourceDictionary
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Design.PreviewWith>
@@ -14,7 +14,7 @@
         TargetType="Button">
         <Setter Property="Height" Value="24" />
         <Setter Property="Width" Value="24" />
-        <Setter Property="Content" Value="{StaticResource SemiIconClose}" />
+        <Setter Property="Content" Value="{StaticResource FluentIconClose}" />
     </ControlTheme>
 
     <ControlTheme

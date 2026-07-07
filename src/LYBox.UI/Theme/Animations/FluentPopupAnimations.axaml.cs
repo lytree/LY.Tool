@@ -2,4 +2,4 @@ using Avalonia.Styling;
 
 namespace LYBox.UI.Theme.SizeAnimations;
 
-public class SemiPopupAnimations : Styles;
+public class FluentPopupAnimations : Styles;

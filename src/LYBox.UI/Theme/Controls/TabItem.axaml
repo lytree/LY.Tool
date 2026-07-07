@@ -6,12 +6,12 @@
             Width="400"
             Height="400"
             Margin="20">
-            <TabItem Theme="{DynamicResource CardTabItem}" Header="文档" Icon="{StaticResource SemiIconFile}" />
+            <TabItem Theme="{DynamicResource CardTabItem}" Header="文档" Icon="{StaticResource FluentIconFile}" />
             <TabControl TabStripPlacement="Top" Theme="{DynamicResource LineTabControl}">
-                <TabItem Content="Hello 1" Header="文档" Icon="{StaticResource SemiIconFile}" />
-                <TabItem Content="Hello 2" Header="快速起步" Icon="{StaticResource SemiIconGlobe}" />
-                <TabItem Content="Hello 4" Header="无效" Icon="{StaticResource SemiIconClear}" IsEnabled="False" />
-                <TabItem Content="Hello 3" Header="帮助" Icon="{StaticResource SemiIconHelpCircle}" />
+                <TabItem Content="Hello 1" Header="文档" Icon="{StaticResource FluentIconFile}" />
+                <TabItem Content="Hello 2" Header="快速起步" Icon="{StaticResource FluentIconGlobe}" />
+                <TabItem Content="Hello 4" Header="无效" Icon="{StaticResource FluentIconClear}" IsEnabled="False" />
+                <TabItem Content="Hello 3" Header="帮助" Icon="{StaticResource FluentIconHelpCircle}" />
             </TabControl>
         </StackPanel>
     </Design.PreviewWith>
@@ -237,7 +237,7 @@
         x:Key="ButtonTabItem"
         BasedOn="{StaticResource BaseTabItem}"
         TargetType="TabItem">
-        <Setter Property="CornerRadius" Value="{DynamicResource SemiBorderRadiusSmall}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource FluentBorderRadiusSmall}" />
 
         <Style Selector="^:selected">
             <Style Selector="^ /template/ Border#PART_RootBorder">

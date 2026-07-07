@@ -1,15 +1,15 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <SolidColorBrush x:Key="ToggleSwitchDefaultBorderBrush" Color="Transparent" />
-    <StaticResource x:Key="ToggleSwitchContainerUnCheckedDefaultBackground" ResourceKey="SemiColorFill0" />
-    <StaticResource x:Key="ToggleSwitchContainerUnCheckedPointeroverBackground" ResourceKey="SemiColorFill1" />
-    <StaticResource x:Key="ToggleSwitchContainerUnCheckedPressedBackground" ResourceKey="SemiColorFill2" />
+    <StaticResource x:Key="ToggleSwitchContainerUnCheckedDefaultBackground" ResourceKey="FluentColorFill0" />
+    <StaticResource x:Key="ToggleSwitchContainerUnCheckedPointeroverBackground" ResourceKey="FluentColorFill1" />
+    <StaticResource x:Key="ToggleSwitchContainerUnCheckedPressedBackground" ResourceKey="FluentColorFill2" />
     <SolidColorBrush x:Key="ToggleSwitchContainerUnCheckedDisabledBackground" Color="Transparent" />
-    <StaticResource x:Key="ToggleSwitchContainerUnCheckedDisabledBorderBrush" ResourceKey="SemiColorFill1" />
-    <StaticResource x:Key="ToggleSwitchContainerCheckedDefaultBackground" ResourceKey="SemiColorSuccess" />
-    <StaticResource x:Key="ToggleSwitchContainerCheckedPointeroverBackground" ResourceKey="SemiColorSuccessPointerover" />
-    <StaticResource x:Key="ToggleSwitchContainerCheckedPressedBackground" ResourceKey="SemiColorSuccessActive" />
-    <StaticResource x:Key="ToggleSwitchContainerCheckedDisabledBackground" ResourceKey="SemiColorSuccessDisabled" />
-    <StaticResource x:Key="SimpleToggleSwitchContainerUnCheckedForeground" ResourceKey="SemiColorText2" />
-    <StaticResource x:Key="SimpleToggleSwitchContainerCheckedForeground" ResourceKey="SemiColorWhite" />
+    <StaticResource x:Key="ToggleSwitchContainerUnCheckedDisabledBorderBrush" ResourceKey="FluentColorFill1" />
+    <StaticResource x:Key="ToggleSwitchContainerCheckedDefaultBackground" ResourceKey="FluentColorSuccess" />
+    <StaticResource x:Key="ToggleSwitchContainerCheckedPointeroverBackground" ResourceKey="FluentColorSuccessPointerover" />
+    <StaticResource x:Key="ToggleSwitchContainerCheckedPressedBackground" ResourceKey="FluentColorSuccessActive" />
+    <StaticResource x:Key="ToggleSwitchContainerCheckedDisabledBackground" ResourceKey="FluentColorSuccessDisabled" />
+    <StaticResource x:Key="SimpleToggleSwitchContainerUnCheckedForeground" ResourceKey="FluentColorText2" />
+    <StaticResource x:Key="SimpleToggleSwitchContainerCheckedForeground" ResourceKey="FluentColorWhite" />
     <BoxShadows x:Key="ToggleSwitchIndicatorBoxShadow">0 4 6 0 #1A000000, 0 0 1 0 #4D000000</BoxShadows>
 </ResourceDictionary>

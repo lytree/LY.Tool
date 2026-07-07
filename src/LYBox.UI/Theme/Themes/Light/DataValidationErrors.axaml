@@ -1,15 +1,15 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="DataValidationErrorsForeground" ResourceKey="SemiColorDanger" />
-    <StaticResource x:Key="DataValidationErrorsBackground" ResourceKey="SemiColorDangerLight" />
-    <StaticResource x:Key="DataValidationErrorsBorderBrush" ResourceKey="SemiColorDangerLight" />
-    <StaticResource x:Key="DataValidationErrorsPointeroverBackground" ResourceKey="SemiColorDangerLightPointerover" />
-    <StaticResource x:Key="DataValidationErrorsPointeroverBorderBrush" ResourceKey="SemiColorDangerLightPointerover" />
-    <StaticResource x:Key="DataValidationErrorsPressedBackground" ResourceKey="SemiColorDangerLightActive" />
-    <StaticResource x:Key="DataValidationErrorsPressedBorderBrush" ResourceKey="SemiColorDangerLightActive" />
-    <StaticResource x:Key="DataValidationErrorsSelectedBackground" ResourceKey="SemiColorDangerLight" />
-    <StaticResource x:Key="DataValidationErrorsSelectedBorderBrush" ResourceKey="SemiColorDanger" />
+    <StaticResource x:Key="DataValidationErrorsForeground" ResourceKey="FluentColorDanger" />
+    <StaticResource x:Key="DataValidationErrorsBackground" ResourceKey="FluentColorDangerLight" />
+    <StaticResource x:Key="DataValidationErrorsBorderBrush" ResourceKey="FluentColorDangerLight" />
+    <StaticResource x:Key="DataValidationErrorsPointeroverBackground" ResourceKey="FluentColorDangerLightPointerover" />
+    <StaticResource x:Key="DataValidationErrorsPointeroverBorderBrush" ResourceKey="FluentColorDangerLightPointerover" />
+    <StaticResource x:Key="DataValidationErrorsPressedBackground" ResourceKey="FluentColorDangerLightActive" />
+    <StaticResource x:Key="DataValidationErrorsPressedBorderBrush" ResourceKey="FluentColorDangerLightActive" />
+    <StaticResource x:Key="DataValidationErrorsSelectedBackground" ResourceKey="FluentColorDangerLight" />
+    <StaticResource x:Key="DataValidationErrorsSelectedBorderBrush" ResourceKey="FluentColorDanger" />
 
     <!-- Deprecated keys -->
-    <StaticResource x:Key="DataValidationErrorsPointerOverBackground" ResourceKey="SemiColorDangerLightPointerover" />
-    <StaticResource x:Key="DataValidationErrorsPointerOverBorderBrush" ResourceKey="SemiColorDangerLightPointerover" />
+    <StaticResource x:Key="DataValidationErrorsPointerOverBackground" ResourceKey="FluentColorDangerLightPointerover" />
+    <StaticResource x:Key="DataValidationErrorsPointerOverBorderBrush" ResourceKey="FluentColorDangerLightPointerover" />
 </ResourceDictionary>

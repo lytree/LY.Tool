@@ -6,16 +6,16 @@
             <StackPanel>
                 <NotificationCard />
                 <NotificationCard>
-                    Hello, Semi.Avalonia!
+                    Hello, Fluent Design!
                 </NotificationCard>
                 <NotificationCard NotificationType="Success">
-                    <Notification Title="Welcome" Message="Hello, Semi.Avalonia!" />
+                    <Notification Title="Welcome" Message="Hello, Fluent Design!" />
                 </NotificationCard>
                 <NotificationCard NotificationType="Warning" Classes="Light">
                     <Notification Title="Welcome" />
                 </NotificationCard>
                 <NotificationCard NotificationType="Error" Classes="Light">
-                    <Notification Message="Hello, Semi.Avalonia!" />
+                    <Notification Message="Hello, Fluent Design!" />
                 </NotificationCard>
             </StackPanel>
         </ThemeVariantScope>

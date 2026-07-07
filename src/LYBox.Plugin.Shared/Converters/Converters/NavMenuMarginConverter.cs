@@ -2,7 +2,7 @@ using System.Globalization;
 using Avalonia;
 using Irihi.Avalonia.Shared.Converters;
 
-namespace Ursa.Themes.Semi.Converters;
+namespace LYBox.Plugin.Shared.Converters;
 
 public class NavMenuMarginConverter : MarkupMultiValueConverter
 {

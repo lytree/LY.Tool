@@ -1,5 +1,5 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StaticResource x:Key="ToggleButtonPrimaryIndeterminateBorderBrush" ResourceKey="SemiColorPrimary" />
-    <StaticResource x:Key="ToggleButtonSecondaryIndeterminateBorderBrush" ResourceKey="SemiColorSecondary" />
-    <StaticResource x:Key="ToggleButtonTertiaryIndeterminateBorderBrush" ResourceKey="SemiColorText1" />
+    <StaticResource x:Key="ToggleButtonPrimaryIndeterminateBorderBrush" ResourceKey="FluentColorPrimary" />
+    <StaticResource x:Key="ToggleButtonSecondaryIndeterminateBorderBrush" ResourceKey="FluentColorSecondary" />
+    <StaticResource x:Key="ToggleButtonTertiaryIndeterminateBorderBrush" ResourceKey="FluentColorText1" />
 </ResourceDictionary>

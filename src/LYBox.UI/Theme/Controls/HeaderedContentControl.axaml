@@ -1,4 +1,4 @@
-﻿<ResourceDictionary
+<ResourceDictionary
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:iri="https://irihi.tech/shared">
@@ -13,10 +13,10 @@
             <HeaderedContentControl
                 Theme="{DynamicResource GroupBox}"
                 MaxWidth="360"
-                Content="Semi Design 是由互娱社区前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。">
+                Content="Fluent Design 是微软推出的设计系统，强调光线、深度、动效、材质与尺度。本主题基于 Avalonia FluentTheme 与 Irihi.Ursa，为应用提供一致的、高质量的、符合 Fluent 规范的视觉体验。">
                 <HeaderedContentControl.Header>
                     <Panel>
-                        <SelectableTextBlock Text="Semi Design" />
+                        <SelectableTextBlock Text="Fluent Design" />
                         <HyperlinkButton HorizontalAlignment="Right" Content="更多" />
                     </Panel>
                 </HeaderedContentControl.Header>

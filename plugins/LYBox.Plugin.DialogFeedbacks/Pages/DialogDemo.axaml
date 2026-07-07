@@ -58,7 +58,7 @@
                                     <TextBlock Text="Style Class" />
                                     <PathIcon
                                         VerticalAlignment="Center"
-                                        Data="{DynamicResource SemiIconHelpCircle}"
+                                        Data="{DynamicResource FluentIconHelpCircle}"
                                         TextElement.FontWeight="Normal"
                                         Theme="{StaticResource InnerPathIcon}"
                                         ToolTip.Tip="Pass a Style Class to the created Dialog. In this example, if you set StyleClass as 'Custom', You will get Special Style for OK Button. These styles usually are defined in the root of your App/Window" />
@@ -149,7 +149,7 @@
                                     <TextBlock Text="Style Class" />
                                     <PathIcon
                                         VerticalAlignment="Center"
-                                        Data="{DynamicResource SemiIconHelpCircle}"
+                                        Data="{DynamicResource FluentIconHelpCircle}"
                                         TextElement.FontWeight="Normal"
                                         Theme="{StaticResource InnerPathIcon}"
                                         ToolTip.Tip="Pass a Style Class to the created Dialog. In this example, if you set StyleClass as 'Custom', You will get Special Style for OK Button. These styles usually are defined in the root of your App/Window" />
@@ -199,8 +199,8 @@
         </ScrollViewer>
         <Grid Grid.Column="1">
             <Border
-                Background="{DynamicResource SemiColorBackground1}"
-                BorderBrush="{DynamicResource SemiGrey1}"
+                Background="{DynamicResource FluentColorBackground1}"
+                BorderBrush="{DynamicResource FluentGrey1}"
                 BorderThickness="1"
                 ClipToBounds="True"
                 CornerRadius="12">

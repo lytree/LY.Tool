@@ -4,10 +4,16 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:u="https://irihi.tech/ursa">
 
-    <!-- WinUI Gallery Style - Fluent Design System -->
+    <!-- ============================================================
+         Fluent Design System — WinUI 3 风格样式
+         所有样式统一使用 Fluent* 前缀，遵循 WinUI 3 语义色彩 token。
+         组件选型原则：优先 Irihi.Ursa 组件，缺失项用以下样式补充。
+         ============================================================ -->
 
-    <!-- WinUI Gallery Card -->
-    <Style Selector="Border.WinUICard">
+    <!-- ===== 布局辅助样式（卡片、导航面板、标题栏、页面头部） ===== -->
+
+    <!-- 简单卡片 (Border) — 用于一般内容容器 -->
+    <Style Selector="Border.FluentCard">
         <Setter Property="Background" Value="{DynamicResource FluentCardBackgroundBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
         <Setter Property="BorderThickness" Value="1" />
@@ -23,13 +29,13 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <Style Selector="Border.WinUICard:pointerover">
+    <Style Selector="Border.FluentCard:pointerover">
         <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
         <Setter Property="BoxShadow" Value="0 4 16 0 #1A000000" />
     </Style>
 
-    <!-- WinUI Gallery Card Clickable -->
-    <Style Selector="Button.WinUICard">
+    <!-- 可点击卡片 (Button) — 带 hover/press 反馈 -->
+    <Style Selector="Button.FluentCard">
         <Setter Property="Background" Value="{DynamicResource FluentCardBackgroundBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
         <Setter Property="BorderThickness" Value="1" />
@@ -38,23 +44,23 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
     </Style>
-    <Style Selector="Button.WinUICard:pointerover /template/ ContentPresenter">
+    <Style Selector="Button.FluentCard:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
     </Style>
-    <Style Selector="Button.WinUICard:pressed /template/ ContentPresenter">
+    <Style Selector="Button.FluentCard:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
     </Style>
 
-    <!-- WinUI Gallery Navigation Pane -->
-    <Style Selector="Border.WinUINavPane">
+    <!-- 导航面板背景层 (Border) — 左侧导航区域 -->
+    <Style Selector="Border.FluentNavPane">
         <Setter Property="Background" Value="{DynamicResource FluentSubtleBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
         <Setter Property="BorderThickness" Value="0,0,1,0" />
     </Style>
 
-    <!-- WinUI Gallery Title Bar (same layer as nav pane for visual consistency) -->
-    <Style Selector="Border.WinUITitleBar">
+    <!-- 标题栏 (Border) — 顶部应用标题区域 -->
+    <Style Selector="Border.FluentTitleBar">
         <Setter Property="Background" Value="{DynamicResource FluentSubtleBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
         <Setter Property="BorderThickness" Value="0,0,0,1" />
@@ -62,86 +68,58 @@
         <Setter Property="MinHeight" Value="48" />
     </Style>
 
-    <!-- WinUI Gallery Page Header -->
-    <Style Selector="StackPanel.WinUIPageHeader">
+    <!-- 页面头部容器 (StackPanel) — 标题 + 描述组合 -->
+    <Style Selector="StackPanel.FluentPageHeader">
         <Setter Property="Margin" Value="0,0,0,24" />
         <Setter Property="Spacing" Value="4" />
     </Style>
 
-    <!-- WinUI Gallery Section Header -->
-    <Style Selector="TextBlock.WinUISectionHeader">
+    <!-- ===== 排版样式（标题、副标题、正文、说明文字） ===== -->
+
+    <!-- 区块标题 — 20px SemiBold -->
+    <Style Selector="TextBlock.FluentSectionHeader">
         <Setter Property="FontSize" Value="20" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
         <Setter Property="Margin" Value="0,24,0,12" />
     </Style>
 
-    <!-- WinUI Gallery Large Title (Page Title) -->
-    <Style Selector="TextBlock.WinUILargeTitle">
+    <!-- 页面大标题 — 28px SemiBold -->
+    <Style Selector="TextBlock.FluentLargeTitle">
         <Setter Property="FontSize" Value="28" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
     </Style>
 
-    <!-- WinUI Gallery Page Description -->
-    <Style Selector="TextBlock.WinUIPageDescription">
+    <!-- 页面描述 — 14px 次级文字 -->
+    <Style Selector="TextBlock.FluentPageDescription">
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="Foreground" Value="{DynamicResource SemiColorText2}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText2}" />
     </Style>
 
-    <!-- WinUI Gallery Subtitle (Card Title) -->
-    <Style Selector="TextBlock.WinUISubtitle">
+    <!-- 卡片标题 — 16px SemiBold -->
+    <Style Selector="TextBlock.FluentSubtitle">
         <Setter Property="FontSize" Value="16" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
     </Style>
 
-    <!-- WinUI Gallery Body Text -->
-    <Style Selector="TextBlock.WinUIBody">
+    <!-- 正文 — 14px 主文字 -->
+    <Style Selector="TextBlock.FluentBody">
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="Foreground" Value="{DynamicResource SemiColorText1}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText1}" />
     </Style>
 
-    <!-- WinUI Gallery Caption -->
-    <Style Selector="TextBlock.WinUICaption">
+    <!-- 辅助说明文字 — 12px 三级文字 -->
+    <Style Selector="TextBlock.FluentCaption">
         <Setter Property="FontSize" Value="12" />
-        <Setter Property="Foreground" Value="{DynamicResource SemiColorText2}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText2}" />
     </Style>
 
-    <!-- WinUI Gallery Accent Button -->
-    <Style Selector="Button.WinUIAccent">
-        <Setter Property="Background" Value="{DynamicResource FluentAccentBrush}" />
-        <Setter Property="Foreground" Value="White" />
-        <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="CornerRadius" Value="4" />
-        <Setter Property="Padding" Value="16,8" />
-        <Setter Property="MinHeight" Value="32" />
-    </Style>
-    <Style Selector="Button.WinUIAccent:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource FluentAccentPointeroverBrush}" />
-    </Style>
-    <Style Selector="Button.WinUIAccent:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource FluentAccentPressedBrush}" />
-    </Style>
+    <!-- ===== 导航项按钮（WinUI NavViewItem 风格） ===== -->
 
-    <!-- WinUI Gallery Subtle Button -->
-    <Style Selector="Button.WinUISubtle">
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
-        <Setter Property="CornerRadius" Value="4" />
-        <Setter Property="Padding" Value="16,8" />
-        <Setter Property="MinHeight" Value="32" />
-    </Style>
-    <Style Selector="Button.WinUISubtle:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
-    </Style>
-    <Style Selector="Button.WinUISubtle:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
-    </Style>
-
-    <!-- WinUI Gallery Nav Item -->
-    <Style Selector="Button.WinUINavItem">
+    <!-- 导航项 — 透明背景 + hover 反馈 -->
+    <Style Selector="Button.FluentNavItem">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="CornerRadius" Value="4" />
@@ -149,15 +127,15 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="MinHeight" Value="36" />
     </Style>
-    <Style Selector="Button.WinUINavItem:pointerover /template/ ContentPresenter">
+    <Style Selector="Button.FluentNavItem:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
     </Style>
-    <Style Selector="Button.WinUINavItem:pressed /template/ ContentPresenter">
+    <Style Selector="Button.FluentNavItem:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
     </Style>
 
-    <!-- WinUI Gallery Search Box -->
-    <Style Selector="TextBox.WinUISearchBox">
+    <!-- 搜索框 — 圆角输入框，导航栏内嵌 -->
+    <Style Selector="TextBox.FluentSearchBox">
         <Setter Property="Background" Value="{DynamicResource FluentSubtleBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
         <Setter Property="BorderThickness" Value="1" />
@@ -167,58 +145,57 @@
         <Setter Property="MinHeight" Value="32" />
     </Style>
 
-    <!-- WinUI Gallery InfoBar -->
-    <Style Selector="Border.WinUIInfoBar">
+    <!-- 汉堡菜单按钮 — 48x48 透明按钮 -->
+    <Style Selector="Button.FluentHamburger">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
         <Setter Property="CornerRadius" Value="4" />
-        <Setter Property="Padding" Value="16,12" />
-        <Setter Property="BorderThickness" Value="0,0,0,0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Width" Value="48" />
+        <Setter Property="Height" Value="48" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.083" />
+                </Transitions>
+            </Setter.Value>
+        </Setter>
     </Style>
-    <Style Selector="Border.WinUIInfoBarWarning">
-        <Setter Property="Background" Value="{DynamicResource SemiColorWarningLight}" />
-        <Setter Property="CornerRadius" Value="4" />
-        <Setter Property="Padding" Value="16,12" />
+    <Style Selector="Button.FluentHamburger:pointerover">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
     </Style>
-    <Style Selector="Border.WinUIInfoBarInfo">
-        <Setter Property="Background" Value="{DynamicResource SemiColorPrimaryLight}" />
-        <Setter Property="CornerRadius" Value="4" />
-        <Setter Property="Padding" Value="16,12" />
-    </Style>
-    <Style Selector="Border.WinUIInfoBarSuccess">
-        <Setter Property="Background" Value="{DynamicResource SemiColorSuccessLight}" />
-        <Setter Property="CornerRadius" Value="4" />
-        <Setter Property="Padding" Value="16,12" />
-    </Style>
-    <Style Selector="Border.WinUIInfoBarError">
-        <Setter Property="Background" Value="{DynamicResource SemiColorDangerLight}" />
-        <Setter Property="CornerRadius" Value="4" />
-        <Setter Property="Padding" Value="16,12" />
+    <Style Selector="Button.FluentHamburger:pressed">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
     </Style>
 
-    <!-- WinUI Gallery Badge -->
-    <Style Selector="Border.WinUIBadge">
+    <!-- 导航面板折叠按钮 — 底部导航切换 -->
+    <Style Selector="Button.FluentNavToggle">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
         <Setter Property="CornerRadius" Value="4" />
-        <Setter Property="Padding" Value="8,2" />
+        <Setter Property="Padding" Value="12,10" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.083" />
+                </Transitions>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style Selector="Button.FluentNavToggle:pointerover">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
+    </Style>
+    <Style Selector="Button.FluentNavToggle:pressed">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
     </Style>
 
-    <!-- WinUI Gallery Divider -->
-    <Style Selector="Border.WinUIDivider">
-        <Setter Property="Height" Value="1" />
-        <Setter Property="Background" Value="{DynamicResource FluentCardStrokeBrush}" />
-        <Setter Property="Margin" Value="0,8" />
-    </Style>
+    <!-- ===== Ursa NavMenuItem Fluent 风格覆盖 ===== -->
 
-    <!-- WinUI Gallery Settings Card -->
-    <Style Selector="Border.WinUISettingsCard">
-        <Setter Property="Background" Value="{DynamicResource FluentCardBackgroundBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="8" />
-        <Setter Property="Padding" Value="16,12" />
-    </Style>
-
-    <!-- ===== WinUI Gallery NavigationView Styles ===== -->
-
-    <!-- WinUI Gallery NavMenuItem: selected indicator (left accent bar) -->
+    <!-- NavMenuItem: 选中指示器（左侧 accent 竖条） -->
     <Style Selector="u|NavMenuItem:selected /template/ Border#PART_Border">
         <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
         <Setter Property="BorderThickness" Value="3,0,0,0" />
@@ -232,12 +209,12 @@
         <Setter Property="BorderThickness" Value="3,0,0,0" />
     </Style>
 
-    <!-- WinUI Gallery NavMenuItem: selected icon accent color -->
+    <!-- NavMenuItem: 选中图标 accent 色 -->
     <Style Selector="u|NavMenuItem:selected /template/ ContentPresenter#PART_IconPresenter">
         <Setter Property="Foreground" Value="{DynamicResource FluentAccentBrush}" />
     </Style>
 
-    <!-- WinUI Gallery NavMenuItem: hover subtle background -->
+    <!-- NavMenuItem: hover 微妙背景 -->
     <Style Selector="u|NavMenuItem /template/ Border#PART_Border:pointerover">
         <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
     </Style>
@@ -245,7 +222,7 @@
         <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
     </Style>
 
-    <!-- WinUI Gallery: icon position consistent between collapsed/expanded (keep left-aligned, no centering) -->
+    <!-- NavMenuItem: 图标位置一致（折叠/展开均左对齐） -->
     <Style Selector="u|NavMenuItem:first-level /template/ ContentPresenter#PART_IconPresenter">
         <Setter Property="Padding" Value="14,8,8,8" />
         <Setter Property="HorizontalAlignment" Value="Left" />
@@ -257,50 +234,13 @@
         <Setter Property="HorizontalAlignment" Value="Left" />
     </Style>
 
-    <!-- WinUI Gallery: only show first-level icons, hide sub-menu item icons -->
+    <!-- NavMenuItem: 仅一级菜单显示图标，子菜单项隐藏 -->
     <Style Selector="u|NavMenuItem:not(:first-level) /template/ ContentPresenter#PART_IconPresenter">
         <Setter Property="IsVisible" Value="False" />
     </Style>
 
-    <!-- WinUI Gallery Hamburger Button -->
-    <Style Selector="Button.WinUIHamburger">
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="CornerRadius" Value="4" />
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="Width" Value="48" />
-        <Setter Property="Height" Value="48" />
-        <Setter Property="HorizontalContentAlignment" Value="Center" />
-        <Setter Property="VerticalContentAlignment" Value="Center" />
-    </Style>
-    <Style Selector="Button.WinUIHamburger:pointerover">
-        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
-    </Style>
-    <Style Selector="Button.WinUIHamburger:pressed">
-        <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
-    </Style>
-
-    <!-- WinUI Gallery Nav Pane Toggle Button (footer style) -->
-    <Style Selector="Button.WinUINavToggle">
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="CornerRadius" Value="4" />
-        <Setter Property="Padding" Value="12,10" />
-        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-        <Setter Property="MinHeight" Value="36" />
-    </Style>
-    <Style Selector="Button.WinUINavToggle:pointerover">
-        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
-    </Style>
-    <Style Selector="Button.WinUINavToggle:pressed">
-        <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
-    </Style>
-
     <!-- ============================================================
-         Avalonia-Fluent-UI inspired supplementary styles
-         这些控件 Irihi.Ursa 未提供，参照 WinUI 3 / Avalonia-Fluent-UI
-         设计语言补充，遵循 Fluent Design System 视觉规范。
-         组件选型原则：优先 Irihi.Ursa，缺失项才用以下样式。
+         以下为 Ursa 未提供的 WinUI 3 补充控件样式
          ============================================================ -->
 
     <!-- ===== SettingsExpander / SettingCard（WinUI SettingsExpander 风格） ===== -->
@@ -351,12 +291,12 @@
     <Style Selector="TextBlock.FluentSettingsCardTitle">
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
     </Style>
     <!-- SettingsCard 描述（左副标题） -->
     <Style Selector="TextBlock.FluentSettingsCardDescription">
         <Setter Property="FontSize" Value="12" />
-        <Setter Property="Foreground" Value="{DynamicResource SemiColorText2}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText2}" />
         <Setter Property="Margin" Value="0,2,0,0" />
     </Style>
     <!-- SettingsCard Header 图标（左侧 IconPresenter） -->
@@ -383,16 +323,16 @@
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
     <Style Selector="Border.FluentInfoBadge.FluentInfoBadgeCritical">
-        <Setter Property="Background" Value="{DynamicResource SemiColorDanger}" />
+        <Setter Property="Background" Value="{DynamicResource FluentColorDanger}" />
     </Style>
     <Style Selector="Border.FluentInfoBadge.FluentInfoBadgeWarning">
-        <Setter Property="Background" Value="{DynamicResource SemiColorWarning}" />
+        <Setter Property="Background" Value="{DynamicResource FluentColorWarning}" />
     </Style>
     <Style Selector="Border.FluentInfoBadge.FluentInfoBadgeInformational">
         <Setter Property="Background" Value="{DynamicResource FluentAccentBrush}" />
     </Style>
     <Style Selector="Border.FluentInfoBadge.FluentInfoBadgeSuccess">
-        <Setter Property="Background" Value="{DynamicResource SemiColorSuccess}" />
+        <Setter Property="Background" Value="{DynamicResource FluentColorSuccess}" />
     </Style>
     <!-- InfoBadge 内文字 -->
     <Style Selector="TextBlock.FluentInfoBadgeText">
@@ -434,13 +374,13 @@
     </Style>
 
     <!-- ===== BreadcrumbBar（WinUI 面包屑导航） ===== -->
-    <!-- Irihi.Ursa 有 Breadcrumb 控件但样式偏 Semi，此处提供 Fluent 风格的项样式（应用于 Button） -->
+    <!-- Irihi.Ursa 有 Breadcrumb 控件但样式偏旧版，此处提供 Fluent 风格的项样式（应用于 Button） -->
     <Style Selector="Button.FluentBreadcrumbItem">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Padding" Value="4,2" />
         <Setter Property="MinHeight" Value="24" />
-        <Setter Property="Foreground" Value="{DynamicResource SemiColorText1}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText1}" />
         <Setter Property="FontSize" Value="13" />
         <Setter Property="CornerRadius" Value="4" />
     </Style>
@@ -455,12 +395,12 @@
     <Style Selector="TextBlock.FluentBreadcrumbCurrent">
         <Setter Property="FontSize" Value="13" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
     </Style>
     <!-- 分隔符（>） -->
     <Style Selector="TextBlock.FluentBreadcrumbSeparator">
         <Setter Property="FontSize" Value="13" />
-        <Setter Property="Foreground" Value="{DynamicResource SemiColorText2}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText2}" />
         <Setter Property="Margin" Value="2,0" />
     </Style>
 
@@ -480,12 +420,12 @@
     <Style Selector="TextBlock.FluentContentDialogTitle">
         <Setter Property="FontSize" Value="20" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
         <Setter Property="Margin" Value="0,0,0,12" />
     </Style>
     <Style Selector="TextBlock.FluentContentDialogBody">
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="Foreground" Value="{DynamicResource SemiColorText1}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText1}" />
         <Setter Property="Margin" Value="0,0,0,16" />
     </Style>
     <!-- 按钮组容器 -->
@@ -526,8 +466,8 @@
          按钮、ElevatedCard、HeaderedCard、Divider、Smoke overlay 等
          ============================================================ -->
 
-    <!-- ===== Accent Button（WinUI AccentButton 风格） ===== -->
-    <!-- 替代 WinUIAccent。背景使用 AccentFillColor 系列 token，文字使用 TextOnAccent。
+    <!-- ===== Accent Button（WinUI 3 AccentButton 风格） ===== -->
+    <!-- 背景使用 AccentFillColor 系列 token，文字使用 TextOnAccent。
          用法：<Button Classes="FluentAccent">Primary Action</Button> -->
     <Style Selector="Button.FluentAccent">
         <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}" />
@@ -563,8 +503,8 @@
         <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorDisabledBrush}" />
     </Style>
 
-    <!-- ===== Standard Outline Button（WinUI 默认 Button 风格） ===== -->
-    <!-- 替代 WinUISubtle。背景使用 ControlFillColorDefault，边框使用 ControlElevationBorder。
+    <!-- ===== Standard Outline Button（WinUI 3 默认 Button 风格） ===== -->
+    <!-- 背景使用 ControlFillColorDefault，边框使用 ControlElevationBorder。
          用法：<Button Classes="FluentStandard">Secondary Action</Button> -->
     <Style Selector="Button.FluentStandard">
         <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}" />
@@ -711,8 +651,7 @@
     </Style>
 
     <!-- ===== Divider（通用水平分隔线） ===== -->
-    <!-- 替代 WinUIDivider。使用语义 token。
-         用法：<Border Classes="FluentDivider" /> -->
+    <!-- 使用语义 token。用法：<Border Classes="FluentDivider" /> -->
     <Style Selector="Border.FluentDivider">
         <Setter Property="Height" Value="1" />
         <Setter Property="Background" Value="{DynamicResource DividerStrokeColorDefaultBrush}" />
@@ -802,34 +741,34 @@
     <!-- 严重级别 - Informational（蓝色左边框 + 浅蓝背景） -->
     <Style Selector="Border.FluentInfoBar.FluentInfoBarSeverityInformational">
         <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
-        <Setter Property="Background" Value="{DynamicResource SemiColorPrimaryLight}" />
+        <Setter Property="Background" Value="{DynamicResource FluentColorPrimaryLight}" />
     </Style>
     <!-- 严重级别 - Warning（橙黄左边框 + 浅黄背景） -->
     <Style Selector="Border.FluentInfoBar.FluentInfoBarSeverityWarning">
-        <Setter Property="BorderBrush" Value="{DynamicResource SemiColorWarning}" />
-        <Setter Property="Background" Value="{DynamicResource SemiColorWarningLight}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentColorWarning}" />
+        <Setter Property="Background" Value="{DynamicResource FluentColorWarningLight}" />
     </Style>
     <!-- 严重级别 - Success（绿色左边框 + 浅绿背景） -->
     <Style Selector="Border.FluentInfoBar.FluentInfoBarSeveritySuccess">
-        <Setter Property="BorderBrush" Value="{DynamicResource SemiColorSuccess}" />
-        <Setter Property="Background" Value="{DynamicResource SemiColorSuccessLight}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentColorSuccess}" />
+        <Setter Property="Background" Value="{DynamicResource FluentColorSuccessLight}" />
     </Style>
     <!-- 严重级别 - Error（红色左边框 + 浅红背景） -->
     <Style Selector="Border.FluentInfoBar.FluentInfoBarSeverityError">
-        <Setter Property="BorderBrush" Value="{DynamicResource SemiColorDanger}" />
-        <Setter Property="Background" Value="{DynamicResource SemiColorDangerLight}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentColorDanger}" />
+        <Setter Property="Background" Value="{DynamicResource FluentColorDangerLight}" />
     </Style>
     <!-- InfoBar 标题 -->
     <Style Selector="TextBlock.FluentInfoBarTitle">
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
         <Setter Property="Margin" Value="0,0,0,2" />
     </Style>
     <!-- InfoBar 消息内容 -->
     <Style Selector="TextBlock.FluentInfoBarMessage">
         <Setter Property="FontSize" Value="13" />
-        <Setter Property="Foreground" Value="{DynamicResource SemiColorText1}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText1}" />
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
     <!-- InfoBar 关闭按钮（小尺寸透明按钮） -->
@@ -921,7 +860,7 @@
              </Expander.Header>
              <Expander.Content>
                  <StackPanel Spacing="12" Margin="0,8,0,0">
-                     <TextBlock Classes="WinUIBody" Text="展开后的内容..." />
+                     <TextBlock Classes="FluentBody" Text="展开后的内容..." />
                  </StackPanel>
              </Expander.Content>
          </Expander> -->

@@ -104,13 +104,13 @@ mc:Ignorable="d">
 						Height="48"
 						Margin="0,0,0,8"
 						HorizontalAlignment="Left"
-						Background="{DynamicResource SemiColorPrimary}"
+						Background="{DynamicResource FluentColorPrimary}"
 						CornerRadius="24"
 						Opacity="0.2" />
 						<TextBlock
-						Classes="WinUICaption"
+						Classes="FluentCaption"
 						FontWeight="SemiBold"
-						Foreground="{DynamicResource SemiColorText0}"
+						Foreground="{DynamicResource FluentColorText0}"
 						Text="{DynamicResource SPLASH_SUBTITLE}" />
 					</StackPanel>
 				</Grid>
@@ -123,13 +123,13 @@ mc:Ignorable="d">
 			VerticalAlignment="Center"
 			Spacing="14">
 				<TextBlock
-			Classes="WinUILargeTitle"
+			Classes="FluentLargeTitle"
 			Text="{DynamicResource SPLASH_TITLE}" />
 			<TextBlock
-			Classes="WinUIBody"
+			Classes="FluentBody"
 			Text="{DynamicResource SPLASH_SUBTITLE}" />
 			<TextBlock
-			Classes="WinUICaption"
+			Classes="FluentCaption"
 			TextWrapping="Wrap"
 			Text="{DynamicResource SPLASH_WELCOME}" />
 
@@ -148,7 +148,7 @@ mc:Ignorable="d">
 						<TextBlock
 					Grid.Column="1"
 					VerticalAlignment="Center"
-					Classes="WinUICaption"
+					Classes="FluentCaption"
 					Text="{Binding Progress, StringFormat={}{0:0}%}" />
 					</Grid>
 				</Border>
