@@ -2,12 +2,12 @@
     x:Class="LYBox.UI.Views.MainSplashWindow"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:iri="https://irihi.tech/shared"
     xmlns:u="https://irihi.tech/ursa"
     Title="{DynamicResource SPLASH_STARTING}"
     Width="520"
     Height="460"
     CanResize="False"
+    Icon="/Assets/lybox.ico"
     WindowDecorations="None">
     <u:SplashWindow.Styles>
         <Style Selector="Border#Backdrop">
@@ -71,7 +71,7 @@
             </Style.Animations>
         </Style>
 
-        <Style Selector="iri|IrihiLogo#BrandLogo">
+        <Style Selector="Image#BrandLogo">
             <Style.Animations>
                 <Animation Duration="0:0:2.4" IterationCount="INFINITE">
                     <KeyFrame Cue="0%">
@@ -125,13 +125,13 @@
                     ColumnSpacing="14">
                     <Grid Grid.RowSpan="2" Width="82" Height="82" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Border Name="HaloPulse" Background="{DynamicResource FluentColorPrimary}" CornerRadius="41" Opacity="0.15" />
-                        <iri:IrihiLogo
+                        <Image
                             Name="BrandLogo"
-                            Width="56"
-                            Height="56"
+                            Width="64"
+                            Height="64"
+                            Source="/Assets/lybox-logo-256.png"
                             HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Fill="{DynamicResource FluentColorPrimary}" />
+                            VerticalAlignment="Center" />
                     </Grid>
 
                     <TextBlock
