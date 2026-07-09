@@ -1,7 +1,7 @@
 name: Release Main
 
 # 主体（Launcher + 主体 SDK NuGet）发布工作流
-# 触发标签：main-V*           例如 main-V1.2.3、main-V1.2.3-preview.1、main-V1.2.3-beta.1
+# 触发标签：V*           例如 V1.2.3、V1.2.3-preview.1、V1.2.3-beta.1
 # 产物：
 #   - 主体 SDK NuGet 包（LYBox.Plugin.Generators / LYBox.Plugin.Shared）
 #   - Launcher 自包含发布包（win-x64 / win-arm64 / linux-x64 / linux-arm64）
@@ -10,11 +10,11 @@ name: Release Main
 on:
   push:
     tags:
-      - 'main-V*'
+      - 'V*'
   workflow_dispatch:
     inputs:
       version:
-        description: '主体版本号（例如 1.2.3、1.2.3-preview.1、1.2.3-beta.1；手动触发必填，会发布到 main-V<version>）'
+        description: '主体版本号（例如 1.2.3、1.2.3-preview.1、1.2.3-beta.1；手动触发必填，会发布到 V<version>）'
         required: true
         type: string
 
@@ -22,7 +22,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: release-main-${{ github.ref_name || inputs.version }}
+  group: release-host-${{ github.ref_name || inputs.version }}
   cancel-in-progress: false
 
 env:
@@ -32,7 +32,7 @@ env:
 
 jobs:
   resolve-context:
-    name: Resolve Main Release Context
+    name: Resolve Host Release Context
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.ctx.outputs.version }}
@@ -46,11 +46,11 @@ jobs:
 
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             VERSION="${{ inputs.version }}"
-            TAG="main-V${VERSION}"
+            TAG="V${VERSION}"
           else
             TAG="${GITHUB_REF_NAME}"
-            if [[ ! "$TAG" =~ ^main-V([0-9]+\.[0-9]+\.[0-9]+(-(preview|beta|bate)(\.[0-9]+)?)?)$ ]]; then
-              echo "::error::无法识别的主体标签格式: $TAG。请使用 main-Vx.y.z、main-Vx.y.z-preview.N 或 main-Vx.y.z-beta.N，例如 main-V1.2.3-preview.1"
+            if [[ ! "$TAG" =~ ^V([0-9]+\.[0-9]+\.[0-9]+(-(preview|beta|bate)(\.[0-9]+)?)?)$ ]]; then
+              echo "::error::无法识别的主体标签格式: $TAG。请使用 Vx.y.z、Vx.y.z-preview.N 或 Vx.y.z-beta.N，例如 V1.2.3-preview.1"
               exit 1
             fi
             VERSION="${BASH_REMATCH[1]}"
@@ -63,10 +63,10 @@ jobs:
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag_name=$TAG" >> "$GITHUB_OUTPUT"
-          echo "Resolved main release: tag=$TAG version=$VERSION"
+          echo "Resolved host release: tag=$TAG version=$VERSION"
 
-  pack-main-sdk:
-    name: Pack Main SDK NuGet
+  pack-sdk:
+    name: Pack Host SDK NuGet
     needs: resolve-context
     runs-on: ubuntu-latest
     env:
@@ -78,7 +78,7 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Build launcher + pack main SDK
+      - name: Build launcher + pack SDK
         run: |
           dotnet build/build.cs \
             --build=bin \
@@ -92,7 +92,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Push main SDK NuGet packages (optional)
+      - name: Push SDK NuGet packages (optional)
         if: env.NUGET_API_KEY != ''
         run: |
           for pkg in bin/nuget/*.nupkg; do
@@ -151,7 +151,7 @@ jobs:
 
   release:
     name: GitHub Release
-    needs: [resolve-context, pack-main-sdk, publish-main]
+    needs: [resolve-context, pack-sdk, publish-host]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -179,10 +179,10 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.resolve-context.outputs.tag_name }}
-          name: Main ${{ needs.resolve-context.outputs.tag_name }}
+          name: ${{ needs.resolve-context.outputs.tag_name }}
           generate_release_notes: true
           files: |
-            artifacts/main-sdk-nuget/*.nupkg
+            artifacts/sdk-nuget/*.nupkg
             artifacts/${{ env.MAIN_PROJECT_NAME }}-win-x64/*.zip
             artifacts/${{ env.MAIN_PROJECT_NAME }}-win-arm64/*.zip
             artifacts/${{ env.MAIN_PROJECT_NAME }}-linux-x64/*.zip
