@@ -1,37 +1,76 @@
 name: Release Host
 
-# 主体（Launcher + Plugin SDK NuGet）发布工作流
-# 触发标签：v*           例如 v2.1.0
+# 主体（Launcher + 主体 SDK NuGet）发布工作流
+# 触发标签：V*           例如 V1.2.3、V1.2.3-preview.1、V1.2.3-beta.1
 # 产物：
-#   - Plugin SDK NuGet 包（LYBox.Plugin.Generators / LYBox.Plugin.Shared）
+#   - 主体 SDK NuGet 包（LYBox.Plugin.Generators / LYBox.Plugin.Shared）
 #   - Launcher 自包含发布包（win-x64 / win-arm64 / linux-x64 / linux-arm64）
-# 可选：配置 NUGET_API_KEY secret 后自动推送到 nuget.org
+# 可选：配置 NUGET_API_KEY secret 后自动尝试推送 SDK 包到 nuget.org
 
 on:
   push:
-    tags: ['v*']
+    tags:
+      - 'V*'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Host 版本号（不填则从 tag 推断，手动触发必填）'
-        required: false
-        default: ''
+        description: '主体版本号（例如 1.2.3、1.2.3-preview.1、1.2.3-beta.1；手动触发必填，会发布到 V<version>）'
+        required: true
+        type: string
 
 permissions:
   contents: write
 
+concurrency:
+  group: release-host-${{ github.ref_name || inputs.version }}
+  cancel-in-progress: false
+
 env:
   DOTNET_NOLOGO: 'true'
   DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+  MAIN_PROJECT_NAME: 'LYBox.Launcher.Desktop'
 
 jobs:
-  pack-sdk:
-    name: Pack SDK NuGet
+  resolve_context:
+    name: Resolve Host Release Context
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ctx.outputs.version }}
+      tag_name: ${{ steps.ctx.outputs.tag_name }}
+    steps:
+      - name: Parse version and tag
+        id: ctx
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+            TAG="V${VERSION}"
+          else
+            TAG="${GITHUB_REF_NAME}"
+            if [[ ! "$TAG" =~ ^V([0-9]+\.[0-9]+\.[0-9]+(-(preview|beta|bate)(\.[0-9]+)?)?)$ ]]; then
+              echo "::error::无法识别的主体标签格式: $TAG。请使用 Vx.y.z、Vx.y.z-preview.N 或 Vx.y.z-beta.N，例如 V1.2.3-preview.1"
+              exit 1
+            fi
+            VERSION="${BASH_REMATCH[1]}"
+          fi
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(preview|beta|bate)(\.[0-9]+)?)?$ ]]; then
+            echo "::error::版本号格式无效: $VERSION。请使用 x.y.z、x.y.z-preview.N 或 x.y.z-beta.N，例如 1.2.3-preview.1"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag_name=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Resolved host release: tag=$TAG version=$VERSION"
+
+  pack_sdk:
+    name: Pack Host SDK NuGet
+    needs: resolve_context
     runs-on: ubuntu-latest
     env:
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-    outputs:
-      version: ${{ steps.ver.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -39,22 +78,11 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Resolve version
-        id: ver
-        run: |
-          if [ -n "${{ inputs.version }}" ]; then
-            V="${{ inputs.version }}"
-          else
-            V="${GITHUB_REF_NAME#v}"
-          fi
-          echo "version=$V" >> "$GITHUB_OUTPUT"
-          echo "Resolved version: $V"
-
-      - name: Build SDK + pack NuGet
+      - name: Build launcher + pack SDK
         run: |
           dotnet build/build.cs \
             --build=bin \
-            --host-version=${{ steps.ver.outputs.version }}
+            --host-version=${{ needs.resolve_context.outputs.version }}
 
       - name: Upload SDK NuGet artifacts
         uses: actions/upload-artifact@v4
@@ -64,7 +92,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Push NuGet packages (optional)
+      - name: Push SDK NuGet packages (optional)
         if: env.NUGET_API_KEY != ''
         run: |
           for pkg in bin/nuget/*.nupkg; do
@@ -75,9 +103,9 @@ jobs:
               --skip-duplicate
           done
 
-  publish-host:
+  publish_host:
     name: Publish Launcher (${{ matrix.rid }})
-    needs: pack-sdk
+    needs: resolve_context
     strategy:
       fail-fast: false
       matrix:
@@ -101,32 +129,44 @@ jobs:
             --build=bin \
             --runtime-identifier=${{ matrix.rid }} \
             --self-contained=true \
-            --host-version=${{ needs.pack-sdk.outputs.version }}
+            --host-version=${{ needs.resolve_context.outputs.version }}
 
       - name: Zip published output
         shell: pwsh
         run: |
-          Compress-Archive -Path 'bin/bin/${{ matrix.rid }}/*' -DestinationPath 'host-${{ matrix.rid }}.zip' -Force
+          Compress-Archive -Path 'bin/bin/${{ matrix.rid }}/*' -DestinationPath '${{ env.MAIN_PROJECT_NAME }}-${{ matrix.rid }}-${{ needs.resolve_context.outputs.version }}.zip' -Force
 
       - name: Verify zip
         shell: pwsh
         run: |
-          Get-Item "host-${{ matrix.rid }}.zip" | Format-List Name, Length, LastWriteTime
+          Get-Item "${{ env.MAIN_PROJECT_NAME }}-${{ matrix.rid }}-${{ needs.resolve_context.outputs.version }}.zip" | Format-List Name, Length, LastWriteTime
 
       - name: Upload host artifact
         uses: actions/upload-artifact@v4
         with:
-          name: host-${{ matrix.rid }}
-          path: host-${{ matrix.rid }}.zip
+          name: ${{ env.MAIN_PROJECT_NAME }}-${{ matrix.rid }}
+          path: ${{ env.MAIN_PROJECT_NAME }}-${{ matrix.rid }}-${{ needs.resolve_context.outputs.version }}.zip
           if-no-files-found: error
           retention-days: 7
 
   release:
     name: GitHub Release
-    needs: [pack-sdk, publish-host]
-    if: github.event_name == 'push'
+    needs: [resolve_context, pack_sdk, publish_host]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        if: github.event_name == 'workflow_dispatch'
+        with:
+          fetch-depth: 0
+
+      - name: Create tag for manual release
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "${{ needs.resolve_context.outputs.tag_name }}"
+          git push origin "${{ needs.resolve_context.outputs.tag_name }}"
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -138,12 +178,12 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: Host ${{ github.ref_name }}
+          tag_name: ${{ needs.resolve_context.outputs.tag_name }}
+          name: ${{ needs.resolve_context.outputs.tag_name }}
           generate_release_notes: true
           files: |
             artifacts/sdk-nuget/*.nupkg
-            artifacts/host-win-x64/*.zip
-            artifacts/host-win-arm64/*.zip
-            artifacts/host-linux-x64/*.zip
-            artifacts/host-linux-arm64/*.zip
+            artifacts/${{ env.MAIN_PROJECT_NAME }}-win-x64/*.zip
+            artifacts/${{ env.MAIN_PROJECT_NAME }}-win-arm64/*.zip
+            artifacts/${{ env.MAIN_PROJECT_NAME }}-linux-x64/*.zip
+            artifacts/${{ env.MAIN_PROJECT_NAME }}-linux-arm64/*.zip
