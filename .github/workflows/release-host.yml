@@ -1,4 +1,4 @@
-name: Release Host
+name: Release Main
 
 # 主体（Launcher + 主体 SDK NuGet）发布工作流
 # 触发标签：V*           例如 V1.2.3、V1.2.3-preview.1、V1.2.3-beta.1
@@ -84,10 +84,10 @@ jobs:
             --build=bin \
             --host-version=${{ needs.resolve-context.outputs.version }}
 
-      - name: Upload SDK NuGet artifacts
+      - name: Upload main SDK NuGet artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: sdk-nuget
+          name: main-sdk-nuget
           path: bin/nuget/*.nupkg
           if-no-files-found: error
           retention-days: 7
@@ -103,7 +103,7 @@ jobs:
               --skip-duplicate
           done
 
-  publish-host:
+  publish-main:
     name: Publish Launcher (${{ matrix.rid }})
     needs: resolve-context
     strategy:
@@ -141,7 +141,7 @@ jobs:
         run: |
           Get-Item "${{ env.MAIN_PROJECT_NAME }}-${{ matrix.rid }}-${{ needs.resolve-context.outputs.version }}.zip" | Format-List Name, Length, LastWriteTime
 
-      - name: Upload host artifact
+      - name: Upload main artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.MAIN_PROJECT_NAME }}-${{ matrix.rid }}
