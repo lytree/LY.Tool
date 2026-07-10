@@ -44,4 +44,21 @@ public static class Strings
     public static string NAV_ScrollToButton => ResourceManager.GetString(nameof(NAV_ScrollToButton), Culture)!;
     public static string NAV_Timeline => ResourceManager.GetString(nameof(NAV_Timeline), Culture)!;
     public static string NAV_TwoTonePathIcon => ResourceManager.GetString(nameof(NAV_TwoTonePathIcon), Culture)!;
+    public static string LBL_Step1 => ResourceManager.GetString(nameof(LBL_Step1), Culture)!;
+    public static string LBL_Step2 => ResourceManager.GetString(nameof(LBL_Step2), Culture)!;
+    public static string LBL_Step3 => ResourceManager.GetString(nameof(LBL_Step3), Culture)!;
+    public static string LBL_Step4 => ResourceManager.GetString(nameof(LBL_Step4), Culture)!;
+    public static string LBL_Step5 => ResourceManager.GetString(nameof(LBL_Step5), Culture)!;
+    public static string LBL_ActualUsers => ResourceManager.GetString(nameof(LBL_ActualUsers), Culture)!;
+    public static string LBL_7DayRetention => ResourceManager.GetString(nameof(LBL_7DayRetention), Culture)!;
+    public static string LBL_SecurityLevel => ResourceManager.GetString(nameof(LBL_SecurityLevel), Culture)!;
+    public static string LBL_Level3 => ResourceManager.GetString(nameof(LBL_Level3), Culture)!;
+    public static string LBL_VerticalTag => ResourceManager.GetString(nameof(LBL_VerticalTag), Culture)!;
+    public static string LBL_ECommerce => ResourceManager.GetString(nameof(LBL_ECommerce), Culture)!;
+    public static string LBL_CertStatus => ResourceManager.GetString(nameof(LBL_CertStatus), Culture)!;
+    public static string LBL_NotCertified => ResourceManager.GetString(nameof(LBL_NotCertified), Culture)!;
+    public static string BTN_TestSetNull => ResourceManager.GetString(nameof(BTN_TestSetNull), Culture)!;
+    public static string NAV_GroupBox => ResourceManager.GetString(nameof(NAV_GroupBox), Culture)!;
+    public static string NAV_VirtualizingUniformGrid => ResourceManager.GetString(nameof(NAV_VirtualizingUniformGrid), Culture)!;
+    public static string NAV_ThemeVariantMapper => ResourceManager.GetString(nameof(NAV_ThemeVariantMapper), Culture)!;
 }
