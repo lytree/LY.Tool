@@ -1,6 +1,8 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform;
 using LYBox.Plugin.Shared;
 using LYBox.Plugin.Shared.Models;
 using LYBox.Plugin.Shared.Services;
@@ -182,9 +184,56 @@ public partial class App : Application
 
             // 退出时检测是否有正在运行的任务
             desktop.ShutdownRequested += OnShutdownRequested;
+
+            InitializeTrayIcon();
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    /// <summary>
+    /// 创建系统托盘图标（跨平台，使用 Avalonia 12.1 内置 TrayIcon）。
+    /// 图标加载自 LYBox.UI 的 AvaloniaResource：avares://LYBox.UI/Assets/lybox.ico。
+    /// 菜单项命令挂接到 ApplicationViewModel 的 ShowMainWindow/ExitApplication 命令。
+    /// Avalonia 在应用退出时自动 Dispose 托盘图标，无需手动清理。
+    /// </summary>
+    private void InitializeTrayIcon()
+    {
+        var loc = ServiceLocator.TryGetService<ILocalizationService>(out var locSvc) ? locSvc : null;
+        var tooltip = loc?.GetString("TRAY_TOOLTIP", "LYBox") ?? "LYBox";
+        var showText = loc?.GetString("TRAY_SHOW_WINDOW", "Show Window") ?? "Show Window";
+        var exitText = loc?.GetString("TRAY_EXIT", "Exit") ?? "Exit";
+
+        var vm = DataContext as ApplicationViewModel;
+
+        WindowIcon? trayWindowIcon = null;
+        try
+        {
+            var iconUri = new Uri("avares://LYBox.UI/Assets/lybox.ico");
+            using var stream = AssetLoader.Open(iconUri);
+            trayWindowIcon = new WindowIcon(stream);
+        }
+        catch (Exception ex)
+        {
+            // 图标加载失败不阻塞托盘创建（ToolTipText 仍可见）
+            Console.WriteLine($"Failed to load tray icon: {ex.Message}");
+        }
+
+        var trayIcon = new TrayIcon
+        {
+            Icon = trayWindowIcon,
+            ToolTipText = tooltip,
+            IsVisible = true,
+            Menu = new NativeMenu
+            {
+                new NativeMenuItem(showText) { Command = vm?.ShowMainWindowCommand },
+                new NativeMenuItemSeparator(),
+                new NativeMenuItem(exitText) { Command = vm?.ExitApplicationCommand }
+            }
+        };
+
+        var icons = new TrayIcons { trayIcon };
+        TrayIcon.SetIcons(this, icons);
     }
 
     private void OnShutdownRequested(object? sender, ShutdownRequestedEventArgs e)

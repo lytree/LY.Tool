@@ -117,5 +117,10 @@ public static class Strings
     public static string LOADING_MODULES => ResourceManager.GetString(nameof(LOADING_MODULES), Culture)!;
     public static string EXIT_CONFIRM_MESSAGE => ResourceManager.GetString(nameof(EXIT_CONFIRM_MESSAGE), Culture)!;
     public static string EXIT_CONFIRM_TITLE => ResourceManager.GetString(nameof(EXIT_CONFIRM_TITLE), Culture)!;
+    public static string TRAY_TOOLTIP => ResourceManager.GetString(nameof(TRAY_TOOLTIP), Culture)!;
+    public static string TRAY_SHOW_WINDOW => ResourceManager.GetString(nameof(TRAY_SHOW_WINDOW), Culture)!;
+    public static string TRAY_EXIT => ResourceManager.GetString(nameof(TRAY_EXIT), Culture)!;
+    public static string SETTING_APP_MINIMIZE_TO_TRAY => ResourceManager.GetString(nameof(SETTING_APP_MINIMIZE_TO_TRAY), Culture)!;
+    public static string SETTING_APP_MINIMIZE_TO_TRAY_DESC => ResourceManager.GetString(nameof(SETTING_APP_MINIMIZE_TO_TRAY_DESC), Culture)!;
     public static string RESTART_REQUIRED => ResourceManager.GetString(nameof(RESTART_REQUIRED), Culture)!;
 }

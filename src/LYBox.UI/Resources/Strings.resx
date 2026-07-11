@@ -328,6 +328,12 @@
   <data name="SETTING_APP_SIDEBARCOLLAPSED_DESC" xml:space="preserve">
     <value>Collapse the sidebar navigation</value>
   </data>
+  <data name="SETTING_APP_MINIMIZE_TO_TRAY" xml:space="preserve">
+    <value>Minimize to Tray</value>
+  </data>
+  <data name="SETTING_APP_MINIMIZE_TO_TRAY_DESC" xml:space="preserve">
+    <value>Hide to system tray when closing the window</value>
+  </data>
   <data name="GROUP_APPEARANCE" xml:space="preserve">
     <value>Appearance</value>
   </data>
@@ -374,6 +380,15 @@
     <value>Are you sure you want to exit?</value>
   </data>
   <data name="EXIT_CONFIRM_TITLE" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="TRAY_TOOLTIP" xml:space="preserve">
+    <value>LYBox</value>
+  </data>
+  <data name="TRAY_SHOW_WINDOW" xml:space="preserve">
+    <value>Show Window</value>
+  </data>
+  <data name="TRAY_EXIT" xml:space="preserve">
     <value>Exit</value>
   </data>
   <data name="RESTART_REQUIRED" xml:space="preserve">
