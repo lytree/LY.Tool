@@ -15,7 +15,7 @@ public class DefaultWindowChromeService : IWindowChromeService
     public bool SupportsExtendClientArea => !OperatingSystem.IsLinux();
 
     /// <inheritdoc />
-    public bool NeedsSelfDrawnTitleBar => OperatingSystem.IsLinux();
+    public bool NeedsSelfDrawnTitleBar => true;
 
     /// <inheritdoc />
     public void ApplyChrome(Window window)
@@ -24,21 +24,24 @@ public class DefaultWindowChromeService : IWindowChromeService
 
         if (OperatingSystem.IsLinux())
         {
-            // Linux：Avalonia 的 ExtendClientAreaToDecorationsHint 依赖 _GTK_FRAME_EXTENTS，
-            // 在非 GTK WM（KWin/Sway 等）上无法可靠扩展客户区，会出现原生标题栏与自绘标题栏重叠
-            // 或自定义边框不展示。回退方案：
-            //   - WindowDecorations.BorderOnly：移除原生标题栏，但保留 WM 的缩放边框与阴影；
-            //   - 关闭 ExtendClientAreaToDecorationsHint，避免触发 Avalonia 的 WindowDrawnDecorations 双重绘制；
-            //   - 标题栏职责交由应用层自绘的 FluentTitleBar 承担（拖动走 BeginMoveDrag）。
-            window.ExtendClientAreaToDecorationsHint = false;
+            // Linux/X11: Avalonia 12.1 的 X11Window.UpdateMotifHints 中，WindowDecorations.BorderOnly
+            // 不会移除 WM 标题栏（仅 WindowDecorations.None 才设置 decorations=0），BorderOnly 在 X11 上
+            // 等同于 Full——原生标题栏仍然显示。
+            // 解决方案：启用 ExtendClientAreaToDecorationsHint 将客户区扩展覆盖原生标题栏。
+            // Avalonia 12 中 WindowDecorations.BorderOnly 已整合了旧版 ExtendClientAreaChromeHints.NoChrome
+            // 的语义——UrsaWindow 的 WindowDrawnDecorations.HasTitleBar=false，不渲染 overlay 标题栏/caption 按钮。
+            // WM 原生 resize 边框在窗口边缘，仍可正常工作。
+            window.ExtendClientAreaToDecorationsHint = true;
+            window.ExtendClientAreaTitleBarHeightHint = -1;
             window.WindowDecorations = WindowDecorations.BorderOnly;
         }
         else
         {
-            // Windows / macOS：原生扩展客户区可用，由 Avalonia 的 WindowDrawnDecorations 绘制标题栏与标题按钮。
-            window.ExtendClientAreaToDecorationsHint = true;
-            window.ExtendClientAreaTitleBarHeightHint = -1;
-            window.WindowDecorations = WindowDecorations.Full;
+            // Windows/macOS: WindowDecorations.BorderOnly 正确移除原生标题栏并保留 OS resize frame。
+            // 关闭 ExtendClientAreaToDecorationsHint：避免客户区覆盖 resize frame 导致缩放失效
+            // （Avalonia 12 中 BorderOnly + ExtendClientArea=true 会使原生 resize 失效）。
+            window.ExtendClientAreaToDecorationsHint = false;
+            window.WindowDecorations = WindowDecorations.BorderOnly;
         }
     }
 }

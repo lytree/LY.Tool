@@ -7,15 +7,17 @@ namespace LYBox.Platforms.Abstraction.Services;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Avalonia 的 <c>ExtendClientAreaToDecorationsHint</c> 在 Windows 与 macOS 上能将客户区扩展到标题栏区域，
-/// 从而让 <c>WindowDrawnDecorations</c> 绘制自定义标题栏与标题按钮。但在 Linux 上，该机制依赖
-/// <c>_GTK_FRAME_EXTENTS</c>，仅在部分 GTK 兼容窗口管理器（如 Mutter/GNOME）上生效；在 KWin、Sway 等
-/// WM/合成器上要么出现原生标题栏与自绘标题栏重叠，要么客户区无法扩展，导致自定义边框无法展示。
+/// 按平台选择不同的 chrome 策略，在保留原生 resize 能力的同时实现统一的 Fluent 自绘标题栏。
+/// 标题栏职责（Title、caption 按钮、拖动）由应用层 MainView 工具栏自绘承担。
 /// </para>
 /// <para>
-/// 本服务按平台选择合适的 chrome 策略：Windows/macOS 走原生扩展客户区；Linux 回退到
-/// <see cref="Avalonia.Controls.WindowDecorations.BorderOnly"/>（移除原生标题栏但保留 WM 的缩放边框与阴影），
-/// 并由应用层自绘 <c>FluentTitleBar</c> 承担标题栏职责。
+/// - Windows/macOS：<see cref="Avalonia.Controls.WindowDecorations.BorderOnly"/> + <c>ExtendClientAreaToDecorationsHint=false</c>。
+///   BorderOnly 正确移除原生标题栏并保留 OS resize frame。关闭 ExtendClientArea 避免覆盖 resize frame 导致缩放失效。
+/// </para>
+/// <para>
+/// - Linux/X11：<see cref="Avalonia.Controls.WindowDecorations.BorderOnly"/> + <c>ExtendClientAreaToDecorationsHint=true</c>。
+///   Avalonia 12.1 的 X11 实现中 BorderOnly 不会移除 WM 标题栏（bug），需启用 ExtendClientArea 将客户区扩展覆盖原生标题栏。
+///   Avalonia 12 中 BorderOnly 已整合旧版 NoChrome 语义，不渲染 overlay caption 按钮。WM 原生 resize 边框在窗口边缘仍可正常工作。
 /// </para>
 /// </remarks>
 public interface IWindowChromeService
@@ -29,7 +31,7 @@ public interface IWindowChromeService
     /// <summary>
     /// 是否需要应用层自绘标题栏。
     /// </summary>
-    /// <value>当平台不支持扩展客户区（Linux）时为 <c>true</c>。</value>
+    /// <value>当前实现下所有平台均为 <c>true</c>（统一由工具栏自绘 caption 按钮与 Title）。</value>
     bool NeedsSelfDrawnTitleBar { get; }
 
     /// <summary>

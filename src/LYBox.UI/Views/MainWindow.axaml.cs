@@ -14,8 +14,10 @@ public partial class MainWindow : UrsaWindow
     public MainWindow()
     {
         InitializeComponent();
-        // 按平台应用 chrome 策略：Windows/macOS 走扩展客户区 + WindowDrawnDecorations；
-        // Linux 回退到 BorderOnly + 应用层自绘 FluentTitleBar。
+        // 按平台应用 chrome 策略：
+        // - Windows/macOS: BorderOnly + ExtendClientArea=false（移除标题栏，保留 resize frame）
+        // - Linux: BorderOnly + ExtendClientArea=true + NoChrome（覆盖原生标题栏，保留 WM resize）
+        // 标题栏职责由 MainView 工具栏自绘承担。
         PlatformServices.WindowChromeService.ApplyChrome(this);
         NotificationManager = new WindowNotificationManager(this) { MaxItems = 3 };
 
