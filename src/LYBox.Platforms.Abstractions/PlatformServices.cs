@@ -14,6 +14,15 @@ public static class PlatformServices
     public static IWindowPlatformService WindowPlatformService { get; internal set; } = new WindowPlatformServiceStub();
 
     /// <summary>
+    /// 窗口自定义边框（chrome）服务。
+    /// </summary>
+    /// <remarks>
+    /// 默认使用 <see cref="DefaultWindowChromeService"/>（基于 <see cref="System.OperatingSystem"/> 运行时判断）。
+    /// 各平台项目可注入更原生的实现以覆盖默认策略。
+    /// </remarks>
+    public static IWindowChromeService WindowChromeService { get; internal set; } = new DefaultWindowChromeService();
+
+    /// <summary>
     /// 平台定位服务
     /// </summary>
     public static ILocationService LocationService { get; internal set; } = new LocationServiceStub();

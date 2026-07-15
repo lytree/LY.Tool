@@ -27,6 +27,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="../LYBox.Plugin.Shared/LYBox.Plugin.Shared.csproj" />
+		<ProjectReference Include="../LYBox.Platforms.Abstractions/LYBox.Platforms.Abstractions.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

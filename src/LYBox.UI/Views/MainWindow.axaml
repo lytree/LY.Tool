@@ -18,10 +18,21 @@
     MinHeight="480"
     Icon="/Assets/lybox.ico"
     Background="{DynamicResource FluentColorBackground0}"
-    ExtendClientAreaToDecorationsHint="True"
-    ExtendClientAreaTitleBarHeightHint="-1"
     IsTitleBarVisible="False"
-    WindowDecorations="Full"
     mc:Ignorable="d">
-    <views:MainView />
+    <!--
+        Chrome 策略（ExtendClientAreaToDecorationsHint / SystemDecorations / WindowDecorations）
+        由 PlatformServices.WindowChromeService.ApplyChrome 在代码后置中按平台动态设置：
+          - Windows / macOS：扩展客户区 + WindowDrawnDecorations 自绘标题栏；
+          - Linux：BorderOnly + 应用层自绘 FluentTitleBar（ExtendClientAreaToDecorationsHint 失效场景的回退）。
+        采用叠加布局而非行布局：MainView 自身已通过 Margin="0,40,0,0" 在顶部预留 40px 标题栏空间，
+        FluentTitleBar 以 VerticalAlignment="Top" 叠加覆盖该空白区域。这样：
+          - Linux：FluentTitleBar 可见，覆盖 MainView 顶部 40px 空白；
+          - Windows/macOS：FluentTitleBar IsVisible=False（不测量不占位），40px 空白由 Avalonia 的
+            WindowDrawnDecorations 填充。
+    -->
+    <Grid>
+        <views:MainView />
+        <views:FluentTitleBar VerticalAlignment="Top" />
+    </Grid>
 </u:UrsaWindow>
