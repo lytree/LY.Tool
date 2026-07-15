@@ -11,6 +11,13 @@
       "environmentVariables": {
         "AVALONIA_EXTRA_PLUGINS_PATH": "$(SolutionDir)plugins/LYBox.Plugin.TDLSharp/bin/Debug/net10.0"
       }
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "environmentVariables": {
+        "AVALONIA_EXTRA_PLUGINS_PATH": ""
+      },
+      "distributionName": ""
     }
   }
 }
