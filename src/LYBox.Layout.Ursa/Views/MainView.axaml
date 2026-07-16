@@ -37,8 +37,6 @@
 		<Grid Classes.Blur="{Binding $parent[u:UrsaWindow].(u:OverlayDialogHost.IsInModalStatus)}" ColumnDefinitions="Auto, *">
 
 
-			<!-- ===== Row 1: Navigation Pane (left) + Content (right) ===== -->
-			<Grid Grid.Row="1" ColumnDefinitions="Auto, *">
 				<!-- Fluent Navigation Pane (no logo) -->
 				<Border
 					VerticalAlignment="Stretch"
@@ -167,7 +165,6 @@
 						<plugin:ViewLocator />
 					</ContentControl.ContentTemplate>
 				</ContentControl>
-			</Grid>
-		</Grid>
+	</Grid>
 	</Panel>
 </UserControl>
