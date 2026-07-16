@@ -1,4 +1,6 @@
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using LYBox.Platforms.Abstraction;
 using LYBox.Plugin.Shared;
 using LYBox.Plugin.Shared.Services;
@@ -7,7 +9,7 @@ using Ursa.Controls;
 
 namespace LYBox.Layout.Ursa.Views;
 
-public partial class MainWindow : global::Ursa.Controls.UrsaWindow
+public partial class MainWindow : UrsaWindow
 {
     public WindowNotificationManager? NotificationManager { get; set; }
 
@@ -23,7 +25,17 @@ public partial class MainWindow : global::Ursa.Controls.UrsaWindow
         var loc = ServiceLocator.TryGetService<ILocalizationService>(out var service) ? service : null;
         var message = loc?.GetString("EXIT_CONFIRM_MESSAGE", "Are you sure you want to exit?") ?? "Are you sure you want to exit?";
         var title = loc?.GetString("EXIT_CONFIRM_TITLE", "Exit") ?? "Exit";
-        var result = await OverlayMessageBox.ShowAsync(message, title, button: MessageBoxButton.YesNo);
-        return result == MessageBoxResult.Yes;
+        var result = await MessageBox.ShowAsync(this, message, title, button: MessageBoxButton.YesNo);
+
+        if (result == MessageBoxResult.Yes)
+        {
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                desktop.Shutdown();
+            }
+            return false;
+        }
+
+        return false;
     }
 }

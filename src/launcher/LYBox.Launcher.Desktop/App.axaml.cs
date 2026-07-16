@@ -22,6 +22,7 @@ public partial class App : Application
 
     // 保存 pluginLoader 引用用于退出时 ShutdownAsync 与 Dispose（Dispose 内部会再次调用 ShutdownAsync，幂等安全）
     private PluginLoader? _pluginLoader;
+    private bool _isShuttingDown;
 
     public App()
     {
@@ -233,6 +234,12 @@ public partial class App : Application
 
     private void OnShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
     {
+        if (_isShuttingDown)
+            return;
+
+        _isShuttingDown = true;
+        e.Cancel = true;
+
         if (ServiceLocator.TryGetService<ITaskRegistry>(out var registry) && registry.HasRunningTasks)
         {
             var tasks = registry.GetRunningTasks();
@@ -241,20 +248,31 @@ public partial class App : Application
             logger?.LogWarning("应用退出时仍有正在运行的任务: {Tasks}", taskNames);
         }
 
-        // 修复 #1+#2+#4：完整退出流程——
-        //   1) 优雅关闭插件（IPlugin.ShutdownAsync），释放插件持有的原生资源（如 TdLib 客户端）
-        //   2) Dispose ServiceProvider，触发所有 Singleton 的 Dispose（IDbContextFactory、ZLogger 等）
-        //   3) Dispose PluginLoader（内部会再次 ShutdownAsync，幂等；并 ALC.Unload）
-        // ShutdownRequestedEventArgs 不支持 async，使用 Task.Run 避免在 UI 线程上 sync-over-async 死锁
+        // 修复：异步清理 + 超时兜底，避免原生资源释放（TdLib/ZLogger）阻塞导致进程无法退出
+        // 先取消关闭请求，然后在线程池线程上执行清理，完成后调用 Environment.Exit 强制退出
+        _ = Task.Run(async () =>
+        {
+            var cleanupTask = PerformCleanupAsync();
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(10));
+            var completed = await Task.WhenAny(cleanupTask, timeoutTask);
+
+            if (completed == timeoutTask)
+            {
+                Console.Error.WriteLine("[Shutdown] Cleanup timed out after 10s, forcing exit.");
+            }
+
+            Environment.Exit(0);
+        });
+    }
+
+    private async Task PerformCleanupAsync()
+    {
         try
         {
-            Task.Run(async () =>
+            if (_pluginLoader is not null)
             {
-                if (_pluginLoader is not null)
-                {
-                    await _pluginLoader.ShutdownAllPluginsAsync();
-                }
-            }).GetAwaiter().GetResult();
+                await _pluginLoader.ShutdownAllPluginsAsync();
+            }
         }
         catch (Exception ex)
         {
@@ -279,7 +297,7 @@ public partial class App : Application
             Console.WriteLine($"PluginLoader.Dispose failed on exit: {ex.Message}");
         }
 
-        // 修复 #14：取消订阅全局异常处理，避免在 ServiceProvider Dispose 后日志器失效导致异常处理再抛异常
+        // 取消订阅全局异常处理，避免在 ServiceProvider Dispose 后日志器失效导致异常处理再抛异常
         TaskScheduler.UnobservedTaskException -= OnUnobservedTaskException;
         AppDomain.CurrentDomain.UnhandledException -= OnDomainUnhandledException;
         Avalonia.Threading.Dispatcher.UIThread.UnhandledException -= OnUIThreadUnhandledException;

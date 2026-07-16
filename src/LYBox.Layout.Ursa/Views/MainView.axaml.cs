@@ -1,9 +1,5 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.VisualTree;
-using System;
 using Ursa.Controls;
 using LYBox.Layout.Ursa.ViewModels;
 
@@ -12,7 +8,6 @@ namespace LYBox.Layout.Ursa.Views;
 public partial class MainView : UserControl
 {
     private MainViewViewModel? _viewModel;
-    private Window? _window;
 
     public MainView()
     {
@@ -30,5 +25,4 @@ public partial class MainView : UserControl
             ? manager
             : new WindowNotificationManager(topLevel);
     }
-
 }

@@ -12,70 +12,15 @@
     d:DesignHeight="450"
     d:DesignWidth="800"
     x:CompileBindings="True"
-    x:DataType="viewModels:MainViewViewModel"
-	ExtendClientAreaToDecorationsHint="True"
+    ExtendClientAreaToDecorationsHint="True"
+    x:DataType="viewModels:MainWindowViewModel"
     WindowStartupLocation="CenterScreen"
-    MinWidth="640"
-    MinHeight="480"
     Icon="/Assets/lybox.ico"
-	    IsFullScreenButtonVisible="{OnPlatform {x:True}, macOS={x:False}}"
+    IsFullScreenButtonVisible="{OnPlatform {x:True}, macOS={x:False}}"
     IsManagedResizerVisible="{OnPlatform {x:False}, Linux={x:True}}"
-    Background="{DynamicResource FluentColorBackground0}"
     mc:Ignorable="d">
-
-	<u:UrsaWindow.RightContent>
-		<StackPanel Orientation="Horizontal">
-			<Grid ColumnDefinitions="Auto, *, Auto">
-				<!-- Col 0: Hamburger Toggle Button (Fluent GlobalNavButton icon) -->
-				<Button
-					Classes="FluentHamburger"
-					ToolTip.Tip="{DynamicResource TOOLTIP_TOGGLE_SIDEBAR}"
-					Command="{Binding ToggleCollapseCommand}"
-					VerticalAlignment="Center">
-					<PathIcon Width="20" Height="20"
-						Data="{DynamicResource FluentLineHorizontal320Regular}"
-						Foreground="{DynamicResource FluentColorText0}" />
-				</Button>
-
-				<!-- Col 1: Search Box (centered) -->
-				<TextBox
-					Name="SearchBox"
-					Grid.Column="1"
-					Classes="FluentSearchBox"
-					Width="240"
-					HorizontalAlignment="Center"
-					VerticalAlignment="Center"
-					PlaceholderText="{DynamicResource SEARCH_PLACEHOLDER}"
-					Text="{Binding SearchText, Mode=TwoWay}">
-					<TextBox.InnerLeftContent>
-						<Path Width="14" Height="14"
-							Data="{DynamicResource FluentSearch20Regular}"
-							Fill="{DynamicResource FluentColorText2}" />
-					</TextBox.InnerLeftContent>
-				</TextBox>
-
-				<!-- Col 2: Action Buttons -->
-				<StackPanel
-					Grid.Column="2"
-					Orientation="Horizontal"
-					Spacing="4"
-					VerticalAlignment="Center"
-					Margin="0,0,12,0">
-					<u:IconButton
-					Theme="{StaticResource BorderlessIconButton}"
-					Icon="{StaticResource FluentIconGithubLogo}"
-					Click="OpenRepository" />
-					<u:ThemeToggleButton
-						IsThreeState="True"
-						Mode="Controller" />
-				</StackPanel>
-			</Grid>
-		</StackPanel>
-	</u:UrsaWindow.RightContent>
-	<!--
-        Chrome 策略由 PlatformServices.WindowChromeService.ApplyChrome 在代码后置中统一设置：
-        所有平台 WindowDecorations.BorderOnly（移除原生标题栏与系统按钮，保留 WM/OS 原生 resize frame）。
-        标题栏职责（Title、caption 按钮、拖动）由 MainView 工具栏自绘承担。
-    -->
-	<views:MainView />
+    <u:UrsaWindow.RightContent>
+        <views:TitleBarRightContent />
+    </u:UrsaWindow.RightContent>
+    <views:MainView />
 </u:UrsaWindow>
