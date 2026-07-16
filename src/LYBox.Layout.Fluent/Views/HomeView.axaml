@@ -1,0 +1,181 @@
+<UserControl
+  x:Class="LYBox.Layout.Fluent.Views.HomeView"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:fi="clr-namespace:AvaloniaFluentUI.Icons;assembly=LYBox.Layout.Fluent"
+  xmlns:fui="clr-namespace:AvaloniaFluentUI.Controls;assembly=LYBox.Layout.Fluent"
+  xmlns:model="clr-namespace:LYBox.Layout.Fluent.Models"
+  xmlns:ui="clr-namespace:LYBox.Layout.Fluent.Controls"
+  xmlns:viewModel="clr-namespace:LYBox.Layout.Fluent.ViewModels"
+  d:DesignHeight="1080"
+  d:DesignWidth="1920"
+  x:DataType="viewModel:HomeViewModel">
+  <UserControl.Styles>
+    <Style Selector="TextBlock.Title">
+      <Setter Property="HorizontalAlignment" Value="Left"/>
+      <Setter Property="FontSize" Value="18"/>
+    </Style>
+  </UserControl.Styles>
+
+  <fui:SmoothScrollViewer
+    Name="SmoothScrollViewer"
+    Margin="0,0,0,20"
+    HorizontalAlignment="Stretch"
+    VerticalAlignment="Stretch"
+    HorizontalScrollBarVisibility="Disabled"
+    Offset="{Binding ScrollViewerOffset, Mode=TwoWay}">
+    <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
+      <Border Grid.Row="0" Padding="35">
+        <Border.Background>
+          <ImageBrush Source="avares://LYBox.Layout.Fluent/Assets/Images/header.png" Stretch="Fill"/>
+        </Border.Background>
+        <Grid HorizontalAlignment="Stretch" RowDefinitions="Auto, Auto">
+          <TextBlock
+            Margin="0,0,0,45"
+            HorizontalAlignment="Left"
+            FontSize="48"
+            Text="{Binding Title}"/>
+
+          <fui:SingleDirectionScrollViewer
+            Grid.Row="1"
+            HorizontalAlignment="Stretch"
+            HorizontalScrollBarVisibility="Hidden"
+            Orientation="Horizontal"
+            VerticalScrollBarVisibility="Disabled">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <ui:LinkCard
+                Title="{Binding GettingStartedTitle}"
+                Click="OnGettingStartedClicked"
+                Content="{Binding GettingStartedContent}"
+                IconData="{x:Static fi:FluentIcon.Application}"/>
+              <ui:LinkCard
+                Title="{Binding GitHubRepoTitle}"
+                Click="OnGitHubRepoClicked"
+                Content="{Binding GitHubRepoContent}"
+                IconData="{x:Static fi:FluentIcon.GitHub}"/>
+              <ui:LinkCard
+                Title="{Binding CodeSamplesTitle}"
+                Click="OnCodeSamplesClicked"
+                Content="{Binding CodeSamplesContent}"
+                IconData="{x:Static fi:FluentIcon.Code}"/>
+              <ui:LinkCard
+                Title="{Binding SendFeedbackTitle}"
+                Click="OnSendFeedBackClicked"
+                Content="{Binding SendFeedbackContent}"
+                IconData="{x:Static fi:FluentIcon.Feedback}"/>
+            </StackPanel>
+          </fui:SingleDirectionScrollViewer>
+        </Grid>
+      </Border>
+
+      <!--  Button  -->
+      <TextBlock
+        Grid.Row="1"
+        Margin="35,0,0,8"
+        Classes="Title"
+        Text="{Binding SectionBasicInput}"/>
+      <ui:ButtonItemsPanel
+        Grid.Row="2"
+        Command="{Binding GotoCommand}"
+        ItemsSource="{Binding ButtonItemSource}"
+        Tag="BasicInput"/>
+
+      <!--  Date Time  -->
+      <TextBlock
+        Grid.Row="3"
+        Margin="35,35,0,8"
+        Classes="Title"
+        Text="{Binding SectionDateTime}"/>
+      <ui:ButtonItemsPanel
+        Grid.Row="4"
+        Command="{Binding GotoCommand}"
+        ItemsSource="{Binding DateTimeItemSource}"
+        Tag="DateTime"/>
+
+      <!--  Dialog  -->
+      <TextBlock
+        Grid.Row="5"
+        Margin="35,35,0,8"
+        Classes="Title"
+        Text="{Binding SectionDialog}"/>
+      <ui:ButtonItemsPanel
+        Grid.Row="6"
+        Command="{Binding GotoCommand}"
+        ItemsSource="{Binding DialogItemSource}"
+        Tag="DialogBoxAndPopup"/>
+
+      <!--  Layout  -->
+      <TextBlock
+        Grid.Row="7"
+        Margin="35,35,0,8"
+        Classes="Title"
+        Text="{Binding SectionLayout}"/>
+      <ui:ButtonItemsPanel
+        Grid.Row="8"
+        Command="{Binding GotoCommand}"
+        ItemsSource="{Binding LayoutItemSource}"
+        Tag="Layout"/>
+
+      <!--  Menu & ToolBar  -->
+      <TextBlock
+        Grid.Row="9"
+        Margin="35,35,0,8"
+        Classes="Title"
+        Text="{Binding SectionMenuAndToolBar}"/>
+      <ui:ButtonItemsPanel
+        Grid.Row="10"
+        Command="{Binding GotoCommand}"
+        ItemsSource="{Binding MenuAndToolBarItemSource}"
+        Tag="MenuAndToolBar"/>
+
+      <!--  Navigation View  -->
+      <TextBlock
+        Grid.Row="11"
+        Margin="35,35,0,8"
+        Classes="Title"
+        Text="{Binding SectionNavigationView}"/>
+      <ui:ButtonItemsPanel
+        Grid.Row="12"
+        Command="{Binding GotoCommand}"
+        ItemsSource="{Binding NavigationViewItemSource}"
+        Tag="Navigation"/>
+
+      <!--  Status and Information  -->
+      <TextBlock
+        Grid.Row="13"
+        Margin="35,35,0,8"
+        Classes="Title"
+        Text="{Binding SectionStatusAndInformation}"/>
+      <ui:ButtonItemsPanel
+        Grid.Row="14"
+        Command="{Binding GotoCommand}"
+        ItemsSource="{Binding StatusAndInformationItemSource}"
+        Tag="StatusAndInformation"/>
+
+      <!--  Text  -->
+      <TextBlock
+        Grid.Row="15"
+        Margin="35,35,0,8"
+        Classes="Title"
+        Text="{Binding SectionText}"/>
+      <ui:ButtonItemsPanel
+        Grid.Row="16"
+        Command="{Binding GotoCommand}"
+        ItemsSource="{Binding TextItemSource}"
+        Tag="Text"/>
+
+      <!--  View  -->
+      <TextBlock
+        Grid.Row="17"
+        Margin="35,35,0,8"
+        Classes="Title"
+        Text="{Binding SectionView}"/>
+      <ui:ButtonItemsPanel
+        Grid.Row="18"
+        Command="{Binding GotoCommand}"
+        ItemsSource="{Binding ViewItemSource}"
+        Tag="View"/>
+    </Grid>
+  </fui:SmoothScrollViewer>
+</UserControl>

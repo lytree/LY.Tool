@@ -6,7 +6,7 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <RuntimeIdentifiers>win-x64;win-arm64;linux-x64;linux-arm64</RuntimeIdentifiers>
-    <ApplicationIcon>..\..\LYBox.UrsaWindow\Assets\lybox.ico</ApplicationIcon>
+    <ApplicationIcon>..\..\LYBox.Layout.Ursa\Assets\lybox.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,7 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\LYBox.UrsaWindow\LYBox.UrsaWindow.csproj" />
+    <ProjectReference Include="..\..\LYBox.Layout.Ursa\LYBox.Layout.Ursa.csproj" />
+    <ProjectReference Include="..\..\LYBox.Layout.Fluent\LYBox.Layout.Fluent.csproj" />
     <ProjectReference Include="..\..\LYBox.Plugin.Shared\LYBox.Plugin.Shared.csproj" />
   </ItemGroup>
 </Project>

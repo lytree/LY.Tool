@@ -1,0 +1,74 @@
+﻿<ResourceDictionary
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:ui="clr-namespace:AvaloniaFluentUI.Controls">
+  <!--  Add Resources Here  -->
+
+  <Thickness x:Key="SettingCardPadding">0 16 16 16</Thickness>
+
+  <ControlTheme x:Key="{x:Type ui:SettingCard}" TargetType="ui:SettingCard">
+    <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}"/>
+    <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+    <Setter Property="Padding" Value="{DynamicResource SettingCardPadding}"/>
+    <Setter Property="Height" Value="68"/>
+
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="HorizontalContentAlignment" Value="Right"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border
+          Height="{TemplateBinding Height}"
+          MinHeight="68"
+          Padding="{TemplateBinding Padding}"
+          HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+          VerticalAlignment="{TemplateBinding VerticalAlignment}"
+          Background="{TemplateBinding Background}"
+          BorderBrush="{TemplateBinding BorderBrush}"
+          BorderThickness="{TemplateBinding BorderThickness}"
+          CornerRadius="{TemplateBinding CornerRadius}">
+          <Grid
+            ColumnDefinitions="Auto, Auto, *"
+            ColumnSpacing="15"
+            RowDefinitions="*,*">
+            <!--  <Icon  -->
+            <ui:FluentIconElement
+              Grid.RowSpan="2"
+              Grid.Column="0"
+              Width="24"
+              Height="24"
+              Margin="16,0,0,0"
+              IsVisible="{TemplateBinding IconSource,
+                                          Converter={x:Static ObjectConverters.IsNotNull}}"
+              Source="{TemplateBinding IconSource}"/>
+
+            <TextBlock
+              Grid.Row="0"
+              Grid.Column="1"
+              MinHeight="18"
+              FontSize="14"
+              Text="{TemplateBinding Header}"/>
+            <TextBlock
+              Grid.Row="1"
+              Grid.Column="1"
+              FontSize="12"
+              Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+              Text="{TemplateBinding Description}"/>
+
+            <ContentPresenter
+              Grid.RowSpan="2"
+              Grid.Column="2"
+              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+              Content="{TemplateBinding Content}"
+              ContentTemplate="{TemplateBinding ContentTemplate}"/>
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>
+

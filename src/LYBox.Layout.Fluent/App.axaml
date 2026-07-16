@@ -1,0 +1,57 @@
+<Application
+  x:Class="LYBox.Layout.Fluent.App"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:fluentUi="using:AvaloniaFluentUI.Styling"
+  xmlns:local="using:LYBox.Layout.Fluent">
+  <!--  "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options.  -->
+
+  <TrayIcon.Icons>
+    <TrayIcons>
+      <TrayIcon Icon="/Assets/app.ico" ToolTipText="Avalonia Tray Icon">
+        <TrayIcon.Menu>
+          <NativeMenu>
+            <NativeMenuItem Click="ShowMainWindow" Header="显示主窗口"/>
+            <NativeMenuItem Click="OnToggleTheme" Header="切换主题"/>
+            <NativeMenuItem Click="OnClicked" Header="退出"/>
+            <NativeMenuItem Header="切换语言">
+              <NativeMenu>
+                <NativeMenuItem Click="OnToggleLanguage" Header="zh-CN"/>
+                <NativeMenuItem Click="OnToggleLanguage" Header="en-US"/>
+                <NativeMenuItem Click="OnToggleLanguage" Header="ja-JP"/>
+              </NativeMenu>
+            </NativeMenuItem>
+          </NativeMenu>
+        </TrayIcon.Menu>
+      </TrayIcon>
+    </TrayIcons>
+  </TrayIcon.Icons>
+
+  <Application.Resources>
+    <ResourceDictionary>
+      <!-- <FontFamily x:Key="DefaultFontFamily">avares://LYBox.Layout.Fluent/Assets/Fonts/ZenMaruGothic-Medium.ttf#Zen Maru Gothic Medium</FontFamily> -->
+      <!-- <FontFamily x:Key="DefaultFontFamily">avares://LYBox.Layout.Fluent/Assets/Fonts/JetBrainsMonoNerdFont-Regular.ttf#JetBrainsMono NF Regular</FontFamily> -->
+      <!-- <FontFamily x:Key="DefaultFontFamily">avares://LYBox.Layout.Fluent/Assets/Fonts/#</FontFamily> -->
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="avares://LYBox.Layout.Fluent/Controls/Card/CodeCard.axaml"/>
+        <ResourceInclude Source="avares://LYBox.Layout.Fluent/Controls/Card/Card.axaml"/>
+        <ResourceInclude Source="avares://LYBox.Layout.Fluent/Controls/View/ViewBase.axaml"/>
+        <ResourceInclude Source="avares://LYBox.Layout.Fluent/Controls/View/InfoBarHostViewBase.axaml"/>
+        <ResourceInclude Source="avares://LYBox.Layout.Fluent/Controls/Panel/ButtonItemsPanel.axaml"/>
+        <ResourceInclude Source="avares://LYBox.Layout.Fluent/Controls/Card/LinkCard.axaml"/>
+      </ResourceDictionary.MergedDictionaries>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceInclude x:Key="Light" Source="Themes/Light.axaml"/>
+        <ResourceInclude x:Key="Dark" Source="Themes/Dark.axaml"/>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <Application.DataTemplates>
+    <local:ViewLocator/>
+  </Application.DataTemplates>
+
+  <Application.Styles>
+    <fluentUi:AvaloniaFluentTheme/>
+  </Application.Styles>
+</Application>

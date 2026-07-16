@@ -1,0 +1,31 @@
+<UserControl
+  x:Class="LYBox.Layout.Fluent.Views.NavigationView"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:fi="clr-namespace:AvaloniaFluentUI.Icons;assembly=LYBox.Layout.Fluent"
+  xmlns:fui="clr-namespace:AvaloniaFluentUI.Controls;assembly=LYBox.Layout.Fluent"
+  xmlns:locale="clr-namespace:AvaloniaFluentUI.Locale;assembly=LYBox.Layout.Fluent"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:ui="clr-namespace:LYBox.Layout.Fluent.Controls"
+  xmlns:viewModel="clr-namespace:LYBox.Layout.Fluent.ViewModels"
+  d:DesignHeight="450"
+  d:DesignWidth="800"
+  x:DataType="viewModel:NavigationViewModel"
+  mc:Ignorable="d">
+
+  <fui:SmoothScrollViewer Padding="0,0,15,0">
+    <Grid Margin="18,24,24,0" RowDefinitions="Auto, *">
+      <TextBlock
+        HorizontalAlignment="Left"
+        FontSize="32"
+        Text="{Binding Title}"/>
+      <ui:ButtonItemsPanel
+        Grid.Row="1"
+        Margin="0,24,0,0"
+        Command="{Binding GotoCommand}"
+        ItemsSource="{Binding NavigationViewItemSource}"
+        Tag="BasicInput"/>
+    </Grid>
+  </fui:SmoothScrollViewer>
+</UserControl>

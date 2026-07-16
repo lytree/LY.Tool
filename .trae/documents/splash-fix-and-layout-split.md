@@ -39,7 +39,7 @@ App.Initialize() → 同步阻塞（插件加载）→ OnFrameworkInitialization
 
 ### 2.1 修复闪屏过渡异常处理
 
-**文件**: `src/LYBox.UrsaWindow/Views/MvvmSplashWindow.axaml.cs`
+**文件**: `src/LYBox.Layout.Ursa/Views/MvvmSplashWindow.axaml.cs`
 
 - 移除 `base.OnDataContextChanged(e)` 调用中的双重订阅风险：不调用 base，或检查是否已订阅
 - 在 `Dispatcher.Post` 的 async lambda 中添加 `try/catch`，捕获异常后输出到日志并 fallback 直接显示 MainWindow
@@ -117,13 +117,13 @@ private static void OnUIThreadUnhandledException(object? sender, Avalonia.Thread
 
 ### 2.3 修复 x:DataType 不匹配
 
-**文件**: `src/LYBox.UrsaWindow/Views/MainWindow.axaml`
+**文件**: `src/LYBox.Layout.Ursa/Views/MainWindow.axaml`
 
 - 将 `x:DataType="viewModels:MainWindowViewModel"` 改为 `x:DataType="viewModels:MainViewViewModel"`
 
 ### 2.4 移除 `CountDown="{x:Null}"` 或设置合理倒计时
 
-**文件**: `src/LYBox.UrsaWindow/Views/MvvmSplashWindow.axaml`
+**文件**: `src/LYBox.Layout.Ursa/Views/MvvmSplashWindow.axaml`
 
 - 移除 `CountDown="{x:Null}"`，改为设置 `CountDown="5000"`（5秒后备过渡），确保即使 `RequestClose` 订阅失败，Ursa 基类的倒计时也能触发 `CreateNextWindow()`
 
@@ -135,7 +135,7 @@ private static void OnUIThreadUnhandledException(object? sender, Avalonia.Thread
 
 两个项目已经是结构独立的：
 - `LYBox.FluentWindow`（`Exe`）— 仅引用 Avalonia + CommunityToolkit.Mvvm，零插件耦合
-- `LYBox.Launcher.Desktop`（`WinExe`）+ `LYBox.UrsaWindow`（`Library`）— 完整插件系统
+- `LYBox.Launcher.Desktop`（`WinExe`）+ `LYBox.Layout.Ursa`（`Library`）— 完整插件系统
 
 ### 需要的改进
 
@@ -183,8 +183,8 @@ private static void OnUIThreadUnhandledException(object? sender, Avalonia.Thread
 
 | 文件 | 变更类型 | 说明 |
 |------|---------|------|
-| `src/LYBox.UrsaWindow/Views/MvvmSplashWindow.axaml.cs` | 修改 | 添加 try/catch + fallback 过渡逻辑 |
-| `src/LYBox.UrsaWindow/Views/MvvmSplashWindow.axaml` | 修改 | 移除 `CountDown="{x:Null}"`，设置后备倒计时 |
-| `src/LYBox.UrsaWindow/Views/MainWindow.axaml` | 修改 | 修复 `x:DataType` 为 `MainViewViewModel` |
+| `src/LYBox.Layout.Ursa/Views/MvvmSplashWindow.axaml.cs` | 修改 | 添加 try/catch + fallback 过渡逻辑 |
+| `src/LYBox.Layout.Ursa/Views/MvvmSplashWindow.axaml` | 修改 | 移除 `CountDown="{x:Null}"`，设置后备倒计时 |
+| `src/LYBox.Layout.Ursa/Views/MainWindow.axaml` | 修改 | 修复 `x:DataType` 为 `MainViewViewModel` |
 | `src/launcher/LYBox.Launcher.Desktop/App.axaml.cs` | 修改 | DEBUG 模式下不吞异常 |
 | `src/LYBox.FluentWindow/LYBox.FluentWindow.csproj` | 修改 | 添加 `AvaloniaUseCompiledBindingsByDefault` |

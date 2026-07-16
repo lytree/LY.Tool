@@ -1,0 +1,137 @@
+<ResourceDictionary
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:ui="using:AvaloniaFluentUI.Controls"
+  x:CompileBindings="True">
+
+  <!--  FlyoutResources moved to BaseResources.axaml  -->
+
+  <ControlTheme x:Key="{x:Type FlyoutPresenter}" TargetType="FlyoutPresenter">
+    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+    <Setter Property="Background" Value="{DynamicResource AcrylicInAppFillColorDefaultBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource SurfaceStrokeColorFlyoutBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="ClipToBounds" Value="True"/>
+    <Setter Property="MinWidth" Value="{DynamicResource FlyoutThemeMinWidth}"/>
+    <Setter Property="MaxWidth" Value="{DynamicResource FlyoutThemeMaxWidth}"/>
+    <Setter Property="MinHeight" Value="{DynamicResource FlyoutThemeMinHeight}"/>
+    <Setter Property="MaxHeight" Value="{DynamicResource FlyoutThemeMaxHeight}"/>
+    <Setter Property="CornerRadius" Value="{DynamicResource OverlayCornerRadius}"/>
+    <Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}"/>
+    <Setter Property="FontFamily" Value="{DynamicResource DefaultFontFamily}"/>
+    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+    <Setter Property="BackgroundSizing" Value="InnerBorderEdge"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border
+          Margin="{DynamicResource ControlDefaultBoxShadowsMargin}"
+          BoxShadow="{DynamicResource ControlDefaultBoxShadow}"
+          CornerRadius="{TemplateBinding CornerRadius}">
+          <Border
+            Padding="{TemplateBinding Padding}"
+            Background="{TemplateBinding Background}"
+            BackgroundSizing="{TemplateBinding BackgroundSizing}"
+            BorderBrush="{TemplateBinding BorderBrush}"
+            BorderThickness="{TemplateBinding BorderThickness}"
+            ClipToBounds="{TemplateBinding ClipToBounds}"
+            CornerRadius="{TemplateBinding CornerRadius}">
+            <ui:SmoothScrollViewer
+              Name="ScrollViewer"
+              HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+              VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+              <ContentPresenter
+                Margin="{TemplateBinding Padding}"
+                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                ClipToBounds="{TemplateBinding ClipToBounds}"
+                Content="{TemplateBinding Content}"
+                ContentTemplate="{TemplateBinding ContentTemplate}"/>
+            </ui:SmoothScrollViewer>
+          </Border>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^.NoScroll">
+      <Setter Property="MinWidth" Value="{DynamicResource FlyoutThemeMinWidth}"/>
+      <Setter Property="MinHeight" Value="{DynamicResource FlyoutThemeMinHeight}"/>
+      <Setter Property="MaxHeight" Value="Infinity"/>
+      <Setter Property="MaxWidth" Value="Infinity"/>
+
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border
+            Margin="{DynamicResource ControlDefaultBoxShadowsMargin}"
+            BoxShadow="{DynamicResource ControlDefaultBoxShadow}"
+            CornerRadius="{TemplateBinding CornerRadius}">
+            <Border
+              Padding="{TemplateBinding Padding}"
+              Background="{TemplateBinding Background}"
+              BackgroundSizing="{TemplateBinding BackgroundSizing}"
+              BorderBrush="{TemplateBinding BorderBrush}"
+              BorderThickness="{TemplateBinding BorderThickness}"
+              ClipToBounds="{TemplateBinding ClipToBounds}"
+              CornerRadius="{TemplateBinding CornerRadius}">
+              <ContentPresenter
+                Margin="{TemplateBinding Padding}"
+                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                ClipToBounds="{TemplateBinding ClipToBounds}"
+                Content="{TemplateBinding Content}"
+                ContentTemplate="{TemplateBinding ContentTemplate}"/>
+            </Border>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+  </ControlTheme>
+
+  <!--  This is the Avalonia MenuFlyoutPresenter  -->
+  <ControlTheme x:Key="{x:Type MenuFlyoutPresenter}" TargetType="{x:Type MenuFlyoutPresenter}">
+    <Setter Property="Background" Value="{DynamicResource AcrylicInAppFillColorDefaultBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource SurfaceStrokeColorFlyoutBrush}"/>
+    <Setter Property="BorderThickness" Value="{DynamicResource MenuFlyoutPresenterBorderThemeThickness}"/>
+    <Setter Property="Padding" Value="{DynamicResource MenuFlyoutPresenterThemePadding}"/>
+    <Setter Property="MaxWidth" Value="{DynamicResource FlyoutThemeMaxWidth}"/>
+    <Setter Property="MinHeight" Value="{DynamicResource MenuFlyoutThemeMinHeight}"/>
+    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+    <Setter Property="ClipToBounds" Value="False"/>
+    <Setter Property="CornerRadius" Value="{DynamicResource OverlayCornerRadius}"/>
+    <Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}"/>
+    <Setter Property="FontFamily" Value="{DynamicResource DefaultFontFamily}"/>
+    <Setter Property="BackgroundSizing" Value="InnerBorderEdge"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border
+          Margin="{DynamicResource ControlDefaultBoxShadowsMargin}"
+          BoxShadow="{DynamicResource ControlDefaultBoxShadow}"
+          CornerRadius="{TemplateBinding CornerRadius}">
+          <Border
+            Name="LayoutRoot"
+            Padding="{TemplateBinding Padding}"
+            Background="{TemplateBinding Background}"
+            BackgroundSizing="{TemplateBinding BackgroundSizing}"
+            BorderBrush="{TemplateBinding BorderBrush}"
+            BorderThickness="{TemplateBinding BorderThickness}"
+            CornerRadius="{TemplateBinding CornerRadius}">
+            <ui:SmoothScrollViewer
+              Margin="{TemplateBinding Padding}"
+              HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+              VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+              <ItemsPresenter
+                Name="PART_ItemsPresenter"
+                Grid.IsSharedSizeScope="True"
+                ItemsPanel="{TemplateBinding ItemsPanel}"
+                KeyboardNavigation.TabNavigation="Continue"/>
+            </ui:SmoothScrollViewer>
+          </Border>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+</ResourceDictionary>

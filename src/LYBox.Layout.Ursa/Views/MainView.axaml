@@ -1,0 +1,173 @@
+<UserControl
+	x:Class="LYBox.Layout.Ursa.Views.MainView"
+	xmlns="https://github.com/avaloniaui"
+	xmlns:converters="using:LYBox.Plugin.Shared.Converters"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:iri="https://irihi.tech/shared"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:plugin="using:LYBox.Plugin.Shared"
+	xmlns:u="https://irihi.tech/ursa"
+	xmlns:viewmodels="using:LYBox.Plugin.Shared.ViewModels"
+	xmlns:vm="using:LYBox.Layout.Ursa.ViewModels"
+	d:DesignHeight="450"
+	d:DesignWidth="800"
+	x:CompileBindings="True"
+	x:DataType="vm:MainViewViewModel"
+	mc:Ignorable="d">
+
+	<Design.DataContext>
+		<vm:MainViewViewModel />
+	</Design.DataContext>
+	<UserControl.Resources>
+		<converters:IconNameToPathConverter x:Key="IconConverter" />
+	</UserControl.Resources>
+	<Panel>
+		<Panel.Styles>
+			<Style Selector="Grid.Blur">
+				<Setter Property="Effect" Value="blur(10)" />
+			</Style>
+			<Style Selector="Button#PART_CloseButton">
+				<Style Selector="^:pointerover">
+					<Setter Property="Foreground" Value="{DynamicResource CaptionButtonCloseForeground}" />
+					<Setter Property="Background" Value="{DynamicResource CaptionButtonClosePointeroverBackground}" />
+				</Style>
+			</Style>
+		</Panel.Styles>
+		<Grid Classes.Blur="{Binding $parent[u:UrsaWindow].(u:OverlayDialogHost.IsInModalStatus)}" ColumnDefinitions="Auto, *">
+
+
+			<!-- ===== Row 1: Navigation Pane (left) + Content (right) ===== -->
+			<Grid Grid.Row="1" ColumnDefinitions="Auto, *">
+				<!-- Fluent Navigation Pane (no logo) -->
+				<Border
+					VerticalAlignment="Stretch"
+					Classes="FluentNavPane"
+					IsVisible="{Binding !IsSidebarHidden}">
+					<u:NavMenu
+						Name="menu"
+						CommandBinding="{Binding ActivateCommand}"
+						ExpandWidth="280"
+						CollapseWidth="48"
+						SubMenuBinding="{Binding Children}"
+						HeaderBinding="{Binding}"
+						IconBinding="{Binding MenuHeader}"
+						IsHorizontalCollapsed="{Binding IsCollapsed, Mode=TwoWay}"
+						ItemsSource="{Binding Menus.MenuItems}"
+						SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}">
+						<u:NavMenu.Styles>
+							<Style x:DataType="viewmodels:MenuItemViewModel" Selector="u|NavMenuItem">
+								<Setter Property="IsSeparator" Value="{Binding IsSeparator}" />
+							</Style>
+						</u:NavMenu.Styles>
+						<u:NavMenu.IconTemplate>
+							<DataTemplate x:DataType="x:String">
+								<u:TwoTonePathIcon
+									Width="20"
+									Height="20"
+									ActiveForeground="{DynamicResource FluentAccentBrush}"
+									ActiveStrokeBrush="{DynamicResource FluentAccentBrush}"
+									Data="{Binding Converter={StaticResource IconConverter}}"
+									Foreground="{DynamicResource FluentColorText1}"
+									IsActive="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=u:NavMenuItem}, Path=IsHighlighted, Mode=TwoWay}"
+									StrokeBrush="{DynamicResource FluentColorText1}" />
+							</DataTemplate>
+						</u:NavMenu.IconTemplate>
+						<u:NavMenu.HeaderTemplate>
+							<DataTemplate x:DataType="viewmodels:MenuItemViewModel">
+								<StackPanel Orientation="Horizontal" Spacing="8">
+									<TextBlock
+										HorizontalAlignment="Left"
+										FontSize="14"
+										Text="{Binding MenuHeader}" />
+									<Label
+										Theme="{StaticResource TagLabel}"
+										Classes="Purple"
+										Content="{Binding Status}"
+										IsVisible="{Binding Status, Converter={x:Static ObjectConverters.IsNotNull}}" />
+								</StackPanel>
+							</DataTemplate>
+						</u:NavMenu.HeaderTemplate>
+						<u:NavMenu.Footer>
+							<StackPanel HorizontalAlignment="Stretch" Margin="0,0,0,8">
+								<Border Classes="FluentDivider" Margin="8,0,8,8" />
+								<StackPanel.Styles>
+									<Style Selector="Button.NavFooterItem">
+										<Setter Property="Foreground" Value="{DynamicResource FluentColorText1}" />
+										<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+									</Style>
+									<Style Selector="Button.NavFooterItem:pointerover">
+										<Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
+										<Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
+									</Style>
+									<Style Selector="Button.NavFooterItem:pressed">
+										<Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
+									</Style>
+								</StackPanel.Styles>
+								<Button
+									Classes="NavFooterItem"
+									HorizontalAlignment="Stretch"
+									Background="Transparent"
+									BorderThickness="0"
+									Padding="0"
+									CornerRadius="4"
+									ToolTip.Tip="{DynamicResource TOOLTIP_SETTINGS}"
+									Command="{Binding ActivateCommand}"
+									CommandParameter="Settings">
+									<Grid ColumnDefinitions="Auto, *">
+										<PathIcon
+										Width="20" Height="20"
+										Margin="14,8,8,8"
+										Data="{DynamicResource FluentSettings20Regular}"
+										Foreground="{DynamicResource FluentColorText1}" />
+										<TextBlock
+											Grid.Column="1"
+											Margin="0,8,8,8"
+											VerticalAlignment="Center"
+											FontSize="14"
+											Text="{Binding SettingText}"
+											IsVisible="{Binding !IsCollapsed}" />
+									</Grid>
+								</Button>
+								<Button
+									Classes="NavFooterItem"
+									HorizontalAlignment="Stretch"
+									Background="Transparent"
+									BorderThickness="0"
+									Padding="0"
+									CornerRadius="4"
+									ToolTip.Tip="{DynamicResource TOOLTIP_PLUGIN_MANAGEMENT}"
+									Command="{Binding ActivateCommand}"
+									CommandParameter="PluginManagement">
+									<Grid ColumnDefinitions="Auto, *">
+										<PathIcon
+										Width="20" Height="20"
+										Margin="14,8,8,8"
+										Data="{DynamicResource FluentPuzzlePiece20Regular}"
+										Foreground="{DynamicResource FluentColorText1}" />
+										<TextBlock
+											Grid.Column="1"
+											Margin="0,8,8,8"
+											VerticalAlignment="Center"
+											FontSize="14"
+											Text="{Binding PluginText}"
+											IsVisible="{Binding !IsCollapsed}" />
+									</Grid>
+								</Button>
+							</StackPanel>
+						</u:NavMenu.Footer>
+					</u:NavMenu>
+				</Border>
+
+				<!-- Content Area -->
+				<ContentControl Grid.Column="1"
+						Margin="36,24"
+						Content="{Binding Content}">
+					<ContentControl.ContentTemplate>
+						<plugin:ViewLocator />
+					</ContentControl.ContentTemplate>
+				</ContentControl>
+			</Grid>
+		</Grid>
+	</Panel>
+</UserControl>

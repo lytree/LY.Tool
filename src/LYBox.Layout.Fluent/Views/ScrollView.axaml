@@ -1,0 +1,74 @@
+<ui:ViewBase
+  x:Class="LYBox.Layout.Fluent.Views.ScrollView"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:fui="clr-namespace:AvaloniaFluentUI.Controls;assembly=LYBox.Layout.Fluent"
+  xmlns:locale="clr-namespace:AvaloniaFluentUI.Locale;assembly=LYBox.Layout.Fluent"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:ui="clr-namespace:LYBox.Layout.Fluent.Controls"
+  xmlns:viewModel="clr-namespace:LYBox.Layout.Fluent.ViewModels"
+  Title="{Binding Title}"
+  d:DesignHeight="450"
+  d:DesignWidth="800"
+  x:DataType="viewModel:ScrollViewModel"
+  mc:Ignorable="d">
+  <StackPanel Orientation="Vertical" Spacing="50">
+    <ui:CodeCard Title="{Binding Source={x:Static locale:LocalizationService.Instance}, Path=[SC_SmoothScrollArea]}">
+      <Border
+        Height="328"
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Stretch"
+        ClipToBounds="True"
+        CornerRadius="8">
+        <fui:SmoothScrollViewer
+          HorizontalAlignment="Stretch"
+          VerticalAlignment="Stretch"
+          HorizontalScrollBarVisibility="Disabled">
+          <Image
+            Name="VImage"
+            HorizontalAlignment="Left"
+            Stretch="Uniform"/>
+        </fui:SmoothScrollViewer>
+      </Border>
+    </ui:CodeCard>
+
+    <ui:CodeCard Title="{Binding Source={x:Static locale:LocalizationService.Instance}, Path=[SC_SingleDirection]}">
+      <Border
+        Width="328"
+        HorizontalAlignment="Left"
+        VerticalAlignment="Stretch"
+        ClipToBounds="True"
+        CornerRadius="8">
+        <fui:SingleDirectionScrollViewer
+          HorizontalAlignment="Left"
+          VerticalAlignment="Stretch"
+          Orientation="Horizontal">
+          <!--  HorizontalScrollBarVisibility="Visible"  -->
+          <Image
+            Name="HImage"
+            Height="328"
+            HorizontalAlignment="Left"
+            Stretch="Uniform"/>
+        </fui:SingleDirectionScrollViewer>
+      </Border>
+    </ui:CodeCard>
+
+    <ui:CodeCard Title="{Binding Source={x:Static locale:LocalizationService.Instance}, Path=[SC_Bidirectional]}">
+      <Border
+        Width="512"
+        Height="404"
+        HorizontalAlignment="Left"
+        VerticalAlignment="Stretch"
+        ClipToBounds="True">
+        <fui:SmoothScrollViewer
+          HorizontalAlignment="Left"
+          VerticalAlignment="Stretch"
+          HorizontalScrollBarVisibility="Visible"
+          VerticalScrollBarVisibility="Visible">
+          <Image Name="VHImage" Stretch="Uniform"/>
+        </fui:SmoothScrollViewer>
+      </Border>
+    </ui:CodeCard>
+  </StackPanel>
+</ui:ViewBase>

@@ -1,0 +1,148 @@
+<ResourceDictionary
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:ui="using:AvaloniaFluentUI.Controls"
+  x:CompileBindings="True">
+  <Design.PreviewWith>
+    <Border Padding="30">
+      <CalendarDatePicker/>
+    </Border>
+  </Design.PreviewWith>
+
+  <Thickness x:Key="CalendarDatePickerTopHeaderMargin">0,0,0,8</Thickness>
+
+
+  <!--  Control-specific resources  -->
+  <Thickness x:Key="CalendarDatePickerBorderThemeThickness">1</Thickness>
+  <ControlTheme x:Key="CalendarDropDownButton" TargetType="Button">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel
+          Width="24"
+          Height="28"
+          Margin="0"
+          HorizontalAlignment="Center"
+          VerticalAlignment="Center"
+          ClipToBounds="False">
+
+          <ui:FontIcon
+            Name="CalendarIcon"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            FontFamily="{DynamicResource SymbolThemeFontFamily}"
+            FontSize="16"
+            Glyph="&#xE787;"/>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type CalendarDatePicker}" TargetType="CalendarDatePicker">
+    <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource ControlElevationBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="{DynamicResource CalendarDatePickerBorderThemeThickness}"/>
+    <Setter Property="HorizontalAlignment" Value="Left"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="Padding" Value="4"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBox
+            Name="PART_TextBox"
+            Grid.Column="0"
+            Padding="{TemplateBinding Padding}"
+            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+            Background="{TemplateBinding Background}"
+            BorderBrush="{TemplateBinding BorderBrush}"
+            BorderThickness="{TemplateBinding BorderThickness}"
+            DataValidationErrors.Errors="{TemplateBinding (DataValidationErrors.Errors)}"
+            PlaceholderForeground="{TemplateBinding PlaceholderForeground}"
+            PlaceholderText="{TemplateBinding PlaceholderText}"
+            UseFloatingPlaceholder="{TemplateBinding UseFloatingPlaceholder}">
+            <TextBox.InnerRightContent>
+              <Button
+                Name="PART_Button"
+                Grid.Column="1"
+                Width="32"
+                Margin="2,0,2,0"
+                Padding="0"
+                Background="Transparent"
+                BorderThickness="0"
+                ClipToBounds="False"
+                Focusable="False"
+                Theme="{StaticResource CalendarDropDownButton}"/>
+            </TextBox.InnerRightContent>
+          </TextBox>
+
+          <ui:FluentPopup
+            Name="PART_Popup"
+            IsLightDismissEnabled="True"
+            Placement="AnchorAndGravity"
+            PlacementAnchor="Bottom"
+            PlacementGravity="Bottom"
+            PlacementTarget="{TemplateBinding}"
+            WindowManagerAddShadowHint="False">
+            <Border
+              Name="DropDownRoot"
+              Margin="{DynamicResource ControlDefaultBoxShadowsMargin}"
+              Background="{DynamicResource AcrylicInAppFillColorDefaultBrush}"
+              BoxShadow="{DynamicResource ControlDefaultBoxShadow}"
+              CornerRadius="{DynamicResource OverlayCornerRadius}">
+              <Calendar
+                Name="PART_Calendar"
+                CornerRadius="{DynamicResource OverlayCornerRadius}"
+                DisplayDate="{TemplateBinding DisplayDate}"
+                DisplayDateEnd="{TemplateBinding DisplayDateEnd}"
+                DisplayDateStart="{TemplateBinding DisplayDateStart}"
+                FirstDayOfWeek="{TemplateBinding FirstDayOfWeek}"
+                IsTodayHighlighted="{TemplateBinding IsTodayHighlighted}"
+                SelectedDate="{TemplateBinding SelectedDate,
+                                               Mode=TwoWay}"/>
+            </Border>
+
+          </ui:FluentPopup>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^ /template/ Button#PART_Button">
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}"/>
+    </Style>
+
+    <Style Selector="^:pointerover">
+      <Style Selector="^ /template/ TextBox#PART_TextBox">
+        <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ControlElevationBorderBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}"/>
+      </Style>
+      <Style Selector="^ /template/ Button#PART_Button">
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}"/>
+      </Style>
+    </Style>
+
+    <Style Selector="^:pressed">
+      <Style Selector="^ /template/ TextBox#PART_TextBox">
+        <Setter Property="Background" Value="{DynamicResource ControlFillColorTertiaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}"/>
+      </Style>
+      <Style Selector="^ /template/ Button#PART_Button">
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}"/>
+      </Style>
+    </Style>
+
+    <Style Selector="^:disabled">
+      <Style Selector="^ /template/ TextBox#PART_TextBox">
+        <Setter Property="Background" Value="{DynamicResource ControlFillColorDisabledBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorDisabledBrush}"/>
+      </Style>
+      <Style Selector="^ /template/ Button#PART_Button">
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorDisabledBrush}"/>
+      </Style>
+    </Style>
+
+  </ControlTheme>
+</ResourceDictionary>

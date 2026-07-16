@@ -4,10 +4,11 @@ using Avalonia.Markup.Xaml;
 using LYBox.Plugin.Shared;
 using LYBox.Plugin.Shared.Models;
 using LYBox.Plugin.Shared.Services;
-using LYBox.UrsaWindow.Data;
-using LYBox.UrsaWindow.Services;
-using LYBox.UrsaWindow.ViewModels;
-using LYBox.UrsaWindow.Views;
+using LYBox.Layout.Core.Data;
+using LYBox.Layout.Core.Services;
+using LYBox.Layout.Ursa.Services;
+using LYBox.Layout.Ursa.ViewModels;
+using LYBox.Layout.Ursa.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -74,6 +75,9 @@ public partial class App : Application
 #endif
         var services = new ServiceCollection();
         services.AddAvaloniaServices();
+        // 注册 Ursa 宿主层服务（NavigationService / MenuConfigurationService / LocalizationService）。
+        // 这些服务依赖 Ursa 的 ViewModel/Page/Theme 类型，已从 Core 下沉回 Ursa 以打破循环引用。
+        services.AddUrsaServices();
 
         // 阶段1：发现所有插件程序集，创建 IPlugin 实例
         var pluginLoader = new PluginLoader();
@@ -181,22 +185,43 @@ public partial class App : Application
             // 全局异常处理：UI 线程未处理异常
             Avalonia.Threading.Dispatcher.UIThread.UnhandledException += OnUIThreadUnhandledException;
 
-            if (LYBox.Launcher.Desktop.Program.NoSplash)
+            var layoutMode = LYBox.Launcher.Desktop.Program.LayoutMode;
+
+            if (string.Equals(layoutMode, "fluent", StringComparison.OrdinalIgnoreCase))
             {
-                // --no-splash：跳过闪屏，直接显示主窗口
-                var navigationService = ServiceLocator.GetService<INavigationService>();
-                var menuConfigurationService = ServiceLocator.GetService<IMenuConfigurationService>();
-                desktop.MainWindow = new MainWindow()
+                // --layout=fluent：使用 Avalonia-Fluent-UI Gallery 布局
+                var config = LYBox.Layout.Fluent.Services.ConfigService.LoadConfig();
+                desktop.MainWindow = new LYBox.Layout.Fluent.Views.MainWindow
                 {
-                    DataContext = new MainViewViewModel(navigationService!, menuConfigurationService!)
+                    DataContext = new LYBox.Layout.Fluent.ViewModels.MainWindowViewModel(config)
                 };
+
+                // 注册 Frame 页面
+                AvaloniaFluentUI.Controls.Frame.RegisterPage<LYBox.Layout.Fluent.Pages.FramePage1>();
+                AvaloniaFluentUI.Controls.Frame.RegisterPage<LYBox.Layout.Fluent.Pages.FramePage2>();
+                AvaloniaFluentUI.Controls.Frame.RegisterPage<LYBox.Layout.Fluent.Pages.FramePage3>();
+                AvaloniaFluentUI.Controls.Frame.RegisterPage<LYBox.Layout.Fluent.Pages.FramePage4>();
             }
             else
             {
-                desktop.MainWindow = new MvvmSplashWindow()
+                // 默认 --layout=ursa：使用 Ursa 布局
+                if (LYBox.Launcher.Desktop.Program.NoSplash)
                 {
-                    DataContext = new SplashViewModel()
-                };
+                    // --no-splash：跳过闪屏，直接显示主窗口
+                    var navigationService = ServiceLocator.GetService<INavigationService>();
+                    var menuConfigurationService = ServiceLocator.GetService<IMenuConfigurationService>();
+                    desktop.MainWindow = new MainWindow()
+                    {
+                        DataContext = new MainViewViewModel(navigationService!, menuConfigurationService!)
+                    };
+                }
+                else
+                {
+                    desktop.MainWindow = new MvvmSplashWindow()
+                    {
+                        DataContext = new SplashViewModel()
+                    };
+                }
             }
 
             // 退出时检测是否有正在运行的任务

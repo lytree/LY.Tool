@@ -1,0 +1,218 @@
+﻿<ResourceDictionary
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:ui="clr-namespace:AvaloniaFluentUI.Controls"
+  x:CompileBindings="True">
+  <StreamGeometry x:Key="Previous">M4 16q0-1.469 0.688-2.758t1.891-2.117l15.141-10.406q0.531-0.359 1.078-0.539t1.203-0.18q0.813 0 1.547 0.313t1.273 0.852 0.859 1.258 0.32 1.547v24.063q0 0.828-0.32 1.547t-0.859 1.258-1.273 0.852-1.547 0.313q-1.234 0-2.281-0.719l-15.141-10.406q-1.203-0.828-1.891-2.117t-0.688-2.758z</StreamGeometry>
+  <StreamGeometry x:Key="Next">M4 28.031v-24.063q0-0.828 0.32-1.547t0.859-1.258 1.266-0.852 1.555-0.313q1.234 0 2.281 0.719l15.141 10.406q1.219 0.844 1.898 2.125t0.68 2.75-0.68 2.75-1.898 2.125l-15.141 10.406q-1.047 0.719-2.281 0.719-0.828 0-1.555-0.313t-1.266-0.852-0.859-1.258-0.32-1.547z</StreamGeometry>
+  <StreamGeometry x:Key="Up">M2.804 26.040q-0.589 0-1.098-0.232t-0.893-0.625-0.598-0.911-0.214-1.107q0-1.071 0.696-1.875l12.357-14.446q0.571-0.661 1.321-1.018t1.625-0.357q1.768 0 2.946 1.375l12.357 14.446q0.696 0.804 0.696 1.875 0 0.589-0.214 1.107t-0.598 0.911-0.893 0.625-1.098 0.232h-26.393z</StreamGeometry>
+  <StreamGeometry x:Key="Down">M0 9.125q0-0.589 0.214-1.107t0.598-0.911 0.893-0.625 1.098-0.232h26.393q0.589 0 1.098 0.232t0.893 0.625 0.598 0.911 0.214 1.107q0 1.071-0.696 1.875l-12.357 14.446q-0.571 0.661-1.321 1.018t-1.625 0.357-1.625-0.357-1.321-1.018l-12.357-14.446q-0.696-0.804-0.696-1.875z</StreamGeometry>
+
+  <ControlTheme x:Key="FlipViewButton" TargetType="Button">
+    <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource ControlElevationBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="{DynamicResource ButtonBorderThemeThickness}"/>
+    <Setter Property="BackgroundSizing" Value="InnerBorderEdge"/>
+    <Setter Property="Padding" Value="{StaticResource ButtonPadding}"/>
+    <Setter Property="HorizontalAlignment" Value="Left"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border
+          Name="PART_Border"
+          Width="{TemplateBinding Width}"
+          Height="{TemplateBinding Height}"
+          MinWidth="{TemplateBinding MinWidth}"
+          MinHeight="{TemplateBinding MinHeight}"
+          Padding="{TemplateBinding Padding}"
+          HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+          VerticalAlignment="{TemplateBinding VerticalAlignment}"
+          Background="{TemplateBinding Background}"
+          BorderBrush="{TemplateBinding BorderBrush}"
+          BorderThickness="{TemplateBinding BorderThickness}"
+          CornerRadius="{TemplateBinding CornerRadius}">
+          <Viewbox
+            Name="IconViewBox"
+            Width="10"
+            Height="10"
+            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+            VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+            <Path
+              Name="PART_Icon"
+              Data="{TemplateBinding Content}"
+              Fill="{TemplateBinding Foreground}"
+              Stretch="Uniform"/>
+          </Viewbox>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^ /template/ Border#PART_Border">
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="00:00:00.083"/>
+        </Transitions>
+      </Setter>
+    </Style>
+
+    <Style Selector="^ /template/ Path#PART_Icon">
+      <Setter Property="RenderTransformOrigin" Value="50%, 50%"/>
+      <Setter Property="Transitions">
+        <Transitions>
+          <TransformOperationsTransition
+            Easing="CubicEaseOut"
+            Property="RenderTransform"
+            Duration="0:0:0.15"/>
+        </Transitions>
+      </Setter>
+    </Style>
+
+    <Style Selector="^:pointerover">
+      <Style Selector="^ /template/ Border#PART_Border">
+        <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ControlElevationBorderBrush}"/>
+      </Style>
+    </Style>
+
+    <Style Selector="^:pressed">
+      <Style Selector="^ /template/ Border#PART_Border">
+        <Setter Property="Background" Value="{DynamicResource ControlFillColorTertiaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}"/>
+      </Style>
+
+      <Style Selector="^ /template/ Path#PART_Icon">
+        <Setter Property="RenderTransform" Value="scale(0.7, 1.0)"/>
+      </Style>
+    </Style>
+
+    <Style Selector="^:disabled">
+      <Style Selector="^ /template/ Border#PART_Border">
+        <Setter Property="Background" Value="{DynamicResource ControlFillColorDisabledBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}"/>
+      </Style>
+
+      <Style Selector="^ /template/ ui|FluentIconElement#PART_Icon">
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorDisabledBrush}"/>
+      </Style>
+    </Style>
+  </ControlTheme>
+
+
+  <ControlTheme x:Key="{x:Type ui:FlipView}" TargetType="ui:FlipView">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="CornerRadius" Value="8"/>
+    <Setter Property="ClipToBounds" Value="True"/>
+    <Setter Property="Height" Value="520"/>
+    <Setter Property="ImageInterpolationMode" Value="MediumQuality"/>
+    <Setter Property="Stretch" Value="UniformToFill"/>
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid
+          Margin="0"
+          HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+          VerticalAlignment="{TemplateBinding VerticalAlignment}"
+          RowDefinitions="*, Auto"
+          RowSpacing="8">
+          <Border
+            Grid.Row="0"
+            Background="{TemplateBinding Background}"
+            BorderBrush="{TemplateBinding BorderBrush}"
+            BorderThickness="{TemplateBinding BorderThickness}"
+            ClipToBounds="{TemplateBinding ClipToBounds}"
+            CornerRadius="{TemplateBinding CornerRadius}">
+            <Panel>
+              <Image
+                Name="PART_CurrentImage"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Stretch="{TemplateBinding Stretch}"/>
+              <Image
+                Name="PART_NextImage"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                IsVisible="False"
+                Stretch="{TemplateBinding Stretch}"/>
+            </Panel>
+          </Border>
+
+          <Button
+            Name="PART_PreviousButton"
+            Width="20"
+            Height="36"
+            Margin="5,0,0,0"
+            Padding="5"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"
+            Content="{StaticResource Previous}"
+            IsVisible="False"
+            Theme="{StaticResource FlipViewButton}"
+            ZIndex="10"/>
+          <Button
+            Name="PART_NextButton"
+            Width="20"
+            Height="36"
+            Margin="0,0,5,0"
+            Padding="5"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            Content="{StaticResource Next}"
+            IsVisible="False"
+            Theme="{StaticResource FlipViewButton}"
+            ZIndex="10"/>
+
+          <PipsPager
+            Name="PART_PipsPager"
+            Grid.Row="1"
+            MinWidth="128"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Bottom"
+            Background="Transparent"
+            BorderThickness="0"
+            MaxVisiblePips="{TemplateBinding MaxVisiblePips}"
+            NumberOfPages="{TemplateBinding ItemCount}"
+            SelectedPageIndex="{Binding SelectedIndex, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
+
+          <!--  <ui:PipsPager  -->
+          <!--  Name="PART_PipsPager"  -->
+          <!--  Grid.Row="1"  -->
+          <!--  MinWidth="128"  -->
+          <!--  MaxWidth="256"  -->
+          <!--  HorizontalAlignment="Center"  -->
+          <!--  VerticalAlignment="Bottom"  -->
+          <!--  Background="Transparent"  -->
+          <!--  BorderThickness="0"  -->
+          <!--  ItemsSource="{TemplateBinding ImageSource}"  -->
+          <!--  ScrollViewer.BringIntoViewOnFocusChange="False"  -->
+          <!--  SelectedIndex="{Binding SelectedIndex, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>  -->
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^[Orientation=Vertical]">
+      <Style Selector="^ /template/ Button#PART_PreviousButton">
+        <Setter Property="Width" Value="36"/>
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Margin" Value="0 5 0 0"/>
+        <Setter Property="Content" Value="{StaticResource Up}"/>
+      </Style>
+
+      <Style Selector="^ /template/ Button#PART_NextButton">
+        <Setter Property="Width" Value="36"/>
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Bottom"/>
+        <Setter Property="Margin" Value="0 0 0 5"/>
+        <Setter Property="Content" Value="{StaticResource Down}"/>
+      </Style>
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

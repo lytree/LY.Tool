@@ -1,0 +1,58 @@
+﻿<ResourceDictionary
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:ui="clr-namespace:AvaloniaFluentUI.Controls">
+  <!--  Add Resources Here  -->
+  <ControlTheme x:Key="{x:Type ui:ShortcutKeyPanel}" TargetType="ui:ShortcutKeyPanel">
+    <Setter Property="Background" Value="{DynamicResource SystemAccentColor}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource ControlElevationBorderBrush}"/>
+    <Setter Property="Foreground" Value="#FFFFFF"/>
+    <Setter Property="HorizontalAlignment" Value="Center"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="FontWeight" Value="DemiBold"/>
+    <Setter Property="FontSize" Value="16"/>
+    <Setter Property="MinHeight" Value="30"/>
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ItemsControl ItemsSource="{TemplateBinding Keys}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="4"/>
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border
+                Name="PART_Border"
+                MinWidth="45"
+                Padding="11,6"
+                Background="{Binding $parent[ui:ShortcutKeyPanel].Background}"
+                BorderBrush="{Binding $parent[ui:ShortcutKeyPanel].BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="4">
+                <TextBlock
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  FontSize="{Binding $parent[ui:ShortcutKeyPanel].FontSize}"
+                  FontWeight="{Binding $parent[ui:ShortcutKeyPanel].FontWeight}"
+                  Foreground="{Binding $parent[ui:ShortcutKeyPanel].Foreground}"
+                  Text="{Binding}"
+                  TextAlignment="Center"/>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+
+        </ItemsControl>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:disabled">
+      <Setter Property="Background" Value="{DynamicResource ControlFillColorDisabledBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}"/>
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorDisabledBrush}"/>
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>
+

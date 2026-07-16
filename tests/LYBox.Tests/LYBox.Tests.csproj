@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\LYBox.UrsaWindow\LYBox.UrsaWindow.csproj" />
+    <ProjectReference Include="..\..\src\LYBox.Layout.Ursa\LYBox.Layout.Ursa.csproj" />
   </ItemGroup>
 
 </Project>

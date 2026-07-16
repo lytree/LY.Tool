@@ -1,0 +1,138 @@
+using System;
+using System.Globalization;
+using System.Linq;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml;
+using AvaloniaFluentUI.Controls;
+using AvaloniaFluentUI.Locale;
+using AvaloniaFluentUI.Styling;
+using LYBox.Layout.Fluent.Pages;
+using LYBox.Layout.Fluent.Services;
+using LYBox.Layout.Fluent.ViewModels;
+using LYBox.Layout.Fluent.Views;
+
+namespace LYBox.Layout.Fluent;
+
+public class App : Application
+{
+    public override void Initialize()
+    {
+        AvaloniaXamlLoader.Load(this);
+    }
+
+    private void InitializeCulture()
+    {
+        var localeDir = System.IO.Path.Combine(System.AppContext.BaseDirectory, "Assets", "Locale");
+        if (System.IO.Directory.Exists(localeDir))
+        {
+            LocalizationService.Instance.LoadResxDirectory(localeDir);
+        }
+        
+        LocalizationService.Instance.PropertyChanged += (_, _) =>
+        {
+            Console.WriteLine($"Toggle Language To => {LocalizationService.Instance.CurrentLanguage}");
+            Console.WriteLine($"Default Language: {LocalizationService.DefaultCultureInfo.Name} | {LocalizationService.Instance.CurrentLanguage}");
+            Console.WriteLine("Custom Keys:");
+            foreach (var item in LocalizationService.Instance.CustomStrings.Values)
+            {
+                Console.WriteLine(item);
+            }
+
+            Console.WriteLine("==============================");
+            Console.WriteLine("Loaded Keys:");
+            foreach (var item in LocalizationService.Instance._resourceEntries.Values)
+            {
+                Console.WriteLine(item);
+            }
+        };
+    }
+
+    public override void OnFrameworkInitializationCompleted()
+    {
+        Console.WriteLine(LocalizationService.Instance.GetString("SV_ThemeColorDescription"));
+        var config = ConfigService.LoadConfig();
+        Console.WriteLine($"Loaded Language: {config?.Language}");
+        LocalizationService.Instance.SetCulture(config?.Language);
+        Console.WriteLine($"Set Language: {LocalizationService.Instance.CurrentLanguage}");
+        InitializeCulture();
+
+        Console.WriteLine(LocalizationService.Instance.GetString("SV_ThemeColorDescription"));
+        
+        try
+        {
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                // Avoid duplicate validations from both Avalonia and the CommunityToolkit.
+                // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
+                desktop.MainWindow = new MainWindow
+                {
+                    DataContext = new MainWindowViewModel(config)
+                };
+            }
+            else if (ApplicationLifetime is ISingleViewApplicationLifetime singleView)
+            {
+                singleView.MainView = new MainView
+                {
+                    DataContext = new MainWindowViewModel(config)
+                };
+            }
+            else
+            {
+                Console.Error.WriteLine($"Unhandled ApplicationLifetime type: {ApplicationLifetime?.GetType()}");
+            }
+
+            Frame.RegisterPage<FramePage1>();
+            Frame.RegisterPage<FramePage2>();
+            Frame.RegisterPage<FramePage3>();
+            Frame.RegisterPage<FramePage4>();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"FATAL: App initialization failed: {ex}");
+        }
+        
+        base.OnFrameworkInitializationCompleted();
+    }
+
+    private void OnClicked(object? sender, EventArgs e)
+    {
+        if (Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.MainWindow?.Close();
+        }
+    }
+
+    private void OnToggleLanguage(object? sender, EventArgs e)
+    {
+        if (sender is NativeMenuItem nmi)
+        {
+            var language = nmi.Header ?? "zh-CN";
+            if (LocalizationService.Instance.CurrentLanguage != language)
+            {
+                LocalizationService.Instance.SetCulture(language);
+            }
+        }
+    }
+
+    private void OnToggleTheme(object? sender, EventArgs e)
+    {
+        AvaloniaFluentTheme.Instance.ToggleTheme();
+    }
+
+    private void ShowMainWindow(object? sender, EventArgs e)
+    {
+        if (Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            var window = desktop.MainWindow;
+            if (window == null) { return; }
+            
+            window.Show();
+            window.WindowState = WindowState.Normal;
+            window.Topmost = true;
+            window.Activate();
+            window.Topmost = false;
+        }
+    }
+}
