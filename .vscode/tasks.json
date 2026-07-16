@@ -2,12 +2,14 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build-plugin-template",
+            "label": "build-host",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/plugins/Avalonia.Plugin.Template/Avalonia.Plugin.Template.csproj"
+                "${workspaceFolder}/src/launcher/LYBox.Launcher.Desktop/LYBox.Launcher.Desktop.csproj",
+                "-o",
+                "${workspaceFolder}/bin/bin"
             ],
             "problemMatcher": "$msCompile",
             "group": {
@@ -16,12 +18,64 @@
             }
         },
         {
+            "label": "build-fluent-window",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/LYBox.FluentWindow/LYBox.FluentWindow.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build"
+        },
+        {
+            "label": "publish-host",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/src/launcher/LYBox.Launcher.Desktop/LYBox.Launcher.Desktop.csproj",
+                "-c",
+                "Release",
+                "-o",
+                "${workspaceFolder}/bin/publish/host"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build"
+        },
+        {
+            "label": "publish-fluent-window",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/src/LYBox.FluentWindow/LYBox.FluentWindow.csproj",
+                "-c",
+                "Release",
+                "-o",
+                "${workspaceFolder}/bin/publish/fluent-window"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build"
+        },
+        {
+            "label": "build-plugin-template",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/plugins/LYBox.Plugin.Template/LYBox.Plugin.Template.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build"
+        },
+        {
             "label": "build-plugin-buttons-inputs",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/plugins/Avalonia.Plugin.ButtonsInputs/Avalonia.Plugin.ButtonsInputs.csproj"
+                "${workspaceFolder}/plugins/LYBox.Plugin.ButtonsInputs/LYBox.Plugin.ButtonsInputs.csproj"
             ],
             "problemMatcher": "$msCompile",
             "group": "build"
@@ -32,7 +86,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/plugins/Avalonia.Plugin.DateTime/Avalonia.Plugin.DateTime.csproj"
+                "${workspaceFolder}/plugins/LYBox.Plugin.DateTime/LYBox.Plugin.DateTime.csproj"
             ],
             "problemMatcher": "$msCompile",
             "group": "build"
@@ -43,7 +97,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/plugins/Avalonia.Plugin.DialogFeedbacks/Avalonia.Plugin.DialogFeedbacks.csproj"
+                "${workspaceFolder}/plugins/LYBox.Plugin.DialogFeedbacks/LYBox.Plugin.DialogFeedbacks.csproj"
             ],
             "problemMatcher": "$msCompile",
             "group": "build"
@@ -54,7 +108,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/plugins/Avalonia.Plugin.Downloader/Avalonia.Plugin.Downloader.csproj"
+                "${workspaceFolder}/plugins/LYBox.Plugin.Downloader/LYBox.Plugin.Downloader.csproj"
             ],
             "problemMatcher": "$msCompile",
             "group": "build"
@@ -65,7 +119,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/plugins/Avalonia.Plugin.LayoutDisplay/Avalonia.Plugin.LayoutDisplay.csproj"
+                "${workspaceFolder}/plugins/LYBox.Plugin.LayoutDisplay/LYBox.Plugin.LayoutDisplay.csproj"
             ],
             "problemMatcher": "$msCompile",
             "group": "build"
@@ -76,7 +130,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/plugins/Avalonia.Plugin.NavigationMenus/Avalonia.Plugin.NavigationMenus.csproj"
+                "${workspaceFolder}/plugins/LYBox.Plugin.NavigationMenus/LYBox.Plugin.NavigationMenus.csproj"
             ],
             "problemMatcher": "$msCompile",
             "group": "build"
@@ -87,7 +141,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/plugins/Avalonia.Plugin.ProDataGrid/Avalonia.Plugin.ProDataGrid.csproj"
+                "${workspaceFolder}/plugins/LYBox.Plugin.ProDataGrid/LYBox.Plugin.ProDataGrid.csproj"
             ],
             "problemMatcher": "$msCompile",
             "group": "build"
@@ -98,7 +152,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/plugins/Avalonia.Plugin.ScottPlot/Avalonia.Plugin.ScottPlot.csproj"
+                "${workspaceFolder}/plugins/LYBox.Plugin.ScottPlot/LYBox.Plugin.ScottPlot.csproj"
             ],
             "problemMatcher": "$msCompile",
             "group": "build"
@@ -109,7 +163,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/plugins/Avalonia.Plugin.TDLSharp/Avalonia.Plugin.TDLSharp.csproj"
+                "${workspaceFolder}/plugins/LYBox.Plugin.TDLSharp/LYBox.Plugin.TDLSharp.csproj"
             ],
             "problemMatcher": "$msCompile",
             "group": "build"

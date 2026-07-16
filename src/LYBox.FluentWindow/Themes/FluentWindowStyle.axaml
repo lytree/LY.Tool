@@ -1,0 +1,151 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:w="using:LYBox.FluentWindow.Windowing">
+
+    <!-- FluentWindow main style -->
+    <Style Selector="w|FluentWindow">
+        <Setter Property="ExtendClientAreaToDecorationsHint" Value="True" />
+        <Setter Property="ExtendClientAreaTitleBarHeightHint" Value="-1" />
+        <Setter Property="TitleBarHeight" Value="44" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Name="RootBorder"
+                        Background="{TemplateBinding Background}">
+                    <Grid RowDefinitions="Auto,*">
+                        <!-- Title Bar — single row: icon + title + TitleBarContent + caption buttons -->
+                        <Grid Name="PART_DefaultTitleBar"
+                              Grid.Row="0"
+                              Height="{TemplateBinding TitleBarHeight}"
+                              ColumnDefinitions="Auto,Auto,*,Auto"
+                              IsVisible="{TemplateBinding TitleBarIsVisible}"
+                              Background="Transparent">
+
+                            <!-- Window Icon -->
+                            <Image Grid.Column="0"
+                                   Source="{TemplateBinding Icon}"
+                                   Width="{TemplateBinding IconSize}"
+                                   Height="{TemplateBinding IconSize}"
+                                   Margin="10,0,0,0"
+                                   VerticalAlignment="Center"
+                                   IsVisible="{TemplateBinding TitleBarContentIsVisible}" />
+
+                            <!-- Title -->
+                            <TextBlock Grid.Column="1"
+                                       Text="{TemplateBinding Title}"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"
+                                       FontSize="12"
+                                       IsVisible="{TemplateBinding TitleBarContentIsVisible}" />
+
+                            <!-- Custom TitleBarContent — toolbar area (hamburger, search, actions) -->
+                            <ContentPresenter Grid.Column="2"
+                                              Content="{TemplateBinding TitleBarContent}"
+                                              Margin="{TemplateBinding TitleBarContentMargin}"
+                                              VerticalAlignment="Stretch"
+                                              HorizontalAlignment="Stretch" />
+
+                            <!-- Caption buttons — stretch to full toolbar height, on same row -->
+                            <w:MinMaxCloseControl Grid.Column="3"
+                                                  VerticalAlignment="Stretch"
+                                                  MinButtonIsVisible="{TemplateBinding MinButtonIsVisible}"
+                                                  MaxButtonIsVisible="{TemplateBinding MaxButtonIsVisible}"
+                                                  CloseButtonIsVisible="{TemplateBinding CloseButtonIsVisible}" />
+                        </Grid>
+
+                        <!-- Window content -->
+                        <ContentPresenter Grid.Row="1"
+                                          Content="{TemplateBinding Content}" />
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <!-- Pseudo-class: maximized - square corners -->
+    <Style Selector="w|FluentWindow:maximized /template/ Border#RootBorder">
+        <Setter Property="CornerRadius" Value="0" />
+    </Style>
+
+    <!-- Pseudo-class: fullscreen - square corners, no title bar padding -->
+    <Style Selector="w|FluentWindow:fullscreen /template/ Border#RootBorder">
+        <Setter Property="CornerRadius" Value="0" />
+    </Style>
+
+    <!-- Pseudo-class: dialog - slight opacity change -->
+    <Style Selector="w|FluentWindow:dialog">
+        <Setter Property="Opacity" Value="0.98" />
+    </Style>
+
+    <!-- Pseudo-class: inactive - dimmed title bar text -->
+    <Style Selector="w|FluentWindow:inactive /template/ TextBlock">
+        <Setter Property="Opacity" Value="0.5" />
+    </Style>
+
+    <!-- MinMaxCloseControl template — buttons stretch to full toolbar height -->
+    <Style Selector="w|MinMaxCloseControl">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
+                    <Button Name="MinimizeButton"
+                            Width="46"
+                            Padding="0"
+                            CornerRadius="0"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            VerticalAlignment="Stretch"
+                            IsVisible="{TemplateBinding MinButtonIsVisible}">
+                        <TextBlock Text="&#x2013;"
+                                   FontSize="14"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Button>
+                    <Button Name="MaxRestoreButton"
+                            Width="46"
+                            Padding="0"
+                            CornerRadius="0"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            VerticalAlignment="Stretch"
+                            IsVisible="{TemplateBinding MaxButtonIsVisible}">
+                        <TextBlock Text="&#x25A2;"
+                                   FontSize="12"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Button>
+                    <Button Name="CloseButton"
+                            Width="46"
+                            Padding="0"
+                            CornerRadius="0"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            VerticalAlignment="Stretch"
+                            IsVisible="{TemplateBinding CloseButtonIsVisible}">
+                        <TextBlock Text="&#x2715;"
+                                   FontSize="12"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Button>
+                </StackPanel>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <!-- Caption button hover/pressed states -->
+    <Style Selector="w|MinMaxCloseControl Button:pointerover">
+        <Setter Property="Background" Value="#FFE5E5E5" />
+    </Style>
+    <Style Selector="w|MinMaxCloseControl Button:pressed">
+        <Setter Property="Background" Value="#FFCCCCCC" />
+    </Style>
+
+    <!-- Close button hover (red) -->
+    <Style Selector="w|MinMaxCloseControl Button#CloseButton:pointerover">
+        <Setter Property="Background" Value="#C42B1C" />
+        <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="w|MinMaxCloseControl Button#CloseButton:pressed">
+        <Setter Property="Background" Value="#FFB22222" />
+        <Setter Property="Foreground" Value="White" />
+    </Style>
+
+</Styles>

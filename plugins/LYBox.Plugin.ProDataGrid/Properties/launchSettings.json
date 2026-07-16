@@ -3,7 +3,7 @@
   "profiles": {
     "Debug Plugin - Launcher": {
       "commandName": "Executable",
-      "executablePath": "$(SolutionDir)packages\\bin\\LYBox.Launcher.Desktop.exe",
+      "executablePath": "$(SolutionDir)bin\\bin\\LYBox.Launcher.Desktop.exe",
       "environmentVariables": {
         "AVALONIA_EXTRA_PLUGINS_PATH": "$(TargetDir)"
       }

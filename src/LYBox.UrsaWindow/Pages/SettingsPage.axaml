@@ -1,0 +1,126 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:viewModels="clr-namespace:LYBox.UrsaWindow.ViewModels"
+			 x:Class="LYBox.UrsaWindow.Pages.SettingsPage"
+			 x:DataType="viewModels:SettingsPageViewModel"
+			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450">
+	<DockPanel>
+		<!-- Fluent Footer Action Bar -->
+		<Border DockPanel.Dock="Bottom" Classes="FluentCard" Padding="16,12" Margin="36,0,36,0"
+				BorderThickness="0,1,0,0" BoxShadow="0 0 0 0 Transparent">
+			<Grid ColumnDefinitions="*,Auto,Auto">
+				<TextBlock Grid.Column="0" Text="{Binding SaveStatusText}" Classes="FluentCaption" VerticalAlignment="Center"
+						   IsVisible="{Binding SaveStatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+				<Button Grid.Column="1" Content="{DynamicResource RESET}" Command="{Binding ResetCommand}" MinWidth="80" Margin="0,0,12,0"
+						Classes="FluentStandard"
+						IsEnabled="{Binding IsDirty}" />
+				<Button Grid.Column="2" Content="{DynamicResource SAVE}" Command="{Binding SaveCommand}" Classes="FluentAccent" MinWidth="80"
+						IsEnabled="{Binding IsDirty}" />
+			</Grid>
+		</Border>
+
+		<ScrollViewer VerticalScrollBarVisibility="Auto">
+			<StackPanel Margin="36,24" Spacing="16">
+				<!-- Fluent Page Header -->
+				<StackPanel Classes="FluentPageHeader">
+					<TextBlock Text="{DynamicResource SETTINGS_TITLE}" Classes="FluentLargeTitle" />
+				</StackPanel>
+
+				<ItemsControl ItemsSource="{Binding Groups}">
+					<ItemsControl.ItemsPanel>
+						<ItemsPanelTemplate>
+							<StackPanel Spacing="16" />
+						</ItemsPanelTemplate>
+					</ItemsControl.ItemsPanel>
+					<ItemsControl.ItemTemplate>
+						<DataTemplate x:DataType="viewModels:SettingsGroupViewModel">
+							<Border Classes="FluentCard">
+								<StackPanel Spacing="12">
+									<TextBlock Text="{Binding GroupName}" Classes="FluentSectionHeader" Margin="0" />
+									<ItemsControl ItemsSource="{Binding Items}">
+										<ItemsControl.ItemsPanel>
+											<ItemsPanelTemplate>
+												<StackPanel Spacing="8" />
+											</ItemsPanelTemplate>
+										</ItemsControl.ItemsPanel>
+										<ItemsControl.DataTemplates>
+											<DataTemplate x:DataType="viewModels:TextSettingEntryViewModel">
+												<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+													<StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
+														<TextBlock Text="{Binding DisplayName}" Classes="FluentBody" />
+														<TextBlock Text="{Binding Description}" Classes="FluentCaption"
+																   IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+													</StackPanel>
+													<TextBox Grid.Column="1" Grid.RowSpan="2"
+															 Text="{Binding TextValue}"
+															 Width="240"
+															 PlaceholderText="{Binding PlaceholderText}" />
+												</Grid>
+											</DataTemplate>
+											<DataTemplate x:DataType="viewModels:SwitchSettingEntryViewModel">
+												<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+													<StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
+														<TextBlock Text="{Binding DisplayName}" Classes="FluentBody" />
+														<TextBlock Text="{Binding Description}" Classes="FluentCaption"
+																   IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+													</StackPanel>
+													<ToggleSwitch Grid.Column="1" Grid.RowSpan="2"
+																  IsChecked="{Binding SwitchValue, Mode=TwoWay}" />
+												</Grid>
+											</DataTemplate>
+											<DataTemplate x:DataType="viewModels:DropdownSettingEntryViewModel">
+												<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+													<StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
+														<TextBlock Text="{Binding DisplayName}" Classes="FluentBody" />
+														<TextBlock Text="{Binding Description}" Classes="FluentCaption"
+																   IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+													</StackPanel>
+													<ComboBox Grid.Column="1" Grid.RowSpan="2"
+															  ItemsSource="{Binding DropdownOptions}"
+															  SelectedItem="{Binding DropdownValue, Mode=TwoWay}"
+															  Width="240" />
+												</Grid>
+											</DataTemplate>
+											<DataTemplate x:DataType="viewModels:PathSettingEntryViewModel">
+												<Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto">
+													<StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
+														<TextBlock Text="{Binding DisplayName}" Classes="FluentBody" />
+														<TextBlock Text="{Binding Description}" Classes="FluentCaption"
+																   IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+													</StackPanel>
+													<TextBox Grid.Column="1" Grid.RowSpan="2"
+															 Text="{Binding PathValue}"
+															 Width="200"
+															 PlaceholderText="{Binding PlaceholderText}"
+															 IsReadOnly="True" />
+													<Button Grid.Column="2" Grid.RowSpan="2"
+															Content="{DynamicResource BROWSE}" Command="{Binding BrowseCommand}"
+															Classes="FluentStandard"
+															VerticalAlignment="Center" Margin="8,0,0,0" />
+												</Grid>
+											</DataTemplate>
+										</ItemsControl.DataTemplates>
+									</ItemsControl>
+								</StackPanel>
+							</Border>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+
+				<!-- About Card -->
+				<Border Classes="FluentCard">
+					<StackPanel Spacing="12">
+						<TextBlock Text="{DynamicResource ABOUT}" Classes="FluentSectionHeader" Margin="0" />
+						<StackPanel Spacing="4">
+							<TextBlock Text="{DynamicResource APP_TITLE}" Classes="FluentBody" FontWeight="SemiBold" />
+							<TextBlock Text="{DynamicResource APP_VERSION}" Classes="FluentCaption" />
+							<TextBlock Text="{DynamicResource APP_DESCRIPTION}" Classes="FluentCaption" TextWrapping="Wrap" />
+						</StackPanel>
+					</StackPanel>
+				</Border>
+			</StackPanel>
+		</ScrollViewer>
+	</DockPanel>
+</UserControl>

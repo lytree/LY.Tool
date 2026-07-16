@@ -1,5 +1,5 @@
 using LYBox.Plugin.Shared;
-using LYBox.UI.Services;
+using LYBox.UrsaWindow.Services;
 using Xunit;
 
 namespace LYBox.Tests;

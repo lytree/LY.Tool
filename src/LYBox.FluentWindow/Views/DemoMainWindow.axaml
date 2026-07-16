@@ -1,0 +1,94 @@
+<w:FluentWindow xmlns="https://github.com/avaloniaui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:w="using:LYBox.FluentWindow.Windowing"
+                xmlns:views="using:LYBox.FluentWindow.Views"
+                x:Class="LYBox.FluentWindow.Views.DemoMainWindow"
+                Title="FluentWindow Demo"
+                Width="800"
+                Height="600"
+                MinWidth="400"
+                MinHeight="300"
+                TitleBarContentMargin="8,0,0,0"
+                WindowStartupLocation="CenterScreen">
+
+    <!-- TitleBarContent: toolbar on same row as caption buttons -->
+    <w:FluentWindow.TitleBarContent>
+        <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Stretch">
+            <!-- Col 0: Hamburger toggle button -->
+            <Button Grid.Column="0"
+                    Width="44"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    CornerRadius="0"
+                    VerticalAlignment="Stretch"
+                    ToolTip.Tip="Toggle"
+                    Click="ToggleSidebar_Click">
+                <TextBlock Text="&#x2630;" FontSize="16" HorizontalAlignment="Center" />
+            </Button>
+
+            <!-- Col 1: Search box (centered) -->
+            <TextBox Grid.Column="1"
+                     Width="240"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"
+                     PlaceholderText="Search..." />
+
+            <!-- Col 2: Action buttons -->
+            <StackPanel Grid.Column="2"
+                        Orientation="Horizontal"
+                        Spacing="4"
+                        VerticalAlignment="Center"
+                        Margin="8,0,8,0">
+                <Button Width="32" Height="32"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        CornerRadius="4"
+                        ToolTip.Tip="GitHub"
+                        Click="OpenRepository_Click"
+                        Content="&#x1F310;" />
+                <Button Width="32" Height="32"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        CornerRadius="4"
+                        ToolTip.Tip="Toggle Theme"
+                        Click="ToggleTheme_Click"
+                        Content="&#x263E;" />
+            </StackPanel>
+        </Grid>
+    </w:FluentWindow.TitleBarContent>
+
+    <Grid>
+        <ScrollViewer>
+            <StackPanel Margin="24" Spacing="12">
+                <TextBlock Text="Demo Windows"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Margin="0,0,0,8" />
+
+                <Button Content="Open Dialog Window"
+                        Click="OpenDialog_Click"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Left" />
+
+                <Button Content="Toggle Acrylic"
+                        Click="ToggleAcrylic_Click"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Left" />
+
+                <Button Content="Toggle Mica (Win11 only)"
+                        Click="ToggleMica_Click"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Left" />
+
+                <Button Content="Open Splash Window"
+                        Click="OpenSplash_Click"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Left" />
+
+                <Separator Margin="0,12,0,0" />
+
+                <views:DemoPage />
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</w:FluentWindow>

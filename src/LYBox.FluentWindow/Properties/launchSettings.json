@@ -1,0 +1,19 @@
+{
+    "profiles": {
+        "LYBox.FluentWindow": {
+            "commandName": "Project",
+            "commandLineArgs": "",
+            "environmentVariables": {}
+        },
+        "LYBox.FluentWindow (Acrylic)": {
+            "commandName": "Project",
+            "commandLineArgs": "--acrylic",
+            "environmentVariables": {}
+        },
+        "LYBox.FluentWindow (Dialog Mode)": {
+            "commandName": "Project",
+            "commandLineArgs": "--dialog",
+            "environmentVariables": {}
+        }
+    }
+}

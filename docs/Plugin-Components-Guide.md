@@ -99,7 +99,7 @@ xmlns:u="using:Irihi.Ursa.Controls"
 
 ## 4. 项目自定义 Fluent 样式类
 
-文件位置：[`src/LYBox.UI/Theme/FluentDesign/FluentDesignStyles.axaml`](../src/LYBox.UI/Theme/FluentDesign/FluentDesignStyles.axaml)
+文件位置：[`src/LYBox.UrsaWindow/Theme/FluentDesign/FluentDesignStyles.axaml`](../src/LYBox.UrsaWindow/Theme/FluentDesign/FluentDesignStyles.axaml)
 
 通过 `UrsaSemiTheme` 自动加载，**无需手动 `<StyleInclude>`**。在任意控件上通过 `Classes="类名"` 使用。
 
@@ -371,7 +371,7 @@ WinUI SettingsExpander 风格 - 折叠式设置卡片。
 
 ### Fluent Icons（首选）
 
-文件位置：[`src/LYBox.UI/Theme/Icons/Fluent/`](../src/LYBox.UI/Theme/Icons/Fluent/)
+文件位置：[`src/LYBox.UrsaWindow/Theme/Icons/Fluent/`](../src/LYBox.UrsaWindow/Theme/Icons/Fluent/)
 
 命名规范：`FluentIcon{Size}{Variant}{Name}`
 
@@ -445,7 +445,7 @@ if (ServiceLocator.TryGetService<ILocalizationService>(out var loc))
 
 | 接口 | 命名空间 | 用途 |
 |------|---------|------|
-| `INavigationService` | `LYBox.UI.Services` | 页面导航 |
+| `INavigationService` | `LYBox.UrsaWindow.Services` | 页面导航 |
 | `ILocalizationService` | `LYBox.Plugin.Shared.Services` | 多语言资源管理 |
 | `ISettingsService` | `LYBox.Plugin.Shared.Services` | 设置读写 |
 | `IPluginLoader` | `LYBox.Plugin.Shared.Services` | 插件加载器 |

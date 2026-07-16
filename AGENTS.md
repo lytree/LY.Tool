@@ -34,7 +34,7 @@ OpenCode 智能体在本仓库工作时的精简指南。
 LYBox.Plugin.Generators/        Roslyn 增量源生成器（netstandard2.1，IsRoslynComponent）
 LYBox.Plugin.Shared/            共享契约：IPlugin、IPluginMetadata、ViewLocator、ServiceLocator、特性、控件
 LYBox.Platforms.Abstractions/   跨平台抽象基类（仅空 README）
-LYBox.UI/                       宿主应用：ViewModels、Views、Services（EF Core、导航、菜单、本地化、ZLogger）
+LYBox.UrsaWindow/                       宿主应用：ViewModels、Views、Services（EF Core、导航、菜单、本地化、ZLogger）
 LYBox.Launcher.Desktop/         桌面入口（Program.cs → App.axaml.cs）。设置 AvaloniaUseCompiledBindingsByDefault=true。
 ```
 
@@ -110,14 +110,14 @@ Program.cs → App.Initialize()
 |--------|------|---------|---------|
 | 1 | **Irihi.Ursa**（`u:` 命名空间） | `<u:Button />`、`<u:Banner />`、`<u:NavMenu />`、`<u:Form />`、`<u:NumericUpDown />`、`<u:TagInput />`、`<u:IPv4Box />`、`<u:TimeBox />`、`<u:Avatar />`、`<u:Card />`、`<u:Badge />`、`<u:Loading />`、`<u:Breadcrumb />`、`<u:Dialog />`、`<u:Drawer />` | 默认首选。所有通用控件优先用 Ursa。 |
 | 2 | **Avalonia 内置控件**（无 `u:` 前缀） | `<Button />`、`<TextBox />`、`<CheckBox />`、`<ComboBox />`、`<ListBox />`、`<TreeView />`、`<TabControl />`、`<ProgressBar />`、`<Slider />`、`<DatePicker />`、`<DataGrid />` | Ursa 未覆盖或场景不适合 Ursa 时使用。DataGrid 已应用 `<datagrid:DataGridFluentTheme />`。 |
-| 3 | **项目自定义 Fluent 补充样式**（`src/LYBox.UI/Theme/FluentDesign/FluentDesignStyles.axaml`） | `Button.FluentSettingsCard`、`Border.FluentInfoBadge`、`ProgressBar.circular.FluentProgressRing`、`Button.FluentBreadcrumbItem`、`Border.FluentContentDialogSurface` | Ursa 未提供的 WinUI 风格控件。详见下表。 |
+| 3 | **项目自定义 Fluent 补充样式**（`src/LYBox.UrsaWindow/Theme/FluentDesign/FluentDesignStyles.axaml`） | `Button.FluentSettingsCard`、`Border.FluentInfoBadge`、`ProgressBar.circular.FluentProgressRing`、`Button.FluentBreadcrumbItem`、`Border.FluentContentDialogSurface` | Ursa 未提供的 WinUI 风格控件。详见下表。 |
 | 4 | **CommunityToolkit.Mvvm** | `ObservableObject`、`[ObservableProperty]`、`[RelayCommand]` | ViewModel 基础设施（与组件选型并列，但所有 VM 必须用此库）。 |
 
 **禁止**：引入 `Avalonia-Fluent-UI`（`AvaloniaFluentUI`）NuGet 包或项目引用。该库与 Irihi.Ursa 大量功能重叠且未发布到 NuGet。需要 WinUI 风格控件时，使用上述第 3 级的项目内补充样式。
 
 ### 2. 自定义 Fluent 补充样式速查表
 
-所有补充样式位于 `src/LYBox.UI/Theme/FluentDesign/FluentDesignStyles.axaml`，通过 `UrsaSemiTheme` 自动加载，无需手动 `<StyleInclude>`。
+所有补充样式位于 `src/LYBox.UrsaWindow/Theme/FluentDesign/FluentDesignStyles.axaml`，通过 `UrsaSemiTheme` 自动加载，无需手动 `<StyleInclude>`。
 
 | 类名 | 控件类型 | 替代的 WinUI 控件 | 用途 |
 |------|---------|------------------|------|
@@ -184,11 +184,11 @@ Program.cs → App.Initialize()
 - **圆角规范**：卡片 8px、徽章/小按钮 4px、点状元素圆形（`CornerRadius="0"` + `CornerRadius` 全值 = 宽/2）。
 - **间距规范**：内边距遵循 12/16/24 三档；元素间用 `Spacing` 而非 `Margin`。
 - **动画规范**：颜色/画刷过渡统一用 `BrushTransition`，时长 `0:0:0.15`；阴影过渡用 `BoxShadowsTransition`。复杂动画引用 `Theme/Animations/` 下的 `DefaultSizeAnimations`、`NavMenuSizeAnimations`、`SemiPopupAnimations`。
-- **主题入口**：所有样式通过 `src/LYBox.UI/Theme/UrsaSemiTheme.axaml` 注册，应用入口 `App.axaml` 仅引用 `<fluent:FluentTheme />` + `<theme:UrsaSemiTheme />` + `<sizeanimations:SemiPopupAnimations />` + `<datagrid:DataGridFluentTheme />`，**不要**在 `App.axaml` 中追加额外 `<StyleInclude>`。
+- **主题入口**：所有样式通过 `src/LYBox.UrsaWindow/Theme/UrsaSemiTheme.axaml` 注册，应用入口 `App.axaml` 仅引用 `<fluent:FluentTheme />` + `<theme:UrsaSemiTheme />` + `<sizeanimations:SemiPopupAnimations />` + `<datagrid:DataGridFluentTheme />`，**不要**在 `App.axaml` 中追加额外 `<StyleInclude>`。
 
 ### 4. 图标使用规则（优先 Fluent-UI icon）
 
-- **首选图标集**：Fluent Icons（Microsoft Fluent UI System Icons）。资源位于 `src/LYBox.UI/Theme/Icons/Fluent/`，按 `Regular/Filled` × `16/20/24/28/32/48` 切分。
+- **首选图标集**：Fluent Icons（Microsoft Fluent UI System Icons）。资源位于 `src/LYBox.UrsaWindow/Theme/Icons/Fluent/`，按 `Regular/Filled` × `16/20/24/28/32/48` 切分。
 - **图标资源键命名规范**：`FluentIcon{Size}{Variant}{Name}`，例如：
   - `FluentIcon24RegularSettings`
   - `FluentIcon20FilledWarning`
@@ -210,7 +210,7 @@ Program.cs → App.Initialize()
      ```xml
      <u:IconButton Icon="{DynamicResource FluentIcon24RegularSettings}" />
      ```
-- **次选图标集**：项目自定义 `Semi` 风格图标（`src/LYBox.UI/Theme/Icons/_index.axaml` 中以 `SemiIcon` 开头的资源键，如 `SemiIconChevronDown`）。仅当 Fluent Icons 中找不到对应图标时使用，且需在代码注释中说明原因。
+- **次选图标集**：项目自定义 `Semi` 风格图标（`src/LYBox.UrsaWindow/Theme/Icons/_index.axaml` 中以 `SemiIcon` 开头的资源键，如 `SemiIconChevronDown`）。仅当 Fluent Icons 中找不到对应图标时使用，且需在代码注释中说明原因。
 - **禁止**：硬编码 `Geometry.Parse("...")` 字面量路径。所有路径必须以 `StreamGeometry` 资源形式定义在 `Theme/Icons/` 下。
 - **新增 Fluent 图标流程**：
   1. 从 [Fluent UI System Icons](https://github.com/microsoft/fluentui-system-icons) 获取 SVG path

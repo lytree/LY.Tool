@@ -1,6 +1,6 @@
 using System.Text.Json;
 using LYBox.Plugin.Shared.Models;
-using LYBox.UI.Services;
+using LYBox.UrsaWindow.Services;
 using Xunit;
 
 namespace LYBox.Tests;

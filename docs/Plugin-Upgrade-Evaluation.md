@@ -17,7 +17,7 @@
 
 ## 背景
 
-由于 [插件系统前提约束](../AGENTS.md#插件系统前提约束强制) 不支持热卸载，已加载插件的 DLL 被进程锁定，直接覆盖安装会失败。当前实现（[`PluginInstallationManager.cs`](../src/LYBox.UI/Services/PluginInstallationManager.cs)）的策略是：**检测到目标插件处于 `Loaded`/`Error` 状态时直接拒绝安装**，提示用户关闭应用后重试。
+由于 [插件系统前提约束](../AGENTS.md#插件系统前提约束强制) 不支持热卸载，已加载插件的 DLL 被进程锁定，直接覆盖安装会失败。当前实现（[`PluginInstallationManager.cs`](../src/LYBox.UrsaWindow/Services/PluginInstallationManager.cs)）的策略是：**检测到目标插件处于 `Loaded`/`Error` 状态时直接拒绝安装**，提示用户关闭应用后重试。
 
 本节评估一个更友好的替代方案：**安装时先把新版本放到临时目录（或 pending 目录），应用重启时由宿主启动流程把新版本迁移到 `plugins/` 替换旧版本**。
 
@@ -92,7 +92,7 @@ PluginLoader 构造函数 → ProcessPendingUpgrades()
    - **对策**：`.upgrade.json` 中记录 `PreserveState: true`，迁移时读取旧 manifest 的 `State` 字段（仅 `Disabled`/`Installed` 合法，`Error`/`PendingUninstall` 重置为 `Installed`），写入新 manifest。
 
 5. **MinPluginSdkVersion 校验时机**
-   - **问题**：升级时已通过 [`PluginInstallationManager`](../src/LYBox.UI/Services/PluginInstallationManager.cs) 中的 `IsPluginSdkCompatible` 校验，但用户可能在重启前升级了宿主到不兼容版本。
+   - **问题**：升级时已通过 [`PluginInstallationManager`](../src/LYBox.UrsaWindow/Services/PluginInstallationManager.cs) 中的 `IsPluginSdkCompatible` 校验，但用户可能在重启前升级了宿主到不兼容版本。
    - **对策**：迁移时再次调用 `IsPluginSdkCompatible`，若失败则不删除旧版本，仅删除 `.pending/` 中的新版本，并提示用户"新版本与当前宿主不兼容，已自动保留旧版本"。
 
 6. **`.pending` 目录被外部删除**
@@ -110,11 +110,11 @@ PluginLoader 构造函数 → ProcessPendingUpgrades()
 | 改动点 | 涉及文件 | 复杂度 |
 |--------|---------|--------|
 | 新增 `PendingUpgradeInfo` 模型与 `.upgrade.json` 序列化 | `LYBox.Plugin.Shared/Models/`（新增） | 低 |
-| `PluginInstallationManager` 增加 `ScheduleUpgradeAsync` 路径 | [`PluginInstallationManager.cs`](../src/LYBox.UI/Services/PluginInstallationManager.cs) | 中 |
-| `PluginLoader` 构造函数增加 `ProcessPendingUpgrades()` | [`PluginLoader.cs`](../src/LYBox.UI/Services/PluginLoader.cs) | 中 |
+| `PluginInstallationManager` 增加 `ScheduleUpgradeAsync` 路径 | [`PluginInstallationManager.cs`](../src/LYBox.UrsaWindow/Services/PluginInstallationManager.cs) | 中 |
+| `PluginLoader` 构造函数增加 `ProcessPendingUpgrades()` | [`PluginLoader.cs`](../src/LYBox.UrsaWindow/Services/PluginLoader.cs) | 中 |
 | `PluginInfo` 增加 `PendingUpgrade` 状态字段 | `LYBox.Plugin.Shared/Models/PluginInfo.cs` | 低 |
 | UI 显示"待升级"状态及取消按钮 | `PluginManagementViewModel` / 对应 View | 中 |
-| 跨平台目录移动工具方法 | `LYBox.UI/Services/`（新增 `PluginUpgradeMigrator.cs`） | 低 |
+| 跨平台目录移动工具方法 | `LYBox.UrsaWindow/Services/`（新增 `PluginUpgradeMigrator.cs`） | 低 |
 
 ---
 

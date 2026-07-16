@@ -1,0 +1,42 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="LYBox.FluentWindow.Views.DemoPage">
+    <StackPanel Spacing="16">
+        <TextBlock Text="FluentWindow Features"
+                   FontSize="24"
+                   FontWeight="Bold" />
+
+        <Border Background="#FFF3F3F3"
+                CornerRadius="8"
+                Padding="16">
+            <StackPanel Spacing="6">
+                <TextBlock Text="• Custom title bar with configurable height" />
+                <TextBlock Text="• Caption buttons (min/max/close)" />
+                <TextBlock Text="• Window dragging support" />
+                <TextBlock Text="• Linux resize support" />
+                <TextBlock Text="• Splash screen mode (no title bar)" />
+                <TextBlock Text="• Acrylic / Mica backdrop support" />
+                <TextBlock Text="• TitleBarContent for custom controls" />
+                <TextBlock Text="• Dialog mode via ShowAsDialog" />
+            </StackPanel>
+        </Border>
+
+        <TextBlock Text="Title Bar Customization"
+                   FontSize="16"
+                   FontWeight="SemiBold"
+                   Margin="0,8,0,0" />
+
+        <StackPanel Spacing="10">
+            <ToggleSwitch Content="Title Bar Visible"
+                          OnContent="Visible"
+                          OffContent="Hidden"
+                          IsChecked="True"
+                          Click="ToggleTitleBar_Click" />
+            <ToggleSwitch Content="Caption Buttons Visible"
+                          OnContent="Visible"
+                          OffContent="Hidden"
+                          IsChecked="True"
+                          Click="ToggleCaption_Click" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

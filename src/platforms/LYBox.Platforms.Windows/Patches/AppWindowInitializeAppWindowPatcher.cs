@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Core.Abstractions.Services;
-using FluentLYBox.UI.Windowing;
+using FluentLYBox.UrsaWindow.Windowing;
 using HarmonyLib;
 
 namespace Avalonia.Platform.Windows.Patches;

@@ -4,10 +4,10 @@ using Avalonia.Markup.Xaml;
 using LYBox.Plugin.Shared;
 using LYBox.Plugin.Shared.Models;
 using LYBox.Plugin.Shared.Services;
-using LYBox.UI.Data;
-using LYBox.UI.Services;
-using LYBox.UI.ViewModels;
-using LYBox.UI.Views;
+using LYBox.UrsaWindow.Data;
+using LYBox.UrsaWindow.Services;
+using LYBox.UrsaWindow.ViewModels;
+using LYBox.UrsaWindow.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -57,7 +57,13 @@ public partial class App : Application
     private static void OnUIThreadUnhandledException(object? sender, Avalonia.Threading.DispatcherUnhandledExceptionEventArgs e)
     {
         LogGlobalException("UIThreadUnhandledException", e.Exception);
+        Console.Error.WriteLine($"[UIThreadUnhandledException] {e.Exception}");
+#if DEBUG
+        // DEBUG 模式下不吞异常，让问题暴露
+        e.Handled = false;
+#else
         e.Handled = true;
+#endif
     }
 
     public override void Initialize()
@@ -175,10 +181,23 @@ public partial class App : Application
             // 全局异常处理：UI 线程未处理异常
             Avalonia.Threading.Dispatcher.UIThread.UnhandledException += OnUIThreadUnhandledException;
 
-            desktop.MainWindow = new MvvmSplashWindow()
+            if (LYBox.Launcher.Desktop.Program.NoSplash)
             {
-                DataContext = new SplashViewModel()
-            };
+                // --no-splash：跳过闪屏，直接显示主窗口
+                var navigationService = ServiceLocator.GetService<INavigationService>();
+                var menuConfigurationService = ServiceLocator.GetService<IMenuConfigurationService>();
+                desktop.MainWindow = new MainWindow()
+                {
+                    DataContext = new MainViewViewModel(navigationService!, menuConfigurationService!)
+                };
+            }
+            else
+            {
+                desktop.MainWindow = new MvvmSplashWindow()
+                {
+                    DataContext = new SplashViewModel()
+                };
+            }
 
             // 退出时检测是否有正在运行的任务
             desktop.ShutdownRequested += OnShutdownRequested;

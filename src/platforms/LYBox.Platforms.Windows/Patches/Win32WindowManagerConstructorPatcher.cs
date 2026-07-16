@@ -1,5 +1,5 @@
 using Avalonia.Core.Abstractions.Services;
-using FluentLYBox.UI.Windowing;
+using FluentLYBox.UrsaWindow.Windowing;
 using HarmonyLib;
 
 namespace Avalonia.Platform.Windows.Patches;
@@ -12,7 +12,7 @@ public class Win32WindowManagerConstructorPatcher
     [HarmonyTargetMethod]
     static System.Reflection.MethodBase TargetMethod()
     {
-        var type = AccessTools.TypeByName("FluentLYBox.UI.Windowing.Win32WindowManager");
+        var type = AccessTools.TypeByName("FluentLYBox.UrsaWindow.Windowing.Win32WindowManager");
         return AccessTools.Constructor(type, [typeof(AppWindow)]);
     }
     

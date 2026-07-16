@@ -1,0 +1,158 @@
+<u:SplashWindow
+x:Class="LYBox.UrsaWindow.Views.MvvmSplashWindow"
+xmlns="https://github.com/avaloniaui"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+xmlns:iri="https://irihi.tech/shared"
+xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+xmlns:u="https://irihi.tech/ursa"
+xmlns:viewModels="clr-namespace:LYBox.UrsaWindow.ViewModels"
+Title="{DynamicResource SPLASH_STARTING}"
+Width="720"
+Height="420"
+Icon="/Assets/lybox.ico"
+x:DataType="viewModels:SplashViewModel"
+CountDown="5000"
+mc:Ignorable="d">
+	<u:SplashWindow.Styles>
+		<Style Selector="Border#Backdrop">
+			<Setter Property="Opacity" Value="0" />
+			<Style.Animations>
+				<Animation Duration="0:0:0.7" FillMode="Forward">
+					<KeyFrame Cue="0%">
+						<Setter Property="Opacity" Value="0" />
+					</KeyFrame>
+					<KeyFrame Cue="100%">
+						<Setter Property="Opacity" Value="1" />
+					</KeyFrame>
+				</Animation>
+			</Style.Animations>
+		</Style>
+
+		<Style Selector="Border#HeroImagePanel">
+			<Setter Property="Opacity" Value="0" />
+			<Style.Animations>
+				<Animation Duration="0:0:0.95" FillMode="Forward">
+					<KeyFrame Cue="0%">
+						<Setter Property="Opacity" Value="0" />
+					</KeyFrame>
+					<KeyFrame Cue="100%">
+						<Setter Property="Opacity" Value="1" />
+					</KeyFrame>
+				</Animation>
+			</Style.Animations>
+		</Style>
+
+		<Style Selector="StackPanel#BrandContent">
+			<Setter Property="Opacity" Value="0" />
+			<Style.Animations>
+				<Animation Duration="0:0:0.85" Delay="0:0:0.18" FillMode="Forward">
+					<KeyFrame Cue="0%">
+						<Setter Property="Opacity" Value="0" />
+					</KeyFrame>
+					<KeyFrame Cue="100%">
+						<Setter Property="Opacity" Value="1" />
+					</KeyFrame>
+				</Animation>
+			</Style.Animations>
+		</Style>
+
+		<Style Selector="Border#HaloPulse">
+			<Style.Animations>
+				<Animation Duration="0:0:2" IterationCount="INFINITE" PlaybackDirection="Alternate">
+					<KeyFrame Cue="0%">
+						<Setter Property="Opacity" Value="0.28" />
+					</KeyFrame>
+					<KeyFrame Cue="100%">
+						<Setter Property="Opacity" Value="0.72" />
+					</KeyFrame>
+				</Animation>
+			</Style.Animations>
+		</Style>
+	</u:SplashWindow.Styles>
+
+	<Border
+	Name="Backdrop"
+	Margin="16"
+	CornerRadius="8"
+	ClipToBounds="True"
+	BoxShadow="0 4 16 0 #22000000"
+	Theme="{DynamicResource CardBorder}">
+		<Grid ColumnDefinitions="2*,3*">
+			<Border
+			Name="HeroImagePanel"
+			Grid.Column="0"
+			CornerRadius="8"
+			ClipToBounds="True">
+				<Grid>
+					<Image Stretch="UniformToFill" Source="/Assets/jk-girl.jpg" />
+					<Border>
+						<Border.Background>
+							<LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+								<GradientStop Offset="0" Color="#00000000" />
+								<GradientStop Offset="1" Color="#66000000" />
+							</LinearGradientBrush>
+						</Border.Background>
+					</Border>
+					<StackPanel
+					Margin="20"
+					VerticalAlignment="Bottom"
+					Spacing="4">
+						<Border
+						Name="HaloPulse"
+						Width="48"
+						Height="48"
+						Margin="0,0,0,8"
+						HorizontalAlignment="Left"
+						Background="{DynamicResource FluentColorPrimary}"
+						CornerRadius="24"
+						Opacity="0.2" />
+						<TextBlock
+						Classes="FluentCaption"
+						FontWeight="SemiBold"
+						Foreground="{DynamicResource FluentColorText0}"
+						Text="{DynamicResource SPLASH_SUBTITLE}" />
+					</StackPanel>
+				</Grid>
+			</Border>
+
+			<StackPanel
+			Name="BrandContent"
+			Grid.Column="1"
+			Margin="32,24"
+			VerticalAlignment="Center"
+			Spacing="14">
+				<TextBlock
+			Classes="FluentLargeTitle"
+			Text="{DynamicResource SPLASH_TITLE}" />
+			<TextBlock
+			Classes="FluentBody"
+			Text="{DynamicResource SPLASH_SUBTITLE}" />
+			<TextBlock
+			Classes="FluentCaption"
+			TextWrapping="Wrap"
+			Text="{DynamicResource SPLASH_WELCOME}" />
+
+				<Border
+				Margin="0,8,0,0"
+				Padding="0,12,0,0"
+				BorderBrush="{DynamicResource FluentBorderBrush}"
+				BorderThickness="0,1,0,0">
+					<Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+						<ProgressBar
+						Height="5"
+						Minimum="0"
+						Maximum="100"
+						CornerRadius="999"
+						Value="{Binding Progress}" />
+						<TextBlock
+					Grid.Column="1"
+					VerticalAlignment="Center"
+					Classes="FluentCaption"
+					Text="{Binding Progress, StringFormat={}{0:0}%}" />
+					</Grid>
+				</Border>
+			</StackPanel>
+		</Grid>
+	</Border>
+</u:SplashWindow>

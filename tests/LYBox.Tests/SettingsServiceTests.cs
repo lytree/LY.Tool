@@ -1,8 +1,8 @@
 using System.Collections.Concurrent;
 using LYBox.Plugin.Shared;
 using LYBox.Plugin.Shared.Models;
-using LYBox.UI.Data;
-using LYBox.UI.Services;
+using LYBox.UrsaWindow.Data;
+using LYBox.UrsaWindow.Services;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

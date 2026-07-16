@@ -2,121 +2,187 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug Plugin - Template",
+            "name": "Host - Standard Layout",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-host",
+            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
+            "args": [],
+            "env": {},
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Host - No Splash",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-host",
+            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
+            "args": ["--no-splash"],
+            "env": {},
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Host - Sidebar Collapsed",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-host",
+            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
+            "args": ["--collapsed-sidebar"],
+            "env": {},
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "FluentWindow - Standard",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-fluent-window",
+            "program": "${workspaceFolder}/src/LYBox.FluentWindow/bin/Debug/net10.0/LYBox.FluentWindow.dll",
+            "args": [],
+            "env": {},
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "FluentWindow - Acrylic",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-fluent-window",
+            "program": "${workspaceFolder}/src/LYBox.FluentWindow/bin/Debug/net10.0/LYBox.FluentWindow.dll",
+            "args": ["--acrylic"],
+            "env": {},
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "FluentWindow - Dialog Mode",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-fluent-window",
+            "program": "${workspaceFolder}/src/LYBox.FluentWindow/bin/Debug/net10.0/LYBox.FluentWindow.dll",
+            "args": ["--dialog"],
+            "env": {},
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Plugin - Template",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-plugin-template",
-            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
             "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.Template/bin/Debug/net10.0"
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.Template/bin/Debug/net10.0"
             },
             "console": "internalConsole",
             "stopAtEntry": false
         },
         {
-            "name": "Debug Plugin - ButtonsInputs",
+            "name": "Plugin - ButtonsInputs",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-plugin-buttons-inputs",
-            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
             "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.ButtonsInputs/bin/Debug/net10.0"
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.ButtonsInputs/bin/Debug/net10.0"
             },
             "console": "internalConsole",
             "stopAtEntry": false
         },
         {
-            "name": "Debug Plugin - DateTime",
+            "name": "Plugin - DateTime",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-plugin-date-time",
-            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
             "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.DateTime/bin/Debug/net10.0"
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.DateTime/bin/Debug/net10.0"
             },
             "console": "internalConsole",
             "stopAtEntry": false
         },
         {
-            "name": "Debug Plugin - DialogFeedbacks",
+            "name": "Plugin - DialogFeedbacks",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-plugin-dialog-feedbacks",
-            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
             "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.DialogFeedbacks/bin/Debug/net10.0"
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.DialogFeedbacks/bin/Debug/net10.0"
             },
             "console": "internalConsole",
             "stopAtEntry": false
         },
         {
-            "name": "Debug Plugin - Downloader",
+            "name": "Plugin - Downloader",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-plugin-downloader",
-            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
             "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.Downloader/bin/Debug/net10.0"
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.Downloader/bin/Debug/net10.0"
             },
             "console": "internalConsole",
             "stopAtEntry": false
         },
         {
-            "name": "Debug Plugin - LayoutDisplay",
+            "name": "Plugin - LayoutDisplay",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-plugin-layout-display",
-            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
             "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.LayoutDisplay/bin/Debug/net10.0"
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.LayoutDisplay/bin/Debug/net10.0"
             },
             "console": "internalConsole",
             "stopAtEntry": false
         },
         {
-            "name": "Debug Plugin - NavigationMenus",
+            "name": "Plugin - NavigationMenus",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-plugin-navigation-menus",
-            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
             "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.NavigationMenus/bin/Debug/net10.0"
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.NavigationMenus/bin/Debug/net10.0"
             },
             "console": "internalConsole",
             "stopAtEntry": false
         },
         {
-            "name": "Debug Plugin - ProDataGrid",
+            "name": "Plugin - ProDataGrid",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-plugin-pro-data-grid",
-            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
             "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.ProDataGrid/bin/Debug/net10.0"
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.ProDataGrid/bin/Debug/net10.0"
             },
             "console": "internalConsole",
             "stopAtEntry": false
         },
         {
-            "name": "Debug Plugin - ScottPlot",
+            "name": "Plugin - ScottPlot",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-plugin-scott-plot",
-            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
             "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.ScottPlot/bin/Debug/net10.0"
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.ScottPlot/bin/Debug/net10.0"
             },
             "console": "internalConsole",
             "stopAtEntry": false
         },
         {
-            "name": "Debug Plugin - TDLSharp",
+            "name": "Plugin - TDLSharp",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-plugin-tdl-sharp",
-            "program": "${workspaceFolder}/bin/bin/Avalonia.Launcher.Desktop.dll",
+            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
             "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/Avalonia.Plugin.TDLSharp/bin/Debug/net10.0"
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.TDLSharp/bin/Debug/net10.0"
             },
             "console": "internalConsole",
             "stopAtEntry": false

@@ -2,7 +2,8 @@
     <Folder Name="/src/">
         <Project Path="src/LYBox.Plugin.Generators/LYBox.Plugin.Generators.csproj" />
         <Project Path="src/LYBox.Plugin.Shared/LYBox.Plugin.Shared.csproj" />
-        <Project Path="src/LYBox.UI/LYBox.UI.csproj" />
+        <Project Path="src/LYBox.UrsaWindow/LYBox.UrsaWindow.csproj" />
+        <Project Path="src/LYBox.FluentWindow/LYBox.FluentWindow.csproj" />
     </Folder>
     <Folder Name="/src/launcher/">
         <Project Path="src/launcher/LYBox.Launcher.Desktop/LYBox.Launcher.Desktop.csproj" />

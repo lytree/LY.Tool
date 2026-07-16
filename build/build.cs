@@ -54,6 +54,12 @@ Task("Clean")
         CleanDirectoryIfExists(c, Path.Combine(buildContext.RootDir, "src", "launcher", "LYBox.Launcher.Desktop", "obj"));
     }
 
+    if (t.HasFlag(BuildTarget.FluentWindow))
+    {
+        CleanDirectoryIfExists(c, Path.Combine(buildContext.RootDir, "src", "LYBox.FluentWindow", "bin"));
+        CleanDirectoryIfExists(c, Path.Combine(buildContext.RootDir, "src", "LYBox.FluentWindow", "obj"));
+    }
+
     if (t.HasFlag(BuildTarget.Plugin))
     {
         CleanDirectoryIfExists(c, buildContext.PluginPackagesDir);
@@ -138,6 +144,17 @@ Task("Build")
             Configuration = buildContext.BuildConfiguration,
             MSBuildSettings = hostSettings
         });
+    }
+
+    // FluentWindow 独立布局项目构建
+    if (buildContext.Target.HasFlag(BuildTarget.FluentWindow))
+    {
+        c.DotNetBuild(buildContext.FluentWindowProject, new DotNetBuildSettings
+        {
+            Configuration = buildContext.BuildConfiguration,
+            MSBuildSettings = hostSettings
+        });
+        c.Log.Information("FluentWindow project built.");
     }
 
     // 插件层：各插件用自己的 PluginVersion（不再被 PackageVersion 覆盖）
@@ -368,8 +385,43 @@ Task("PackPlugins")
     }
 });
 
+Task("PackFluentWindow")
+    .IsDependentOn("Build")
+    .WithCriteria(c => buildContext.Target.HasFlag(BuildTarget.FluentWindow), "FluentWindow target not selected")
+    .Does(c =>
+{
+    var fwOutputDir = Path.Combine(buildContext.PackagesDir, "fluent-window");
+    c.EnsureDirectoryExists(fwOutputDir);
+
+    var settings = new DotNetPublishSettings
+    {
+        Configuration = buildContext.BuildConfiguration,
+        OutputDirectory = fwOutputDir,
+        NoRestore = true,
+        NoBuild = true,
+    };
+
+    if (!string.IsNullOrEmpty(buildContext.RuntimeIdentifier))
+    {
+        settings.Runtime = buildContext.RuntimeIdentifier;
+        settings.OutputDirectory = Path.Combine(fwOutputDir, buildContext.RuntimeIdentifier);
+        settings.NoBuild = false;
+        settings.NoRestore = false;
+    }
+
+    if (buildContext.SelfContained)
+    {
+        settings.SelfContained = true;
+    }
+
+    c.DotNetPublish(buildContext.FluentWindowProject, settings);
+
+    c.Log.Information("FluentWindow published to: {0}", fwOutputDir);
+});
+
 Task("Default")
     .IsDependentOn("PackBin")
+    .IsDependentOn("PackFluentWindow")
     .IsDependentOn("PackPlugins");
 
 //////////////////////////////////////////////////////////////////////
@@ -388,8 +440,10 @@ public enum BuildTarget
     None = 0,
     // Bin 同时构建宿主 launcher 与 SDK NuGet 包（统一发版）
     Bin = 1,
+    // FluentWindow 独立布局项目（自定义边框窗口）
+    FluentWindow = 2,
     Plugin = 4,
-    All = Bin | Plugin
+    All = Bin | FluentWindow | Plugin
 }
 
 /// <summary>
@@ -433,6 +487,7 @@ public class BuildContext
     public string GeneratorsProject { get; }
     public string SharedProject { get; }
     public string LauncherProject { get; }
+    public string FluentWindowProject { get; }
     public IReadOnlyList<PluginProjectInfo> PluginProjects { get; }
 
     // 宿主+SDK 版本覆盖（优先级：--host-version > --package-version > csproj 真相源 HostVersion）
@@ -507,6 +562,7 @@ public class BuildContext
         GeneratorsProject = Path.Combine(RootDir, "src", "LYBox.Plugin.Generators", "LYBox.Plugin.Generators.csproj");
         SharedProject = Path.Combine(RootDir, "src", "LYBox.Plugin.Shared", "LYBox.Plugin.Shared.csproj");
         LauncherProject = Path.Combine(RootDir, "src", "launcher", "LYBox.Launcher.Desktop", "LYBox.Launcher.Desktop.csproj");
+        FluentWindowProject = Path.Combine(RootDir, "src", "LYBox.FluentWindow", "LYBox.FluentWindow.csproj");
 
         PluginProjects = FilterPlugins(DiscoverPlugins(RootDir), PluginFilter);
     }
@@ -570,6 +626,8 @@ public class BuildContext
             {
                 "all" => BuildTarget.All,
                 "bin" => BuildTarget.Bin,
+                "fluent-window" => BuildTarget.FluentWindow,
+                "fluentwindow" => BuildTarget.FluentWindow,
                 // 兼容：nuget 已与 bin 合并，等价映射
                 "nuget" => BuildTarget.Bin,
                 "plugin" => BuildTarget.Plugin,

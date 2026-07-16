@@ -71,7 +71,7 @@ Linux/macOS 用 `./build.sh` 替代 `.\build.ps1`。
 LYBox.Plugin.Generators/        Roslyn 增量源生成器（netstandard2.1，IsRoslynComponent）
 LYBox.Plugin.Shared/            共享契约：IPlugin、IPluginMetadata、ViewLocator、ServiceLocator、特性、控件
 LYBox.Platforms.Abstractions/   跨平台抽象基类（仅空 README）
-LYBox.UI/                       宿主应用：ViewModels、Views、Services（EF Core、导航、菜单、本地化、ZLogger）
+LYBox.UrsaWindow/                       宿主应用：ViewModels、Views、Services（EF Core、导航、菜单、本地化、ZLogger）
 LYBox.Launcher.Desktop/         桌面入口（Program.cs → App.axaml.cs）。设置 AvaloniaUseCompiledBindingsByDefault=true。
 ```
 
@@ -376,16 +376,16 @@ if (result.Success)
 | **构建系统** | [build/build.cs](build/build.cs)、[Directory.Build.props](Directory.Build.props)、[build.ps1](build.ps1) |
 | **应用入口** | [src/launcher/LYBox.Launcher.Desktop/Program.cs](src/launcher/LYBox.Launcher.Desktop/Program.cs)、[App.axaml.cs](src/launcher/LYBox.Launcher.Desktop/App.axaml.cs) |
 | **插件契约** | [src/LYBox.Plugin.Shared/IPlugin.cs](src/LYBox.Plugin.Shared/IPlugin.cs)、[IPluginMetadata.cs](src/LYBox.Plugin.Shared/IPluginMetadata.cs)、[PluginSdkContract.cs](src/LYBox.Plugin.Shared/PluginSdkContract.cs) |
-| **插件加载** | [src/LYBox.UI/Services/PluginLoader.cs](src/LYBox.UI/Services/PluginLoader.cs)、[PluginLoadContext.cs](src/LYBox.UI/Services/PluginLoadContext.cs) |
-| **插件安装** | [src/LYBox.UI/Services/PluginInstallationManager.cs](src/LYBox.UI/Services/PluginInstallationManager.cs) |
-| **导航与菜单** | [src/LYBox.UI/Services/NavigationService.cs](src/LYBox.UI/Services/NavigationService.cs)、[MenuConfigurationService.cs](src/LYBox.UI/Services/MenuConfigurationService.cs) |
-| **本地化** | [src/LYBox.UI/Services/LocalizationService.cs](src/LYBox.UI/Services/LocalizationService.cs) |
-| **设置** | [src/LYBox.UI/Services/SettingsService.cs](src/LYBox.UI/Services/SettingsService.cs)、[src/LYBox.Plugin.Shared/Models/SettingDefinition.cs](src/LYBox.Plugin.Shared/Models/SettingDefinition.cs) |
-| **任务注册** | [src/LYBox.Plugin.Shared/TaskScope.cs](src/LYBox.Plugin.Shared/TaskScope.cs)、[src/LYBox.UI/Services/TaskRegistry.cs](src/LYBox.UI/Services/TaskRegistry.cs) |
+| **插件加载** | [src/LYBox.UrsaWindow/Services/PluginLoader.cs](src/LYBox.UrsaWindow/Services/PluginLoader.cs)、[PluginLoadContext.cs](src/LYBox.UrsaWindow/Services/PluginLoadContext.cs) |
+| **插件安装** | [src/LYBox.UrsaWindow/Services/PluginInstallationManager.cs](src/LYBox.UrsaWindow/Services/PluginInstallationManager.cs) |
+| **导航与菜单** | [src/LYBox.UrsaWindow/Services/NavigationService.cs](src/LYBox.UrsaWindow/Services/NavigationService.cs)、[MenuConfigurationService.cs](src/LYBox.UrsaWindow/Services/MenuConfigurationService.cs) |
+| **本地化** | [src/LYBox.UrsaWindow/Services/LocalizationService.cs](src/LYBox.UrsaWindow/Services/LocalizationService.cs) |
+| **设置** | [src/LYBox.UrsaWindow/Services/SettingsService.cs](src/LYBox.UrsaWindow/Services/SettingsService.cs)、[src/LYBox.Plugin.Shared/Models/SettingDefinition.cs](src/LYBox.Plugin.Shared/Models/SettingDefinition.cs) |
+| **任务注册** | [src/LYBox.Plugin.Shared/TaskScope.cs](src/LYBox.Plugin.Shared/TaskScope.cs)、[src/LYBox.UrsaWindow/Services/TaskRegistry.cs](src/LYBox.UrsaWindow/Services/TaskRegistry.cs) |
 | **视图解析** | [src/LYBox.Plugin.Shared/ViewLocator.cs](src/LYBox.Plugin.Shared/ViewLocator.cs) |
 | **源生成器** | [src/LYBox.Plugin.Generators/](src/LYBox.Plugin.Generators/) |
 | **共享程序集配置** | [src/LYBox.Plugin.Shared/buildTransitive/LYBox.Plugin.Shared.props](src/LYBox.Plugin.Shared/buildTransitive/LYBox.Plugin.Shared.props)、[.targets](src/LYBox.Plugin.Shared/buildTransitive/LYBox.Plugin.Shared.targets) |
-| **主题与样式** | [src/LYBox.UI/Theme/UrsaSemiTheme.axaml](src/LYBox.UI/Theme/UrsaSemiTheme.axaml)、[FluentDesign/FluentDesignStyles.axaml](src/LYBox.UI/Theme/FluentDesign/FluentDesignStyles.axaml) |
+| **主题与样式** | [src/LYBox.UrsaWindow/Theme/UrsaSemiTheme.axaml](src/LYBox.UrsaWindow/Theme/UrsaSemiTheme.axaml)、[FluentDesign/FluentDesignStyles.axaml](src/LYBox.UrsaWindow/Theme/FluentDesign/FluentDesignStyles.axaml) |
 | **示例插件** | [plugins/LYBox.Plugin.Template/](plugins/LYBox.Plugin.Template/)、[plugins/LYBox.Plugin.TDLSharp/](plugins/LYBox.Plugin.TDLSharp/)、[plugins/LYBox.Plugin.Downloader/](plugins/LYBox.Plugin.Downloader/) |
 
 ---

@@ -56,7 +56,7 @@
 
 ### 1. 共享程序集（由宿主默认 ALC 提供，插件转发引用）
 
-这些包的类型出现在 SDK 公共 API 中，或属于 Avalonia 框架本体，必须由宿主统一加载，避免类型标识冲突。运行时由 [`PluginLoadContext`](../src/LYBox.UI/Services/PluginLoadContext.cs) 转发到 `AssemblyLoadContext.Default`。
+这些包的类型出现在 SDK 公共 API 中，或属于 Avalonia 框架本体，必须由宿主统一加载，避免类型标识冲突。运行时由 [`PluginLoadContext`](../src/LYBox.UrsaWindow/Services/PluginLoadContext.cs) 转发到 `AssemblyLoadContext.Default`。
 
 | 包名 | 当前版本 | 引入版本 | 在 SDK 中的作用 |
 |------|---------|---------|----------------|
@@ -89,7 +89,7 @@
 
 ### 3. 宿主侧依赖（不在 SDK 中，插件可通过 DI 间接使用）
 
-这些包由宿主 `LYBox.UI` 直接引用，不在 `LYBox.Plugin.Shared` NuGet 包内。插件通过 DI 容器获取相关服务时间接使用，**不可直接 `PackageReference` 同名包为公共 API 类型**，否则会引发 ALC 类型标识冲突。
+这些包由宿主 `LYBox.UrsaWindow` 直接引用，不在 `LYBox.Plugin.Shared` NuGet 包内。插件通过 DI 容器获取相关服务时间接使用，**不可直接 `PackageReference` 同名包为公共 API 类型**，否则会引发 ALC 类型标识冲突。
 
 | 包名 | 当前版本 | 引入版本 | 宿主中作用 | 插件访问方式 |
 |------|---------|---------|------------|------------|
@@ -155,7 +155,7 @@ IsPluginSdkCompatible(MinPluginSdkVersion, PluginSdkContract.CurrentVersion)
 不通过 → 标记 PluginState.Error，写入错误信息，拒绝加载
 ```
 
-**SemVer 比对规则**（[`PluginLoader.IsPluginSdkCompatible`](../src/LYBox.UI/Services/PluginLoader.cs)）：
+**SemVer 比对规则**（[`PluginLoader.IsPluginSdkCompatible`](../src/LYBox.UrsaWindow/Services/PluginLoader.cs)）：
 
 - `null` / 空 → 通过（无约束）
 - 解析失败 → **拒绝**（fail-closed，避免误判不兼容插件）
