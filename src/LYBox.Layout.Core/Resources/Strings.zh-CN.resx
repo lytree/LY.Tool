@@ -140,6 +140,8 @@
   <data name="SETTING_APP_LOCALE_DESC" xml:space="preserve"><value>选择显示语言（完全生效需重启）</value></data>
   <data name="SETTING_APP_SIDEBARCOLLAPSED" xml:space="preserve"><value>折叠侧边栏</value></data>
   <data name="SETTING_APP_SIDEBARCOLLAPSED_DESC" xml:space="preserve"><value>折叠侧边栏导航</value></data>
+  <data name="SETTING_APP_MINIMIZE_TO_TRAY" xml:space="preserve"><value>最小化到托盘</value></data>
+  <data name="SETTING_APP_MINIMIZE_TO_TRAY_DESC" xml:space="preserve"><value>关闭窗口时隐藏到系统托盘</value></data>
   <data name="GROUP_APPEARANCE" xml:space="preserve"><value>外观</value></data>
   <data name="GROUP_GENERAL" xml:space="preserve"><value>通用</value></data>
   <data name="TOOLTIP_SETTINGS" xml:space="preserve"><value>设置</value></data>
@@ -156,6 +158,9 @@
   <data name="LOADING_MODULES" xml:space="preserve"><value>正在加载组件...</value></data>
   <data name="EXIT_CONFIRM_MESSAGE" xml:space="preserve"><value>确定要退出吗？</value></data>
   <data name="EXIT_CONFIRM_TITLE" xml:space="preserve"><value>退出</value></data>
+  <data name="TRAY_TOOLTIP" xml:space="preserve"><value>LYBox</value></data>
+  <data name="TRAY_SHOW_WINDOW" xml:space="preserve"><value>显示窗口</value></data>
+  <data name="TRAY_EXIT" xml:space="preserve"><value>退出</value></data>
   <data name="RESTART_REQUIRED" xml:space="preserve"><value>部分更改需要重启后生效</value></data>
   <data name="EXIT_RUNNING_TASKS_WARNING" xml:space="preserve"><value>以下任务正在运行中：</value></data>
   <!-- Shared keys consolidated from plugins -->

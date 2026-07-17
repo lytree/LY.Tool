@@ -226,5 +226,11 @@ public sealed class SettingsService : ISettingsService
 
         RegisterSetting(SettingDefinition.Switch("App.SidebarCollapsed", sidebarDisplayName,
             sidebarDesc, appearanceGroup, 0, 2, false));
+
+        var minimizeToTrayName = _localizationService?.GetString("SETTING_APP_MINIMIZE_TO_TRAY", "Minimize to Tray") ?? "Minimize to Tray";
+        var minimizeToTrayDesc = _localizationService?.GetString("SETTING_APP_MINIMIZE_TO_TRAY_DESC", "Hide to system tray when closing the window") ?? "Hide to system tray when closing the window";
+
+        RegisterSetting(SettingDefinition.Switch("App.MinimizeToTray", minimizeToTrayName,
+            minimizeToTrayDesc, appearanceGroup, 0, 3, true));
     }
 }
