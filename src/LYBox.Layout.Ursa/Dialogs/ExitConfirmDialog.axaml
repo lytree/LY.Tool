@@ -1,0 +1,27 @@
+<UserControl
+    x:Class="LYBox.Layout.Ursa.Dialogs.ExitConfirmDialog"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:dialogs="clr-namespace:LYBox.Layout.Ursa.Dialogs"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    MinWidth="420"
+    d:DesignHeight="200"
+    d:DesignWidth="420"
+    x:DataType="dialogs:ExitConfirmDialogViewModel"
+    mc:Ignorable="d">
+    <StackPanel Margin="24" Spacing="16">
+        <StackPanel Spacing="8">
+            <PathIcon
+                Width="32" Height="32"
+                HorizontalAlignment="Left"
+                Data="{DynamicResource FluentWarning20Regular}"
+                Foreground="{DynamicResource FluentColorWarning}" />
+            <TextBlock
+                FontSize="14"
+                Text="{Binding Message}"
+                TextWrapping="Wrap"
+                Foreground="{DynamicResource FluentColorText1}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>
