@@ -59,10 +59,6 @@
             Orientation="Horizontal"
             Spacing="4"
             VerticalAlignment="Center">
-            <u:IconButton
-                Theme="{StaticResource BorderlessIconButton}"
-                Icon="{StaticResource FluentIconGithubLogo}"
-                Click="OpenRepository" />
             <u:ThemeToggleButton
                 IsThreeState="True"
                 Mode="Controller" />
