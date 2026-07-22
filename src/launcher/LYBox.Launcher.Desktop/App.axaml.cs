@@ -230,11 +230,9 @@ public partial class App : Application
                 if (LYBox.Launcher.Desktop.Program.NoSplash)
                 {
                     // --no-splash：跳过闪屏，直接显示主窗口
-                    var navigationService = ServiceLocator.GetService<INavigationService>();
-                    var menuConfigurationService = ServiceLocator.GetService<IMenuConfigurationService>();
                     desktop.MainWindow = new MainWindow()
                     {
-                        DataContext = new MainViewViewModel(navigationService!, menuConfigurationService!)
+                        DataContext = new MainWindowViewModel()
                     };
                 }
                 else

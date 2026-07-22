@@ -12,7 +12,6 @@ Width="720"
 Height="420"
 Icon="/Assets/lybox.ico"
 x:DataType="viewModels:SplashViewModel"
-CountDown="5000"
 mc:Ignorable="d">
 	<u:SplashWindow.Styles>
 		<Style Selector="Border#Backdrop">

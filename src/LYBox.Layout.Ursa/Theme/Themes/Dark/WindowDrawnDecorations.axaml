@@ -4,6 +4,11 @@
     <StaticResource x:Key="WindowBorderBrush" ResourceKey="FluentCardStrokeBrush" />
     <StaticResource x:Key="TitleBarBackground" ResourceKey="FluentColorBackground0" />
 
+    <!-- 失焦状态：标题栏与边框使用更暗的灰色，与 WinUI 3 inactive 行为一致 -->
+    <SolidColorBrush x:Key="TitleBarInactiveBackground" Color="#2A2A2A" />
+    <SolidColorBrush x:Key="WindowInactiveBackground" Color="#2A2A2A" />
+    <SolidColorBrush x:Key="WindowInactiveBorderBrush" Opacity="0.04" Color="#FFFFFF" />
+
     <StaticResource x:Key="CaptionButtonPointeroverBackground" ResourceKey="FluentColorFill1" />
     <StaticResource x:Key="CaptionButtonPressedBackground" ResourceKey="FluentColorFill2" />
     <StaticResource x:Key="CaptionButtonCloseForeground" ResourceKey="FluentColorWhite" />
@@ -11,4 +16,6 @@
     <StaticResource x:Key="CaptionButtonClosePressedBackground" ResourceKey="FluentColorDangerActive" />
     <StaticResource x:Key="CaptionButtonForeground" ResourceKey="FluentColorText1" />
     <StaticResource x:Key="CaptionButtonDisabledForeground" ResourceKey="FluentColorDisabledText" />
+    <!-- 失焦时 CaptionButton 前景更淡（WinUI 3 inactive caption） -->
+    <SolidColorBrush x:Key="CaptionButtonInactiveForeground" Opacity="0.5" Color="#FFFFFF" />
 </ResourceDictionary>

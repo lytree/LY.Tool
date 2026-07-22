@@ -14,6 +14,7 @@ namespace LYBox.Layout.Ursa.Views;
 public partial class MvvmSplashWindow : SplashWindow
 {
     private bool _transitioned;
+    private Window? _nextWindow;
 
     public MvvmSplashWindow()
     {
@@ -22,12 +23,18 @@ public partial class MvvmSplashWindow : SplashWindow
 
     protected override async Task<Window?> CreateNextWindow()
     {
-        var navigationService = ServiceLocator.GetService<INavigationService>();
-        var menuConfigurationService = ServiceLocator.GetService<IMenuConfigurationService>();
-        return new MainWindow()
+        // 幂等保护：基类 CountDown 与子类 RequestClose 可能同时触发，
+        // 确保仅创建一个 MainWindow 实例，避免双窗口。
+        if (_nextWindow is not null)
+            return null;
+        // DataContext 必须是 MainWindowViewModel：MainWindow.axaml 的 x:DataType=MainWindowViewModel，
+        // 且 <MainView DataContext="{Binding MainViewViewModel}" /> 依赖此层级。
+        // MainWindowViewModel 构造函数内部通过 ServiceLocator 自行创建 MainViewViewModel。
+        _nextWindow = new MainWindow()
         {
-            DataContext = new MainViewViewModel(navigationService!, menuConfigurationService!)
+            DataContext = new MainWindowViewModel()
         };
+        return _nextWindow;
     }
 
     protected override void OnDataContextChanged(EventArgs e)
@@ -62,28 +69,29 @@ public partial class MvvmSplashWindow : SplashWindow
                     {
                         desktop.MainWindow = nextWindow;
                     }
+                    // 先隐藏闪屏再显示新窗口，避免两个窗口同时可见
+                    Hide();
                     nextWindow.Show();
                     Close();
                 }
             }
             catch (Exception ex)
-            {
-                // 过渡失败时记录异常并尝试直接显示主窗口
-                System.Diagnostics.Debug.WriteLine($"Splash transition failed: {ex}");
-                Console.Error.WriteLine($"[SplashTransition] {ex}");
-                try
                 {
-                    var navSvc = ServiceLocator.GetService<INavigationService>();
-                    var menuSvc = ServiceLocator.GetService<IMenuConfigurationService>();
-                    var fallback = new MainWindow
+                    // 过渡失败时记录异常并尝试直接显示主窗口
+                    System.Diagnostics.Debug.WriteLine($"Splash transition failed: {ex}");
+                    Console.Error.WriteLine($"[SplashTransition] {ex}");
+                    try
                     {
-                        DataContext = new MainViewViewModel(navSvc!, menuSvc!)
-                    };
-                    if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-                        desktop.MainWindow = fallback;
-                    fallback.Show();
-                    Close();
-                }
+                        var fallback = new MainWindow
+                        {
+                            DataContext = new MainWindowViewModel()
+                        };
+                        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                            desktop.MainWindow = fallback;
+                        Hide();
+                        fallback.Show();
+                        Close();
+                    }
                 catch
                 {
                     // 最终 fallback 也失败，至少不永远卡在闪屏

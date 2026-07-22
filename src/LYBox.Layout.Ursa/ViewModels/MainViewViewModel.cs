@@ -123,6 +123,25 @@ public partial class MainViewViewModel : ViewModelBase
         SelectedMenuItem = _menuConfigurationService.GetMenuItemByKey(s);
     }
 
+    /// <summary>
+    /// 当用户在 NavigationView 中点击菜单项时触发导航。
+    /// 程序化设置 SelectedMenuItem 时（如 OnNavigation）也会触发，需避免递归：
+    /// 若新选中项的 Key 与当前 Content 对应的 Key 一致则跳过。
+    /// </summary>
+    partial void OnSelectedMenuItemChanged(MenuItemViewModel? value)
+    {
+        if (value is null || string.IsNullOrEmpty(value.Key))
+            return;
+        // 仅当 Key 变化时才发送导航消息，避免循环
+        if (_lastNavigatedKey != value.Key)
+        {
+            _lastNavigatedKey = value.Key;
+            WeakReferenceMessenger.Default.Send(value.Key, "JumpTo");
+        }
+    }
+
+    private string? _lastNavigatedKey;
+
     partial void OnIsCollapsedChanged(bool value)
     {
         SettingText = value ? null : _localizationService?.GetString("NAV_Settings", "Settings");

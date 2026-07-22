@@ -28,187 +28,102 @@
                 <Setter Property="Effect" Value="blur(10)" />
             </Style>
         </Panel.Styles>
-        <Grid Classes.Blur="{Binding $parent[u:UrsaWindow].(u:OverlayDialogHost.IsInModalStatus)}" RowDefinitions="Auto, *">
-            <!-- ===== Row 0: Fluent Full-Width Title Bar (top-bottom structure) ===== -->
-            <Border Classes="FluentTitleBar">
-                <Grid ColumnDefinitions="Auto, *, Auto">
-                    <!-- Col 0: Hamburger Toggle Button (Fluent GlobalNavButton icon) -->
-                    <Button
-                        Classes="FluentHamburger"
-                        ToolTip.Tip="{DynamicResource TOOLTIP_TOGGLE_SIDEBAR}"
-                        Command="{Binding ToggleCollapseCommand}"
-                        VerticalAlignment="Center">
-                        <PathIcon Width="20" Height="20"
-                            Data="{DynamicResource FluentLineHorizontal320Regular}"
-                            Foreground="{DynamicResource FluentColorText0}" />
-                    </Button>
-
-                    <!-- Col 1: Search Box (centered) -->
-                    <TextBox
-                        Name="SearchBox"
-                        Grid.Column="1"
-                        Classes="FluentSearchBox"
-                        Width="240"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        PlaceholderText="{DynamicResource SEARCH_PLACEHOLDER}"
-                        Text="{Binding SearchText, Mode=TwoWay}">
-                        <TextBox.InnerLeftContent>
-                            <Path Width="14" Height="14"
-                                Data="{DynamicResource FluentSearch20Regular}"
-                                Fill="{DynamicResource FluentColorText2}" />
-                        </TextBox.InnerLeftContent>
-                    </TextBox>
-
-                    <!-- Col 2: Action Buttons (右侧留出 caption buttons 避让空间: 3 buttons × 46px = 138px + 边框) -->
-                    <StackPanel
-                        Grid.Column="2"
-                        Orientation="Horizontal"
-                        Spacing="4"
-                        VerticalAlignment="Center"
-                        Margin="0,0,150,0">
-                        <u:IconButton
-                            Theme="{StaticResource BorderlessIconButton}"
-                            Icon="{StaticResource FluentIconGithubLogo}"
-                            Click="OpenRepository" />
-                        <u:ThemeToggleButton
-                            IsThreeState="True"
-                            Mode="Controller" />
+        <!-- WinUI 风格布局：左侧 Ursa NavMenu + 右侧内容区。
+             顶部 Margin=48 让出 UrsaWindow TitleBar 高度，避免 NavMenu 与汉堡按钮重合。 -->
+        <Grid Classes.Blur="{Binding $parent[u:UrsaWindow].(u:OverlayDialogHost.IsInModalStatus)}"
+              Margin="0,48,0,0"
+              ColumnDefinitions="Auto,*">
+            <!-- 左侧导航栏：汉堡按钮已移至 UrsaWindow.LeftContent（TitleBar 左侧），
+                 避免 TitleBar 覆盖 MainView 顶部 48px 拦截点击。 -->
+            <Border Classes="FluentNavPane" Grid.Column="0">
+                <Grid RowDefinitions="*,Auto">
+                    <!-- NavMenu 菜单列表（无 Header/Footer，纯菜单项） -->
+                    <u:NavMenu
+                        Name="NavMenu"
+                        Grid.Row="0"
+                        Background="Transparent"
+                        IsHorizontalCollapsed="{Binding IsCollapsed}"
+                        ItemsSource="{Binding Menus.MenuItems}"
+                        SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
+                        ExpandWidth="260"
+                        CollapseWidth="48"
+                        HeaderBinding="{Binding MenuHeader}"
+                        SubMenuBinding="{Binding Children}">
+                        <u:NavMenu.IconTemplate>
+                            <DataTemplate x:DataType="viewmodels:MenuItemViewModel">
+                                <PathIcon
+                                    Width="20" Height="20"
+                                    Data="{Binding MenuIconName, Converter={StaticResource IconConverter}}"
+                                    Foreground="{DynamicResource FluentColorText1}" />
+                            </DataTemplate>
+                        </u:NavMenu.IconTemplate>
+                    </u:NavMenu>
+                    <!-- 底部：设置 + 插件管理 -->
+                    <StackPanel Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,0,0,8">
+                        <Border Classes="FluentDivider" Margin="8,0,8,8" />
+                        <Button
+                            Classes="FluentNavToggle"
+                            HorizontalAlignment="Stretch"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            CornerRadius="4"
+                            ToolTip.Tip="{DynamicResource TOOLTIP_SETTINGS}"
+                            Command="{Binding ActivateCommand}"
+                            CommandParameter="Settings">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <PathIcon
+                                    Width="20" Height="20"
+                                    Margin="14,8,8,8"
+                                    Data="{DynamicResource FluentSettings20Regular}"
+                                    Foreground="{DynamicResource FluentColorText1}" />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    Margin="0,8,8,8"
+                                    VerticalAlignment="Center"
+                                    FontSize="14"
+                                    Text="{Binding SettingText}"
+                                    IsVisible="{Binding !IsCollapsed}" />
+                            </Grid>
+                        </Button>
+                        <Button
+                            Classes="FluentNavToggle"
+                            HorizontalAlignment="Stretch"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            CornerRadius="4"
+                            ToolTip.Tip="{DynamicResource TOOLTIP_PLUGIN_MANAGEMENT}"
+                            Command="{Binding ActivateCommand}"
+                            CommandParameter="PluginManagement">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <PathIcon
+                                    Width="20" Height="20"
+                                    Margin="14,8,8,8"
+                                    Data="{DynamicResource FluentPuzzlePiece20Regular}"
+                                    Foreground="{DynamicResource FluentColorText1}" />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    Margin="0,8,8,8"
+                                    VerticalAlignment="Center"
+                                    FontSize="14"
+                                    Text="{Binding PluginText}"
+                                    IsVisible="{Binding !IsCollapsed}" />
+                            </Grid>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Border>
 
-            <!-- ===== Row 1: Navigation Pane (left) + Content (right) ===== -->
-            <Grid Grid.Row="1" ColumnDefinitions="Auto, *">
-                <!-- Fluent Navigation Pane (no logo) -->
-                <Border
-                    VerticalAlignment="Stretch"
-                    Classes="FluentNavPane"
-                    IsVisible="{Binding !IsSidebarHidden}">
-                    <u:NavMenu
-                        Name="menu"
-                        CommandBinding="{Binding ActivateCommand}"
-                        ExpandWidth="280"
-                        CollapseWidth="48"
-                        SubMenuBinding="{Binding Children}"
-                        HeaderBinding="{Binding}"
-                        IconBinding="{Binding MenuHeader}"
-                        IsHorizontalCollapsed="{Binding IsCollapsed, Mode=TwoWay}"
-                        ItemsSource="{Binding Menus.MenuItems}"
-                        SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}">
-                        <u:NavMenu.Styles>
-                            <Style x:DataType="viewmodels:MenuItemViewModel" Selector="u|NavMenuItem">
-                                <Setter Property="IsSeparator" Value="{Binding IsSeparator}" />
-                            </Style>
-                        </u:NavMenu.Styles>
-                        <u:NavMenu.IconTemplate>
-                            <DataTemplate x:DataType="x:String">
-                                <u:TwoTonePathIcon
-                                    Width="20"
-                                    Height="20"
-                                    ActiveForeground="{DynamicResource FluentAccentBrush}"
-                                    ActiveStrokeBrush="{DynamicResource FluentAccentBrush}"
-                                    Data="{Binding Converter={StaticResource IconConverter}}"
-                                    Foreground="{DynamicResource FluentColorText1}"
-                                    IsActive="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=u:NavMenuItem}, Path=IsHighlighted, Mode=TwoWay}"
-                                    StrokeBrush="{DynamicResource FluentColorText1}" />
-                            </DataTemplate>
-                        </u:NavMenu.IconTemplate>
-                        <u:NavMenu.HeaderTemplate>
-                            <DataTemplate x:DataType="viewmodels:MenuItemViewModel">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock
-                                        HorizontalAlignment="Left"
-                                        FontSize="14"
-                                        Text="{Binding MenuHeader}" />
-                                    <Label
-                                        Theme="{StaticResource TagLabel}"
-                                        Classes="Purple"
-                                        Content="{Binding Status}"
-                                        IsVisible="{Binding Status, Converter={x:Static ObjectConverters.IsNotNull}}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </u:NavMenu.HeaderTemplate>
-                        <u:NavMenu.Footer>
-                            <StackPanel HorizontalAlignment="Stretch" Margin="0,0,0,8">
-                                <Border Classes="FluentDivider" Margin="8,0,8,8" />
-                                <StackPanel.Styles>
-                                    <Style Selector="Button.NavFooterItem">
-                                        <Setter Property="Foreground" Value="{DynamicResource FluentColorText1}" />
-                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                    </Style>
-                                    <Style Selector="Button.NavFooterItem:pointerover">
-                                        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
-                                        <Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
-                                    </Style>
-                                    <Style Selector="Button.NavFooterItem:pressed">
-                                        <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
-                                    </Style>
-                                </StackPanel.Styles>
-                                <Button
-                                    Classes="NavFooterItem"
-                                    HorizontalAlignment="Stretch"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    Padding="0"
-                                    CornerRadius="4"
-                                    ToolTip.Tip="{DynamicResource TOOLTIP_SETTINGS}"
-                                    Command="{Binding ActivateCommand}"
-                                    CommandParameter="Settings">
-                                    <Grid ColumnDefinitions="Auto, *">
-                                        <PathIcon
-                                            Width="20" Height="20"
-                                            Margin="14,8,8,8"
-                                            Data="{DynamicResource FluentSettings20Regular}"
-                                            Foreground="{DynamicResource FluentColorText1}" />
-                                        <TextBlock
-                                            Grid.Column="1"
-                                            Margin="0,8,8,8"
-                                            VerticalAlignment="Center"
-                                            FontSize="14"
-                                            Text="{Binding SettingText}"
-                                            IsVisible="{Binding !IsCollapsed}" />
-                                    </Grid>
-                                </Button>
-                                <Button
-                                    Classes="NavFooterItem"
-                                    HorizontalAlignment="Stretch"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    Padding="0"
-                                    CornerRadius="4"
-                                    ToolTip.Tip="{DynamicResource TOOLTIP_PLUGIN_MANAGEMENT}"
-                                    Command="{Binding ActivateCommand}"
-                                    CommandParameter="PluginManagement">
-                                    <Grid ColumnDefinitions="Auto, *">
-                                        <PathIcon
-                                            Width="20" Height="20"
-                                            Margin="14,8,8,8"
-                                            Data="{DynamicResource FluentPuzzlePiece20Regular}"
-                                            Foreground="{DynamicResource FluentColorText1}" />
-                                        <TextBlock
-                                            Grid.Column="1"
-                                            Margin="0,8,8,8"
-                                            VerticalAlignment="Center"
-                                            FontSize="14"
-                                            Text="{Binding PluginText}"
-                                            IsVisible="{Binding !IsCollapsed}" />
-                                    </Grid>
-                                </Button>
-                            </StackPanel>
-                        </u:NavMenu.Footer>
-                    </u:NavMenu>
-                </Border>
-
-                <!-- Content Area -->
-                <ContentControl Grid.Column="1"
-                                Margin="36,24"
-                                Content="{Binding Content}">
-                    <ContentControl.ContentTemplate>
-                        <plugin:ViewLocator />
-                    </ContentControl.ContentTemplate>
-                </ContentControl>
-            </Grid>
+            <!-- 右侧内容区 -->
+            <ContentControl
+                Grid.Column="1"
+                Margin="36,24"
+                Content="{Binding Content}">
+                <ContentControl.ContentTemplate>
+                    <plugin:ViewLocator />
+                </ContentControl.ContentTemplate>
+            </ContentControl>
         </Grid>
     </Panel>
 </UserControl>

@@ -4,10 +4,11 @@ using Avalonia.Controls.ApplicationLifetimes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using LYBox.Layout.Core.Services;
+using LYBox.Layout.Ursa.Views;
 using LYBox.Plugin.Shared;
 using LYBox.Plugin.Shared.Services;
-using LYBox.UI.Services;
-using LYBox.UI.Views;
+
 
 namespace LYBox.Layout.Ursa.ViewModels;
 
@@ -30,11 +31,9 @@ public partial class ApplicationViewModel : ObservableObject
             var window = desktop.MainWindow;
             if (window is null)
             {
-                var nav = ServiceLocator.GetService<INavigationService>();
-                var menu = ServiceLocator.GetService<IMenuConfigurationService>();
                 window = new MainWindow
                 {
-                    DataContext = new MainViewViewModel(nav!, menu!)
+                    DataContext = new MainWindowViewModel()
                 };
                 desktop.MainWindow = window;
                 window.Show();

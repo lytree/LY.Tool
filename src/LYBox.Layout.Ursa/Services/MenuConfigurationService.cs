@@ -21,6 +21,7 @@ public sealed class MenuConfigurationService : IMenuConfigurationService
         {
             MenuHeader = "NAV_Introduction",
             Key = "Introduction",
+            MenuIconName = "FluentHome20Regular",
             IsSeparator = false
         });
     }

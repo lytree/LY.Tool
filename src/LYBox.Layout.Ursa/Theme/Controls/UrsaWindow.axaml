@@ -8,7 +8,8 @@
         <Setter Property="Foreground" Value="{DynamicResource WindowDefaultForeground}" />
         <Setter Property="FontSize" Value="{DynamicResource DefaultFontSize}" />
         <Setter Property="FontFamily" Value="{DynamicResource DefaultFontFamily}" />
-        <Setter Property="ExtendClientAreaToDecorationsHint" Value="False" />
+        <!-- 仿照 Ursa 官方 Demo：自绘窗体（ExtendClientAreaToDecorationsHint=True）+ Ursa TitleBar 提供拖动区域。
+             具体是否启用 ExtendClientAreaToDecorationsHint 由 MainWindow.axaml 显式设置。 -->
         <Setter Property="u:OverlayDialogHost.IsModalStatusScope" Value="True" />
         <Setter Property="WindowDecorationsTheme" Value="{DynamicResource KEY_URSAWINDOW_DRAWN_DECORATIONS}" />
         <Setter Property="WindowDecorations" Value="{x:Static WindowDecorations.Full}" />
@@ -57,8 +58,9 @@
 
     <ControlTheme x:Key="{x:Static u:UrsaWindow.KEY_URSAWINDOW_DRAWN_DECORATIONS}" TargetType="WindowDrawnDecorations">
         <Setter Property="DefaultTitleBarHeight" Value="48" />
-        <Setter Property="DefaultFrameThickness" Value="4" />
-        <!-- <Setter Property="DefaultShadowThickness" Value="8" /> -->
+        <!-- WinUI 3 标准：边框厚度 1px，最大化时归零避免白边 -->
+        <Setter Property="DefaultFrameThickness" Value="1" />
+        <Setter Property="DefaultShadowThickness" Value="8" />
         <Setter Property="Template">
             <WindowDrawnDecorationsTemplate>
                 <WindowDrawnDecorationsContent>
@@ -180,9 +182,43 @@
             </Style>
         </Style>
 
-        <!-- Maximized: restore button path changes -->
-        <Style Selector="^:maximized /template/ Button#PART_MaximizeButton">
-            <Setter Property="Content" Value="{StaticResource WindowRestoreGlyph}" />
+        <!-- Maximized: restore button path changes + 边框归零避免白边 -->
+        <Style Selector="^:maximized">
+            <Style Selector="^ /template/ Button#PART_MaximizeButton">
+                <Setter Property="Content" Value="{StaticResource WindowRestoreGlyph}" />
+            </Style>
+            <!-- 最大化时移除阴影外边距，并将边框厚度归零（WinUI 3 行为） -->
+            <Style Selector="^ /template/ Panel#PART_UnderlayWrapper">
+                <Setter Property="Margin" Value="0" />
+            </Style>
+            <Style Selector="^ /template/ Panel#PART_OverlayWrapper">
+                <Setter Property="Margin" Value="0" />
+            </Style>
+            <Style Selector="^ /template/ Border#PART_WindowBorder">
+                <Setter Property="BorderThickness" Value="0" />
+                <!-- BoxShadows 是值类型，"none" 由 Avalonia 类型转换器解析为空阴影 -->
+                <Setter Property="BoxShadow" Value="none" />
+            </Style>
+        </Style>
+
+        <!-- 窗口失焦时标题栏/边框使用更淡的颜色（WinUI 3 inactive 行为） -->
+        <Style Selector="^:inactive">
+            <Style Selector="^ /template/ Panel#PART_TitleBar">
+                <Setter Property="Background" Value="{DynamicResource TitleBarInactiveBackground}" />
+            </Style>
+            <Style Selector="^ /template/ Border#PART_WindowBorder">
+                <Setter Property="Background" Value="{DynamicResource WindowInactiveBackground}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource WindowInactiveBorderBrush}" />
+            </Style>
+            <!-- 失焦时 CaptionButton 前景变淡 -->
+            <Style Selector="^ /template/ Button#PART_MinimizeButton,
+                              ^ /template/ Button#PART_MaximizeButton,
+                              ^ /template/ Button#PART_CloseButton,
+                              ^ /template/ Button#PART_FullScreenButton,
+                              ^ /template/ Button#PART_PopoverFullScreenButton,
+                              ^ /template/ Button#PART_PopoverCloseButton">
+                <Setter Property="Foreground" Value="{DynamicResource CaptionButtonInactiveForeground}" />
+            </Style>
         </Style>
 
         <!--  Border: inset titlebar and buttons inside frame  -->

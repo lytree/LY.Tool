@@ -1,7 +1,9 @@
+using System;
 using System.Globalization;
 using Avalonia;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
+using Avalonia.Styling;
 
 namespace LYBox.Plugin.Shared.Converters;
 
@@ -37,8 +39,18 @@ public class IconNameToPathConverter: IValueConverter
         }
         else if (value is string s)
         {
+            // 先尝试从 Application 资源查找 Fluent 图标键（如 "FluentHome20Regular"），
+            // 找到则返回对应的 StreamGeometry；否则回退到哈希映射。
+            if (!string.IsNullOrEmpty(s))
+            {
+                var resources = Application.Current?.Resources;
+                if (resources is not null && resources.TryGetResource(s, null, out var res) && res is StreamGeometry geometry)
+                {
+                    return geometry;
+                }
+            }
             var hash = s.GetHashCode();
-            return _cachedGeometries[Math.Abs(hash) % _cachedGeometries.Length];
+            return _cachedGeometries[Math.Abs(hash) % _paths.Length];
         }
         return AvaloniaProperty.UnsetValue; 
     }

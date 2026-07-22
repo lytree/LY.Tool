@@ -1,6 +1,5 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using System;
 using Ursa.Controls;
 using LYBox.Layout.Ursa.ViewModels;
@@ -26,13 +25,5 @@ public partial class MainView : UserControl
         _viewModel.NotificationManager = WindowNotificationManager.TryGetNotificationManager(topLevel, out var manager)
             ? manager
             : new WindowNotificationManager(topLevel);
-    }
-
-    private async void OpenRepository(object? sender, RoutedEventArgs e)
-    {
-        var top = TopLevel.GetTopLevel(this);
-        if (top is null) return;
-        var launcher = top.Launcher;
-        await launcher.LaunchUriAsync(new Uri("https://github.com/irihitech/Ursa.Avalonia"));
     }
 }

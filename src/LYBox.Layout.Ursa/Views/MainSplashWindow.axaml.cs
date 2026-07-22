@@ -18,11 +18,9 @@ public partial class MainSplashWindow : SplashWindow
 
     protected override async Task<Window?> CreateNextWindow()
     {
-        var navigationService = ServiceLocator.GetService<INavigationService>();
-        var menuConfigurationService = ServiceLocator.GetService<IMenuConfigurationService>();
         return new MainWindow()
         {
-            DataContext = new MainViewViewModel(navigationService!, menuConfigurationService!)
+            DataContext = new MainWindowViewModel()
         };
     }
 }
