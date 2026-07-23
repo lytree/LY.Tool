@@ -16,6 +16,26 @@
       "serverTime": "2026-07-23T00:00:00.000Z"
     }
   },
+  "OpenFilePicker": {
+    "delay": 100,
+    "result": ["C:/mock/example.txt", "C:/mock/sample.json"]
+  },
+  "SaveFilePicker": {
+    "delay": 100,
+    "result": "C:/mock/untitled.txt"
+  },
+  "OpenFolderPicker": {
+    "delay": 100,
+    "result": ["C:/mock/projects"]
+  },
+  "ShowMessageBox": {
+    "delay": 100,
+    "result": "OK"
+  },
+  "ShowConfirmDialog": {
+    "delay": 100,
+    "result": true
+  },
   "_sseEvents": {
     "tick": {
       "intervalMs": 2000,

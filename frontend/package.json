@@ -1,0 +1,23 @@
+{
+  "name": "lybox-frontend",
+  "version": "2.2.0",
+  "private": true,
+  "description": "LYBox 前端 SDK 与脚手架模板 monorepo",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter \"./packages/**\" build",
+    "dev": "pnpm -r --parallel --filter \"./packages/**\" dev",
+    "clean": "pnpm -r exec rimraf dist node_modules .turbo",
+    "typecheck": "pnpm -r --filter \"./packages/**\" typecheck"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "typescript": "^5.6.0"
+  },
+  "packageManager": "pnpm@11.16.0+sha512.b767e9a98fc87aec0f42daefcd0e84941c2cdb45d73c4e1e68860fb2bdfdbe032ab592105479e5e05c237f740c8a5ffdbbb52385797ddc2296745a1bbb883e8d"
+}

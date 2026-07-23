@@ -19,7 +19,9 @@ LYBox WebView IPC 是一套基于 `Avalonia.Controls.WebView` 的双向通讯框
   - [`IRpcHost` 主机接口](#irpchost-主机接口)
   - [`WebViewIpcHost` 运行时](#webviewipchost-运行时)
   - [`Channel<T>` 流式通道](#channelt-流式通道)
+  - [系统级命令（SystemCommands）](#系统级命令systemcommands)
 - [前端 JS API](#前端-js-api)
+- [前端 SDK（@lybox/sdk）](#前端-sdklyboxsdk)
 - [源生成器](#源生成器)
 - [消息协议](#消息协议)
 - [完整示例](#完整示例)
@@ -384,6 +386,162 @@ const unsub = ch.on(progress => {
 
 ---
 
+### 系统级命令（SystemCommands）
+
+**文件**：[src/LYBox.Plugin.Shared/Web/SystemCommands.cs](../src/LYBox.Plugin.Shared/Web/SystemCommands.cs)
+
+`SystemCommands` 是一个静态注册器，在 `WebPluginView` 初始化时自动将系统级 RPC 命令注册到每个 WebView 实例。所有 web 插件无需编写任何 C# 代码即可调用系统能力。
+
+#### 注册机制
+
+```csharp
+// WebPluginView.axaml.cs 中的自动注册（开发者无需手动调用）
+RegisterPluginBindings(pluginId);
+SystemCommands.Register(_host, () => TopLevel.GetTopLevel(this));
+```
+
+#### 命令清单
+
+| 命令名 | 底层 API | 参数 | 返回值 | 说明 |
+|--------|---------|------|--------|------|
+| `OpenFilePicker` | `StorageProvider.OpenFilePickerAsync` | `OpenFilePickerOptions` | `string[]` | 打开文件选择器，返回选中文件路径数组 |
+| `SaveFilePicker` | `StorageProvider.SaveFilePickerAsync` | `SaveFilePickerOptions` | `string \| null` | 打开保存文件对话框，返回保存路径或 null（取消） |
+| `OpenFolderPicker` | `StorageProvider.OpenFolderPickerAsync` | `OpenFolderPickerOptions` | `string[]` | 打开文件夹选择器，返回路径数组 |
+| `ShowMessageBox` | `Ursa.OverlayMessageBox.ShowAsync` | `MessageBoxOptions` | `MessageBoxResult` | 显示消息框 |
+| `ShowConfirmDialog` | `Ursa.OverlayMessageBox.ShowAsync` | `ConfirmDialogOptions` | `boolean` | 显示确认对话框（Yes/No） |
+
+#### 参数类型
+
+**文件选择器选项**：
+
+```typescript
+// 文件过滤器
+interface FileFilter {
+  name: string;              // 过滤器显示名称，如"图片"
+  extensions: string[];      // 扩展名列表（不含点），如 ['png', 'jpg']
+}
+
+// 打开文件选择器
+interface OpenFilePickerOptions {
+  title?: string;            // 对话框标题
+  multiple?: boolean;        // 是否允许多选（默认 false）
+  filters?: FileFilter[];    // 文件类型过滤器
+}
+
+// 保存文件选择器
+interface SaveFilePickerOptions {
+  title?: string;
+  suggestedFileName?: string;  // 建议的文件名（不含路径）
+  filters?: FileFilter[];
+}
+
+// 打开文件夹选择器
+interface OpenFolderPickerOptions {
+  title?: string;
+  multiple?: boolean;
+}
+```
+
+**对话框选项**：
+
+```typescript
+type MessageBoxIcon = 'info' | 'warning' | 'error' | 'success';
+type MessageBoxButton = 'OK' | 'YesNo' | 'YesNoCancel';
+
+interface MessageBoxOptions {
+  message: string;            // 消息内容
+  title?: string;             // 对话框标题
+  button?: MessageBoxButton;   // 按钮组合（默认 'OK'）
+  icon?: MessageBoxIcon;       // 图标（默认 'info'）
+}
+
+interface ConfirmDialogOptions {
+  message: string;
+  title?: string;
+  icon?: MessageBoxIcon;       // 默认 'warning'
+}
+
+type MessageBoxResult = 'OK' | 'Yes' | 'No' | 'Cancel';
+```
+
+#### 前端调用示例
+
+**原生 JS（浏览器环境）**：
+
+```javascript
+// 文件选择器
+const files = await window.__lybox.rpc('OpenFilePicker', {
+  title: '选择图片',
+  multiple: true,
+  filters: [
+    { name: '图片', extensions: ['png', 'jpg', 'jpeg'] },
+    { name: '所有文件', extensions: ['*'] }
+  ]
+});
+// files: ["C:/path/to/file1.png", "C:/path/to/file2.jpg"]
+
+// 保存文件对话框
+const savePath = await window.__lybox.rpc('SaveFilePicker', {
+  suggestedFileName: 'untitled.txt',
+  filters: [{ name: '文本文件', extensions: ['txt'] }]
+});
+// savePath: "C:/path/to/untitled.txt" 或 null（用户取消）
+
+// 消息框
+const result = await window.__lybox.rpc('ShowMessageBox', {
+  message: '确定要删除吗？',
+  title: '确认',
+  button: 'YesNo',
+  icon: 'warning'
+});
+// result: "Yes" 或 "No"
+
+// 确认对话框
+const confirmed = await window.__lybox.rpc('ShowConfirmDialog', {
+  message: '确定要保存更改吗？'
+});
+// confirmed: true 或 false
+```
+
+**TypeScript SDK（推荐）**：
+
+```typescript
+import { openFilePicker, saveFilePicker, showConfirmDialog } from '@lybox/sdk';
+
+const files = await openFilePicker({
+  title: '选择文件',
+  multiple: true,
+  filters: [{ name: '文本', extensions: ['txt', 'md'] }]
+});
+
+const confirmed = await showConfirmDialog({ message: '确定删除？' });
+if (confirmed) {
+  // 执行删除
+}
+```
+
+#### 跨平台说明
+
+- **文件选择器**：基于 Avalonia `StorageProvider`，自动适配 Windows（文件资源管理器）、macOS（Finder）、Linux（GTK 文件对话框）
+- **对话框**：基于 Ursa `OverlayMessageBox`，在宿主窗口内以模态覆盖层形式显示，风格与宿主 UI 一致
+- **线程安全**：所有命令在 UI 线程执行，`StorageProvider` 与 `OverlayMessageBox` 的异步调用由 Avalonia 调度器自动处理
+
+#### Mock 支持
+
+Mock Server 已内置系统命令的 mock 响应，浏览器调试模式下返回模拟数据：
+
+```json
+{
+  "OpenFilePicker": { "delay": 100, "result": ["C:/mock/example.txt"] },
+  "SaveFilePicker": { "delay": 100, "result": "C:/mock/untitled.txt" },
+  "OpenFolderPicker": { "delay": 100, "result": ["C:/mock/projects"] },
+  "ShowMessageBox": { "delay": 100, "result": "OK" },
+  "ShowConfirmDialog": { "delay": 100, "result": true }
+}
+```
+
+---
+
 ## 前端 JS API
 
 **文件**：[src/LYBox.Plugin.Shared/Rpc/Assets/ipc.js](../src/LYBox.Plugin.Shared/Rpc/Assets/ipc.js)
@@ -425,6 +583,241 @@ window.go.MyApp.Services.CounterService.AddAsync(a, b) // → Promise<number>
 window.__lybox.on('__lybox:ready', async () => {
     // 此后可安全调用 window.go.*
 });
+```
+
+---
+
+## 前端 SDK（@lybox/sdk）
+
+**路径**：[frontend/packages/sdk](../frontend/packages/sdk)
+
+`@lybox/sdk` 是官方 TypeScript SDK，为 Vue3/React 项目提供类型安全的 IPC 封装、Fluent Design 主题与调试工具。通过 pnpm monorepo 管理，构建产物发布到 npm。
+
+### 安装
+
+```bash
+# 在插件前端项目中
+npm install @lybox/sdk
+# 或
+pnpm add @lybox/sdk
+```
+
+### 包结构
+
+```
+frontend/packages/sdk/
+├── src/
+│   ├── index.ts              # 主入口
+│   ├── rpc.ts                # RPC 调用（rpc<T>）
+│   ├── events.ts             # 事件订阅（on/off/emit）
+│   ├── channel.ts            # 流式 Channel
+│   ├── env.ts                # 环境检测（isWebView/isBrowser）
+│   ├── debug.ts              # 调试面板（mountDebugPanel）
+│   ├── system.ts             # 系统 API（文件选择器 + 对话框）
+│   └── theme/                # Fluent Design 主题（合并自 @lybox/theme）
+│       ├── index.ts
+│       ├── lybox-theme.css   # CSS 变量定义
+│       ├── theme-switcher.ts # setTheme/getTheme/restoreTheme
+│       ├── tokens.json       # 设计令牌
+│       └── types.ts
+├── package.json
+└── tsup.config.ts
+```
+
+### 子路径导出
+
+| 导入路径 | 用途 |
+|---------|------|
+| `@lybox/sdk` | IPC + 事件 + Channel + 环境检测 + 调试 + 主题 + 系统 API（全部能力） |
+| `@lybox/sdk/theme` | 仅主题子模块（按需引入，减小打包体积） |
+| `@lybox/sdk/css` | Fluent Design CSS 变量（`import '@lybox/sdk/css'`） |
+| `@lybox/sdk/tokens` | 设计令牌 JSON（`import tokens from '@lybox/sdk/tokens'`） |
+
+### 核心 API
+
+#### RPC 调用
+
+```typescript
+import { rpc, rpcChannel } from '@lybox/sdk';
+
+// 调用宿主命令（类型安全）
+const greeting = await rpc<string>('GreetAsync', 'World');
+const sum = await rpc<number>('AddAsync', 3, 5);
+
+// 通过 Channel 接收流式数据
+const ch = await rpcChannel<number>('StartProgress');
+const unsub = ch.on(progress => {
+  console.log('进度:', progress);
+  if (progress >= 100) unsub();
+});
+```
+
+#### 事件订阅
+
+```typescript
+import { on, emit, whenReady } from '@lybox/sdk';
+
+// 等待运行时就绪
+await whenReady();
+
+// 订阅 C# 推送的事件
+const unsubscribe = on<{ count: number; time: string }>('tick', (data) => {
+  console.log(`[${data.time}] #${data.count}`);
+});
+// 取消订阅
+unsubscribe();
+
+// 向 C# 发送事件
+emit('user.click', { x: 100, y: 200 });
+```
+
+#### 环境检测
+
+```typescript
+import { isWebView, isBrowser, getEnvironment } from '@lybox/sdk';
+
+if (isWebView()) {
+  // 运行在 Avalonia WebView 内，使用原生 IPC
+} else if (isBrowser()) {
+  // 运行在浏览器中（调试模式），使用 HTTP 传输
+}
+
+const env = getEnvironment();
+console.log(env.platform); // 'webview' | 'browser'
+```
+
+#### 系统级 API
+
+```typescript
+import {
+  openFilePicker,
+  saveFilePicker,
+  openFolderPicker,
+  showMessageBox,
+  showConfirmDialog
+} from '@lybox/sdk';
+
+// 文件选择器
+const files = await openFilePicker({
+  title: '选择图片',
+  multiple: true,
+  filters: [{ name: '图片', extensions: ['png', 'jpg'] }]
+});
+
+const savePath = await saveFilePicker({
+  suggestedFileName: 'output.txt'
+});
+
+const folders = await openFolderPicker({ title: '选择目录' });
+
+// 对话框
+const result = await showMessageBox({
+  message: '操作完成',
+  icon: 'success'
+});
+
+const confirmed = await showConfirmDialog({
+  message: '确定删除？',
+  icon: 'warning'
+});
+```
+
+#### 主题管理
+
+```typescript
+// main.ts / main.tsx
+import '@lybox/sdk/css';          // 引入 CSS 变量
+import { restoreTheme } from '@lybox/sdk';
+
+restoreTheme();  // 恢复上次保存的主题（从 localStorage）
+
+// 运行时切换
+import { setTheme, getTheme, toggleTheme } from '@lybox/sdk';
+
+setTheme('dark');         // 切换到深色
+console.log(getTheme());  // 'dark'
+toggleTheme();            // 切换回 'light'
+```
+
+CSS 变量与宿主 Avalonia `FluentDesign/Light.axaml` 和 `Dark.axaml` 完全一致：
+
+```css
+:root {
+  --lybox-color-primary: #0078D4;
+  --lybox-color-text-0: #1A1A1A;
+  --lybox-card-background: #FFFFFF;
+  /* ... */
+}
+
+:root[data-theme="dark"] {
+  --lybox-color-primary: #60CDFF;
+  --lybox-color-text-0: #FFFFFF;
+  --lybox-card-background: #2C2C2C;
+  /* ... */
+}
+```
+
+#### 调试面板
+
+```typescript
+import { mountDebugPanel } from '@lybox/sdk';
+
+// 挂载浮动调试面板（仅开发环境）
+const unmount = mountDebugPanel({
+  position: 'bottom-right',
+  // 显示已注册的 RPC 命令、SSE 事件流
+});
+
+// 卸载
+unmount();
+```
+
+### 项目模板
+
+提供两个脚手架包，一键创建集成 SDK 的前端项目：
+
+```bash
+# Vue3 + Vite + TypeScript
+npm create lybox-vue3 my-plugin
+
+# React + Vite + TypeScript
+npm create lybox-react my-plugin
+```
+
+模板特性：
+- 预配置 `@lybox/sdk` 依赖与 CSS 引入
+- Vite 开发代理到 `lybox-mock`（5173 端口）
+- 内置 RPC 调用、SSE 订阅、主题切换示例
+- `mock.json` 已配置好 mock 响应
+
+### 调试流程
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 开发模式（浏览器 + Mock Server）                              │
+│                                                             │
+│  Vite Dev Server (5174)  ──proxy──►  lybox-mock (5173)     │
+│       │                                    │                 │
+│       │ import '@lybox/sdk/css'            │ mock.json       │
+│       │ rpc() → fetch /__rpc               │ SSE /sse/{id}   │
+│       │ on()  → EventSource                │                 │
+│       └────────────────────────────────────┘                 │
+│                                                             │
+│  启动：lybox-mock --port 5173                                │
+│       cd my-plugin && pnpm dev  # Vite 5174                 │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ 生产模式（Avalonia WebView）                                 │
+│                                                             │
+│  WebView ←── ipc.js 注入 ── Host (WebViewIpcHost)           │
+│       │                                    │                 │
+│       │ window.__lybox.rpc()               │ C# [RpcCommand] │
+│       │ window.__lybox.on()                │ EmitEventAsync  │
+│       └────────────────────────────────────┘                 │
+│                                                             │
+│  启动：dotnet run（宿主加载插件）                              │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---

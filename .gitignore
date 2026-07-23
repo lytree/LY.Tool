@@ -376,3 +376,23 @@ cipx/
 **/.idea/copilot.*
 *.lscache
 bin/**
+
+# ============================================
+# Node.js / 前端工具链
+# ============================================
+# 构建产物（frontend/packages/*/dist）
+dist/
+# pnpm 全局存储（如果使用全局 store）
+.pnpm-store/
+# turbo 缓存
+.turbo/
+# Vite 缓存
+.vite/
+# 本地环境变量
+*.local
+# npm/pnpm 调试日志
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# 锁文件保留（pnpm-lock.yaml 需提交以保证可复现构建）

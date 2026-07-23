@@ -54,6 +54,25 @@
         </div>
     </div>
 
+    <div class="card">
+        <h2>3. 系统 API：文件选择器</h2>
+        <div class="row">
+            <button onclick="callOpenFilePicker()">OpenFilePicker</button>
+            <button onclick="callSaveFilePicker()">SaveFilePicker</button>
+            <button onclick="callOpenFolderPicker()">OpenFolderPicker</button>
+        </div>
+        <div class="result" id="file-picker-result">（等待调用）</div>
+    </div>
+
+    <div class="card">
+        <h2>4. 系统 API：对话框</h2>
+        <div class="row">
+            <button onclick="callMessageBox()">ShowMessageBox</button>
+            <button onclick="callConfirmDialog()">ShowConfirmDialog</button>
+        </div>
+        <div class="result" id="dialog-result">（等待调用）</div>
+    </div>
+
     <script>
         // 等待 __lybox 运行时就绪后注册事件监听
         (function waitForLybox() {
@@ -106,6 +125,80 @@
                 document.getElementById('info-result').textContent = JSON.stringify(result, null, 2);
             } catch (e) {
                 document.getElementById('info-result').textContent = '错误: ' + e.message;
+            }
+        }
+
+        // ==================== 系统 API：文件选择器 ====================
+        async function callOpenFilePicker() {
+            try {
+                var files = await window.__lybox.rpc('OpenFilePicker', {
+                    title: '选择文件',
+                    multiple: true,
+                    filters: [
+                        { name: '文本文件', extensions: ['txt', 'md', 'json'] },
+                        { name: '所有文件', extensions: ['*'] }
+                    ]
+                });
+                document.getElementById('file-picker-result').textContent =
+                    '选中文件：' + JSON.stringify(files, null, 2);
+            } catch (e) {
+                document.getElementById('file-picker-result').textContent = '错误: ' + e.message;
+            }
+        }
+
+        async function callSaveFilePicker() {
+            try {
+                var path = await window.__lybox.rpc('SaveFilePicker', {
+                    title: '保存文件',
+                    suggestedFileName: 'untitled.txt',
+                    filters: [{ name: '文本文件', extensions: ['txt'] }]
+                });
+                document.getElementById('file-picker-result').textContent =
+                    '保存路径：' + (path || '（已取消）');
+            } catch (e) {
+                document.getElementById('file-picker-result').textContent = '错误: ' + e.message;
+            }
+        }
+
+        async function callOpenFolderPicker() {
+            try {
+                var folders = await window.__lybox.rpc('OpenFolderPicker', {
+                    title: '选择文件夹',
+                    multiple: false
+                });
+                document.getElementById('file-picker-result').textContent =
+                    '选中文件夹：' + JSON.stringify(folders, null, 2);
+            } catch (e) {
+                document.getElementById('file-picker-result').textContent = '错误: ' + e.message;
+            }
+        }
+
+        // ==================== 系统 API：对话框 ====================
+        async function callMessageBox() {
+            try {
+                var result = await window.__lybox.rpc('ShowMessageBox', {
+                    title: '消息',
+                    message: '这是一条来自前端的系统消息框测试。',
+                    button: 'OK',
+                    icon: 'info'
+                });
+                document.getElementById('dialog-result').textContent = '按钮结果：' + result;
+            } catch (e) {
+                document.getElementById('dialog-result').textContent = '错误: ' + e.message;
+            }
+        }
+
+        async function callConfirmDialog() {
+            try {
+                var confirmed = await window.__lybox.rpc('ShowConfirmDialog', {
+                    title: '确认',
+                    message: '确定要执行此操作吗？',
+                    icon: 'warning'
+                });
+                document.getElementById('dialog-result').textContent =
+                    '用户确认：' + (confirmed ? '是' : '否');
+            } catch (e) {
+                document.getElementById('dialog-result').textContent = '错误: ' + e.message;
             }
         }
     </script>

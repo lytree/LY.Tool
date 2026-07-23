@@ -113,6 +113,9 @@ public partial class WebPluginView : UserControl
         // 3. 注册插件的 [RpcCommand] 绑定（需在 InjectBindingsAsync 前完成）
         RegisterPluginBindings(pluginId);
 
+        // 3b. 注册系统级命令（文件选择器 + 对话框），所有 web 插件共享
+        SystemCommands.Register(_host, () => TopLevel.GetTopLevel(this));
+
         // 4. 订阅 NavigationCompleted 注入引导脚本
         webView.NavigationCompleted += async (_, _) =>
         {
