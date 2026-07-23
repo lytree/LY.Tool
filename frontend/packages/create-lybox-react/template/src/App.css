@@ -1,0 +1,291 @@
+/* 全部样式使用 @lybox/sdk/css 提供的 CSS 变量，不硬编码颜色。
+   变量定义见 @lybox/sdk/src/theme/lybox-theme.css，与宿主 Avalonia FluentDesign 主题一致。 */
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--lybox-color-background-0);
+  color: var(--lybox-color-text-0);
+  font-family: var(--lybox-font-family);
+  font-size: var(--lybox-font-size-body);
+  line-height: 1.5;
+}
+
+/* 顶部标题栏 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--lybox-spacing-base) var(--lybox-spacing-loose);
+  background-color: var(--lybox-color-background-1);
+  border-bottom: 1px solid var(--lybox-color-border);
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: var(--lybox-spacing-base);
+}
+
+.header-name {
+  margin: 0;
+  font-size: var(--lybox-font-size-subtitle);
+  font-weight: 600;
+  color: var(--lybox-color-text-0);
+}
+
+/* 徽章 */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--lybox-spacing-extra-tight);
+  border-radius: var(--lybox-radius-small);
+  font-size: var(--lybox-font-size-caption);
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--lybox-color-background-1);
+}
+
+.badge-webview {
+  background-color: var(--lybox-color-primary);
+}
+
+.badge-browser {
+  background-color: var(--lybox-color-success);
+}
+
+.badge-info {
+  background-color: var(--lybox-color-primary-light);
+  color: var(--lybox-color-primary);
+}
+
+/* 主体内容 */
+.main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: var(--lybox-spacing-base);
+  padding: var(--lybox-spacing-loose);
+}
+
+/* 卡片 */
+.card {
+  padding: var(--lybox-spacing-base);
+  background-color: var(--lybox-card-background);
+  border: 1px solid var(--lybox-card-stroke);
+  border-radius: var(--lybox-radius-medium);
+  box-shadow: var(--lybox-shadow-card);
+}
+
+.card-title {
+  margin: 0 0 var(--lybox-spacing-base);
+  font-size: var(--lybox-font-size-subtitle);
+  font-weight: 600;
+  color: var(--lybox-color-text-0);
+  display: flex;
+  align-items: center;
+  gap: var(--lybox-spacing-tight);
+}
+
+.card-hint {
+  margin: 0 0 var(--lybox-spacing-base);
+  font-size: var(--lybox-font-size-caption);
+  color: var(--lybox-color-text-2);
+}
+
+.card-hint code {
+  padding: 1px var(--lybox-spacing-extra-tight);
+  background-color: var(--lybox-subtle);
+  border-radius: var(--lybox-radius-small);
+  font-family: var(--lybox-font-family-mono);
+  font-size: var(--lybox-font-size-caption);
+  color: var(--lybox-color-primary);
+}
+
+/* 行布局 */
+.row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--lybox-spacing-tight);
+  padding: var(--lybox-spacing-extra-tight) 0;
+}
+
+.row-label {
+  min-width: 140px;
+  font-size: var(--lybox-font-size-body);
+  color: var(--lybox-color-text-1);
+  font-family: var(--lybox-font-family-mono);
+}
+
+.row-operator {
+  font-size: var(--lybox-font-size-body);
+  color: var(--lybox-color-text-2);
+  min-width: 16px;
+  text-align: center;
+}
+
+/* 输入框 */
+.input {
+  padding: var(--lybox-spacing-extra-tight) var(--lybox-spacing-tight);
+  font-size: var(--lybox-font-size-body);
+  color: var(--lybox-color-text-0);
+  background-color: var(--lybox-color-background-1);
+  border: 1px solid var(--lybox-color-border);
+  border-radius: var(--lybox-radius-small);
+  outline: none;
+  min-width: 200px;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.input:focus {
+  border-color: var(--lybox-color-border-focus);
+}
+
+.input-narrow {
+  min-width: 80px;
+  width: 80px;
+}
+
+/* 按钮 */
+.btn {
+  padding: var(--lybox-spacing-extra-tight) var(--lybox-spacing-base);
+  font-size: var(--lybox-font-size-body);
+  border: 1px solid transparent;
+  border-radius: var(--lybox-radius-small);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-primary {
+  color: var(--lybox-color-background-1);
+  background-color: var(--lybox-color-primary);
+  border-color: var(--lybox-color-primary);
+}
+
+.btn-primary:not(:disabled):hover {
+  background-color: var(--lybox-color-primary-hover);
+  border-color: var(--lybox-color-primary-hover);
+}
+
+.btn-primary:not(:disabled):active {
+  background-color: var(--lybox-color-primary-active);
+}
+
+.btn-ghost {
+  color: var(--lybox-color-text-0);
+  background-color: transparent;
+  border-color: var(--lybox-color-border);
+}
+
+.btn-ghost:not(:disabled):hover {
+  background-color: var(--lybox-subtle-hover);
+}
+
+/* 结果展示 */
+.result {
+  margin-top: var(--lybox-spacing-extra-tight);
+  margin-left: 140px;
+  padding: var(--lybox-spacing-extra-tight) var(--lybox-spacing-tight);
+  background-color: var(--lybox-color-primary-light);
+  border-radius: var(--lybox-radius-small);
+  font-size: var(--lybox-font-size-body);
+  color: var(--lybox-color-text-1);
+  font-family: var(--lybox-font-family-mono);
+  word-break: break-all;
+}
+
+.result-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lybox-spacing-extra-tight);
+}
+
+.result-key {
+  display: inline-block;
+  min-width: 48px;
+  color: var(--lybox-color-text-2);
+}
+
+/* 事件日志 */
+.log {
+  margin-top: var(--lybox-spacing-tight);
+  max-height: 200px;
+  overflow-y: auto;
+  padding: var(--lybox-spacing-tight);
+  background-color: var(--lybox-color-background-3);
+  border-radius: var(--lybox-radius-small);
+}
+
+.log-empty {
+  font-size: var(--lybox-font-size-caption);
+  color: var(--lybox-color-text-3);
+}
+
+.log-line {
+  display: flex;
+  align-items: center;
+  gap: var(--lybox-spacing-extra-tight);
+  padding: 2px 0;
+  font-size: var(--lybox-font-size-caption);
+  font-family: var(--lybox-font-family-mono);
+  color: var(--lybox-color-text-1);
+  border-bottom: 1px solid var(--lybox-color-border);
+}
+
+.log-line:last-child {
+  border-bottom: none;
+}
+
+.log-time {
+  color: var(--lybox-color-text-2);
+  flex-shrink: 0;
+}
+
+.log-count {
+  color: var(--lybox-color-primary);
+  font-weight: 600;
+  flex-shrink: 0;
+  min-width: 48px;
+}
+
+.log-message {
+  color: var(--lybox-color-text-1);
+  flex: 1;
+  word-break: break-all;
+}
+
+/* 底部 */
+.footer {
+  display: flex;
+  justify-content: center;
+  padding: var(--lybox-spacing-base) var(--lybox-spacing-loose);
+  background-color: var(--lybox-color-background-1);
+  border-top: 1px solid var(--lybox-color-border);
+  font-size: var(--lybox-font-size-caption);
+  color: var(--lybox-color-text-2);
+}
+
+/* 响应式 */
+@media (max-width: 640px) {
+  .row-label {
+    min-width: 100%;
+    margin-bottom: var(--lybox-spacing-extra-tight);
+  }
+
+  .input {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .result {
+    margin-left: 0;
+  }
+}

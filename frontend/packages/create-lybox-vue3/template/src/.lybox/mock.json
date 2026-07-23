@@ -1,0 +1,18 @@
+{
+  "GreetAsync": { "delay": 100, "result": "Hello from Vue3! 你好，" },
+  "AddAsync": { "delay": 50, "result": 42 },
+  "GetPluginInfoAsync": {
+    "delay": 80,
+    "result": {
+      "id": "{{PLUGIN_ID}}",
+      "name": "Vue3 Plugin (Mock)",
+      "version": "1.0.0-mock"
+    }
+  },
+  "_sseEvents": {
+    "tick": {
+      "intervalMs": 2000,
+      "data": { "count": 1, "time": "00:00:00", "message": "Vue3 Mock 推送" }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+# LYBox GitVersion 配置
+#
+# 版本号生成规则：
+#   - 标签 V2.2.0               → 2.2.0                 (正式发布)
+#   - 标签 V2.3.0-preview.1     → 2.3.0-preview.1       (预发布)
+#   - 标签 V2.3.0-beta.1        → 2.3.0-beta.1          (Beta)
+#   - main 分支提交（V2.2.0 之后）→ 2.2.1-preview.1, 2.2.1-preview.2 ...
+#   - feature/* 分支             → 2.2.1-feature.<name>.1
+#
+# 提交消息 bump 规则（+semver: <token>）：
+#   breaking / major  → 主版本
+#   feature / minor   → 次版本
+#   fix / patch       → 修订版本
+#   none / skip       → 不递增
+#
+# 与 build.cs 集成：
+#   - build.cs 优先使用命令行参数 --host-version
+#   - 未指定时调用 dotnet gitversion 读取 FullSemVer
+#   - 正式发布标签的 FullSemVer 不含 prerelease 后缀
+
+assembly-versioning-scheme: MajorMinorPatch
+assembly-file-versioning-scheme: MajorMinorPatch
+tag-prefix: '[Vv]'
+major-version-bump-message: '\+semver:\s?(breaking|major)'
+minor-version-bump-message: '\+semver:\s?(feature|minor)'
+patch-version-bump-message: '\+semver:\s?(fix|patch)'
+no-bump-message: '\+semver:\s?(none|skip)'
+legacy-semver-padding: 0
+build-metadata-padding: 0
+commits-since-version-source-padding: 0
+tag-pre-release-weight: 10000
+commit-message-incrementing: Enabled
+
+branches:
+  main:
+    regex: ^master$|^main$
+    mode: ContinuousDelivery
+    label: preview
+    increment: Patch
+    prevent-increment-of-merged-branch-version: true
+    track-merge-target: false
+    tracks-release-branches: false
+    is-release-branch: false
+    is-mainline: true
+  feature:
+    regex: ^features?[/-]
+    mode: ContinuousDelivery
+    label: feature.{BranchName}
+    increment: Minor
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    tracks-release-branches: false
+    is-release-branch: false
+    is-mainline: false
+  pull-request:
+    regex: ^(pull|pull\-requests|pr)[/-]
+    mode: ContinuousDelivery
+    label: pr
+    increment: Inherit
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    tracks-release-branches: false
+    is-release-branch: false
+    is-mainline: false

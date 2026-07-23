@@ -4,22 +4,42 @@ OpenCode 智能体在本仓库工作时的精简指南。
 
 ## 构建与运行
 
-- **构建系统**：Cake Frosting（`build/build.cs` — .NET 10 文件化应用，Cake 6.1.0）。通过 `.\build.ps1`（Windows）或 `./build.sh`（Linux/macOS）调用。
+- **构建系统**：Cake Frosting（`build/build.cs` — .NET 10 文件化应用，Cake.Sdk 6.2.0）。通过 `.\build.ps1`（Windows）或 `./build.sh`（Linux/macOS）调用。
   ```
   .\build.ps1 --build=all                    # 默认：bin（启动器 + NuGet）+ plugin
   .\build.ps1 --build=bin                    # 构建启动器 + 打包 SDK NuGet 包（host 与 SDK 同版本号，统一发版）
   .\build.ps1 --build=plugin                 # 构建并打包所有插件为 zip
   .\build.ps1 --configuration=Debug          # 覆盖配置（默认：Release）
-  .\build.ps1 --package-version=1.2.3        # 设置版本（默认：1.0.0）
+  .\build.ps1 --host-version=2.3.0           # 显式覆盖宿主版本（优先级最高，跳过 GitVersion）
+  .\build.ps1 --package-version=1.2.3        # 兼容旧用法（优先级高于 GitVersion，低于 --host-version）
   .\build.ps1 --runtime-identifier=win-x64   # 设置启动器发布的 RID
   .\build.ps1 --self-contained=true          # 启动器自包含发布
   .\build.ps1 --nuget-api-key=<KEY>          # 推送包到 nuget.org
   ```
+- **版本管理（GitVersion）**：宿主版本由 `GitVersion.Tool`（`dotnet-tools.json` 声明）自动计算，配置见 `GitVersion.yml`。
+  - 首次克隆后需执行 `dotnet tool restore` 安装 GitVersion.Tool。
+  - **版本来源优先级**（高 → 低）：
+    1. `--host-version` 命令行参数（CI 手动触发 / 紧急覆盖）
+    2. `--package-version` 命令行参数（兼容旧用法）
+    3. GitVersion 计算结果（基于 Git 标签与提交历史）
+    4. `Directory.Build.props` 中 `LyboxLastReleasedVersion`（IDE 直接构建的 Fallback）
+  - **版本号规则**：
+    - 标签 `V2.2.0` → `2.2.0`（正式发布）
+    - 标签 `V2.3.0-preview.1` → `2.3.0-preview.1`（预发布）
+    - main 分支提交（V2.2.0 之后）→ `2.2.1-preview.1`、`2.2.1-preview.2` ...
+    - feature/* 分支 → `2.2.1-feature.<name>.1`
+  - **提交消息 bump**（commit message 中包含 `+semver: <token>`）：
+    - `breaking` / `major` → 主版本
+    - `feature` / `minor` → 次版本
+    - `fix` / `patch` → 修订版本
+    - `none` / `skip` → 不递增
+  - **插件版本独立**：插件版本由各插件 csproj 内 `<PluginVersion>` 声明，不受 GitVersion 影响。
+  - **发版后**：更新 `Directory.Build.props` 中的 `LyboxLastReleasedVersion` 为本次发布版本号（IDE 构建 Fallback）。
 - **构建顺序很重要**：`--build=bin` 必须先于 `--build=plugin` 运行（或直接使用 `--build=all`），因为 `--build=bin` 会打包 SDK NuGet 包，而插件依赖本地构建的 `LYBox.Plugin.Generators` + `LYBox.Plugin.Shared` NuGet 包。
 - **直接 `dotnet build`** 可用于单个项目，但若未预先构建本地 NuGet 包，插件可能还原失败（使用 `--build=bin` 或确保 `bin/nuget/` 下有 `.nupkg` 文件）。`--build=nuget` 保留为 `--build=bin` 的兼容别名。
 - **运行启动器**：`dotnet run --project src/launcher/LYBox.Launcher.Desktop`
 - **VS Code 调试**：使用 "Debug Plugin - {Name}" 启动配置 — 每个配置将 `AVALONIA_EXTRA_PLUGINS_PATH` 指向插件的 `bin/Debug/net10.0` 输出目录，用于开发期实时加载。
-- **无测试**，无 CI 工作流，未配置 linter/formatter。
+- **CI 工作流**：`.github/workflows/ci.yml`（push/PR 验证构建）、`release-host.yml`（宿主+SDK+Tool 发布）、`release-plugins.yml`（插件发布）。
 
 ## 架构
 
@@ -240,7 +260,7 @@ Program.cs → App.Initialize()
 - ScottPlot: `5.1.59`
 - ZLogger: `2.5.10`
 - SkiaSharp: `3.119.4`（锁定 3.x，Avalonia 12.x 与 ScottPlot 5.1.x 均依赖）
-- 插件 NuGet 包：`LYBox.Plugin.Generators` + `LYBox.Plugin.Shared`，版本 `1.0.0`，本地构建到 `bin/nuget/`
+- 插件 NuGet 包：`LYBox.Plugin.Generators` + `LYBox.Plugin.Shared`，版本由 GitVersion 自动计算（与宿主同版本号），本地构建到 `bin/nuget/`
 
 ## NuGet 配置
 

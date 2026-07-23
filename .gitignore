@@ -203,6 +203,9 @@ PublishScripts/
 # except nuget/, which is the local NuGet feed (committed .nupkg files).
 !**/[Pp]ackages/nuget/
 !**/[Pp]ackages/nuget/*.nupkg
+# except frontend/packages/, which is the pnpm workspace (committed source).
+!frontend/packages/
+!frontend/packages/**
 # Uncomment if necessary however generally it will be regenerated when needed
 #!**/[Pp]ackages/repositories.config
 # NuGet v3's project.json files produces more ignorable files

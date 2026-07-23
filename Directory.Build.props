@@ -6,10 +6,27 @@
 
         宿主（Launcher / UI / Platforms.*）与 SDK 项目（Generators / Shared）共同 bump，
         确保运行时 PluginSdkContract.CurrentVersion 与宿主程序集版本严格一致。
-        build.ps1 仍可传 host-version / plugin-version 参数临时覆盖。
+
+        版本来源优先级（高 → 低）：
+          1. MSBuild 属性 /p:HostVersion=...           （build.cs 通过 host-version 参数传入，最高优先级）
+          2. 环境变量 LYBOX_HOST_VERSION                （CI/脚本注入，用于绕过 GitVersion）
+          3. GitVersion.Tool 计算结果                   （由 build.cs 调用 dotnet gitversion 自动注入）
+          4. 下方 Fallback 的 LastReleasedVersion       （IDE 直接打开 .slnx 时的开发基线）
+
+        注意：Fallback 值仅用于 IDE 直接构建场景（无 build.cs 介入）。
+        发版时由 build.cs 调用 GitVersion 计算实际版本并通过 /p:HostVersion=... 传入。
+        发版完成后需更新 Fallback 为本次发布的版本号。
     -->
     <PropertyGroup>
-        <HostVersion>2.2.0</HostVersion>
+        <!-- Fallback: 最近一次正式发布版本（IDE 直接构建时使用，发版后手动更新） -->
+        <LyboxLastReleasedVersion>2.2.0</LyboxLastReleasedVersion>
+
+        <!-- 优先级 1：MSBuild 属性 /p:HostVersion=... -->
+        <HostVersion Condition="'$(HostVersion)' == '' AND '$(LYBOX_HOST_VERSION)' != ''">$(LYBOX_HOST_VERSION)</HostVersion>
+        <!-- 优先级 2：环境变量 LYBOX_HOST_VERSION（已合并到上一行） -->
+        <!-- 优先级 3：Fallback -->
+        <HostVersion Condition="'$(HostVersion)' == ''">$(LyboxLastReleasedVersion)</HostVersion>
+
         <!-- 向后兼容别名：旧脚本/插件 csproj 仍可用 $(PluginSdkVersion)，
              等价于 $(HostVersion)。不再单独 bump。 -->
         <PluginSdkVersion>$(HostVersion)</PluginSdkVersion>

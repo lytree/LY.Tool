@@ -588,11 +588,21 @@ public class BuildContext
 
     // 两层独立版本覆盖：留空时由 csproj 真相源（HostVersion / PluginVersion）决定
     // 注：宿主与 SDK 已合并为同一版本号，--host-version 同时覆盖两层
+    //
+    // 版本解析优先级（高 → 低）：
+    //   1. --host-version 命令行参数              （显式覆盖，CI workflow_dispatch 使用）
+    //   2. --package-version 命令行参数            （兼容旧用法，覆盖所有层）
+    //   3. GitVersion.Tool 计算结果                （由 build.cs 自动调用 dotnet gitversion 获取）
+    //   4. csproj 真相源 HostVersion               （Directory.Build.props Fallback）
     public string? HostVersionOverride { get; }
     public string? PluginVersionOverride { get; }
 
     // 兼容回退：显式传 --package-version 时覆盖所有层（紧急发版用）
     public string? PackageVersion { get; }
+
+    // GitVersion 解析结果（null 表示未运行或失败）
+    // 用于日志输出与调试，实际生效通过 HostVersionOverride 传入
+    public string? GitVersionResolved { get; }
 
     // 插件过滤：--plugin=<Name> 只构建匹配的插件（逗号分隔多个）
     public string? PluginFilter { get; }
@@ -616,16 +626,32 @@ public class BuildContext
     public string ToolProject { get; }
     public IReadOnlyList<PluginProjectInfo> PluginProjects { get; }
 
-    // 宿主+SDK 版本覆盖（优先级：--host-version > --package-version > csproj 真相源 HostVersion）
+    // 宿主+SDK 版本覆盖（优先级：--host-version > --package-version > GitVersion > csproj 真相源 HostVersion）
     // 宿主与 SDK 共用 HostVersion，一份 settings 即可
+    // 显式覆盖（--host-version / --package-version）优先于自动计算（GitVersion），保持向后兼容
     public DotNetMSBuildSettings CreateHostMSBuildSettings()
     {
         var settings = BaseSettings();
-        if (!string.IsNullOrEmpty(HostVersionOverride))
-            settings.SetVersion(HostVersionOverride);
-        else if (!string.IsNullOrEmpty(PackageVersion))
-            settings.SetVersion(PackageVersion);
+        var effective = EffectiveHostVersion;
+        if (!string.IsNullOrEmpty(effective))
+            settings.SetVersion(effective);
         return settings;
+    }
+
+    // 计算实际生效的宿主版本：--host-version > --package-version > GitVersion
+    // 返回 null 时由 csproj 内 HostVersion Fallback 生效
+    public string? EffectiveHostVersion
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(HostVersionOverride))
+                return HostVersionOverride;
+            if (!string.IsNullOrEmpty(PackageVersion))
+                return PackageVersion;
+            if (!string.IsNullOrEmpty(GitVersionResolved))
+                return GitVersionResolved;
+            return null;
+        }
     }
 
     // 插件版本覆盖（优先级：--plugin-version > --package-version > csproj <PluginVersion>）
@@ -693,6 +719,99 @@ public class BuildContext
         ToolProject = Path.Combine(RootDir, "tools", "LYBox.MockServer", "LYBox.MockServer.csproj");
 
         PluginProjects = FilterPlugins(DiscoverPlugins(RootDir), PluginFilter);
+
+        // GitVersion 解析：仅在未显式指定 --host-version / --package-version 时尝试
+        // 优先级：--host-version > --package-version > GitVersion > csproj Fallback
+        if (string.IsNullOrEmpty(HostVersionOverride) && string.IsNullOrEmpty(PackageVersion))
+        {
+            var gitVer = TryResolveGitVersion(context, RootDir);
+            if (!string.IsNullOrEmpty(gitVer))
+            {
+                GitVersionResolved = gitVer;
+                context.Log.Information("GitVersion 解析版本: {0}", gitVer);
+            }
+            else
+            {
+                context.Log.Warning("GitVersion 未运行或失败，且未指定 --host-version / --package-version，将使用 csproj Fallback（{0}/Directory.Build.props 中的 LyboxLastReleasedVersion）", RootDir);
+            }
+        }
+        else if (!string.IsNullOrEmpty(HostVersionOverride))
+        {
+            context.Log.Information("使用显式 --host-version: {0}（跳过 GitVersion）", HostVersionOverride);
+        }
+        else
+        {
+            context.Log.Information("使用显式 --package-version: {0}（跳过 GitVersion）", PackageVersion);
+        }
+    }
+
+    /// <summary>
+    /// 调用 dotnet gitversion /showvariable FullSemVer 获取版本号。
+    /// 失败时返回 null（不抛异常），由调用方决定是否降级处理。
+    /// 前置条件：已运行 `dotnet tool restore`（安装 GitVersion.Tool 到 .config/dotnet-tools.json）。
+    /// </summary>
+    private static string? TryResolveGitVersion(ICakeContext context, string rootDir)
+    {
+        try
+        {
+            // 使用 System.Diagnostics.Process 直接调用，避免 Cake StartProcess 输出重载 API 差异
+            // 通过 `dotnet gitversion` 调用，自动定位 .config/dotnet-tools.json
+            var psi = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "dotnet",
+                Arguments = "gitversion /showvariable FullSemVer /nocache",
+                WorkingDirectory = rootDir,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+            };
+
+            using var proc = System.Diagnostics.Process.Start(psi);
+            if (proc == null)
+            {
+                context.Log.Debug("dotnet gitversion 进程启动失败（Process.Start 返回 null）");
+                return null;
+            }
+
+            var stdout = proc.StandardOutput.ReadToEnd();
+            var stderr = proc.StandardError.ReadToEnd();
+            var exited = proc.WaitForExit(TimeSpan.FromSeconds(30)); // 30s 超时
+
+            if (!exited || !proc.HasExited)
+            {
+                try { proc.Kill(); } catch { /* ignore */ }
+                context.Log.Debug("dotnet gitversion 超时未退出（30s），已终止");
+                return null;
+            }
+
+            if (proc.ExitCode != 0)
+            {
+                context.Log.Debug("dotnet gitversion 退出码 {0}。stderr: {1}", proc.ExitCode, stderr.Trim());
+                return null;
+            }
+
+            var version = stdout.Trim();
+            if (string.IsNullOrWhiteSpace(version))
+            {
+                context.Log.Debug("dotnet gitversion 输出为空");
+                return null;
+            }
+
+            // 简单校验：至少包含数字
+            if (!version.Any(char.IsDigit))
+            {
+                context.Log.Debug("dotnet gitversion 输出不像版本号: {0}", version);
+                return null;
+            }
+
+            return version;
+        }
+        catch (Exception ex)
+        {
+            context.Log.Debug("dotnet gitversion 调用异常: {0}", ex.Message);
+            return null;
+        }
     }
 
     private static IReadOnlyList<PluginProjectInfo> FilterPlugins(IReadOnlyList<PluginProjectInfo> all, string? filter)

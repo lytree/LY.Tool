@@ -1,0 +1,12 @@
+{
+  "name": "create-lybox-react",
+  "version": "2.2.1-preview.2",
+  "description": "LYBox React + Vite + TypeScript 插件前端脚手架",
+  "type": "module",
+  "bin": { "create-lybox-react": "index.js" },
+  "files": ["index.js", "template"],
+  "license": "MIT",
+  "author": "lytree",
+  "repository": { "type": "git", "url": "https://github.com/lytree/LY.Tool", "directory": "frontend/packages/create-lybox-react" },
+  "keywords": ["lybox", "react", "vite", "template", "scaffold", "avalonia"]
+}

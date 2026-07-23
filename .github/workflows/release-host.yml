@@ -11,7 +11,10 @@ name: Release Main
 #     1. nuget.org → 账户 → 受信任的发布 → 添加策略（Repository Owner=lytree, Repository=AvaloniaTemplate, Workflow File=release-host.yml, Environment=release）
 #     2. GitHub 仓库 → Settings → Environments → 新建 release 环境 → 添加 secret NUGET_USER=<nuget.org 用户名>
 #
-# 版本同步：Host / SDK / Tool 共用同一版本号（来自标签），通过 --host-version 覆盖传入。
+# 版本解析：
+#   - tag push（V2.3.0 / V2.3.0-preview.1）：由 resolve_context 调用 dotnet gitversion 读取标签版本
+#   - workflow_dispatch：用户输入版本号，跳过 GitVersion，直接传入 --host-version
+#   - build.cs 内部也集成了 GitVersion 兜底，CI 通过 --host-version 显式覆盖以确保一致性
 
 on:
   push:
@@ -43,33 +46,58 @@ jobs:
     outputs:
       version: ${{ steps.ctx.outputs.version }}
       tag_name: ${{ steps.ctx.outputs.tag_name }}
+      is_prerelease: ${{ steps.ctx.outputs.is_prerelease }}
     steps:
-      - name: Parse version and tag
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # GitVersion 需要完整历史
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dotnet tools (GitVersion.Tool)
+        run: dotnet tool restore
+
+      - name: Resolve version via GitVersion or input
         id: ctx
         shell: bash
         run: |
           set -euo pipefail
 
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # 手动触发：使用用户输入的版本号，不调用 GitVersion
             VERSION="${{ inputs.version }}"
             TAG="V${VERSION}"
           else
+            # 标签触发：通过 GitVersion 读取标签对应的版本号
             TAG="${GITHUB_REF_NAME}"
-            if [[ ! "$TAG" =~ ^V([0-9]+\.[0-9]+\.[0-9]+(-(preview|beta|bate)(\.[0-9]+)?)?)$ ]]; then
-              echo "::error::无法识别的标签格式: $TAG。请使用 Vx.y.z、Vx.y.z-preview.N 或 Vx.y.z-beta.N，例如 V1.2.3-preview.1"
-              exit 1
+            VERSION="$(dotnet gitversion /showvariable MajorMinorPatch /nocache)"
+            # 若标签带 prerelease（如 V2.3.0-preview.1），追加 prerelease 后缀
+            FULL_SEMVER="$(dotnet gitversion /showvariable FullSemVer /nocache)"
+            PRE_RELEASE_TAG="$(dotnet gitversion /showvariable PreReleaseTag /nocache)"
+            if [ -n "$PRE_RELEASE_TAG" ]; then
+              VERSION="$FULL_SEMVER"
             fi
-            VERSION="${BASH_REMATCH[1]}"
           fi
 
+          # 校验版本号格式
           if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(preview|beta|bate)(\.[0-9]+)?)?$ ]]; then
-            echo "::error::版本号格式无效: $VERSION。请使用 x.y.z、x.y.z-preview.N 或 x.y.z-beta.N，例如 1.2.3-preview.1"
+            echo "::error::版本号格式无效: $VERSION。请使用 x.y.z、x.y.z-preview.N 或 x.y.z-beta.N"
             exit 1
+          fi
+
+          # 判断是否为预发布版本
+          if [[ "$VERSION" =~ - ]]; then
+            IS_PRERELEASE="true"
+          else
+            IS_PRERELEASE="false"
           fi
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag_name=$TAG" >> "$GITHUB_OUTPUT"
-          echo "Resolved release: tag=$TAG version=$VERSION"
+          echo "is_prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
+          echo "Resolved release: tag=$TAG version=$VERSION prerelease=$IS_PRERELEASE"
 
   pack_sdk:
     name: Pack Host SDK NuGet
@@ -81,10 +109,15 @@ jobs:
       contents: read      # 仅读取代码，发布 GitHub Release 由 release 作业负责
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
+
+      - name: Restore dotnet tools
+        run: dotnet tool restore
 
       - name: Build launcher + pack SDK
         run: |
@@ -126,10 +159,15 @@ jobs:
       contents: read      # 仅读取代码，发布 GitHub Release 由 release 作业负责
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
+
+      - name: Restore dotnet tools
+        run: dotnet tool restore
 
       - name: Build & pack tool
         run: |
@@ -187,10 +225,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
+
+      - name: Restore dotnet tools
+        run: dotnet tool restore
 
       - name: Publish launcher
         shell: bash
@@ -250,6 +293,7 @@ jobs:
         with:
           tag_name: ${{ needs.resolve_context.outputs.tag_name }}
           name: ${{ needs.resolve_context.outputs.tag_name }}
+          prerelease: ${{ needs.resolve_context.outputs.is_prerelease }}
           generate_release_notes: true
           body: |
             ## LYBox v${{ needs.resolve_context.outputs.version }}

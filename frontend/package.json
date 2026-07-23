@@ -1,6 +1,6 @@
 {
   "name": "lybox-frontend",
-  "version": "2.2.0",
+  "version": "2.2.1-preview.2",
   "private": true,
   "description": "LYBox 前端 SDK 与脚手架模板 monorepo",
   "license": "MIT",

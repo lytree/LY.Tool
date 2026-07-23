@@ -1,0 +1,54 @@
+{
+  "name": "@lybox/sdk",
+  "version": "2.2.1-preview.2",
+  "description": "LYBox WebView 前端 SDK —— TypeScript IPC 封装 + Fluent Design 主题（与宿主 Avalonia 配色一致）",
+  "type": "module",
+  "license": "MIT",
+  "author": "lytree",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lytree/LY.Tool",
+    "directory": "frontend/packages/sdk"
+  },
+  "keywords": [
+    "lybox",
+    "avalonia",
+    "webview",
+    "ipc",
+    "rpc",
+    "sse",
+    "fluent-design",
+    "theme",
+    "design-tokens"
+  ],
+  "files": ["dist", "src"],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./theme": {
+      "types": "./dist/theme/index.d.ts",
+      "import": "./dist/theme/index.js",
+      "require": "./dist/theme/index.cjs"
+    },
+    "./css": "./src/theme/lybox-theme.css",
+    "./tokens": "./src/theme/tokens.json",
+    "./tokens.json": "./src/theme/tokens.json",
+    "./package.json": "./package.json"
+  },
+  "sideEffects": ["**/*.css"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0"
+  }
+}
