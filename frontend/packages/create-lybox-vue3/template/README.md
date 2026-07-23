@@ -4,7 +4,7 @@ LYBox Vue3 + Vite + TypeScript 插件前端模板。
 
 ## 简介
 
-基于 Vue 3 + Vite + TypeScript 的 LYBox 插件前端模板，通过 `@lybox/sdk` 与 LYBox 宿主（Avalonia WebView）进行双向 IPC 通讯。
+基于 Vue 3 + Vite + TypeScript 的 LYBox 插件前端模板，通过 `@lytree/sdk` 与 LYBox 宿主（Avalonia WebView）进行双向 IPC 通讯。
 
 - **RPC 调用**：调用宿主 C# 命令并接收返回值
 - **SSE 事件订阅**：接收宿主推送的事件流

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { rpc, on, isWebView, mountDebugPanel, setTheme, getTheme } from '@lybox/sdk';
+import { rpc, on, isWebView, mountDebugPanel, setTheme, getTheme } from '@lytree/sdk';
 import './App.css';
 
 // SSE 推送事件的数据结构

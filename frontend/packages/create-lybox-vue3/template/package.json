@@ -10,7 +10,7 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@lybox/sdk": "^2.2.0",
+    "@lytree/sdk": "^2.2.0",
     "vue": "^3.5.0"
   },
   "devDependencies": {

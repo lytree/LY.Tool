@@ -1,5 +1,5 @@
 /**
- * @lybox/sdk —— LYBox WebView 前端 SDK
+ * @lytree/sdk —— LYBox WebView 前端 SDK
  *
  * 提供与 LYBox 宿主（Avalonia WebView）的双向通讯封装：
  * - RPC 调用（类型安全）
@@ -11,8 +11,8 @@
  *
  * @example
  * ```ts
- * import { rpc, on, isWebView, setTheme } from '@lybox/sdk';
- * import '@lybox/sdk/css';
+ * import { rpc, on, isWebView, setTheme } from '@lytree/sdk';
+ * import '@lytree/sdk/css';
  *
  * // 调用宿主命令
  * const greeting = await rpc<string>('GreetAsync', 'World');
@@ -73,7 +73,7 @@ export type {
   MessageBoxResult,
 } from './system';
 
-// 主题（合并自 @lybox/theme）
+// 主题（合并自 @lytree/sdk/theme）
 export {
   tokens,
   setTheme,

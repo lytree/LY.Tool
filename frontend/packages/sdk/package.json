@@ -1,6 +1,6 @@
 {
-  "name": "@lybox/sdk",
-  "version": "2.2.1-preview.2",
+  "name": "@lytree/sdk",
+  "version": "2.2.1-preview.3",
   "description": "LYBox WebView 前端 SDK —— TypeScript IPC 封装 + Fluent Design 主题（与宿主 Avalonia 配色一致）",
   "type": "module",
   "license": "MIT",
@@ -21,7 +21,10 @@
     "theme",
     "design-tokens"
   ],
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -41,7 +44,9 @@
     "./tokens.json": "./src/theme/tokens.json",
     "./package.json": "./package.json"
   },
-  "sideEffects": ["**/*.css"],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { rpc, on, isWebView, mountDebugPanel, setTheme, getTheme } from '@lybox/sdk';
+import { rpc, on, isWebView, mountDebugPanel, setTheme, getTheme } from '@lytree/sdk';
 
 // ==================== 环境信息 ====================
 // 当前是否运行在 LYBox WebView 内（false 表示浏览器开发模式）
@@ -240,7 +240,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-/* 全部样式使用 @lybox/sdk/css 的 CSS 变量，不硬编码颜色 */
+/* 全部样式使用 @lytree/sdk/css 的 CSS 变量，不硬编码颜色 */
 
 .lybox-app {
   min-height: 100vh;

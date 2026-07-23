@@ -40,7 +40,7 @@ export function getDebugInfo(): EnvironmentInfo {
  *
  * @example
  * ```ts
- * import { mountDebugPanel } from '@lybox/sdk/debug';
+ * import { mountDebugPanel } from '@lytree/sdk/debug';
  *
  * // 挂载到 body
  * const unmount = mountDebugPanel();

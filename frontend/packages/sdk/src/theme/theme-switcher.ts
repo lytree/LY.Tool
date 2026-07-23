@@ -72,7 +72,7 @@ export function toggleTheme(): ThemeMode {
  *
  * @example
  * ```ts
- * import { restoreTheme } from '@lybox/sdk';
+ * import { restoreTheme } from '@lytree/sdk';
  * restoreTheme();  // 在 main.ts 中调用
  * ```
  */

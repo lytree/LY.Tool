@@ -1,12 +1,12 @@
 # {{PROJECT_NAME}}
 
-LYBox React + Vite + TypeScript 插件前端项目，由 `create-lybox-react` 脚手架生成。
+LYBox React + Vite + TypeScript 插件前端项目，由 `create-lybox-react-template` 脚手架生成。
 
 ## 简介
 
 本项目是一个 LYBox 插件的前端实现，基于 React 18 + Vite 5 + TypeScript 5 构建。
-通过 `@lybox/sdk` 与 LYBox 宿主（Avalonia WebView）或 `lybox-mock` 进行双向 IPC 通信，
-样式统一使用 `@lybox/sdk/css` 提供的 CSS 变量，自动适配宿主主题（浅色 / 深色）。
+通过 `@lytree/sdk` 与 LYBox 宿主（Avalonia WebView）或 `lybox-mock` 进行双向 IPC 通信，
+样式统一使用 `@lytree/sdk/css` 提供的 CSS 变量，自动适配宿主主题（浅色 / 深色）。
 
 ## 环境要求
 
@@ -56,7 +56,7 @@ pnpm dev
 ├── src/
 │   ├── .lybox/
 │   │   └── mock.json        # Mock 数据：RPC 返回值与 SSE 事件定义
-│   ├── App.css              # 组件样式（全部使用 @lybox/sdk/css CSS 变量）
+│   ├── App.css              # 组件样式（全部使用 @lytree/sdk/css CSS 变量）
 │   ├── App.tsx              # 示例组件：RPC 调用 + SSE 订阅 + 主题切换 + 调试面板
 │   ├── main.tsx             # 应用入口
 │   └── vite-env.d.ts        # Vite 类型声明
@@ -71,14 +71,14 @@ pnpm dev
 
 | 包 | 作用 |
 |----|------|
-| `@lybox/sdk` | 提供 `rpc`、`on`、`isWebView`、`mountDebugPanel` 等 IPC 能力，以及 `setTheme` / `getTheme` / `restoreTheme` 主题管理与 `@lybox/sdk/css` 样式变量 |
+| `@lytree/sdk` | 提供 `rpc`、`on`、`isWebView`、`mountDebugPanel` 等 IPC 能力，以及 `setTheme` / `getTheme` / `restoreTheme` 主题管理与 `@lytree/sdk/css` 样式变量 |
 | `react` / `react-dom` | React 18 运行时 |
 | `vite` / `@vitejs/plugin-react` | 开发与构建工具链 |
 
 ## RPC 调用约定
 
 ```ts
-import { rpc } from '@lybox/sdk';
+import { rpc } from '@lytree/sdk';
 
 // rpc<T>(命令名, ...参数)
 const prefix = await rpc<string>('GreetAsync', 'World');
@@ -96,7 +96,7 @@ const info = await rpc<PluginInfo>('GetPluginInfoAsync');
 ## 主题适配
 
 所有颜色、间距、圆角、字体均通过 CSS 变量引用，宿主切换主题时自动响应。
-变量定义见 `@lybox/sdk/src/theme/lybox-theme.css`，与宿主 Avalonia FluentDesign 主题一致。
+变量定义见 `@lytree/sdk/src/theme/lybox-theme.css`，与宿主 Avalonia FluentDesign 主题一致。
 
 - 颜色：`var(--lybox-color-primary)`、`var(--lybox-color-background-0|1)`、`var(--lybox-color-text-0|1|2|3)`
 - 卡片：`var(--lybox-card-background)`、`var(--lybox-card-stroke)`、`var(--lybox-shadow-card)`

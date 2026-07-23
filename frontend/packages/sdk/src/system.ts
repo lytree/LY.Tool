@@ -6,7 +6,7 @@
  *
  * @example
  * ```ts
- * import { openFilePicker, showMessageBox } from '@lybox/sdk';
+ * import { openFilePicker, showMessageBox } from '@lytree/sdk';
  *
  * // 打开文件选择器
  * const files = await openFilePicker({

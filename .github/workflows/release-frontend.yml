@@ -1,0 +1,205 @@
+name: Release Frontend
+
+# 前端 SDK 与脚手架模板发布工作流
+# 触发标签：V*           例如 V1.2.3、V1.2.3-preview.1、V1.2.3-beta.1
+# 产物：
+#   - @lytree/sdk              （TypeScript IPC 封装 + Fluent Design 主题）
+#   - create-lybox-vue3-template （Vue3 + Vite 脚手架）
+#   - create-lybox-react-template （React + Vite 脚手架）
+# 发布策略：
+#   - 预发布版本（tag 含 -）：发布到 npm `preview` dist-tag
+#   - 正式版本：发布到 npm `latest` dist-tag
+# 认证：
+#   - 使用 npm Automation Token（GitHub Secret: NPM_TOKEN），不会触发 OTP
+#   - 前置条件：在 npmjs.com 生成 Automation 类型 token，
+#     然后在 GitHub 仓库 Settings → Secrets → Actions 添加 NPM_TOKEN
+#
+# 版本同步：
+#   - 标签触发时，使用 GitVersion 计算的版本号覆盖所有前端 package.json
+#   - 仅在 CI 环境临时修改，不提交回仓库
+#   - 这样保证前端版本与 host 版本严格一致
+
+on:
+  push:
+    tags:
+      - 'V*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号（例如 1.2.3、1.2.3-preview.1；手动触发必填）'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-frontend-${{ github.ref_name || inputs.version }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '11'
+
+jobs:
+  resolve_context:
+    name: Resolve Release Context
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ctx.outputs.version }}
+      npm_tag: ${{ steps.ctx.outputs.npm_tag }}
+      is_prerelease: ${{ steps.ctx.outputs.is_prerelease }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # GitVersion 需要完整历史
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dotnet tools (GitVersion.Tool)
+        run: dotnet tool restore
+
+      - name: Resolve version via GitVersion or input
+        id: ctx
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            # 标签触发：通过 GitVersion 读取版本号
+            TAG="${GITHUB_REF_NAME}"
+            VERSION="$(dotnet gitversion /showvariable MajorMinorPatch /nocache)"
+            FULL_SEMVER="$(dotnet gitversion /showvariable FullSemVer /nocache)"
+            PRE_RELEASE_TAG="$(dotnet gitversion /showvariable PreReleaseTag /nocache)"
+            if [ -n "$PRE_RELEASE_TAG" ]; then
+              VERSION="$FULL_SEMVER"
+            fi
+          fi
+
+          # 校验版本号格式
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(preview|beta|bate)(\.[0-9]+)?)?$ ]]; then
+            echo "::error::版本号格式无效: $VERSION"
+            exit 1
+          fi
+
+          # 判断是否为预发布版本，决定 npm dist-tag
+          if [[ "$VERSION" =~ - ]]; then
+            IS_PRERELEASE="true"
+            NPM_TAG="preview"
+          else
+            IS_PRERELEASE="false"
+            NPM_TAG="latest"
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "npm_tag=$NPM_TAG" >> "$GITHUB_OUTPUT"
+          echo "is_prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
+          echo "Resolved frontend release: version=$VERSION npm_tag=$NPM_TAG prerelease=$IS_PRERELEASE"
+
+  publish:
+    name: Publish Frontend Packages
+    needs: resolve_context
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: 'https://registry.npmjs.org'
+          # 设置 scope @lytree 的认证 token
+          scope: '@lytree'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Sync version to all frontend packages
+        shell: bash
+        env:
+          VERSION: ${{ needs.resolve_context.outputs.version }}
+        run: |
+          set -euo pipefail
+          echo "Syncing version $VERSION to all frontend packages..."
+
+          # 同步根 package.json
+          npm version "$VERSION" --no-git-tag-version --prefix frontend
+
+          # 同步所有子包 package.json
+          for pkg in frontend/packages/*/package.json; do
+            dir="$(dirname "$pkg")"
+            name=$(jq -r '.name' "$pkg")
+            npm version "$VERSION" --no-git-tag-version --prefix "$dir"
+            echo "  ✓ $name → $VERSION"
+          done
+
+          echo ""
+          echo "=== Final versions ==="
+          for pkg in frontend/packages/*/package.json; do
+            name=$(jq -r '.name' "$pkg")
+            ver=$(jq -r '.version' "$pkg")
+            echo "  $name@$ver"
+          done
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: frontend
+
+      - name: Build all packages
+        run: pnpm build
+        working-directory: frontend
+
+      - name: Verify build output
+        run: |
+          echo "=== Build artifacts ==="
+          for pkg in frontend/packages/*/; do
+            name=$(jq -r '.name' "$pkg/package.json")
+            if [ -d "$pkg/dist" ]; then
+              size=$(du -sh "$pkg/dist" | cut -f1)
+              files=$(find "$pkg/dist" -type f | wc -l)
+              echo "  ✓ $name: $files files, $size"
+            else
+              echo "  (no dist) $name"
+            fi
+          done
+
+      - name: Publish @lytree/sdk
+        run: |
+          npm publish --access public --tag ${{ needs.resolve_context.outputs.npm_tag }}
+        working-directory: frontend/packages/sdk
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish create-lybox-vue3-template
+        run: |
+          npm publish --access public --tag ${{ needs.resolve_context.outputs.npm_tag }}
+        working-directory: frontend/packages/create-lybox-vue3
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish create-lybox-react-template
+        run: |
+          npm publish --access public --tag ${{ needs.resolve_context.outputs.npm_tag }}
+        working-directory: frontend/packages/create-lybox-react
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "## 📦 Frontend 发布完成" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| 包名 | 版本 | npm dist-tag |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|--------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| @lytree/sdk | ${{ needs.resolve_context.outputs.version }} | ${{ needs.resolve_context.outputs.npm_tag }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| create-lybox-vue3-template | ${{ needs.resolve_context.outputs.version }} | ${{ needs.resolve_context.outputs.npm_tag }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| create-lybox-react-template | ${{ needs.resolve_context.outputs.version }} | ${{ needs.resolve_context.outputs.npm_tag }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "安装命令：" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "npm install @lytree/sdk@${{ needs.resolve_context.outputs.npm_tag }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY

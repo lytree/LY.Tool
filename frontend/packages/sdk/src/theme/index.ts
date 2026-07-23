@@ -1,5 +1,5 @@
 /**
- * @lybox/sdk/theme —— 主题管理子模块
+ * @lytree/sdk/theme —— 主题管理子模块
  *
  * 提供 Fluent Design 主题切换与设计令牌访问。
  * CSS 变量定义在 `./lybox-theme.css`，与宿主 Avalonia FluentDesign 主题一致。

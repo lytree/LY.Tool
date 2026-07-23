@@ -21,7 +21,7 @@ LYBox WebView IPC 是一套基于 `Avalonia.Controls.WebView` 的双向通讯框
   - [`Channel<T>` 流式通道](#channelt-流式通道)
   - [系统级命令（SystemCommands）](#系统级命令systemcommands)
 - [前端 JS API](#前端-js-api)
-- [前端 SDK（@lybox/sdk）](#前端-sdklyboxsdk)
+- [前端 SDK（@lytree/sdk）](#前端-sdklyboxsdk)
 - [源生成器](#源生成器)
 - [消息协议](#消息协议)
 - [完整示例](#完整示例)
@@ -506,7 +506,7 @@ const confirmed = await window.__lybox.rpc('ShowConfirmDialog', {
 **TypeScript SDK（推荐）**：
 
 ```typescript
-import { openFilePicker, saveFilePicker, showConfirmDialog } from '@lybox/sdk';
+import { openFilePicker, saveFilePicker, showConfirmDialog } from '@lytree/sdk';
 
 const files = await openFilePicker({
   title: '选择文件',
@@ -587,19 +587,19 @@ window.__lybox.on('__lybox:ready', async () => {
 
 ---
 
-## 前端 SDK（@lybox/sdk）
+## 前端 SDK（@lytree/sdk）
 
 **路径**：[frontend/packages/sdk](../frontend/packages/sdk)
 
-`@lybox/sdk` 是官方 TypeScript SDK，为 Vue3/React 项目提供类型安全的 IPC 封装、Fluent Design 主题与调试工具。通过 pnpm monorepo 管理，构建产物发布到 npm。
+`@lytree/sdk` 是官方 TypeScript SDK，为 Vue3/React 项目提供类型安全的 IPC 封装、Fluent Design 主题与调试工具。通过 pnpm monorepo 管理，构建产物发布到 npm。
 
 ### 安装
 
 ```bash
 # 在插件前端项目中
-npm install @lybox/sdk
+npm install @lytree/sdk
 # 或
-pnpm add @lybox/sdk
+pnpm add @lytree/sdk
 ```
 
 ### 包结构
@@ -614,7 +614,7 @@ frontend/packages/sdk/
 │   ├── env.ts                # 环境检测（isWebView/isBrowser）
 │   ├── debug.ts              # 调试面板（mountDebugPanel）
 │   ├── system.ts             # 系统 API（文件选择器 + 对话框）
-│   └── theme/                # Fluent Design 主题（合并自 @lybox/theme）
+│   └── theme/                # Fluent Design 主题（合并自 @lytree/sdk/theme）
 │       ├── index.ts
 │       ├── lybox-theme.css   # CSS 变量定义
 │       ├── theme-switcher.ts # setTheme/getTheme/restoreTheme
@@ -628,17 +628,17 @@ frontend/packages/sdk/
 
 | 导入路径 | 用途 |
 |---------|------|
-| `@lybox/sdk` | IPC + 事件 + Channel + 环境检测 + 调试 + 主题 + 系统 API（全部能力） |
-| `@lybox/sdk/theme` | 仅主题子模块（按需引入，减小打包体积） |
-| `@lybox/sdk/css` | Fluent Design CSS 变量（`import '@lybox/sdk/css'`） |
-| `@lybox/sdk/tokens` | 设计令牌 JSON（`import tokens from '@lybox/sdk/tokens'`） |
+| `@lytree/sdk` | IPC + 事件 + Channel + 环境检测 + 调试 + 主题 + 系统 API（全部能力） |
+| `@lytree/sdk/theme` | 仅主题子模块（按需引入，减小打包体积） |
+| `@lytree/sdk/css` | Fluent Design CSS 变量（`import '@lytree/sdk/css'`） |
+| `@lytree/sdk/tokens` | 设计令牌 JSON（`import tokens from '@lytree/sdk/tokens'`） |
 
 ### 核心 API
 
 #### RPC 调用
 
 ```typescript
-import { rpc, rpcChannel } from '@lybox/sdk';
+import { rpc, rpcChannel } from '@lytree/sdk';
 
 // 调用宿主命令（类型安全）
 const greeting = await rpc<string>('GreetAsync', 'World');
@@ -655,7 +655,7 @@ const unsub = ch.on(progress => {
 #### 事件订阅
 
 ```typescript
-import { on, emit, whenReady } from '@lybox/sdk';
+import { on, emit, whenReady } from '@lytree/sdk';
 
 // 等待运行时就绪
 await whenReady();
@@ -674,7 +674,7 @@ emit('user.click', { x: 100, y: 200 });
 #### 环境检测
 
 ```typescript
-import { isWebView, isBrowser, getEnvironment } from '@lybox/sdk';
+import { isWebView, isBrowser, getEnvironment } from '@lytree/sdk';
 
 if (isWebView()) {
   // 运行在 Avalonia WebView 内，使用原生 IPC
@@ -695,7 +695,7 @@ import {
   openFolderPicker,
   showMessageBox,
   showConfirmDialog
-} from '@lybox/sdk';
+} from '@lytree/sdk';
 
 // 文件选择器
 const files = await openFilePicker({
@@ -726,13 +726,13 @@ const confirmed = await showConfirmDialog({
 
 ```typescript
 // main.ts / main.tsx
-import '@lybox/sdk/css';          // 引入 CSS 变量
-import { restoreTheme } from '@lybox/sdk';
+import '@lytree/sdk/css';          // 引入 CSS 变量
+import { restoreTheme } from '@lytree/sdk';
 
 restoreTheme();  // 恢复上次保存的主题（从 localStorage）
 
 // 运行时切换
-import { setTheme, getTheme, toggleTheme } from '@lybox/sdk';
+import { setTheme, getTheme, toggleTheme } from '@lytree/sdk';
 
 setTheme('dark');         // 切换到深色
 console.log(getTheme());  // 'dark'
@@ -760,7 +760,7 @@ CSS 变量与宿主 Avalonia `FluentDesign/Light.axaml` 和 `Dark.axaml` 完全�
 #### 调试面板
 
 ```typescript
-import { mountDebugPanel } from '@lybox/sdk';
+import { mountDebugPanel } from '@lytree/sdk';
 
 // 挂载浮动调试面板（仅开发环境）
 const unmount = mountDebugPanel({
@@ -785,7 +785,7 @@ npm create lybox-react my-plugin
 ```
 
 模板特性：
-- 预配置 `@lybox/sdk` 依赖与 CSS 引入
+- 预配置 `@lytree/sdk` 依赖与 CSS 引入
 - Vite 开发代理到 `lybox-mock`（5173 端口）
 - 内置 RPC 调用、SSE 订阅、主题切换示例
 - `mock.json` 已配置好 mock 响应
@@ -798,7 +798,7 @@ npm create lybox-react my-plugin
 │                                                             │
 │  Vite Dev Server (5174)  ──proxy──►  lybox-mock (5173)     │
 │       │                                    │                 │
-│       │ import '@lybox/sdk/css'            │ mock.json       │
+│       │ import '@lytree/sdk/css'            │ mock.json       │
 │       │ rpc() → fetch /__rpc               │ SSE /sse/{id}   │
 │       │ on()  → EventSource                │                 │
 │       └────────────────────────────────────┘                 │
