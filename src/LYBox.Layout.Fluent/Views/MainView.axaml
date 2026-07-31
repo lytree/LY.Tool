@@ -65,11 +65,15 @@
           SelectsOnInvoked="False"/>
       </fui:NavigationView.MenuItems>
       <fui:NavigationView.Content>
-        <TransitioningContentControl Content="{Binding CurrentViewModel}">
-          <TransitioningContentControl.ContentTemplate>
-            <fluent:ViewLocator />
-          </TransitioningContentControl.ContentTemplate>
-        </TransitioningContentControl>
+        <ScrollViewer
+          HorizontalScrollBarVisibility="Disabled"
+          VerticalScrollBarVisibility="Auto">
+          <TransitioningContentControl Content="{Binding CurrentViewModel}">
+            <TransitioningContentControl.ContentTemplate>
+              <fluent:ViewLocator />
+            </TransitioningContentControl.ContentTemplate>
+          </TransitioningContentControl>
+        </ScrollViewer>
       </fui:NavigationView.Content>
     </fui:NavigationView>
   </Grid>

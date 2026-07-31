@@ -10,7 +10,6 @@
     d:DesignWidth="800"
     x:DataType="viewModels:DateTimeOffsetPickerDemoViewModel"
     mc:Ignorable="d">
-    <ScrollViewer>
         <StackPanel Margin="20" Spacing="8">
             <StackPanel HorizontalAlignment="Left">
                 <ToggleSwitch Name="showOffset" Content="Show Offset Selection" IsChecked="True" />
@@ -64,5 +63,4 @@
                     ShowOffsetSelection="{Binding #showOffset.IsChecked}" />
             </StackPanel>
         </StackPanel>
-    </ScrollViewer>
 </UserControl>

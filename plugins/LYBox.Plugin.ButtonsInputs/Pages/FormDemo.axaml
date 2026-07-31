@@ -14,7 +14,6 @@
     x:CompileBindings="True"
     x:DataType="vm:FormDemoViewModel"
     mc:Ignorable="d">
-    <ScrollViewer>
         <StackPanel HorizontalAlignment="Left" Margin="24  0 0 0 ">
             <u:Divider Content="Simple Form"/>
             <u:Form LabelPosition="Left" LabelWidth="*">
@@ -78,5 +77,4 @@
                 </u:Form.ItemTemplate>
             </u:Form>
         </StackPanel>
-    </ScrollViewer>
 </UserControl>

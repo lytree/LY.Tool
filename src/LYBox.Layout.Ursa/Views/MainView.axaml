@@ -115,15 +115,19 @@
                 </Grid>
             </Border>
 
-            <!-- 右侧内容区 -->
-            <ContentControl
+            <!-- 右侧内容区:ScrollViewer 包裹使内容超出窗口高度时自动滚动,尤其针对动态渲染页面(如 TDLSharp 参数页) -->
+            <ScrollViewer
                 Grid.Column="1"
-                Margin="36,24"
-                Content="{Binding Content}">
-                <ContentControl.ContentTemplate>
-                    <plugin:ViewLocator />
-                </ContentControl.ContentTemplate>
-            </ContentControl>
+                HorizontalScrollBarVisibility="Disabled"
+                VerticalScrollBarVisibility="Auto">
+                <ContentControl
+                    Margin="36,24"
+                    Content="{Binding Content}">
+                    <ContentControl.ContentTemplate>
+                        <plugin:ViewLocator />
+                    </ContentControl.ContentTemplate>
+                </ContentControl>
+            </ScrollViewer>
         </Grid>
     </Panel>
 </UserControl>
