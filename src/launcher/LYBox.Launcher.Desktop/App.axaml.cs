@@ -12,7 +12,6 @@ using LYBox.Layout.Core.Services;
 using LYBox.Layout.Ursa.Services;
 using LYBox.Layout.Ursa.ViewModels;
 using LYBox.Layout.Ursa.Views;
-using LYBox.Layout.Fluent.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -80,18 +79,8 @@ public partial class App : Application
 #endif
         var services = new ServiceCollection();
         services.AddAvaloniaServices();
-        // 根据布局模式注册不同的宿主层服务
-        // Ursa: NavigationService / MenuConfigurationService / LocalizationService（依赖 Ursa 的 ViewModel/Page/Theme）
-        // Fluent: NavigationService / MenuConfigurationService（不依赖 Ursa，与 Ursa 布局独立）
-        var layoutMode = LYBox.Launcher.Desktop.Program.LayoutMode;
-        if (string.Equals(layoutMode, "fluent", StringComparison.OrdinalIgnoreCase))
-        {
-            services.AddFluentServices();
-        }
-        else
-        {
-            services.AddUrsaServices();
-        }
+        // 注册 Ursa 宿主层服务：NavigationService / MenuConfigurationService / LocalizationService
+        services.AddUrsaServices();
 
         // 阶段1：发现所有插件程序集，创建 IPlugin 实例
         var pluginLoader = new PluginLoader();
@@ -115,17 +104,8 @@ public partial class App : Application
         PluginLoader.SetLogger(ServiceProvider.GetRequiredService<ILogger<PluginLoader>>());
 
         // 显式连接 NavigationService 与 PluginLoader（原嵌入在 DI 工厂中的副作用，移出以保证时序确定）
-        // 使用完全限定名避免 Ursa/Fluent 两个 NavigationService 类型之间的歧义
-        if (string.Equals(layoutMode, "fluent", StringComparison.OrdinalIgnoreCase))
-        {
-            if (ServiceProvider.GetRequiredService<INavigationService>() is LYBox.Layout.Fluent.Services.NavigationService fluentNav)
-                fluentNav.AttachPluginLoader(pluginLoader);
-        }
-        else
-        {
-            if (ServiceProvider.GetRequiredService<INavigationService>() is LYBox.Layout.Ursa.Services.NavigationService ursaNav)
-                ursaNav.AttachPluginLoader(pluginLoader);
-        }
+        if (ServiceProvider.GetRequiredService<INavigationService>() is LYBox.Layout.Ursa.Services.NavigationService ursaNav)
+            ursaNav.AttachPluginLoader(pluginLoader);
 
         // 记录应用启动日志
         var logger = ServiceProvider.GetRequiredService<ILogger<App>>();
@@ -246,41 +226,20 @@ public partial class App : Application
             // 全局异常处理：UI 线程未处理异常
             Avalonia.Threading.Dispatcher.UIThread.UnhandledException += OnUIThreadUnhandledException;
 
-            var layoutMode = LYBox.Launcher.Desktop.Program.LayoutMode;
-
-            if (string.Equals(layoutMode, "fluent", StringComparison.OrdinalIgnoreCase))
+            if (LYBox.Launcher.Desktop.Program.NoSplash)
             {
-                // --layout=fluent：使用 Avalonia-Fluent-UI Gallery 布局
-                var config = LYBox.Layout.Fluent.Services.ConfigService.LoadConfig();
-                var fluentVm = new LYBox.Layout.Fluent.ViewModels.MainWindowViewModel(config);
-                // 接入插件系统：注入导航和菜单服务
-                var navService = ServiceLocator.GetService<INavigationService>();
-                var menuService = ServiceLocator.GetService<IMenuConfigurationService>();
-                fluentVm.InitializePluginSystem(navService, menuService);
-
-                desktop.MainWindow = new LYBox.Layout.Fluent.Views.MainWindow
+                // --no-splash：跳过闪屏，直接显示主窗口
+                desktop.MainWindow = new MainWindow()
                 {
-                    DataContext = fluentVm
+                    DataContext = new MainWindowViewModel()
                 };
             }
             else
             {
-                // 默认 --layout=ursa：使用 Ursa 布局
-                if (LYBox.Launcher.Desktop.Program.NoSplash)
+                desktop.MainWindow = new MvvmSplashWindow()
                 {
-                    // --no-splash：跳过闪屏，直接显示主窗口
-                    desktop.MainWindow = new MainWindow()
-                    {
-                        DataContext = new MainWindowViewModel()
-                    };
-                }
-                else
-                {
-                    desktop.MainWindow = new MvvmSplashWindow()
-                    {
-                        DataContext = new SplashViewModel()
-                    };
-                }
+                    DataContext = new SplashViewModel()
+                };
             }
 
             // 退出时检测是否有正在运行的任务

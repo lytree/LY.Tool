@@ -156,12 +156,19 @@ Task("Build")
     // FluentWindow 独立布局项目构建
     if (buildContext.Target.HasFlag(BuildTarget.FluentWindow))
     {
-        c.DotNetBuild(buildContext.FluentWindowProject, new DotNetBuildSettings
+        if (File.Exists(buildContext.FluentWindowProject))
         {
-            Configuration = buildContext.BuildConfiguration,
-            MSBuildSettings = hostSettings
-        });
-        c.Log.Information("FluentWindow project built.");
+            c.DotNetBuild(buildContext.FluentWindowProject, new DotNetBuildSettings
+            {
+                Configuration = buildContext.BuildConfiguration,
+                MSBuildSettings = hostSettings
+            });
+            c.Log.Information("FluentWindow project built.");
+        }
+        else
+        {
+            c.Log.Warning("FluentWindow project not found at {0}, skipping", buildContext.FluentWindowProject);
+        }
     }
 
     // Tool 独立 dotnet tool 项目构建（lybox-mock 前端调试 Mock 后端）
@@ -476,6 +483,12 @@ Task("PackFluentWindow")
     .WithCriteria(c => buildContext.Target.HasFlag(BuildTarget.FluentWindow), "FluentWindow target not selected")
     .Does(c =>
 {
+    if (!File.Exists(buildContext.FluentWindowProject))
+    {
+        c.Log.Warning("FluentWindow project not found at {0}, skipping PackFluentWindow", buildContext.FluentWindowProject);
+        return;
+    }
+
     var fwOutputDir = Path.Combine(buildContext.PackagesDir, "fluent-window");
     c.EnsureDirectoryExists(fwOutputDir);
 

@@ -30,6 +30,5 @@
   <ItemGroup>
     <InternalsVisibleTo Include="LYBox.Tests" />
     <InternalsVisibleTo Include="LYBox.Layout.Ursa" />
-    <InternalsVisibleTo Include="LYBox.Layout.Fluent" />
   </ItemGroup>
 </Project>

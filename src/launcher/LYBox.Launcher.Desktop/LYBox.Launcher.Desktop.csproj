@@ -38,7 +38,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\LYBox.Layout.Ursa\LYBox.Layout.Ursa.csproj" />
-    <ProjectReference Include="..\..\LYBox.Layout.Fluent\LYBox.Layout.Fluent.csproj" />
     <ProjectReference Include="..\..\LYBox.Plugin.Shared\LYBox.Plugin.Shared.csproj" />
   </ItemGroup>
 </Project>

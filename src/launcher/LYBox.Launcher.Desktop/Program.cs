@@ -12,11 +12,6 @@ sealed class Program
     public static bool NoSplash => HasArg("--no-splash");
     public static bool CollapsedSidebar => HasArg("--collapsed-sidebar");
 
-    /// <summary>
-    /// 布局模式：--layout=ursa（默认）或 --layout=fluent
-    /// </summary>
-    public static string LayoutMode => GetArgValue("--layout") ?? "ursa";
-
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
