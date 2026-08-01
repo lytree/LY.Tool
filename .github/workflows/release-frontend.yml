@@ -111,6 +111,7 @@ jobs:
     name: Publish Frontend Packages
     needs: resolve_context
     runs-on: ubuntu-latest
+    environment: release  # 必须声明，与 npm Trusted Publisher 的 Environment name 匹配；否则 OIDC token 无 environment claim，TP 校验失败导致 PUT 404
     steps:
       - uses: actions/checkout@v7
 
