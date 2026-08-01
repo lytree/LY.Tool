@@ -11,6 +11,7 @@
     x:CompileBindings="True"
     x:DataType="vm:WindowDialogDemoViewModel"
     mc:Ignorable="d">
+    <ScrollViewer>
         <TabControl TabStripPlacement="Left">
             <TabItem Header="Standard Window Dialog">
                 <u:Form
@@ -108,4 +109,5 @@
                 </u:Form>
             </TabItem>
         </TabControl>
+    </ScrollViewer>
 </UserControl>
