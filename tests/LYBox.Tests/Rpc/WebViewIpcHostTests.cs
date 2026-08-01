@@ -5,7 +5,8 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using LYBox.Plugin.Shared.Rpc;
-using Xunit;
+using TUnit.Core;
+using TUnit.Assertions;
 
 namespace LYBox.Tests.Rpc;
 
@@ -17,7 +18,7 @@ public class WebViewIpcHostTests
 {
     // —— 握手 __lybox:ready ——
 
-    [Fact]
+    [Test]
     public async Task WhenReady_未收到_ready_事件前不完成()
     {
         var (host, _) = Create();
@@ -25,10 +26,10 @@ public class WebViewIpcHostTests
 
         // 给调度器一点时间，确认未被意外完成
         await Task.Delay(50);
-        Assert.False(task.IsCompleted);
+        await Assert.That(task.IsCompleted).IsFalse();
     }
 
-    [Fact]
+    [Test]
     public async Task WhenReady_收到_ready_事件后完成()
     {
         var (host, transport) = Create();
@@ -37,10 +38,10 @@ public class WebViewIpcHostTests
         transport.SimulateFromScript(readyPayload);
 
         await host.WhenReady.WaitAsync(TimeSpan.FromSeconds(2));
-        Assert.True(host.WhenReady.IsCompleted);
+        await Assert.That(host.WhenReady.IsCompleted).IsTrue();
     }
 
-    [Fact]
+    [Test]
     public async Task WhenReady_幂等_重复_ready_不抛()
     {
         var (host, transport) = Create();
@@ -51,12 +52,12 @@ public class WebViewIpcHostTests
 
         // 第二次应无副作用
         transport.SimulateFromScript(readyPayload);
-        Assert.True(host.WhenReady.IsCompleted);
+        await Assert.That(host.WhenReady.IsCompleted).IsTrue();
     }
 
     // —— 命令分发 (C 前缀) ——
 
-    [Fact]
+    [Test]
     public async Task Call_已注册命令_回推结果()
     {
         var (host, transport) = Create();
@@ -81,19 +82,19 @@ public class WebViewIpcHostTests
 
         await WaitForAsync(() => transport.ExecutedScripts.Any(s => s.Contains("resolve") && s.Contains("cb-1")));
 
-        Assert.Equal(2, argsCaptured.Count);
-        Assert.Equal(JsonValueKind.Number, argsCaptured[0].ValueKind);
-        Assert.Equal(42, argsCaptured[0].GetInt32());
-        Assert.Equal(JsonValueKind.String, argsCaptured[1].ValueKind);
-        Assert.Equal("hello", argsCaptured[1].GetString());
+        await Assert.That(argsCaptured.Count).IsEqualTo(2);
+        await Assert.That(argsCaptured[0].ValueKind).IsEqualTo(JsonValueKind.Number);
+        await Assert.That(argsCaptured[0].GetInt32()).IsEqualTo(42);
+        await Assert.That(argsCaptured[1].ValueKind).IsEqualTo(JsonValueKind.String);
+        await Assert.That(argsCaptured[1].GetString()).IsEqualTo("hello");
 
         var resolveJs = transport.ExecutedScripts.Single(s => s.Contains("resolve") && s.Contains("cb-1"));
-        Assert.Contains("\"ok\":true", resolveJs);
-        Assert.Contains("\"echoed\":true", resolveJs);
-        Assert.Contains("null", resolveJs); // err 为 null
+        await Assert.That(resolveJs).Contains("\"ok\":true");
+        await Assert.That(resolveJs).Contains("\"echoed\":true");
+        await Assert.That(resolveJs).Contains("null"); // err 为 null
     }
 
-    [Fact]
+    [Test]
     public async Task Call_未注册命令_回推错误()
     {
         var (host, transport) = Create();
@@ -109,11 +110,11 @@ public class WebViewIpcHostTests
         await WaitForAsync(() => transport.ExecutedScripts.Any(s => s.Contains("resolve") && s.Contains("cb-2")));
 
         var resolveJs = transport.ExecutedScripts.Single(s => s.Contains("resolve") && s.Contains("cb-2"));
-        Assert.Contains("命令未注册", resolveJs);
-        Assert.Contains("svc.missing", resolveJs);
+        await Assert.That(resolveJs).Contains("命令未注册");
+        await Assert.That(resolveJs).Contains("svc.missing");
     }
 
-    [Fact]
+    [Test]
     public async Task Call_处理器抛异常_回推错误消息()
     {
         var (host, transport) = Create();
@@ -129,10 +130,10 @@ public class WebViewIpcHostTests
         await WaitForAsync(() => transport.ExecutedScripts.Any(s => s.Contains("resolve") && s.Contains("cb-3")));
 
         var resolveJs = transport.ExecutedScripts.Single(s => s.Contains("resolve") && s.Contains("cb-3"));
-        Assert.Contains("boom-from-handler", resolveJs);
+        await Assert.That(resolveJs).Contains("boom-from-handler");
     }
 
-    [Fact]
+    [Test]
     public async Task Call_返回_Channel_回推通道描述符()
     {
         var (host, transport) = Create();
@@ -152,15 +153,15 @@ public class WebViewIpcHostTests
 
         await WaitForAsync(() => transport.ExecutedScripts.Any(s => s.Contains("resolve") && s.Contains("cb-4")));
 
-        Assert.NotNull(captured);
+        await Assert.That(captured).IsNotNull();
         var resolveJs = transport.ExecutedScripts.Single(s => s.Contains("resolve") && s.Contains("cb-4"));
-        Assert.Contains("__channel", resolveJs);
-        Assert.Contains("ch-fixed", resolveJs);
+        await Assert.That(resolveJs).Contains("__channel");
+        await Assert.That(resolveJs).Contains("ch-fixed");
         // itemType 为泛型参数类型名
-        Assert.Contains("Int32", resolveJs);
+        await Assert.That(resolveJs).Contains("Int32");
     }
 
-    [Fact]
+    [Test]
     public async Task Call_无法解析的_JSON_静默丢弃_不回推()
     {
         var (host, transport) = Create();
@@ -170,27 +171,27 @@ public class WebViewIpcHostTests
         await Task.Delay(50);
 
         // 无任何 resolve 脚本被发送
-        Assert.DoesNotContain(transport.ExecutedScripts, s => s.Contains("resolve"));
+        await Assert.That(transport.ExecutedScripts.Any(s => s.Contains("resolve"))).IsFalse();
     }
 
     // —— 事件 (E 前缀) ——
 
-    [Fact]
+    [Test]
     public async Task EmitEventAsync_C_到_JS_经_dispatch()
     {
         var (host, transport) = Create();
 
         await host.EmitEventAsync("app.tick", new { count = 7 });
 
-        Assert.NotEmpty(transport.ExecutedScripts);
+        await Assert.That(transport.ExecutedScripts).IsNotEmpty();
         var js = transport.ExecutedScripts[^1];
-        Assert.Contains("window.__lybox", js);
-        Assert.Contains("dispatch", js);
-        Assert.Contains("app.tick", js);
-        Assert.Contains("\"count\":7", js);
+        await Assert.That(js).Contains("window.__lybox");
+        await Assert.That(js).Contains("dispatch");
+        await Assert.That(js).Contains("app.tick");
+        await Assert.That(js).Contains("\"count\":7");
     }
 
-    [Fact]
+    [Test]
     public async Task EmitEventAsync_null_data_发送_null()
     {
         var (host, transport) = Create();
@@ -198,11 +199,11 @@ public class WebViewIpcHostTests
         await host.EmitEventAsync("app.empty", null);
 
         var js = transport.ExecutedScripts[^1];
-        Assert.Contains("dispatch", js);
-        Assert.Contains("null", js);
+        await Assert.That(js).Contains("dispatch");
+        await Assert.That(js).Contains("null");
     }
 
-    [Fact]
+    [Test]
     public async Task JS_emit_触发_OnEvent_监听器()
     {
         var (host, transport) = Create();
@@ -217,13 +218,13 @@ public class WebViewIpcHostTests
         transport.SimulateFromScript(payload);
 
         await WaitForAsync(() => received is not null);
-        Assert.NotNull(received);
-        Assert.Equal(JsonValueKind.Object, received!.Value.ValueKind);
-        Assert.Equal(10, received.Value.GetProperty("x").GetInt32());
-        Assert.Equal(20, received.Value.GetProperty("y").GetInt32());
+        await Assert.That(received).IsNotNull();
+        await Assert.That(received!.Value.ValueKind).IsEqualTo(JsonValueKind.Object);
+        await Assert.That(received.Value.GetProperty("x").GetInt32()).IsEqualTo(10);
+        await Assert.That(received.Value.GetProperty("y").GetInt32()).IsEqualTo(20);
     }
 
-    [Fact]
+    [Test]
     public async Task OnEvent_取消订阅_不再触发()
     {
         var (host, transport) = Create();
@@ -233,15 +234,15 @@ public class WebViewIpcHostTests
         var payload = "E" + JsonSerializer.Serialize(new EventMessage { Name = "app.tick" });
         transport.SimulateFromScript(payload);
         await WaitForAsync(() => callCount == 1);
-        Assert.Equal(1, callCount);
+        await Assert.That(callCount).IsEqualTo(1);
 
         unsub();
         transport.SimulateFromScript(payload);
         await Task.Delay(50);
-        Assert.Equal(1, callCount);
+        await Assert.That(callCount).IsEqualTo(1);
     }
 
-    [Fact]
+    [Test]
     public async Task OnEvent_多个监听器_均触发()
     {
         var (host, transport) = Create();
@@ -254,11 +255,11 @@ public class WebViewIpcHostTests
         transport.SimulateFromScript(payload);
 
         await WaitForAsync(() => a == 1 && b == 1);
-        Assert.Equal(1, a);
-        Assert.Equal(1, b);
+        await Assert.That(a).IsEqualTo(1);
+        await Assert.That(b).IsEqualTo(1);
     }
 
-    [Fact]
+    [Test]
     public async Task OnEvent_单监听器异常_不影响其他监听器()
     {
         var (host, transport) = Create();
@@ -270,12 +271,12 @@ public class WebViewIpcHostTests
         transport.SimulateFromScript(payload);
 
         await WaitForAsync(() => secondCalled);
-        Assert.True(secondCalled);
+        await Assert.That(secondCalled).IsTrue();
     }
 
     // —— 通道 (Channel<T>) ——
 
-    [Fact]
+    [Test]
     public async Task Channel_WriteAsync_推送_onData()
     {
         var (host, transport) = Create();
@@ -287,12 +288,12 @@ public class WebViewIpcHostTests
         var dataScripts = transport.ExecutedScripts
             .Where(s => s.Contains("channel.onData") && s.Contains("ch-write-1"))
             .ToList();
-        Assert.Equal(2, dataScripts.Count);
-        Assert.Contains("hello", dataScripts[0]);
-        Assert.Contains("world", dataScripts[1]);
+        await Assert.That(dataScripts.Count).IsEqualTo(2);
+        await Assert.That(dataScripts[0]).Contains("hello");
+        await Assert.That(dataScripts[1]).Contains("world");
     }
 
-    [Fact]
+    [Test]
     public async Task Channel_CloseAsync_推送_onClose_并标记关闭()
     {
         var (host, transport) = Create();
@@ -300,11 +301,11 @@ public class WebViewIpcHostTests
 
         await ch.CloseAsync();
 
-        Assert.True(ch.Closed);
-        Assert.Contains(transport.ExecutedScripts, s => s.Contains("channel.onClose") && s.Contains("ch-close-1"));
+        await Assert.That(ch.Closed).IsTrue();
+        await Assert.That(transport.ExecutedScripts.Any(s => s.Contains("channel.onClose") && s.Contains("ch-close-1"))).IsTrue();
     }
 
-    [Fact]
+    [Test]
     public async Task Channel_CloseAsync_幂等_重复关闭不重复推送()
     {
         var (host, transport) = Create();
@@ -315,10 +316,10 @@ public class WebViewIpcHostTests
         await ch.CloseAsync();
 
         var closeScripts = transport.ExecutedScripts.Count(s => s.Contains("channel.onClose") && s.Contains("ch-close-2"));
-        Assert.Equal(1, closeScripts);
+        await Assert.That(closeScripts).IsEqualTo(1);
     }
 
-    [Fact]
+    [Test]
     public async Task Channel_关闭后_WriteAsync_静默丢弃()
     {
         var (host, transport) = Create();
@@ -328,10 +329,10 @@ public class WebViewIpcHostTests
         var scriptsBefore = transport.ExecutedScripts.Count;
         await ch.WriteAsync(99);
 
-        Assert.Equal(scriptsBefore, transport.ExecutedScripts.Count);
+        await Assert.That(transport.ExecutedScripts.Count).IsEqualTo(scriptsBefore);
     }
 
-    [Fact]
+    [Test]
     public async Task Channel_DisposeAsync_关闭通道()
     {
         var (host, transport) = Create();
@@ -339,23 +340,23 @@ public class WebViewIpcHostTests
 
         await ch.DisposeAsync();
 
-        Assert.True(ch.Closed);
-        Assert.Contains(transport.ExecutedScripts, s => s.Contains("channel.onClose") && s.Contains("ch-dispose"));
+        await Assert.That(ch.Closed).IsTrue();
+        await Assert.That(transport.ExecutedScripts.Any(s => s.Contains("channel.onClose") && s.Contains("ch-dispose"))).IsTrue();
     }
 
-    [Fact]
+    [Test]
     public async Task Channel_自动生成_Id_唯一()
     {
         var (host, _) = Create();
         var a = host.CreateChannel<int>();
         var b = host.CreateChannel<int>();
 
-        Assert.NotEmpty(a.Id);
-        Assert.NotEmpty(b.Id);
-        Assert.NotEqual(a.Id, b.Id);
+        await Assert.That(a.Id).IsNotEmpty();
+        await Assert.That(b.Id).IsNotEmpty();
+        await Assert.That(a.Id).IsNotEqualTo(b.Id);
     }
 
-    [Fact]
+    [Test]
     public async Task JS_关闭通道_X_前缀_触发_CloseAsync()
     {
         var (host, transport) = Create();
@@ -364,11 +365,11 @@ public class WebViewIpcHostTests
         transport.SimulateFromScript("Xch-js-close");
 
         await WaitForAsync(() => ch.Closed);
-        Assert.True(ch.Closed);
-        Assert.Contains(transport.ExecutedScripts, s => s.Contains("channel.onClose") && s.Contains("ch-js-close"));
+        await Assert.That(ch.Closed).IsTrue();
+        await Assert.That(transport.ExecutedScripts.Any(s => s.Contains("channel.onClose") && s.Contains("ch-js-close"))).IsTrue();
     }
 
-    [Fact]
+    [Test]
     public async Task JS_关闭未知通道_无副作用()
     {
         var (host, transport) = Create();
@@ -377,29 +378,29 @@ public class WebViewIpcHostTests
         transport.SimulateFromScript("Xnonexistent-channel");
         await Task.Delay(50);
 
-        Assert.Equal(scriptsBefore, transport.ExecutedScripts.Count);
+        await Assert.That(transport.ExecutedScripts.Count).IsEqualTo(scriptsBefore);
     }
 
     // —— 绑定注入 ——
 
-    [Fact]
+    [Test]
     public async Task InitializeAsync_注入引导脚本_且幂等()
     {
         var (host, transport) = Create();
 
         await host.InitializeAsync();
         var firstCount = transport.ExecutedScripts.Count;
-        Assert.Equal(1, firstCount);
+        await Assert.That(firstCount).IsEqualTo(1);
         var bootstrap = transport.ExecutedScripts[0];
-        Assert.True(
-            bootstrap.Contains("__lybox") || bootstrap.Contains("invokeCSharpAction") || bootstrap.Contains("function"),
-            "引导脚本应包含 __lybox 运行时标记");
+        await Assert.That(
+            bootstrap.Contains("__lybox") || bootstrap.Contains("invokeCSharpAction") || bootstrap.Contains("function")
+        ).IsTrue();
 
         await host.InitializeAsync();
-        Assert.Equal(firstCount, transport.ExecutedScripts.Count);
+        await Assert.That(transport.ExecutedScripts.Count).IsEqualTo(firstCount);
     }
 
-    [Fact]
+    [Test]
     public async Task InjectBindingsAsync_发送命令清单()
     {
         var (host, transport) = Create();
@@ -409,12 +410,12 @@ public class WebViewIpcHostTests
         await host.InjectBindingsAsync();
 
         var js = transport.ExecutedScripts[^1];
-        Assert.Contains("setBindings", js);
-        Assert.Contains("ns.Svc.foo", js);
-        Assert.Contains("ns.Svc.bar", js);
+        await Assert.That(js).Contains("setBindings");
+        await Assert.That(js).Contains("ns.Svc.foo");
+        await Assert.That(js).Contains("ns.Svc.bar");
     }
 
-    [Fact]
+    [Test]
     public async Task InjectBindingsAsync_空命令清单_仍发送空数组()
     {
         var (host, transport) = Create();
@@ -422,14 +423,14 @@ public class WebViewIpcHostTests
         await host.InjectBindingsAsync();
 
         var js = transport.ExecutedScripts[^1];
-        Assert.Contains("setBindings", js);
+        await Assert.That(js).Contains("setBindings");
         // 空清单序列化为 "[]"
-        Assert.Contains("[]", js);
+        await Assert.That(js).Contains("[]");
     }
 
     // —— 边界情况 ——
 
-    [Fact]
+    [Test]
     public async Task OnMessage_null_忽略()
     {
         var (host, transport) = Create();
@@ -438,10 +439,10 @@ public class WebViewIpcHostTests
         transport.SimulateFromScript(null);
         await Task.Delay(50);
 
-        Assert.Equal(scriptsBefore, transport.ExecutedScripts.Count);
+        await Assert.That(transport.ExecutedScripts.Count).IsEqualTo(scriptsBefore);
     }
 
-    [Fact]
+    [Test]
     public async Task OnMessage_空字符串_忽略()
     {
         var (host, transport) = Create();
@@ -450,10 +451,10 @@ public class WebViewIpcHostTests
         transport.SimulateFromScript("");
         await Task.Delay(50);
 
-        Assert.Equal(scriptsBefore, transport.ExecutedScripts.Count);
+        await Assert.That(transport.ExecutedScripts.Count).IsEqualTo(scriptsBefore);
     }
 
-    [Fact]
+    [Test]
     public async Task OnMessage_未知前缀_忽略()
     {
         var (host, transport) = Create();
@@ -462,19 +463,19 @@ public class WebViewIpcHostTests
         transport.SimulateFromScript("Zsome-payload");
         await Task.Delay(50);
 
-        Assert.Equal(scriptsBefore, transport.ExecutedScripts.Count);
+        await Assert.That(transport.ExecutedScripts.Count).IsEqualTo(scriptsBefore);
     }
 
-    [Fact]
+    [Test]
     public async Task Call_无参数_正常分发()
     {
         var (host, transport) = Create();
         var handlerCalled = false;
-        host.RegisterCommand("svc.noparams", (args, ct) =>
+        host.RegisterCommand("svc.noparams", async (args, ct) =>
         {
             handlerCalled = true;
-            Assert.Empty(args);
-            return Task.FromResult<object?>(42);
+            await Assert.That(args).IsEmpty();
+            return (object?)42;
         });
 
         var payload = "C" + JsonSerializer.Serialize(new CallMessage
@@ -485,10 +486,10 @@ public class WebViewIpcHostTests
         transport.SimulateFromScript(payload);
 
         await WaitForAsync(() => transport.ExecutedScripts.Any(s => s.Contains("resolve") && s.Contains("cb-noparams")));
-        Assert.True(handlerCalled);
+        await Assert.That(handlerCalled).IsTrue();
     }
 
-    [Fact]
+    [Test]
     public async Task RegisterCommand_同名覆盖_后注册生效()
     {
         var (host, transport) = Create();
@@ -502,8 +503,8 @@ public class WebViewIpcHostTests
         transport.SimulateFromScript(payload);
 
         await WaitForAsync(() => transport.ExecutedScripts.Any(s => s.Contains("resolve") && s.Contains("cb-override")));
-        Assert.False(firstCalled);
-        Assert.True(secondCalled);
+        await Assert.That(firstCalled).IsFalse();
+        await Assert.That(secondCalled).IsTrue();
     }
 
     // —— 辅助 ——

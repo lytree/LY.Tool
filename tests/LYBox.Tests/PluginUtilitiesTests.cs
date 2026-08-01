@@ -1,7 +1,8 @@
 using System.Text.Json;
 using LYBox.Plugin.Shared.Models;
 using LYBox.Layout.Core.Services;
-using Xunit;
+using TUnit.Core;
+using TUnit.Assertions;
 
 namespace LYBox.Tests;
 
@@ -12,29 +13,29 @@ public class PluginUtilitiesTests
 {
     #region JsonOptions 一致性
 
-    [Fact]
-    public void JsonOptions_IsNotReadOnly()
+    [Test]
+    public async Task JsonOptions_IsNotReadOnly()
     {
         // 确保选项实例可被消费方直接使用（非冻结态，但约定不修改）
-        Assert.False(PluginUtilities.JsonOptions.IsReadOnly);
+        await Assert.That(PluginUtilities.JsonOptions.IsReadOnly).IsFalse();
     }
 
-    [Fact]
-    public void JsonOptions_WriteIndented_IsTrue()
+    [Test]
+    public async Task JsonOptions_WriteIndented_IsTrue()
     {
         // 确保统一使用缩进输出（原 PluginLoader 的配置，现在作为标准）
-        Assert.True(PluginUtilities.JsonOptions.WriteIndented);
+        await Assert.That(PluginUtilities.JsonOptions.WriteIndented).IsTrue();
     }
 
-    [Fact]
-    public void JsonOptions_PropertyNamingPolicy_IsCamelCase()
+    [Test]
+    public async Task JsonOptions_PropertyNamingPolicy_IsCamelCase()
     {
         // 确保命名策略为 camelCase
-        Assert.Equal(JsonNamingPolicy.CamelCase, PluginUtilities.JsonOptions.PropertyNamingPolicy);
+        await Assert.That(PluginUtilities.JsonOptions.PropertyNamingPolicy).IsEqualTo(JsonNamingPolicy.CamelCase);
     }
 
-    [Fact]
-    public void JsonOptions_SerializeManifest_ProducesCamelCaseJson()
+    [Test]
+    public async Task JsonOptions_SerializeManifest_ProducesCamelCaseJson()
     {
         // 验证序列化 PluginManifest 时正确使用 camelCase
         var manifest = new PluginManifest
@@ -49,14 +50,14 @@ public class PluginUtilitiesTests
 
         var json = JsonSerializer.Serialize(manifest, PluginUtilities.JsonOptions);
 
-        Assert.Contains("\"pluginId\": \"test-id\"", json);
-        Assert.Contains("\"name\": \"TestPlugin\"", json);
-        Assert.Contains("\"version\": \"1.0.0\"", json);
-        Assert.Contains("\"minPluginSdkVersion\": \"2.1.0\"", json);
+        await Assert.That(json).Contains("\"pluginId\": \"test-id\"");
+        await Assert.That(json).Contains("\"name\": \"TestPlugin\"");
+        await Assert.That(json).Contains("\"version\": \"1.0.0\"");
+        await Assert.That(json).Contains("\"minPluginSdkVersion\": \"2.1.0\"");
     }
 
-    [Fact]
-    public void JsonOptions_SerializeAndDeserialize_RoundTrip()
+    [Test]
+    public async Task JsonOptions_SerializeAndDeserialize_RoundTrip()
     {
         // 验证序列化和反序列化的往返一致性
         var original = new PluginManifest
@@ -72,15 +73,15 @@ public class PluginUtilitiesTests
         var json = JsonSerializer.Serialize(original, PluginUtilities.JsonOptions);
         var deserialized = JsonSerializer.Deserialize<PluginManifest>(json, PluginUtilities.JsonOptions);
 
-        Assert.NotNull(deserialized);
-        Assert.Equal(original.PluginId, deserialized.PluginId);
-        Assert.Equal(original.Name, deserialized.Name);
-        Assert.Equal(original.Version, deserialized.Version);
-        Assert.Equal(original.MinPluginSdkVersion, deserialized.MinPluginSdkVersion);
+        await Assert.That(deserialized).IsNotNull();
+        await Assert.That(deserialized!.PluginId).IsEqualTo(original.PluginId);
+        await Assert.That(deserialized.Name).IsEqualTo(original.Name);
+        await Assert.That(deserialized.Version).IsEqualTo(original.Version);
+        await Assert.That(deserialized.MinPluginSdkVersion).IsEqualTo(original.MinPluginSdkVersion);
     }
 
-    [Fact]
-    public void JsonOptions_SerializePendingUpgradeInfo_ProducesCamelCaseJson()
+    [Test]
+    public async Task JsonOptions_SerializePendingUpgradeInfo_ProducesCamelCaseJson()
     {
         // 验证 PendingUpgradeInfo 也使用相同的 camelCase 命名（原 PluginInstallationManager 的用途）
         var info = new PendingUpgradeInfo
@@ -93,17 +94,17 @@ public class PluginUtilitiesTests
 
         var json = JsonSerializer.Serialize(info, PluginUtilities.JsonOptions);
 
-        Assert.Contains("\"pluginId\": \"upgrade-target\"", json);
-        Assert.Contains("\"newVersion\": \"2.0.0\"", json);
-        Assert.Contains("\"preserveState\": true", json);
+        await Assert.That(json).Contains("\"pluginId\": \"upgrade-target\"");
+        await Assert.That(json).Contains("\"newVersion\": \"2.0.0\"");
+        await Assert.That(json).Contains("\"preserveState\": true");
     }
 
     #endregion
 
     #region CopyDirectory
 
-    [Fact]
-    public void CopyDirectory_CopiesAllFilesAndSubdirectories()
+    [Test]
+    public async Task CopyDirectory_CopiesAllFilesAndSubdirectories()
     {
         // 准备源目录结构
         var tempRoot = Path.Combine(Path.GetTempPath(), $"lybox-test-{Guid.NewGuid():N}");
@@ -121,11 +122,11 @@ public class PluginUtilitiesTests
             PluginUtilities.CopyDirectory(sourceDir, destDir);
 
             // 验证
-            Assert.True(File.Exists(Path.Combine(destDir, "file1.txt")));
-            Assert.True(File.Exists(Path.Combine(destDir, "sub1", "file2.txt")));
-            Assert.True(File.Exists(Path.Combine(destDir, "sub1", "sub2", "file3.txt")));
-            Assert.Equal("content1", File.ReadAllText(Path.Combine(destDir, "file1.txt")));
-            Assert.Equal("content3", File.ReadAllText(Path.Combine(destDir, "sub1", "sub2", "file3.txt")));
+            await Assert.That(File.Exists(Path.Combine(destDir, "file1.txt"))).IsTrue();
+            await Assert.That(File.Exists(Path.Combine(destDir, "sub1", "file2.txt"))).IsTrue();
+            await Assert.That(File.Exists(Path.Combine(destDir, "sub1", "sub2", "file3.txt"))).IsTrue();
+            await Assert.That(File.ReadAllText(Path.Combine(destDir, "file1.txt"))).IsEqualTo("content1");
+            await Assert.That(File.ReadAllText(Path.Combine(destDir, "sub1", "sub2", "file3.txt"))).IsEqualTo("content3");
         }
         finally
         {
@@ -133,8 +134,8 @@ public class PluginUtilitiesTests
         }
     }
 
-    [Fact]
-    public void CopyDirectory_OverwritesExistingFiles()
+    [Test]
+    public async Task CopyDirectory_OverwritesExistingFiles()
     {
         var tempRoot = Path.Combine(Path.GetTempPath(), $"lybox-test-{Guid.NewGuid():N}");
         var sourceDir = Path.Combine(tempRoot, "source");
@@ -150,7 +151,7 @@ public class PluginUtilitiesTests
 
             PluginUtilities.CopyDirectory(sourceDir, destDir);
 
-            Assert.Equal("new_content", File.ReadAllText(Path.Combine(destDir, "shared.txt")));
+            await Assert.That(File.ReadAllText(Path.Combine(destDir, "shared.txt"))).IsEqualTo("new_content");
         }
         finally
         {
@@ -158,8 +159,8 @@ public class PluginUtilitiesTests
         }
     }
 
-    [Fact]
-    public void CopyDirectory_CreatesDestinationIfNotExists()
+    [Test]
+    public async Task CopyDirectory_CreatesDestinationIfNotExists()
     {
         var tempRoot = Path.Combine(Path.GetTempPath(), $"lybox-test-{Guid.NewGuid():N}");
         var sourceDir = Path.Combine(tempRoot, "source");
@@ -171,12 +172,12 @@ public class PluginUtilitiesTests
             File.WriteAllText(Path.Combine(sourceDir, "file.txt"), "data");
 
             // 目标目录不存在
-            Assert.False(Directory.Exists(destDir));
+            await Assert.That(Directory.Exists(destDir)).IsFalse();
 
             PluginUtilities.CopyDirectory(sourceDir, destDir);
 
-            Assert.True(Directory.Exists(destDir));
-            Assert.True(File.Exists(Path.Combine(destDir, "file.txt")));
+            await Assert.That(Directory.Exists(destDir)).IsTrue();
+            await Assert.That(File.Exists(Path.Combine(destDir, "file.txt"))).IsTrue();
         }
         finally
         {

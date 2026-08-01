@@ -48,7 +48,7 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="$(CommunityToolkit)" />
 		<PackageReference Include="Irihi.Ursa" Version="$(IrihiUrsaVersion)" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="$(EfCoreVersion)" />
-		<PackageReference Include="System.Reactive" Version="6.1.0" />
+		<PackageReference Include="System.Reactive" Version="7.0.0" />
 		<PackageReference Include="ProDataGrid" Version="$(ProDataGridVersion)" />
 
 		<!-- 递归依赖（共享）：显式声明以锁定版本，运行时由宿主通过 _SharedAssembliesPatterns 提供 -->

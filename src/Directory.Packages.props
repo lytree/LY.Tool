@@ -10,13 +10,13 @@
         运行时通过 SDK buildTransitive 的 _SharedAssembliesPatterns 由宿主提供共享程序集。
     -->
     <PropertyGroup>
-        <AvaloniaVersion>12.1.0</AvaloniaVersion>
-        <IrihiUrsaVersion>2.1.*</IrihiUrsaVersion>
+        <AvaloniaVersion>12.1.1</AvaloniaVersion>
+        <IrihiUrsaVersion>2.2.0</IrihiUrsaVersion>
         <CommunityToolkit>8.4.2</CommunityToolkit>
-        <MicrosoftExtensionsDI>10.0.9</MicrosoftExtensionsDI>
+        <MicrosoftExtensionsDI>10.0.10</MicrosoftExtensionsDI>
         <AvaloniaDiagnosticsSupport>2.2.3</AvaloniaDiagnosticsSupport>
-        <EfCoreVersion>10.0.9</EfCoreVersion>
-        <MicrosoftExtensionsLocalization>10.0.9</MicrosoftExtensionsLocalization>
+        <EfCoreVersion>10.0.10</EfCoreVersion>
+        <MicrosoftExtensionsLocalization>10.0.10</MicrosoftExtensionsLocalization>
         <ProDataGridVersion>12.0.4</ProDataGridVersion>
         <ScottPlotVersion>5.1.59</ScottPlotVersion>
         <ZLoggerVersion>2.5.10</ZLoggerVersion>
@@ -32,13 +32,13 @@
         <!-- Roslyn 源生成器 SDK：LYBox.Plugin.Generators 依赖，跟随最新 5.6.x -->
         <MicrosoftCodeAnalysisVersion>5.6.0</MicrosoftCodeAnalysisVersion>
         <!-- Avalonia 递归依赖（版本跟随 Avalonia 12.x 发布） -->
-        <HarfBuzzSharpVersion>14.2.1</HarfBuzzSharpVersion>
+        <HarfBuzzSharpVersion>14.2.1.1</HarfBuzzSharpVersion>
 
         <!-- Ursa 递归依赖（版本跟随 Irihi.Ursa 2.1.x 发布） -->
-        <IrihiAvaloniaSharedVersion>0.4.0</IrihiAvaloniaSharedVersion>
+        <IrihiAvaloniaSharedVersion>0.5.0</IrihiAvaloniaSharedVersion>
 
         <!-- WebView + 嵌入式 HTTP 资源服务（P1 引入） -->
-        <!-- Avalonia.Controls.WebView 12.0.1：官方 WebView 控件，与 Avalonia 12.1.0 兼容（最新稳定版） -->
+        <!-- Avalonia.Controls.WebView 12.0.1：官方 WebView 控件，与 Avalonia 12.1.1 兼容（最新稳定版） -->
         <AvaloniaControlsWebView>12.0.1</AvaloniaControlsWebView>
         <!-- ASP.NET Core：通过 FrameworkReference 引用 Microsoft.AspNetCore.App 共享框架，
              不再使用独立 NuGet 包（Kestrel/StaticFiles 自 .NET Core 3+ 起不再发布为独立包） -->

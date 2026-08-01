@@ -6,7 +6,8 @@ using LYBox.Layout.Core.Services;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
+using TUnit.Core;
+using TUnit.Assertions;
 
 namespace LYBox.Tests;
 
@@ -37,27 +38,27 @@ public class SettingsServiceTests : IDisposable
         db.Database.EnsureCreated();
     }
 
-    [Fact]
-    public void GetValue_ReturnsDefault_WhenKeyNotExists()
+    [Test]
+    public async Task GetValue_ReturnsDefault_WhenKeyNotExists()
     {
         var service = new SettingsService(_dbFactory);
         var result = service.GetValue<string>("nonexistent_key");
-        Assert.Null(result);
+        await Assert.That(result).IsNull();
     }
 
-    [Fact]
-    public void RegisterSetting_AndGetValue_RoundTrip()
+    [Test]
+    public async Task RegisterSetting_AndGetValue_RoundTrip()
     {
         var service = new SettingsService(_dbFactory);
         service.RegisterSetting(SettingDefinition.Text("test.key", "Test Key",
             defaultValue: "default_value", group: "Test Group"));
 
         var value = service.GetValue<string>("test.key");
-        Assert.Equal("default_value", value);
+        await Assert.That(value).IsEqualTo("default_value");
     }
 
-    [Fact]
-    public void SetValue_UpdatesCache_WithoutFullReload()
+    [Test]
+    public async Task SetValue_UpdatesCache_WithoutFullReload()
     {
         var service = new SettingsService(_dbFactory);
         service.RegisterSetting(SettingDefinition.Text("test.update", "Update Test",
@@ -66,11 +67,11 @@ public class SettingsServiceTests : IDisposable
         service.SetValue("test.update", "updated_value");
 
         var value = service.GetValue<string>("test.update");
-        Assert.Equal("updated_value", value);
+        await Assert.That(value).IsEqualTo("updated_value");
     }
 
-    [Fact]
-    public void InvalidateCache_AndGetValue_RebuildsFromDb()
+    [Test]
+    public async Task InvalidateCache_AndGetValue_RebuildsFromDb()
     {
         var service = new SettingsService(_dbFactory);
         service.RegisterSetting(SettingDefinition.Text("test.invalidate", "Invalidate Test",
@@ -87,10 +88,10 @@ public class SettingsServiceTests : IDisposable
             defaultValue: "x", group: "Test Group"));
 
         var value = service.GetValue<string>("test.invalidate");
-        Assert.Equal("db_modified_value", value);
+        await Assert.That(value).IsEqualTo("db_modified_value");
     }
 
-    [Fact]
+    [Test]
     public async Task ConcurrentGetValue_DoesNotThrow()
     {
         var service = new SettingsService(_dbFactory);
@@ -107,16 +108,22 @@ public class SettingsServiceTests : IDisposable
 
         await Task.WhenAll(tasks);
 
-        Assert.All(results, v => Assert.Equal("value", v));
-        Assert.Equal(50, results.Count);
+        foreach (var v in results) await Assert.That(v).IsEqualTo("value");
+        await Assert.That(results.Count).IsEqualTo(50);
     }
 
-    [Fact]
+    [Test]
     public async Task ConcurrentReadWithCacheInvalidation_DoesNotThrow()
     {
         var service = new SettingsService(_dbFactory);
         service.RegisterSetting(SettingDefinition.Text("base.key", "Base",
             defaultValue: "base_value", group: "Test Group"));
+
+        // Warm up EF Core's internal service provider single-threaded before the
+        // concurrent phase. The shared in-memory SQLite + DbContextFactory triggers
+        // a first-time model/service-provider build that isn't thread-safe; building
+        // it once here keeps the race from masking the actual cache-safety behaviour.
+        _ = service.GetValue<string>("base.key");
 
         var exceptions = new ConcurrentBag<Exception>();
         var barrier = new Barrier(2);
@@ -153,10 +160,10 @@ public class SettingsServiceTests : IDisposable
         });
 
         await Task.WhenAll(readerTask, invalidatorTask);
-        Assert.Empty(exceptions);
+        await Assert.That(exceptions).IsEmpty();
     }
 
-    [Fact]
+    [Test]
     public async Task EnsureCache_CreatesOnlyOneDbContext_UnderConcurrentAccess()
     {
         var createCount = 0;
@@ -174,7 +181,7 @@ public class SettingsServiceTests : IDisposable
         await Task.WhenAll(tasks);
 
         // EnsureCache 应该只创建 1 次 DbContext（首次加载）
-        Assert.Equal(1, createCount);
+        await Assert.That(createCount).IsEqualTo(1);
     }
 
     public void Dispose()
