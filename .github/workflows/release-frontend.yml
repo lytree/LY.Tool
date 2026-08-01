@@ -38,8 +38,12 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  NODE_VERSION: '20'
-  PNPM_VERSION: '11'
+  # pnpm 11.x（尤其 11.18+）要求 Node >= 22.13，并使用 node:sqlite 内置模块
+  # （Node 22.5+ 才有，Node 20 没有）。CI 必须用 Node 22，否则 pnpm 启动即崩溃。
+  # 同时把 pnpm 锁成与 frontend/package.json 的 packageManager 一致的精确版本，避免
+  # action-setup 把 "11" 解析成不兼容的最新 11.x。
+  NODE_VERSION: '22'
+  PNPM_VERSION: '11.16.0'
 
 jobs:
   resolve_context:
