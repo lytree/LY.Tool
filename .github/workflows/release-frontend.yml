@@ -115,6 +115,20 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: "[TEMP] Debug OIDC claims for npm Trusted Publisher"
+        env:
+          ACTIONS_ID_TOKEN_REQUEST_URL: ${{ env.ACTIONS_ID_TOKEN_REQUEST_URL }}
+          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ env.ACTIONS_ID_TOKEN_REQUEST_TOKEN }}
+        run: |
+          set -euo pipefail
+          for aud in "https://registry.npmjs.org" "npm:registry.npmjs.org"; do
+            echo "===== audience=$aud ====="
+            TOK=$(curl -sS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+              "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=$aud" | jq -r .value)
+            echo "$TOK" | cut -d. -f2 | base64 -d 2>/dev/null | jq '{aud, repository, repository_owner, environment, job_workflow_ref, sub, iss}' || echo "(decode failed)"
+          done
+          echo "NOTE: only the payload above is printed; do not share the full JWT."
+
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
