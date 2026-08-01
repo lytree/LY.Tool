@@ -42,10 +42,10 @@ concurrency:
 
 env:
   # pnpm 11.x（尤其 11.18+）要求 Node >= 22.13，并使用 node:sqlite 内置模块
-  # （Node 22.5+ 才有，Node 20 没有）。CI 必须用 Node 22，否则 pnpm 启动即崩溃。
+  # （Node 22.5+ 才有，Node 20 没有）。CI 必须用 Node >= 22.13（当前用 24），否则 pnpm 启动即崩溃。
   # 同时把 pnpm 锁成与 frontend/package.json 的 packageManager 一致的精确版本，避免
   # action-setup 把 "11" 解析成不兼容的最新 11.x。
-  NODE_VERSION: '22'
+  NODE_VERSION: '24'
   PNPM_VERSION: '11.16.0'
 
 jobs:
@@ -115,26 +115,22 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: "[TEMP] Debug OIDC claims for npm Trusted Publisher"
-        env:
-          ACTIONS_ID_TOKEN_REQUEST_URL: ${{ env.ACTIONS_ID_TOKEN_REQUEST_URL }}
-          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ env.ACTIONS_ID_TOKEN_REQUEST_TOKEN }}
-        run: |
-          set -euo pipefail
-          for aud in "https://registry.npmjs.org" "npm:registry.npmjs.org"; do
-            echo "===== audience=$aud ====="
-            TOK=$(curl -sS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-              "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=$aud" | jq -r .value)
-            echo "$TOK" | cut -d. -f2 | base64 -d 2>/dev/null | jq '{aud, repository, repository_owner, environment, job_workflow_ref, sub, iss}' || echo "(decode failed)"
-          done
-          echo "NOTE: only the payload above is printed; do not share the full JWT."
-
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: 'https://registry.npmjs.org'
           # 注意：不设置 scope / NODE_AUTH_TOKEN，避免向 .npmrc 写入空 _authToken。
           # Trusted Publisher 由 npm publish --provenance 在 GHA 中自动用 OIDC token 鉴权。
+
+      - name: Show Node and npm versions
+        run: |
+          node -v
+          npm -v
+
+      - name: Ensure npm supports Trusted Publishing
+        run: |
+          npm install -g npm@latest
+          npm -v
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -189,6 +185,35 @@ jobs:
               echo "  (no dist) $name"
             fi
           done
+
+      - name: Check versions are not already published
+        shell: bash
+        env:
+          VERSION: ${{ needs.resolve_context.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          check_package() {
+            local pkg="$1"
+            local ver="$2"
+
+            echo "Checking $pkg@$ver ..."
+
+            if npm view "$pkg" versions --json 2>/dev/null | jq -e --arg v "$ver" '
+                if type == "array" then index($v) != null
+                else . == $v
+                end
+              ' >/dev/null; then
+              echo "::error::$pkg@$ver 已经发布过了，不能重复发布。请升级版本号。"
+              exit 1
+            fi
+
+            echo "OK: $pkg@$ver 尚未发布"
+          }
+
+          check_package "@lytree/sdk" "$VERSION"
+          check_package "create-lybox-vue3-template" "$VERSION"
+          check_package "create-lybox-react-template" "$VERSION"
 
       - name: Publish @lytree/sdk
         run: |
