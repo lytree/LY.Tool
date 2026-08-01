@@ -10,9 +10,11 @@ name: Release Frontend
 #   - 预发布版本（tag 含 -）：发布到 npm `preview` dist-tag
 #   - 正式版本：发布到 npm `latest` dist-tag
 # 认证：
-#   - 使用 npm Automation Token（GitHub Secret: NPM_TOKEN），不会触发 OTP
-#   - 前置条件：在 npmjs.com 生成 Automation 类型 token，
-#     然后在 GitHub 仓库 Settings → Secrets → Actions 添加 NPM_TOKEN
+#   - 使用 npm Trusted Publisher（OIDC），无需任何 Token Secret
+#   - 前置条件：在 npmjs.com 对应包后台配置 Trusted Publisher，
+#     绑定本 GitHub 仓库（owner/repo），并勾选对应 workflow
+#   - job 必须拥有 id-token: write 权限以获取 OIDC token
+#   - npm publish --provenance 在 GitHub Actions 中自动用 OIDC token 鉴权
 #
 # 版本同步：
 #   - 标签触发时，使用 GitVersion 计算的版本号覆盖所有前端 package.json
@@ -32,6 +34,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write  # 必需：npm Trusted Publisher 通过 OIDC 获取发布凭证
 
 concurrency:
   group: release-frontend-${{ github.ref_name || inputs.version }}
@@ -115,8 +118,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: 'https://registry.npmjs.org'
-          # 设置 scope @lytree 的认证 token
-          scope: '@lytree'
+          # 注意：不设置 scope / NODE_AUTH_TOKEN，避免向 .npmrc 写入空 _authToken。
+          # Trusted Publisher 由 npm publish --provenance 在 GHA 中自动用 OIDC token 鉴权。
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -174,24 +177,18 @@ jobs:
 
       - name: Publish @lytree/sdk
         run: |
-          npm publish --access public --tag ${{ needs.resolve_context.outputs.npm_tag }}
+          npm publish --provenance --access public --tag ${{ needs.resolve_context.outputs.npm_tag }}
         working-directory: frontend/packages/sdk
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish create-lybox-vue3-template
         run: |
-          npm publish --access public --tag ${{ needs.resolve_context.outputs.npm_tag }}
+          npm publish --provenance --access public --tag ${{ needs.resolve_context.outputs.npm_tag }}
         working-directory: frontend/packages/create-lybox-vue3
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish create-lybox-react-template
         run: |
-          npm publish --access public --tag ${{ needs.resolve_context.outputs.npm_tag }}
+          npm publish --provenance --access public --tag ${{ needs.resolve_context.outputs.npm_tag }}
         working-directory: frontend/packages/create-lybox-react
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Summary
         run: |
