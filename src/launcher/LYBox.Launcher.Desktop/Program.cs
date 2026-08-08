@@ -5,7 +5,11 @@ using System.Linq;
 
 namespace LYBox.Launcher.Desktop;
 
-sealed class Program
+/// <summary>
+/// 桌面启动入口。类型为 public 以允许控制台调试版（LYBox.Launcher.Console）复用
+/// <see cref="BuildAvaloniaApp"/> 启动同一套应用。
+/// </summary>
+public sealed class Program
 {
     public static string[]? LaunchArgs { get; private set; }
 

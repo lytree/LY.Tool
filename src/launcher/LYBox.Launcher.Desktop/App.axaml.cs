@@ -140,8 +140,8 @@ public partial class App : Application
         var dbFactory = ServiceProvider?.GetRequiredService<IDbContextFactory<AppDbContext>>();
         if (dbFactory == null) return;
 
-        using var db = dbFactory.CreateDbContext();
-        db.Database.EnsureCreated();
+        // 通过 EF Core Migrations 演进数据库 schema（替代 EnsureCreated，支持后续增量迁移）
+        ServiceProvider?.GetService<DatabaseMigrationService>()?.Migrate();
 
         var settingsService = ServiceProvider?.GetRequiredService<ISettingsService>() as SettingsService;
         settingsService?.InitializeDefaults();
@@ -253,7 +253,7 @@ public partial class App : Application
 
     /// <summary>
     /// 创建系统托盘图标（跨平台，使用 Avalonia 12.1 内置 TrayIcon）。
-    /// 图标加载自 LYBox.UI 的 AvaloniaResource：avares://LYBox.UI/Assets/lybox.ico。
+    /// 图标加载自 LYBox.Layout.Ursa 的 AvaloniaResource：avares://LYBox.Layout.Ursa/Assets/lybox.ico。
     /// 菜单项命令挂接到 ApplicationViewModel 的 ShowMainWindow/ExitApplication 命令。
     /// Avalonia 在应用退出时自动 Dispose 托盘图标，无需手动清理。
     /// </summary>
@@ -269,7 +269,7 @@ public partial class App : Application
         WindowIcon? trayWindowIcon = null;
         try
         {
-            var iconUri = new Uri("avares://LYBox.UI/Assets/lybox.ico");
+            var iconUri = new Uri("avares://LYBox.Layout.Ursa/Assets/lybox.ico");
             using var stream = AssetLoader.Open(iconUri);
             trayWindowIcon = new WindowIcon(stream);
         }

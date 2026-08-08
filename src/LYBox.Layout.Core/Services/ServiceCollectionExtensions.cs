@@ -57,6 +57,8 @@ public static class ServiceCollectionExtensions
             options.UseSqlite($"Data Source={dbPath}");
         });
 
+        services.AddSingleton<DatabaseMigrationService>();
+
         services.AddSingleton<ISettingsService, SettingsService>();
 
         services.AddSingleton<IWindowInfoService, WindowInfoService>();

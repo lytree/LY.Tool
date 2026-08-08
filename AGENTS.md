@@ -4,16 +4,21 @@ OpenCode 智能体在本仓库工作时的精简指南。
 
 ## 构建与运行
 
-- **构建系统**：Cake Frosting（`build/build.cs` — .NET 10 文件化应用，Cake.Sdk 6.2.0）。通过 `.\build.ps1`（Windows）或 `./build.sh`（Linux/macOS）调用。
+- **构建系统**：Cake.Sdk（`build/build.cs` — .NET 10 文件化应用，Cake.Sdk 6.2.0）。通过 `.\build.ps1`（Windows）或 `./build.sh`（Linux/macOS）调用。
   ```
-  .\build.ps1 --build=all                    # 默认：bin（启动器 + NuGet）+ plugin
+  .\build.ps1 --build=all                    # 默认：bin（启动器 + NuGet）+ FluentWindow（如存在）+ plugin + tool
   .\build.ps1 --build=bin                    # 构建启动器 + 打包 SDK NuGet 包（host 与 SDK 同版本号，统一发版）
+  .\build.ps1 --build=fluent-window          # 构建自定义边框窗口布局项目（src/LYBox.Layout.Fluent，如不存在则跳过）
   .\build.ps1 --build=plugin                 # 构建并打包所有插件为 zip
+  .\build.ps1 --build=tool                   # 打包 tools/LYBox.MockServer 为 dotnet tool（lybox-mock）
   .\build.ps1 --configuration=Debug          # 覆盖配置（默认：Release）
-  .\build.ps1 --host-version=2.3.0           # 显式覆盖宿主版本（优先级最高，跳过 GitVersion）
-  .\build.ps1 --package-version=1.2.3        # 兼容旧用法（优先级高于 GitVersion，低于 --host-version）
+  .\build.ps1 --host-version=2.3.0           # 显式覆盖宿主+SDK 版本（优先级最高，跳过 GitVersion）
+  .\build.ps1 --plugin-version=1.2.3         # 覆盖所有插件版本
+  .\build.ps1 --package-version=1.2.3        # 兼容旧用法（覆盖所有层版本，优先级高于 GitVersion、低于 --host-version）
+  .\build.ps1 --plugin=LYBox.Plugin.Template # 仅构建指定插件（逗号分隔多个）
   .\build.ps1 --runtime-identifier=win-x64   # 设置启动器发布的 RID
   .\build.ps1 --self-contained=true          # 启动器自包含发布
+  .\build.ps1 --nuget-source=<URL>           # 指定 NuGet 推送源（默认 nuget.org）
   .\build.ps1 --nuget-api-key=<KEY>          # 推送包到 nuget.org
   ```
 - **版本管理（GitVersion）**：宿主版本由 `GitVersion.Tool`（`dotnet-tools.json` 声明）自动计算，配置见 `GitVersion.yml`。
@@ -47,13 +52,16 @@ OpenCode 智能体在本仓库工作时的精简指南。
 | 解决方案 | 内容 |
 |----------|----------|
 | `Core.slnx` | 宿主：Generators、Shared、UI、Launcher、Platforms.Abstractions |
-| `Plugins.slnx` | Generators、Shared、所有 `plugins/*` 项目（10 个插件） |
+| `Plugins.slnx` | Generators、Shared、所有 `plugins/*` 项目（12 个插件） |
 
 ### 项目分层（src/）
 ```
 LYBox.Plugin.Generators/        Roslyn 增量源生成器（netstandard2.1，IsRoslynComponent）
 LYBox.Plugin.Shared/            共享契约：IPlugin、IPluginMetadata、ViewLocator、ServiceLocator、特性、控件
+LYBox.Plugin.Shared.Chart/      图表类插件共享契约与辅助（配合 ScottPlot 插件）
+LYBox.Plugin.Shared.ProDataGrid/ 数据网格类插件共享契约与辅助（配合 ProDataGrid 插件）
 LYBox.Platforms.Abstractions/   跨平台抽象基类（仅空 README）
+LYBox.Layout.Core/              宿主布局核心（ViewModels、Services、Resources 等共享布局基础设施）
 LYBox.Layout.Ursa/                       宿主应用：ViewModels、Views、Services（EF Core、导航、菜单、本地化、ZLogger）
 LYBox.Launcher.Desktop/         桌面入口（Program.cs → App.axaml.cs）。设置 AvaloniaUseCompiledBindingsByDefault=true。
 ```
@@ -74,17 +82,23 @@ LYBox.Launcher.Desktop/         桌面入口（Program.cs → App.axaml.cs）。
 <PluginVersion>1.0.0</PluginVersion>  <!-- 可选，缺省回退到 <Version> -->
 ```
 
-10 个插件：ButtonsInputs、DateTime、DialogFeedbacks、Downloader、LayoutDisplay、NavigationMenus、ProDataGrid、ScottPlot、TDLSharp、Template。
+12 个插件：ButtonsInputs、DateTime、DialogFeedbacks、Downloader、LayoutDisplay、NavigationMenus、ProDataGrid、ScottPlot、TDLSharp、Template、BlazorApp、WebTemplate。
+
+其中 `BlazorApp`、`WebTemplate` 为 **WebView 插件**：宿主通过 WebView 承载前端页面，前端代码位于独立的 `frontend/` monorepo（pnpm workspace，发布 `@lybox/sdk`、`create-lybox-react`、`create-lybox-vue3`）。前端与宿主通信（WebView IPC）见 [docs/WebView-IPC-Guide.md](docs/WebView-IPC-Guide.md)，本地 Mock 后端（`lybox-mock` dotnet tool）见 [docs/LYBox-MockServer-Guide.md](docs/LYBox-MockServer-Guide.md)。
 
 ### 应用启动流程
 ```
 Program.cs → App.Initialize()
   1. 通过 ServiceCollectionExtensions.AddAvaloniaServices() 构建 DI 容器
-  2. ServiceLocator.Initialize(provider) — 插件代码使用的静态网关
-  3. InitializeDatabase() — 通过 EF Core 初始化 SQLite（AppDbContext）
-  4. InitializeLocalization() — 恢复已保存的语言设置
-  5. LoadPluginsAsync() — 发现、加载并注册所有插件
-  6. OnFrameworkInitializationCompleted() → 显示启动闪屏，然后显示 MainWindow
+  2. pluginLoader.DiscoverAllPluginAssembliesAsync() — 发现并加载插件程序集
+  3. pluginLoader.InitializeAllPluginsAsync(services) — 插件向 ServiceCollection 注册服务
+  4. ServiceProvider = services.BuildServiceProvider()
+  5. ServiceLocator.Initialize(ServiceProvider) — 插件代码使用的静态网关
+  6. InitializeDatabase() — 通过 EF Core 初始化 SQLite（AppDbContext）
+  7. InitializeLocalization() — 恢复已保存的语言设置
+  8. pluginLoader.RegisterAllPluginsAsync(ServiceProvider) — 插件执行多语言/设置注册
+  9. RegisterPluginNavigationAndMenus() — 注册插件导航与菜单
+ 10. OnFrameworkInitializationCompleted() → 显示启动闪屏，然后显示 MainWindow
 ```
 
 ### 插件加载与程序集排除

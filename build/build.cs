@@ -54,12 +54,6 @@ Task("Clean")
         CleanDirectoryIfExists(c, Path.Combine(buildContext.RootDir, "src", "launcher", "LYBox.Launcher.Desktop", "obj"));
     }
 
-    if (t.HasFlag(BuildTarget.FluentWindow))
-    {
-        CleanDirectoryIfExists(c, Path.Combine(buildContext.RootDir, "src", "LYBox.Layout.Fluent", "bin"));
-        CleanDirectoryIfExists(c, Path.Combine(buildContext.RootDir, "src", "LYBox.Layout.Fluent", "obj"));
-    }
-
     if (t.HasFlag(BuildTarget.Tool))
     {
         CleanDirectoryIfExists(c, buildContext.ToolPackagesDir);
@@ -153,24 +147,6 @@ Task("Build")
         });
     }
 
-    // FluentWindow 独立布局项目构建
-    if (buildContext.Target.HasFlag(BuildTarget.FluentWindow))
-    {
-        if (File.Exists(buildContext.FluentWindowProject))
-        {
-            c.DotNetBuild(buildContext.FluentWindowProject, new DotNetBuildSettings
-            {
-                Configuration = buildContext.BuildConfiguration,
-                MSBuildSettings = hostSettings
-            });
-            c.Log.Information("FluentWindow project built.");
-        }
-        else
-        {
-            c.Log.Warning("FluentWindow project not found at {0}, skipping", buildContext.FluentWindowProject);
-        }
-    }
-
     // Tool 独立 dotnet tool 项目构建（lybox-mock 前端调试 Mock 后端）
     if (buildContext.Target.HasFlag(BuildTarget.Tool))
     {
@@ -233,7 +209,7 @@ Task("PackBin")
         c.Log.Information("  NuGet: {0}", pkg.GetFilename());
     }
 
-    // 发布宿主 launcher
+    // 发布宿主 launcher（GUI 版）
     c.EnsureDirectoryExists(buildContext.BinPackagesDir);
 
     var settings = new DotNetPublishSettings
@@ -260,7 +236,31 @@ Task("PackBin")
 
     c.DotNetPublish(buildContext.LauncherProject, settings);
 
-    c.Log.Information("Launcher published to: {0}", buildContext.BinPackagesDir);
+    // 同时发布控制台调试版（LYBox.Launcher.Console.exe），两个可执行文件共用同一套启动逻辑
+    var consoleSettings = new DotNetPublishSettings
+    {
+        Configuration = buildContext.BuildConfiguration,
+        OutputDirectory = buildContext.BinPackagesDir,
+        NoRestore = true,
+        NoBuild = true,
+    };
+
+    if (!string.IsNullOrEmpty(buildContext.RuntimeIdentifier))
+    {
+        consoleSettings.Runtime = buildContext.RuntimeIdentifier;
+        consoleSettings.OutputDirectory = Path.Combine(buildContext.BinPackagesDir, buildContext.RuntimeIdentifier);
+        consoleSettings.NoBuild = false;
+        consoleSettings.NoRestore = false;
+    }
+
+    if (buildContext.SelfContained)
+    {
+        consoleSettings.SelfContained = true;
+    }
+
+    c.DotNetPublish(buildContext.ConsoleProject, consoleSettings);
+
+    c.Log.Information("Launcher (GUI) + Console published to: {0}", buildContext.BinPackagesDir);
 });
 
 Task("LocalInstall")
@@ -478,46 +478,6 @@ Task("PackPlugins")
     }
 });
 
-Task("PackFluentWindow")
-    .IsDependentOn("Build")
-    .WithCriteria(c => buildContext.Target.HasFlag(BuildTarget.FluentWindow), "FluentWindow target not selected")
-    .Does(c =>
-{
-    if (!File.Exists(buildContext.FluentWindowProject))
-    {
-        c.Log.Warning("FluentWindow project not found at {0}, skipping PackFluentWindow", buildContext.FluentWindowProject);
-        return;
-    }
-
-    var fwOutputDir = Path.Combine(buildContext.PackagesDir, "fluent-window");
-    c.EnsureDirectoryExists(fwOutputDir);
-
-    var settings = new DotNetPublishSettings
-    {
-        Configuration = buildContext.BuildConfiguration,
-        OutputDirectory = fwOutputDir,
-        NoRestore = true,
-        NoBuild = true,
-    };
-
-    if (!string.IsNullOrEmpty(buildContext.RuntimeIdentifier))
-    {
-        settings.Runtime = buildContext.RuntimeIdentifier;
-        settings.OutputDirectory = Path.Combine(fwOutputDir, buildContext.RuntimeIdentifier);
-        settings.NoBuild = false;
-        settings.NoRestore = false;
-    }
-
-    if (buildContext.SelfContained)
-    {
-        settings.SelfContained = true;
-    }
-
-    c.DotNetPublish(buildContext.FluentWindowProject, settings);
-
-    c.Log.Information("FluentWindow published to: {0}", fwOutputDir);
-});
-
 Task("PackTool")
     .IsDependentOn("Build")
     .WithCriteria(c => buildContext.Target.HasFlag(BuildTarget.Tool), "Tool target not selected")
@@ -555,7 +515,6 @@ Task("PackTool")
 
 Task("Default")
     .IsDependentOn("PackBin")
-    .IsDependentOn("PackFluentWindow")
     .IsDependentOn("PackPlugins")
     .IsDependentOn("PackTool");
 
@@ -575,12 +534,10 @@ public enum BuildTarget
     None = 0,
     // Bin 同时构建宿主 launcher 与 SDK NuGet 包（统一发版）
     Bin = 1,
-    // FluentWindow 独立布局项目（自定义边框窗口）
-    FluentWindow = 2,
     Plugin = 4,
     // Tool 独立 dotnet tool 项目（lybox-mock 前端调试 Mock 后端）
     Tool = 8,
-    All = Bin | FluentWindow | Plugin | Tool
+    All = Bin | Plugin | Tool
 }
 
 /// <summary>
@@ -635,7 +592,7 @@ public class BuildContext
     public string GeneratorsProject { get; }
     public string SharedProject { get; }
     public string LauncherProject { get; }
-    public string FluentWindowProject { get; }
+    public string ConsoleProject { get; }
     public string ToolProject { get; }
     public IReadOnlyList<PluginProjectInfo> PluginProjects { get; }
 
@@ -728,7 +685,7 @@ public class BuildContext
         GeneratorsProject = Path.Combine(RootDir, "src", "LYBox.Plugin.Generators", "LYBox.Plugin.Generators.csproj");
         SharedProject = Path.Combine(RootDir, "src", "LYBox.Plugin.Shared", "LYBox.Plugin.Shared.csproj");
         LauncherProject = Path.Combine(RootDir, "src", "launcher", "LYBox.Launcher.Desktop", "LYBox.Launcher.Desktop.csproj");
-        FluentWindowProject = Path.Combine(RootDir, "src", "LYBox.Layout.Fluent", "LYBox.Layout.Fluent.csproj");
+        ConsoleProject = Path.Combine(RootDir, "src", "launcher", "LYBox.Launcher.Console", "LYBox.Launcher.Console.csproj");
         ToolProject = Path.Combine(RootDir, "tools", "LYBox.MockServer", "LYBox.MockServer.csproj");
 
         PluginProjects = FilterPlugins(DiscoverPlugins(RootDir), PluginFilter);
@@ -886,13 +843,11 @@ public class BuildContext
             {
                 "all" => BuildTarget.All,
                 "bin" => BuildTarget.Bin,
-                "fluent-window" => BuildTarget.FluentWindow,
-                "fluentwindow" => BuildTarget.FluentWindow,
                 // 兼容：nuget 已与 bin 合并，等价映射
                 "nuget" => BuildTarget.Bin,
                 "plugin" => BuildTarget.Plugin,
                 "tool" => BuildTarget.Tool,
-                _ => throw new ArgumentException($"Unknown build target: '{part}'. Valid values: all, bin, fluent-window, plugin, tool")
+                _ => throw new ArgumentException($"Unknown build target: '{part}'. Valid values: all, bin, plugin, tool")
             };
         }
         return result == BuildTarget.None ? BuildTarget.All : result;

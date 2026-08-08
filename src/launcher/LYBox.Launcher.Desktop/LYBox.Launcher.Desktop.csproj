@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType Condition="'$(MakeConsole)' != 'true'">WinExe</OutputType>
+    <OutputType Condition="'$(MakeConsole)' == 'true'">Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -40,4 +41,26 @@
     <ProjectReference Include="..\..\LYBox.Layout.Ursa\LYBox.Layout.Ursa.csproj" />
     <ProjectReference Include="..\..\LYBox.Plugin.Shared\LYBox.Plugin.Shared.csproj" />
   </ItemGroup>
+
+  <!--
+    _console.exe 控制台调试版：
+    构建/发布时传入 -p:BuildConsoleVariant=true 会在输出目录额外生成
+    LYBox.Launcher.Desktop_console.exe（OutputType=Exe，带控制台窗口），
+    便于调试时直接观察 ZLogger 日志与异常输出，GUI 版（WinExe）不受影响。
+    例：dotnet build -p:BuildConsoleVariant=true
+        dotnet publish -p:BuildConsoleVariant=true
+  -->
+  <Target Name="BuildConsoleVariant" AfterTargets="Build"
+          Condition="'$(OutputType)' == 'WinExe' and '$(BuildConsoleVariant)' == 'true' and '$(_ConsoleVariantDone)' != 'true'">
+    <PropertyGroup>
+      <_ConsoleOutputPath>$(BaseOutputPath)$(Configuration)/console/</_ConsoleOutputPath>
+      <_ConsoleIntermediatePath>$(BaseIntermediateOutputPath)console/$(Configuration)/</_ConsoleIntermediatePath>
+    </PropertyGroup>
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+             Targets="Build"
+             Properties="MakeConsole=true;BuildConsoleVariant=false;_ConsoleVariantDone=true;OutputPath=$(_ConsoleOutputPath);IntermediateOutputPath=$(_ConsoleIntermediatePath);Configuration=$(Configuration);TargetFramework=$(TargetFramework);RuntimeIdentifier=$(RuntimeIdentifier)" />
+    <Copy SourceFiles="$(_ConsoleOutputPath)$(AssemblyName).exe"
+          DestinationFiles="$(OutDir)$(AssemblyName)_console.exe"
+          SkipUnchangedFiles="false" />
+  </Target>
 </Project>

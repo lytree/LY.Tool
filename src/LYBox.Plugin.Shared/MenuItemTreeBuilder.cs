@@ -4,6 +4,14 @@ namespace LYBox.Plugin.Shared;
 
 public static class MenuItemTreeBuilder
 {
+    private static readonly Dictionary<string, string> ParentIconMap = new()
+    {
+        ["Leaf"] = "Branch",
+        ["NAV_NBData"] = "Database",
+        ["NAV_ScottPlot"] = "ChartMultiple",
+        ["NAV_ProDataGrid"] = "Table",
+    };
+
     public static List<KeyValuePair<string?, MenuItemViewModel>> BuildTree(
         List<(string? Parent, MenuItemViewModel Item, int Order)> allItems)
     {
@@ -17,7 +25,8 @@ public static class MenuItemTreeBuilder
 
         foreach (var pHeader in missingParents)
         {
-            var virtualParent = new MenuItemViewModel { MenuHeader = pHeader!, Key = pHeader! };
+            var iconName = ParentIconMap.TryGetValue(pHeader!, out var icon) ? icon : null;
+            var virtualParent = new MenuItemViewModel { MenuHeader = pHeader!, Key = pHeader!, MenuIconName = iconName };
             itemLookup[pHeader!] = virtualParent;
             allItems.Add((null, virtualParent, 0));
         }

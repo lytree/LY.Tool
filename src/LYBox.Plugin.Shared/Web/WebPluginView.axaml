@@ -2,5 +2,63 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:web="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls.WebView"
              x:Class="LYBox.Plugin.Shared.Web.WebPluginView">
-    <web:NativeWebView x:Name="PART_WebView" />
+    <Border BorderBrush="{DynamicResource FluentCardStrokeBrush}" BorderThickness="1" ClipToBounds="True">
+        <Grid RowDefinitions="Auto,*">
+            <!-- 开发模式工具栏：调试 Web 插件页面时显示，用于导航与状态观察 -->
+            <Border
+                Name="PART_DevToolbar"
+                Grid.Row="0"
+                Padding="6,4"
+                Background="{DynamicResource FluentSubtleBrush}"
+                BorderBrush="{DynamicResource FluentCardStrokeBrush}"
+                BorderThickness="0,0,0,1"
+                IsVisible="False">
+                <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto">
+                    <Button
+                        Name="PART_BackButton"
+                        Grid.Column="0"
+                        MinWidth="32"
+                        Padding="7,3"
+                        Click="OnDevBackClick"
+                        Content="←"
+                        ToolTip.Tip="Back" />
+                    <Button
+                        Name="PART_ForwardButton"
+                        Grid.Column="1"
+                        MinWidth="32"
+                        Margin="4,0,0,0"
+                        Padding="7,3"
+                        Click="OnDevForwardClick"
+                        Content="→"
+                        ToolTip.Tip="Forward" />
+                    <Button
+                        Name="PART_RefreshButton"
+                        Grid.Column="2"
+                        MinWidth="32"
+                        Margin="4,0,0,0"
+                        Padding="7,3"
+                        Click="OnDevRefreshClick"
+                        Content="↻"
+                        ToolTip.Tip="Refresh" />
+                    <Border Grid.Column="3" Margin="8,0,0,0" Padding="6,2" CornerRadius="4" Background="{DynamicResource FluentBackgroundBrush}">
+                        <TextBlock Name="PART_ModeText" VerticalAlignment="Center" Classes="WinUICaption" />
+                    </Border>
+                    <TextBlock Grid.Column="4" Margin="8,0,4,0" VerticalAlignment="Center" Text="Route" Classes="WinUICaption" />
+                    <TextBlock
+                        Name="PART_RouteText"
+                        Grid.Column="5"
+                        VerticalAlignment="Center"
+                        TextTrimming="CharacterEllipsis"
+                        Classes="WinUICaption" />
+                    <TextBlock
+                        Name="PART_StatusText"
+                        Grid.Column="6"
+                        Margin="12,0,2,0"
+                        VerticalAlignment="Center"
+                        Classes="WinUICaption" />
+                </Grid>
+            </Border>
+            <web:NativeWebView x:Name="PART_WebView" Grid.Row="1" />
+        </Grid>
+    </Border>
 </UserControl>

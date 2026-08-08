@@ -27,7 +27,8 @@ public class MergeService
         bool binaryMerge,
         bool useConcatDemuxer,
         bool skipMerge,
-        CancellationToken ct)
+        CancellationToken ct,
+        string? initFile = null)
     {
         if (skipMerge)
         {
@@ -39,6 +40,15 @@ public class MergeService
             throw new InvalidOperationException("没有可合并的分片");
 
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(outputPath)) ?? ".");
+
+        // fMP4 流（DASH / fMP4-HLS，含 EXT-X-MAP 或 MPD init 段）：
+        // 媒体分片是 moof/mdat fragment，缺 moov，ffmpeg concat demuxer 无法解析（会崩溃），
+        // 必须采用「init 段 + 分片顺序拼接」的二进制合并。
+        if (initFile is not null)
+        {
+            await BinaryMergeAsync(segmentFiles, outputPath, ct, initFile);
+            return;
+        }
 
         if (binaryMerge)
         {
@@ -55,11 +65,21 @@ public class MergeService
         await FfmpegConcatProtocolAsync(segmentFiles, outputPath, ct);
     }
 
-    /// <summary>二进制合并：直接拼接字节流</summary>
-    private async Task BinaryMergeAsync(List<string> segments, string output, CancellationToken ct)
+    /// <summary>二进制合并：直接拼接字节流（fMP4 时 init 段前置）</summary>
+    private async Task BinaryMergeAsync(List<string> segments, string output, CancellationToken ct, string? initFile = null)
     {
-        _logger.Log("使用二进制合并 (--binary-merge)");
+        _logger.Log(initFile is null
+            ? "使用二进制合并 (--binary-merge)"
+            : "fMP4 流: init 段 + 分片顺序二进制拼接");
         await using var outStream = new FileStream(output, FileMode.Create, FileAccess.Write, FileShare.None);
+
+        // fMP4 必须先写 init 段（含 moov），否则后续 moof/mdat 无法解析
+        if (initFile is not null)
+        {
+            await using var initStream = File.OpenRead(initFile);
+            await initStream.CopyToAsync(outStream, ct);
+        }
+
         foreach (var f in segments)
         {
             await using var inStream = File.OpenRead(f);

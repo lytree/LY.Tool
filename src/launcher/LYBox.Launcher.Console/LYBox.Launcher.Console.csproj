@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <RuntimeIdentifiers>win-x64;win-arm64;linux-x64;linux-arm64</RuntimeIdentifiers>
+    <ApplicationIcon>..\..\LYBox.Layout.Ursa\Assets\lybox.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 复用 GUI 版启动逻辑（App / AppBuilder / DI / 插件加载），仅入口输出类型不同 -->
+    <ProjectReference Include="..\LYBox.Launcher.Desktop\LYBox.Launcher.Desktop.csproj" />
+  </ItemGroup>
+</Project>

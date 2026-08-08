@@ -96,8 +96,11 @@ public class DownloadOrchestrator
                     _logger.Log($"轨道 {track.MediaType} 加密: {effectiveEnc.Method}");
                 }
 
+                // fMP4 流检测：分片带 init 段（EXT-X-MAP / DASH initialization）→ 媒体分片为 moof/mdat fragment
+                var hasInit = segments.Any(s => !string.IsNullOrEmpty(s.InitUrl));
                 var ext = track.MediaType switch
                 {
+                    MediaType.Video when hasInit => "mp4",   // fMP4（m4s 分片）输出 mp4，而非 ts
                     MediaType.Video => "ts",
                     MediaType.Audio => "m4a",
                     MediaType.Subtitle => "vtt",
@@ -105,8 +108,18 @@ public class DownloadOrchestrator
                 };
 
                 var init = await engine.DownloadInitAsync(segments.FirstOrDefault()?.InitUrl, ct);
+
                 var tempTrackDir = Path.Combine(workDir, track.MediaType.ToString().ToLowerInvariant());
                 Directory.CreateDirectory(tempTrackDir);
+
+                // fMP4 init 段（含 moov）必须落盘，供二进制拼接前置；内存副本同时用于解密
+                string? initFilePath = null;
+                if (init is not null && hasInit)
+                {
+                    initFilePath = Path.Combine(tempTrackDir, "init.mp4");
+                    await File.WriteAllBytesAsync(initFilePath, init, ct);
+                    _logger.Log($"fMP4 流: init 段已落盘 ({init.Length} bytes)");
+                }
 
                 var downloaded = await engine.DownloadAllAsync(
                     segments, init, tempTrackDir, ext, trackDecryptor,
@@ -129,10 +142,10 @@ public class DownloadOrchestrator
                     continue;
                 }
 
-                // 合并分片
+                // 合并分片（fMP4 流自动走 init 段 + 二进制拼接）
                 var mergedPath = Path.Combine(workDir, $"{track.MediaType.ToString().ToLowerInvariant()}.{ext}");
                 var merger = new MergeService(_logger, _opts.FfmpegPath);
-                await merger.MergeAsync(segFiles, mergedPath, _opts.BinaryMerge, _opts.UseFfmpegConcatDemuxer, _opts.SkipMerge, ct);
+                await merger.MergeAsync(segFiles, mergedPath, _opts.BinaryMerge, _opts.UseFfmpegConcatDemuxer, _opts.SkipMerge, ct, initFilePath);
                 mergedFiles.Add((track.MediaType, mergedPath));
             }
 

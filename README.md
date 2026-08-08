@@ -35,16 +35,22 @@ Linux/macOS 用 `./build.sh` 替代 `.\build.ps1`。
 
 ## 构建与运行
 
-- **构建系统**：Cake Frosting（`build/build.cs` — .NET 10 文件化应用，Cake 6.1.0）。通过 `.\build.ps1`（Windows）或 `./build.sh`（Linux/macOS）调用。
+- **构建系统**：Cake.Sdk（`build/build.cs` — .NET 10 文件化应用，Cake.Sdk 6.2.0）。通过 `.\build.ps1`（Windows）或 `./build.sh`（Linux/macOS）调用。
 
   ```
-  .\build.ps1 --build=all                    # 默认：bin（启动器 + NuGet）+ plugin
+  .\build.ps1 --build=all                    # 默认：bin（启动器 + NuGet）+ FluentWindow（如存在）+ plugin + tool
   .\build.ps1 --build=bin                    # 构建启动器 + 打包 SDK NuGet 包（host 与 SDK 同版本号，统一发版）
+  .\build.ps1 --build=fluent-window          # 构建自定义边框窗口布局项目（src/LYBox.Layout.Fluent，如不存在则跳过）
   .\build.ps1 --build=plugin                 # 构建并打包所有插件为 zip
+  .\build.ps1 --build=tool                   # 打包 tools/LYBox.MockServer 为 dotnet tool（lybox-mock）
   .\build.ps1 --configuration=Debug          # 覆盖配置（默认：Release）
-  .\build.ps1 --package-version=1.2.3        # 设置版本（默认：1.0.0）
+  .\build.ps1 --host-version=2.3.0           # 显式覆盖宿主+SDK 版本（优先级最高，跳过 GitVersion）
+  .\build.ps1 --plugin-version=1.2.3         # 覆盖所有插件版本
+  .\build.ps1 --package-version=1.2.3        # 兼容旧用法（覆盖所有层版本，优先级高于 GitVersion、低于 --host-version）
+  .\build.ps1 --plugin=LYBox.Plugin.Template # 仅构建指定插件（逗号分隔多个）
   .\build.ps1 --runtime-identifier=win-x64   # 设置启动器发布的 RID
   .\build.ps1 --self-contained=true          # 启动器自包含发布
+  .\build.ps1 --nuget-source=<URL>           # 指定 NuGet 推送源（默认 nuget.org）
   .\build.ps1 --nuget-api-key=<KEY>          # 推送包到 nuget.org
   ```
 
@@ -52,7 +58,7 @@ Linux/macOS 用 `./build.sh` 替代 `.\build.ps1`。
 - **直接 `dotnet build`** 可用于单个项目，但若未预先构建本地 NuGet 包，插件可能还原失败（使用 `--build=bin` 或确保 `bin/nuget/` 下有 `.nupkg` 文件）。`--build=nuget` 保留为 `--build=bin` 的兼容别名。
 - **运行启动器**：`dotnet run --project src/launcher/LYBox.Launcher.Desktop`
 - **VS Code 调试**：使用 "Debug Plugin - {Name}" 启动配置 — 每个配置将 `AVALONIA_EXTRA_PLUGINS_PATH` 指向插件的 `bin/Debug/net10.0` 输出目录，用于开发期实时加载。
-- **无测试**，无 CI 工作流，未配置 linter/formatter。
+- **测试与 CI**：已有 `tests/LYBox.Tests`（TUnit 测试框架）与 `.github/workflows/` 下的 CI 工作流（`ci.yml`、`release-host.yml`、`release-plugins.yml`、`release-frontend.yml`）。
 
 ---
 
@@ -63,14 +69,17 @@ Linux/macOS 用 `./build.sh` 替代 `.\build.ps1`。
 | 解决方案 | 内容 |
 |----------|------|
 | `Core.slnx` | 宿主：Generators、Shared、UI、Launcher、Platforms.Abstractions |
-| `Plugins.slnx` | Generators、Shared、所有 `plugins/*` 项目（10 个插件） |
+| `Plugins.slnx` | Generators、Shared、所有 `plugins/*` 项目（12 个插件） |
 
 ### 项目分层（src/）
 
 ```
 LYBox.Plugin.Generators/        Roslyn 增量源生成器（netstandard2.1，IsRoslynComponent）
 LYBox.Plugin.Shared/            共享契约：IPlugin、IPluginMetadata、ViewLocator、ServiceLocator、特性、控件
+LYBox.Plugin.Shared.Chart/      图表类插件共享契约与辅助（配合 ScottPlot 插件）
+LYBox.Plugin.Shared.ProDataGrid/ 数据网格类插件共享契约与辅助（配合 ProDataGrid 插件）
 LYBox.Platforms.Abstractions/   跨平台抽象基类（仅空 README）
+LYBox.Layout.Core/              宿主布局核心（ViewModels、Services、Resources 等共享布局基础设施）
 LYBox.Layout.Ursa/                       宿主应用：ViewModels、Views、Services（EF Core、导航、菜单、本地化、ZLogger）
 LYBox.Launcher.Desktop/         桌面入口（Program.cs → App.axaml.cs）。设置 AvaloniaUseCompiledBindingsByDefault=true。
 ```
@@ -95,7 +104,21 @@ LYBox.Launcher.Desktop/         桌面入口（Program.cs → App.axaml.cs）。
 <MinPluginSdkVersion>2.1.0</MinPluginSdkVersion>  <!-- 可选，缺省 "0.0.0" 无约束 -->
 ```
 
-10 个内置示例插件：ButtonsInputs、DateTime、DialogFeedbacks、Downloader、LayoutDisplay、NavigationMenus、ProDataGrid、ScottPlot、TDLSharp、Template。
+12 个内置示例插件：ButtonsInputs、DateTime、DialogFeedbacks、Downloader、LayoutDisplay、NavigationMenus、ProDataGrid、ScottPlot、TDLSharp、Template、BlazorApp、WebTemplate。
+
+其中 `BlazorApp`、`WebTemplate` 为 **WebView 插件**：宿主通过 WebView 承载前端页面，前端代码位于独立的 `frontend/` monorepo（见下文）。
+
+### 前端 monorepo（frontend/）
+
+宿主通过 WebView 插件（`BlazorApp`、`WebTemplate`）承载前端页面。`frontend/` 是一个 pnpm workspace monorepo（根包 `lybox-frontend`），对外发布以下 npm 包：
+
+| npm 包 | 用途 |
+|--------|------|
+| `@lybox/sdk` | 前端与宿主通信的 SDK（WebView IPC 封装，详见 [docs/WebView-IPC-Guide.md](docs/WebView-IPC-Guide.md)） |
+| `create-lybox-react` | React 版插件脚手架 |
+| `create-lybox-vue3` | Vue3 版插件脚手架 |
+
+前端开发期调试需要本地 Mock 后端，由 `tools/LYBox.MockServer`（dotnet tool `lybox-mock`）提供，使用方式见 [docs/LYBox-MockServer-Guide.md](docs/LYBox-MockServer-Guide.md)。
 
 ### 应用启动流程
 
@@ -279,6 +302,8 @@ bin/
     │   └── shared-assemblies.txt
     └── zip/
         └── {PluginName}-{PluginVer}.zip      # 分发用压缩包
+└── tools/                                    # dotnet tool 产物（lybox-mock，仅 --build=tool 产出）
+    └── LYBox.MockServer.{HostVersion}.nupkg
 ```
 
 > **重要**：SDK NuGet 包与宿主 launcher 共用同一版本号（`HostVersion`），且在 `--build=bin` 一次性产出。不再有独立的 `nuget` 构建目标，二者一起发版。
@@ -400,6 +425,8 @@ if (result.Success)
 | [docs/Plugin-API-Reference.md](docs/Plugin-API-Reference.md) | **插件 API 参考** — `IPlugin`/`IPluginMetadata` 接口、源生成器特性、`ServiceLocator`/`ViewLocator`/`ViewModelBase` 基础设施类、`MenuItemViewModel`/`ToolBarItemViewModel` 视图模型、`PluginManifest`/`PluginInfo`/`PluginState`/`SettingDefinition` 模型、`ILocalizationService`/`IPluginLoader`/`IPluginInstallationManager`/`ISettingsService`/`ITaskRegistry`/`IWindowInfoService` 全部服务接口、MSBuild 属性与目标、完整插件实现示例 | 插件开发者 |
 | [docs/Plugin-SDK-Versioning.md](docs/Plugin-SDK-Versioning.md) | **插件 SDK 版本契约** — `HostVersion`/`PluginVersion` 两层版本号、SDK 契约的运行时含义、`plugin.json` 中 `minPluginSdkVersion` 字段优先级、`IsPluginSdkCompatible` SemVer 比对规则、不兼容时的用户表现 | 宿主维护者、插件作者 |
 | [docs/Plugin-Upgrade-Evaluation.md](docs/Plugin-Upgrade-Evaluation.md) | **插件覆盖安装与升级方案评估** — 背景、方案设计（`.pending` 目录 + 重启迁移）、8 维度可行性评估、7 个潜在问题与对策、实现工作量评估、总结与建议实施顺序 | 宿主维护者 |
+| [docs/WebView-IPC-Guide.md](docs/WebView-IPC-Guide.md) | **WebView 插件 IPC 指南** — 前端与宿主双向通信、`@lybox/sdk` 用法、`BlazorApp`/`WebTemplate` 插件接入流程 | 前端/WebView 插件开发者 |
+| [docs/LYBox-MockServer-Guide.md](docs/LYBox-MockServer-Guide.md) | **MockServer 指南** — `lybox-mock` dotnet tool 启动本地 Mock 后端，用于前端调试 | 前端/WebView 插件开发者 |
 | [docs/FAQ.md](docs/FAQ.md) | **常见问题** — 插件加载失败、菜单/导航不显示、设置项不显示、第三方 NuGet 包使用、全局快捷键、插件间通信、源生成器调试、`PluginLoadContext` 的 `isCollectible` 设计意图 | 所有开发者 |
 
 > 项目开发约束与前提（含插件系统强制约束）见 [`AGENTS.md`](AGENTS.md)。
