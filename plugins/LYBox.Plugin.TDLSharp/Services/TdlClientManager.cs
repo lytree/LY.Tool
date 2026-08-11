@@ -48,6 +48,18 @@ public class TdlClientManager : IDisposable
     public event Func<TdApi.File, Task>? FileUpdated;
     public event Action? AuthStateChanged;
 
+    /// <summary>
+    /// 注册消息更新回调（UpdateNewMessage / UpdateMessageSendSucceeded / UpdateMessageSendFailed / UpdateDeleteMessages）。
+    /// 用于 TdlService 追踪本地消息 ID → 服务器消息 ID 的映射。
+    /// </summary>
+    public void RegisterMessageUpdateHandler(Func<TdApi.Update, Task> handler)
+    {
+        if (_updateHandler != null)
+        {
+            _updateHandler.OnMessageUpdate((update, _) => handler(update));
+        }
+    }
+
     public DirectUiLogger? FileUpdateLogger { get; set; }
 
     public TdlClientManager(ILogger<TdlClientManager> logger, string apiId, string apiHash,

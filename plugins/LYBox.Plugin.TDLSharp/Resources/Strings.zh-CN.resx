@@ -52,7 +52,8 @@
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
   <data name="NAV_TDL" xml:space="preserve"><value>TDL Sharp</value></data>
   <data name="NAV_TDL_Login" xml:space="preserve"><value>登录 &amp; 初始化</value></data>
-  <data name="NAV_TDL_BatchForward" xml:space="preserve"><value>批量深度转发</value></data>
+  <data name="NAV_TDL_BatchForwardChannel" xml:space="preserve"><value>批量转发至频道</value></data>
+  <data name="NAV_TDL_BatchForwardGroup" xml:space="preserve"><value>批量转发至群聊</value></data>
   <data name="NAV_TDL_ClearMessage" xml:space="preserve"><value>清理消息</value></data>
   <data name="NAV_TDL_DeepCopy" xml:space="preserve"><value>深度复制转发</value></data>
   <data name="NAV_TDL_DeleteForwards" xml:space="preserve"><value>删除转发消息</value></data>
@@ -84,8 +85,10 @@
   <data name="LBL_Parameters" xml:space="preserve"><value>参数</value></data>
   <data name="LBL_Duration" xml:space="preserve"><value>耗时</value></data>
   <data name="LBL_Actions" xml:space="preserve"><value>操作</value></data>
-  <data name="SCRIPT_BatchForward_Name" xml:space="preserve"><value>批量深度转发</value></data>
-  <data name="SCRIPT_BatchForward_Desc" xml:space="preserve"><value>将源频道/群聊的消息批量深度转发到目标频道/群聊</value></data>
+  <data name="SCRIPT_BatchForwardChannel_Name" xml:space="preserve"><value>批量转发至频道</value></data>
+  <data name="SCRIPT_BatchForwardChannel_Desc" xml:space="preserve"><value>将一个或多个源频道/群聊的消息批量深度转发到目标频道</value></data>
+  <data name="SCRIPT_BatchForwardGroup_Name" xml:space="preserve"><value>批量转发至群聊</value></data>
+  <data name="SCRIPT_BatchForwardGroup_Desc" xml:space="preserve"><value>将消息批量深度转发到目标群聊。支持转发到固定话题，或按源频道创建话题分类</value></data>
   <data name="SCRIPT_DeepCopy_Name" xml:space="preserve"><value>深度Copy转发</value></data>
   <data name="SCRIPT_DeepCopy_Desc" xml:space="preserve"><value>将频道中的浅转发消息转换为深度Copy（从原始来源重新发送副本，然后删除旧浅转发）。支持同时输入多个频道，每行一个</value></data>
   <data name="SCRIPT_ClearMessage_Name" xml:space="preserve"><value>清理消息</value></data>
@@ -99,17 +102,25 @@
   <data name="WORD_Favorites" xml:space="preserve"><value>收藏夹</value></data>
   <data name="FMT_ProcessingChannel" xml:space="preserve"><value>━━━ 处理频道 [{0}/{1}]: {2} ━━━</value></data>
   <data name="PARAM_Source" xml:space="preserve"><value>源消息链接</value></data>
-  <data name="PARAM_SourceDesc" xml:space="preserve"><value>源频道/群聊消息链接</value></data>
+  <data name="PARAM_SourceDesc" xml:space="preserve"><value>源频道/群聊消息链接。多源模式每行一个，支持 "链接|消息ID" 格式</value></data>
   <data name="PARAM_SourceId" xml:space="preserve"><value>源消息ID</value></data>
-  <data name="PARAM_SourceIdDesc" xml:space="preserve"><value>指定源消息ID (可选)</value></data>
+  <data name="PARAM_SourceIdDesc" xml:space="preserve"><value>指定源消息ID (可选，仅单源模式生效)</value></data>
   <data name="PARAM_Target" xml:space="preserve"><value>目标链接</value></data>
-  <data name="PARAM_TargetDesc" xml:space="preserve"><value>目标频道/群聊链接或用户名</value></data>
+  <data name="PARAM_TargetDesc" xml:space="preserve"><value>目标频道/群聊链接或用户名。启用分类时目标必须为论坛超级群组</value></data>
+  <data name="PARAM_TargetChannelDesc" xml:space="preserve"><value>目标频道链接或用户名</value></data>
+  <data name="PARAM_TargetGroupDesc" xml:space="preserve"><value>目标群聊链接或用户名。启用固定话题或分类时目标须为开启话题的超级群组</value></data>
+  <data name="PARAM_FixedTopic" xml:space="preserve"><value>固定话题名称</value></data>
+  <data name="PARAM_FixedTopicDesc" xml:space="preserve"><value>将所有消息转发到该固定话题（不存在时自动创建）。优先级高于按源分类。留空=不启用</value></data>
   <data name="PARAM_Older" xml:space="preserve"><value>向旧消息方向</value></data>
   <data name="PARAM_OlderDesc" xml:space="preserve"><value>true=向旧消息转发, false=向新消息转发</value></data>
   <data name="PARAM_Limit" xml:space="preserve"><value>最大处理数量</value></data>
   <data name="PARAM_LimitDesc" xml:space="preserve"><value>0=全部</value></data>
   <data name="PARAM_Comments" xml:space="preserve"><value>转发评论</value></data>
   <data name="PARAM_CommentsDesc" xml:space="preserve"><value>是否转发评论</value></data>
+  <data name="PARAM_ClassifyBySource" xml:space="preserve"><value>按源创建主题分类</value></data>
+  <data name="PARAM_ClassifyBySourceDesc" xml:space="preserve"><value>启用后在目标论坛中按源频道名称创建主题，每个源对应一个主题。目标须为开启话题的超级群组</value></data>
+  <data name="PARAM_Tags" xml:space="preserve"><value>标签</value></data>
+  <data name="PARAM_TagsDesc" xml:space="preserve"><value>逗号分隔的标签，在每组转发消息后追加一条独立标签消息（如 "tag1,tag2"）。自动添加 # 前缀。留空则默认使用源频道作为标签</value></data>
   <data name="PARAM_Channel" xml:space="preserve"><value>频道/群聊</value></data>
   <data name="PARAM_ChannelDesc" xml:space="preserve"><value>频道/群聊链接或用户名 (留空=收藏夹)</value></data>
   <data name="PARAM_Contains" xml:space="preserve"><value>匹配文本</value></data>

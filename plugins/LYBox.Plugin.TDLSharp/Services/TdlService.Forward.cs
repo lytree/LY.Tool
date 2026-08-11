@@ -6,21 +6,33 @@ namespace LYBox.Plugin.TDLSharp.Services;
 
 public partial class TdlService
 {
-    public async Task BatchForwardAsync(string sourceLink, string? sourceId, string targetLink,
-        bool older, int limit, bool forwardComments, CancellationToken ct = default)
+    /// <summary>
+    /// 批量转发多个源到同一目标。支持多行源链接输入（每行一个），可选 "link|sourceId" 格式指定起始消息ID。
+    /// 三种目标主题模式（按优先级）：
+    /// 1. fixedTopicName 非空：所有源转发到该固定话题（目标须为论坛超级群组，话题不存在时自动创建）。
+    /// 2. classifyBySource=true：按源频道名称创建/复用主题，每个源对应一个主题。
+    /// 3. 两者均未启用：所有源转发到目标主聊天（messageThreadId=0）。
+    /// tags 用于在每组转发消息后追加一条独立标签消息；为空时默认使用源链接提取的标签。
+    /// </summary>
+    public async Task BatchForwardClassifiedAsync(
+        string sourcesMultiLine,
+        string? fallbackSourceId,
+        string targetLink,
+        string? fixedTopicName,
+        bool older,
+        int limit,
+        bool forwardComments,
+        bool classifyBySource,
+        string? tags,
+        CancellationToken ct = default)
     {
         await EnsureReadyAsync();
 
-        var (sourceChatId, startMessageId) = await ResolveSourceLinkAsync(sourceLink);
-        if (sourceChatId == 0)
+        var sources = ParseMultiLineSources(sourcesMultiLine);
+        if (sources.Count == 0)
         {
-            _logger.Log($"无法解析源链接: {sourceLink}");
+            _logger.Log("未输入任何源链接");
             return;
-        }
-
-        if (!string.IsNullOrEmpty(sourceId) && long.TryParse(sourceId, out var sid))
-        {
-            startMessageId = sid;
         }
 
         var targetChatId = await ResolveTargetLinkAsync(targetLink);
@@ -31,30 +43,131 @@ public partial class TdlService
         }
 
         var client = Client;
-        var sourceChat = await client.GetChatAsync(sourceChatId);
         var targetChat = await client.GetChatAsync(targetChatId);
-        _logger.Log($"源: [{sourceChat.Title}] ChatId={sourceChatId}, StartMsgId={startMessageId}");
         _logger.Log($"目标: [{targetChat.Title}] ChatId={targetChatId}");
-        _logger.Log($"方向: {(older ? "向旧消息" : "向新消息")}, 限制: {(limit > 0 ? limit.ToString() : "无限制")}, 评论: {(forwardComments ? "是" : "否")}");
 
-        using var db = CreateForwardDbContext(sourceChatId);
-        await db.Database.EnsureCreatedAsync();
-        _logger.Log($"数据库已就绪: forward-{sourceChatId}.db");
+        bool hasFixedTopic = !string.IsNullOrWhiteSpace(fixedTopicName);
+        bool needsForum = hasFixedTopic || classifyBySource;
 
-        int totalForwarded;
-        if (older)
+        // 固定话题/分类模式下校验目标是否为论坛
+        long fixedTopicId = 0;
+        bool isForum = false;
+        if (needsForum)
         {
-            totalForwarded = await ForwardOlderDirection(db, sourceChatId, startMessageId, targetChatId, limit, forwardComments, ct);
+            isForum = await IsForumChatAsync(targetChatId);
+            if (!isForum)
+            {
+                _logger.Log($"目标 [{targetChat.Title}] 不是论坛超级群组，无法使用话题功能。请在 Telegram 中将目标群组开启「话题」功能后重试。");
+                return;
+            }
+
+            if (hasFixedTopic)
+            {
+                // 固定话题模式：一次性解析话题名称为 ID，所有源共用
+                fixedTopicId = await CreateOrFindForumTopicAsync(targetChatId, fixedTopicName!);
+                if (fixedTopicId == 0)
+                {
+                    _logger.Log($"无法解析或创建固定话题 [{fixedTopicName}]，终止转发");
+                    return;
+                }
+                _logger.Log($"已启用固定话题模式，所有源将转发到话题 [{fixedTopicName}] TopicId={fixedTopicId}（共 {sources.Count} 个源）");
+            }
+            else if (classifyBySource)
+            {
+                _logger.Log($"目标已开启话题功能，将按源频道创建主题分类（共 {sources.Count} 个源）");
+            }
         }
-        else
+        else if (sources.Count > 1)
         {
-            totalForwarded = await ForwardNewerDirection(db, sourceChatId, startMessageId, targetChatId, limit, forwardComments, ct);
+            _logger.Log($"共 {sources.Count} 个源，将依次转发到目标主聊天（未启用话题）");
         }
 
-        _logger.Log($"全部转发完成，共转发 {totalForwarded} 条消息");
+        // 预解析用户自定义标签
+        string? customTagsText = ParseTags(tags);
+        if (!string.IsNullOrEmpty(customTagsText))
+        {
+            _logger.Log($"自定义标签: {customTagsText}");
+        }
+
+        // 主题 ID 缓存：避免同一源重复创建/查询主题（仅 classifyBySource 模式使用）
+        var topicCache = new Dictionary<long, long>();
+
+        int grandTotalForwarded = 0;
+        for (int i = 0; i < sources.Count; i++)
+        {
+            ct.ThrowIfCancellationRequested();
+            var (link, sourceIdOverride) = sources[i];
+
+            _logger.Log($"━━━ 处理源 [{i + 1}/{sources.Count}]: {link} ━━━");
+
+            var (sourceChatId, startMessageId) = await ResolveSourceLinkAsync(link);
+            if (sourceChatId == 0)
+            {
+                _logger.Log($"无法解析源链接: {link}，跳过");
+                continue;
+            }
+
+            // 优先使用行内 sourceId，否则回退到全局 fallbackSourceId
+            var effectiveSourceId = sourceIdOverride
+                ?? (long.TryParse(fallbackSourceId, out var gsid) ? gsid : 0);
+            if (effectiveSourceId > 0)
+            {
+                startMessageId = effectiveSourceId;
+            }
+
+            // 决定目标主题
+            long messageThreadId = 0;
+            if (hasFixedTopic)
+            {
+                // 固定话题模式：所有源共用同一 topicId
+                messageThreadId = fixedTopicId;
+            }
+            else if (classifyBySource && isForum)
+            {
+                if (!topicCache.TryGetValue(sourceChatId, out messageThreadId))
+                {
+                    var sourceChat = await client.GetChatAsync(sourceChatId);
+                    var topicName = sourceChat.Title;
+                    messageThreadId = await CreateOrFindForumTopicAsync(targetChatId, topicName);
+                    topicCache[sourceChatId] = messageThreadId;
+                }
+
+                if (messageThreadId == 0)
+                {
+                    _logger.Log($"无法为目标创建主题，跳过该源");
+                    continue;
+                }
+            }
+
+            // 计算本源的有效标签：自定义优先，否则回退到源链接提取的默认标签
+            string? effectiveTags = customTagsText ?? ExtractDefaultTagFromLink(link);
+            if (!string.IsNullOrEmpty(effectiveTags))
+            {
+                _logger.Log($"本源标签: {effectiveTags}");
+            }
+
+            using var db = CreateForwardDbContext(sourceChatId);
+            await db.Database.EnsureCreatedAsync();
+            _logger.Log($"数据库已就绪: forward-{sourceChatId}.db");
+
+            int forwarded;
+            if (older)
+            {
+                forwarded = await ForwardOlderDirection(db, sourceChatId, startMessageId, targetChatId, limit, forwardComments, ct, messageThreadId, effectiveTags);
+            }
+            else
+            {
+                forwarded = await ForwardNewerDirection(db, sourceChatId, startMessageId, targetChatId, limit, forwardComments, ct, messageThreadId, effectiveTags);
+            }
+
+            grandTotalForwarded += forwarded;
+            _logger.Log($"源 [{link}] 转发完成: {forwarded} 条");
+        }
+
+        _logger.Log($"全部源处理完成，共转发 {grandTotalForwarded} 条消息");
     }
 
-    public async Task<int> DeepCopyForward(ForwardDbContext db, long sourceChatId, long startMessageId, long targetChatId, int limit, bool forwardComments, CancellationToken ct = default)
+    public async Task<int> DeepCopyForward(ForwardDbContext db, long sourceChatId, long startMessageId, long targetChatId, int limit, bool forwardComments, CancellationToken ct = default, long messageThreadId = 0)
     {
         int totalForwarded = 0;
         int totalSkipped = 0;
@@ -99,7 +212,7 @@ public partial class TdlService
                     pendingGroup = pending;
                 }
 
-                var (forwarded, skipped) = await ForwardGroupedMessages(db, toProcess, sourceChatId, targetChatId, forwardComments, ct);
+                var (forwarded, skipped) = await ForwardGroupedMessages(db, toProcess, sourceChatId, targetChatId, forwardComments, ct, messageThreadId);
                 totalForwarded += forwarded;
                 totalSkipped += skipped;
 
@@ -127,7 +240,7 @@ public partial class TdlService
 
         if (pendingGroup != null && pendingGroup.Count > 0)
         {
-            var (forwarded, skipped) = await ForwardGroupedMessages(db, pendingGroup, sourceChatId, targetChatId, forwardComments, ct);
+            var (forwarded, skipped) = await ForwardGroupedMessages(db, pendingGroup, sourceChatId, targetChatId, forwardComments, ct, messageThreadId);
             totalForwarded += forwarded;
             totalSkipped += skipped;
         }
@@ -140,7 +253,7 @@ public partial class TdlService
         return totalForwarded;
     }
 
-    public async Task<int> ForwardOlderDirection(ForwardDbContext db, long sourceChatId, long startMessageId, long targetChatId, int limit, bool forwardComments, CancellationToken ct = default)
+    public async Task<int> ForwardOlderDirection(ForwardDbContext db, long sourceChatId, long startMessageId, long targetChatId, int limit, bool forwardComments, CancellationToken ct = default, long messageThreadId = 0, string? tags = null)
     {
         int totalForwarded = 0;
         int totalSkipped = 0;
@@ -185,7 +298,7 @@ public partial class TdlService
                     pendingGroup = pending;
                 }
 
-                var (forwarded, skipped) = await ForwardGroupedMessages(db, toProcess, sourceChatId, targetChatId, forwardComments, ct);
+                var (forwarded, skipped) = await ForwardGroupedMessages(db, toProcess, sourceChatId, targetChatId, forwardComments, ct, messageThreadId, tags);
                 totalForwarded += forwarded;
                 totalSkipped += skipped;
 
@@ -213,7 +326,7 @@ public partial class TdlService
 
         if (pendingGroup != null && pendingGroup.Count > 0)
         {
-            var (forwarded, skipped) = await ForwardGroupedMessages(db, pendingGroup, sourceChatId, targetChatId, forwardComments, ct);
+            var (forwarded, skipped) = await ForwardGroupedMessages(db, pendingGroup, sourceChatId, targetChatId, forwardComments, ct, messageThreadId, tags);
             totalForwarded += forwarded;
             totalSkipped += skipped;
         }
@@ -226,7 +339,7 @@ public partial class TdlService
         return totalForwarded;
     }
 
-    public async Task<int> ForwardNewerDirection(ForwardDbContext db, long sourceChatId, long startMessageId, long targetChatId, int limit, bool forwardComments, CancellationToken ct = default)
+    public async Task<int> ForwardNewerDirection(ForwardDbContext db, long sourceChatId, long startMessageId, long targetChatId, int limit, bool forwardComments, CancellationToken ct = default, long messageThreadId = 0, string? tags = null)
     {
         var newerMessages = new List<TdApi.Message>();
         long fromMessageId = 0;
@@ -276,7 +389,7 @@ public partial class TdlService
         newerMessages = newerMessages.OrderBy(m => m.Id).ToList();
         _logger.Log($"找到 {newerMessages.Count} 条消息，开始转发...");
 
-        var (totalForwarded, totalSkipped) = await ForwardGroupedMessages(db, newerMessages, sourceChatId, targetChatId, forwardComments, ct);
+        var (totalForwarded, totalSkipped) = await ForwardGroupedMessages(db, newerMessages, sourceChatId, targetChatId, forwardComments, ct, messageThreadId, tags);
 
         if (totalSkipped > 0)
         {
@@ -286,13 +399,18 @@ public partial class TdlService
         return totalForwarded;
     }
 
-    async Task<(int forwarded, int skipped)> ForwardGroupedMessages(ForwardDbContext db, List<TdApi.Message> messages, long sourceChatId, long targetChatId, bool forwardComments, CancellationToken ct = default)
+    async Task<(int forwarded, int skipped)> ForwardGroupedMessages(ForwardDbContext db, List<TdApi.Message> messages, long sourceChatId, long targetChatId, bool forwardComments, CancellationToken ct = default, long messageThreadId = 0, string? tags = null)
     {
         if (messages.Count == 0) return (0, 0);
 
         int totalForwarded = 0;
         int totalSkipped = 0;
         var groups = GroupMessagesByAlbum(messages);
+
+        // 当指定 messageThreadId 时，构造论坛主题 MessageTopic
+        TdApi.MessageTopic? messageTopic = messageThreadId > 0
+            ? new TdApi.MessageTopic.MessageTopicForum { ForumTopicId = (int)messageThreadId }
+            : null;
 
         foreach (var group in groups)
         {
@@ -318,6 +436,7 @@ public partial class TdlService
 
                     var result = await Client.ForwardMessagesAsync(
                         chatId: targetChatId,
+                        topicId: messageTopic,
                         fromChatId: sourceChatId,
                         messageIds: ids,
                         sendCopy: true,
@@ -362,7 +481,14 @@ public partial class TdlService
 
                     if (forwardComments && result.Messages_ != null)
                     {
-                        await ForwardCommentsForMessages(db, sourceChatId, targetChatId, forwardedMessages, result.Messages_, ct);
+                        await ForwardCommentsForMessages(db, sourceChatId, targetChatId, forwardedMessages, result.Messages_, ct, messageThreadId, tags);
+                    }
+
+                    // 在转发消息的 caption/text 中追加标签（仅当指定 tags 时）
+                    if (!string.IsNullOrEmpty(tags) && result.Messages_ != null && result.Messages_.Length > 0)
+                    {
+                        await AppendTagsToForwardedMessagesAsync(targetChatId, messageThreadId, result.Messages_, tags, ct);
+                        await Task.Delay(800, ct);
                     }
 
                     await Task.Delay(1000, ct);
@@ -395,8 +521,132 @@ public partial class TdlService
         return (totalForwarded, totalSkipped);
     }
 
-    async Task ForwardCommentsForMessages(ForwardDbContext db, long sourceChatId, long targetChatId, List<TdApi.Message> sourceMessages, TdApi.Message[] forwardedMessages, CancellationToken ct = default)
+    /// <summary>
+    /// 在已转发消息的 caption/text 末尾追加标签文本。
+    /// 优先编辑第一条有 caption/text 的消息（相册中通常仅首条有 caption）；
+    /// 若所有消息均无可编辑文本则回退为发送独立标签消息。
+    /// 注意：ForwardMessagesAsync 返回的 Messages_ 包含本地（临时）ID，
+    /// 服务器确认后本地 ID 失效，必须通过 TryGetServerMessageId 映射到服务器 ID。
+    /// </summary>
+    async Task AppendTagsToForwardedMessagesAsync(
+        long targetChatId, long messageThreadId, TdApi.Message[] forwardedMessages,
+        string tagsText, CancellationToken ct = default)
     {
+        if (string.IsNullOrWhiteSpace(tagsText) || forwardedMessages.Length == 0) return;
+
+        foreach (var msg in forwardedMessages)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            var (text, isTextMessage) = GetEditableText(msg);
+            if (text == null) continue;
+
+            // 将本地消息 ID 映射为服务器消息 ID（最多等待 5 秒）
+            var localId = msg.Id;
+            if (!TryGetServerMessageId(localId, out var serverId))
+            {
+                _logger.Log($"等待消息 {localId} 的服务器 ID 映射...");
+                for (int i = 0; i < 10; i++)
+                {
+                    await Task.Delay(500, ct);
+                    if (TryGetServerMessageId(localId, out serverId)) break;
+                }
+            }
+
+            if (serverId == 0)
+            {
+                _logger.Log($"未获取到消息 {localId} 的服务器 ID，跳过标签编辑");
+                continue;
+            }
+
+            try
+            {
+                var newText = AppendTagsToFormattedText(text, tagsText);
+
+                if (isTextMessage)
+                {
+                    var inputText = new TdApi.InputMessageContent.InputMessageText
+                    {
+                        Text = newText,
+                        LinkPreviewOptions = null,
+                        ClearDraft = false
+                    };
+                    await Client.EditMessageTextAsync(
+                        chatId: targetChatId,
+                        messageId: serverId,
+                        replyMarkup: null,
+                        inputMessageContent: inputText
+                    );
+                }
+                else
+                {
+                    await Client.EditMessageCaptionAsync(
+                        chatId: targetChatId,
+                        messageId: serverId,
+                        replyMarkup: null,
+                        caption: newText
+                    );
+                }
+
+                _logger.Log($"已在转发消息 {serverId} 的文本中追加标签: {tagsText}");
+                return; // 只编辑第一条有文本的消息
+            }
+            catch (TdException ex)
+            {
+                _logger.Log($"编辑消息标签失败: MsgId={serverId}, 错误: {ex.Error.Message}");
+            }
+            catch (Exception ex)
+            {
+                _logger.Log($"编辑消息标签异常: MsgId={serverId}, 错误: {ex.Message}");
+            }
+        }
+
+        // 所有消息都无法编辑，回退为发送独立标签消息
+        _logger.Log("无可编辑文本的消息，回退为发送独立标签消息");
+        await SendTagMessageAsync(targetChatId, messageThreadId, tagsText, ct);
+    }
+
+    /// <summary>
+    /// 从消息内容中提取可编辑的文本（caption 或 text）。
+    /// 返回 (FormattedText, isTextMessage)：isTextMessage=true 时用 EditMessageText，否则用 EditMessageCaption。
+    /// </summary>
+    static (TdApi.FormattedText? text, bool isTextMessage) GetEditableText(TdApi.Message msg)
+    {
+        return msg.Content switch
+        {
+            TdApi.MessageContent.MessageText t => (t.Text, true),
+            TdApi.MessageContent.MessagePhoto p => (p.Caption, false),
+            TdApi.MessageContent.MessageVideo v => (v.Caption, false),
+            TdApi.MessageContent.MessageDocument d => (d.Caption, false),
+            TdApi.MessageContent.MessageAnimation a => (a.Caption, false),
+            TdApi.MessageContent.MessageAudio aud => (aud.Caption, false),
+            TdApi.MessageContent.MessageVoiceNote vn => (vn.Caption, false),
+            _ => (null, false)
+        };
+    }
+
+    /// <summary>
+    /// 在 FormattedText 末尾追加标签文本，保留原有 entities（偏移量不变）。
+    /// </summary>
+    static TdApi.FormattedText AppendTagsToFormattedText(TdApi.FormattedText original, string tagsText)
+    {
+        var newText = string.IsNullOrEmpty(original.Text)
+            ? tagsText
+            : original.Text + "\n\n" + tagsText;
+
+        return new TdApi.FormattedText
+        {
+            Text = newText,
+            Entities = original.Entities ?? []
+        };
+    }
+
+    async Task ForwardCommentsForMessages(ForwardDbContext db, long sourceChatId, long targetChatId, List<TdApi.Message> sourceMessages, TdApi.Message[] forwardedMessages, CancellationToken ct = default, long messageThreadId = 0, string? tags = null)
+    {
+        TdApi.MessageTopic? messageTopic = messageThreadId > 0
+            ? new TdApi.MessageTopic.MessageTopicForum { ForumTopicId = (int)messageThreadId }
+            : null;
+
         for (int i = 0; i < sourceMessages.Count; i++)
         {
             ct.ThrowIfCancellationRequested();
@@ -460,6 +710,7 @@ public partial class TdlService
 
                     var result = await Client.ForwardMessagesAsync(
                          chatId: targetChatId,
+                         topicId: messageTopic,
                          fromChatId: sourceCommonChatId,
                          messageIds: groupIds,
                          sendCopy: true,

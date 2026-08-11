@@ -28,7 +28,8 @@ public static class Strings
     }
 
     public static string NAV_TDL => ResourceManager.GetString(nameof(NAV_TDL), Culture)!;
-    public static string NAV_TDL_BatchForward => ResourceManager.GetString(nameof(NAV_TDL_BatchForward), Culture)!;
+    public static string NAV_TDL_BatchForwardChannel => ResourceManager.GetString(nameof(NAV_TDL_BatchForwardChannel), Culture)!;
+    public static string NAV_TDL_BatchForwardGroup => ResourceManager.GetString(nameof(NAV_TDL_BatchForwardGroup), Culture)!;
     public static string NAV_TDL_ClearMessage => ResourceManager.GetString(nameof(NAV_TDL_ClearMessage), Culture)!;
     public static string NAV_TDL_DeepCopy => ResourceManager.GetString(nameof(NAV_TDL_DeepCopy), Culture)!;
     public static string NAV_TDL_MessageExport => ResourceManager.GetString(nameof(NAV_TDL_MessageExport), Culture)!;

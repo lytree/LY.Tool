@@ -6,7 +6,7 @@ using LYBox.Plugin.TDLSharp.Services;
 namespace LYBox.Plugin.TDLSharp.ViewModels;
 
 [NavigationItem("TDL_DeepCopy")]
-[Menu("NAV_TDL_DeepCopy", "TDL_DeepCopy", ParentKey = "NAV_TDL", Order = 8)]
+[Menu("NAV_TDL_DeepCopy", "TDL_DeepCopy", ParentKey = "NAV_TDL", Order = 9)]
 [ViewMap(typeof(Pages.DeepCopyPage))]
 public partial class DeepCopyViewModel : TdlViewModelBase
 {

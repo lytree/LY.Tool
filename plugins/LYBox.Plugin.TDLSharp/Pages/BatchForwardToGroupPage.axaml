@@ -4,8 +4,8 @@
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:vm="clr-namespace:LYBox.Plugin.TDLSharp.ViewModels"
 			 xmlns:models="clr-namespace:LYBox.Plugin.TDLSharp.Models"
-			 x:Class="LYBox.Plugin.TDLSharp.Pages.BatchForwardPage"
-			 x:DataType="vm:BatchForwardViewModel"
+			 x:Class="LYBox.Plugin.TDLSharp.Pages.BatchForwardToGroupPage"
+			 x:DataType="vm:BatchForwardToGroupViewModel"
 			 mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700">
 	<Grid Margin="12" RowDefinitions="Auto,*">
 

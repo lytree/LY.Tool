@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using TdLib;
@@ -13,10 +14,57 @@ public partial class TdlService
     readonly Dictionary<long, TaskCompletionSource<TdApi.Error?>> _pendingSends = new();
     readonly object _pendingLock = new();
 
+    /// <summary>
+    /// 本地消息 ID → 服务器消息 ID 的映射。
+    /// TDLib 发送消息时先返回本地（临时）ID，服务器确认后通过 UpdateMessageSendSucceeded
+    /// 报告最终服务器 ID 和对应的 OldMessageId（本地 ID）。本地 ID 之后不可用。
+    /// </summary>
+    readonly Dictionary<long, long> _localToServerMsgId = new();
+    readonly object _msgIdMapLock = new();
+
     public TdlService(TdlClientManager clientManager, DirectUiLogger logger)
     {
         _clientManager = clientManager;
         _logger = logger;
+        _clientManager.RegisterMessageUpdateHandler(HandleMessageUpdateAsync);
+    }
+
+    /// <summary>
+    /// 处理 TDLib 消息更新：追踪发送成功/失败，记录本地→服务器消息 ID 映射。
+    /// </summary>
+    async Task HandleMessageUpdateAsync(TdApi.Update update)
+    {
+        switch (update)
+        {
+            case TdApi.Update.UpdateMessageSendSucceeded umss:
+                RecordMessageIdMapping(umss.OldMessageId, umss.Message.Id);
+                RemovePendingSend(umss.OldMessageId);
+                break;
+            case TdApi.Update.UpdateMessageSendFailed umsf:
+                NotifySendFailed(umsf.Message.Id, umsf.Error);
+                break;
+        }
+        await Task.CompletedTask;
+    }
+
+    void RecordMessageIdMapping(long localId, long serverId)
+    {
+        lock (_msgIdMapLock)
+        {
+            _localToServerMsgId[localId] = serverId;
+        }
+    }
+
+    /// <summary>
+    /// 查询本地消息 ID 对应的服务器消息 ID。
+    /// 返回 true 表示映射已存在，serverId 为最终服务器 ID；false 表示尚未收到发送确认。
+    /// </summary>
+    public bool TryGetServerMessageId(long localId, out long serverId)
+    {
+        lock (_msgIdMapLock)
+        {
+            return _localToServerMsgId.TryGetValue(localId, out serverId);
+        }
     }
 
     [GeneratedRegex(@"(?:https?:\/\/)?(?:t\.me|telegram\.me)\/(?<name>[^\/\?\#]+)", RegexOptions.IgnoreCase)]
@@ -405,6 +453,119 @@ public partial class TdlService
         return new ForwardDbContext(chatId, dataDir);
     }
 
+    /// <summary>
+    /// 检查目标聊天是否为论坛超级群组（支持 Topics）。
+    /// </summary>
+    public async Task<bool> IsForumChatAsync(long chatId)
+    {
+        try
+        {
+            var chat = await Client.GetChatAsync(chatId);
+            if (chat.Type is TdApi.ChatType.ChatTypeSupergroup super)
+            {
+                var superInfo = await Client.GetSupergroupAsync(super.SupergroupId);
+                return superInfo.IsForum;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine($"[TdlService] 检查论坛状态失败 ChatId={chatId}: {ex.Message}"); }
+        return false;
+    }
+
+    /// <summary>
+    /// 在目标论坛中按名称查找或创建主题，返回 ForumTopicId（0 表示失败）。
+    /// 已存在同名主题时复用，避免重复创建。
+    /// </summary>
+    public async Task<long> CreateOrFindForumTopicAsync(long targetChatId, string topicName)
+    {
+        if (string.IsNullOrWhiteSpace(topicName)) return 0;
+
+        // Telegram 主题名称限制 1-128 字符
+        var name = topicName.Trim();
+        if (name.Length > 128) name = name[..128];
+
+        try
+        {
+            // 先搜索现有主题，避免重复创建
+            var found = await Client.GetForumTopicsAsync(
+                chatId: targetChatId,
+                query: name,
+                offsetDate: 0,
+                offsetMessageId: 0,
+                offsetForumTopicId: 0,
+                limit: 100
+            );
+
+            if (found.Topics != null)
+            {
+                var existing = found.Topics.FirstOrDefault(t =>
+                    string.Equals(t.Info?.Name, name, StringComparison.OrdinalIgnoreCase));
+                if (existing?.Info != null)
+                {
+                    _logger.Log($"复用现有主题: [{existing.Info.Name}] TopicId={existing.Info.ForumTopicId}");
+                    return existing.Info.ForumTopicId;
+                }
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine($"[TdlService] 搜索主题失败: {ex.Message}"); }
+
+        try
+        {
+            var topicInfo = await Client.CreateForumTopicAsync(
+                chatId: targetChatId,
+                name: name,
+                isNameImplicit: false,
+                icon: null
+            );
+            _logger.Log($"已创建主题: [{name}] TopicId={topicInfo.ForumTopicId}");
+            return topicInfo.ForumTopicId;
+        }
+        catch (TdException ex)
+        {
+            _logger.Log($"创建主题失败: [{name}] - {ex.Error.Message}");
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.Log($"创建主题异常: [{name}] - {ex.Message}");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// 解析多行源链接输入，每行一个源。支持 "link|sourceId" 格式指定起始消息ID。
+    /// </summary>
+    public static List<(string link, long? sourceId)> ParseMultiLineSources(string? raw)
+    {
+        var result = new List<(string link, long? sourceId)>();
+        if (string.IsNullOrWhiteSpace(raw)) return result;
+
+        foreach (var line in raw.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries))
+        {
+            var trimmed = line.Trim();
+            if (string.IsNullOrWhiteSpace(trimmed)) continue;
+
+            long? sourceId = null;
+            var link = trimmed;
+
+            var pipeIdx = trimmed.IndexOf('|');
+            if (pipeIdx > 0 && long.TryParse(trimmed[(pipeIdx + 1)..].Trim(), out var sid))
+            {
+                link = trimmed[..pipeIdx].Trim();
+                sourceId = sid;
+            }
+
+            if (!string.IsNullOrWhiteSpace(link))
+            {
+                result.Add((link, sourceId));
+            }
+        }
+
+        return result
+            .GroupBy(s => s.link, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .ToList();
+    }
+
     string? BuildSourceMessageUrl(TdApi.Message msg)
     {
         if (msg.ForwardInfo == null) return null;
@@ -443,5 +604,122 @@ public partial class TdlService
             : msg.ChatId.ToString();
 
         return $"https://t.me/{chatPrefix}/{msg.Id}";
+    }
+
+    /// <summary>
+    /// 解析用户输入的标签文本（逗号分隔），自动添加 # 前缀。
+    /// 已以 # 开头的标签不重复添加。空标签会被忽略。
+    /// 例: "tag1, #tag2, tag3" → "#tag1 #tag2 #tag3"
+    /// </summary>
+    public static string? ParseTags(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return null;
+
+        var tags = raw.Split([',', '，', '\n', '\r'], StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => s.Trim())
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .Select(s => s.StartsWith('#') ? s : "#" + s)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        return tags.Count == 0 ? null : string.Join(" ", tags);
+    }
+
+    /// <summary>
+    /// 从源链接提取默认标签。优先提取 @username，其次从 t.me 链接提取 username，
+    /// 提取失败时返回 null（由调用方决定回退策略）。
+    /// 例: "@channel" → "#channel"；"https://t.me/channel/123" → "#channel"
+    /// </summary>
+    public static string? ExtractDefaultTagFromLink(string? link)
+    {
+        if (string.IsNullOrWhiteSpace(link)) return null;
+
+        var trimmed = link.Trim();
+
+        // @username 形式
+        if (trimmed.StartsWith('@'))
+        {
+            var name = trimmed[1..].Trim();
+            if (!string.IsNullOrWhiteSpace(name)) return "#" + SanitizeTag(name);
+        }
+
+        // t.me/username 或 telegram.me/username 形式
+        var match = TelegramLinkRegex().Match(trimmed);
+        if (match.Success)
+        {
+            var name = match.Groups["name"].Value;
+            if (!string.IsNullOrWhiteSpace(name) && !name.StartsWith('+'))
+            {
+                return "#" + SanitizeTag(name);
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// 清理标签内容：仅保留字母、数字、下划线，其他字符替换为下划线，去除首尾下划线。
+    /// </summary>
+    static string SanitizeTag(string raw)
+    {
+        var sanitized = new StringBuilder(raw.Length);
+        foreach (var ch in raw)
+        {
+            if (char.IsLetterOrDigit(ch) || ch == '_')
+            {
+                sanitized.Append(ch);
+            }
+            else if (sanitized.Length > 0 && sanitized[^1] != '_')
+            {
+                sanitized.Append('_');
+            }
+        }
+        return sanitized.ToString().Trim('_');
+    }
+
+    /// <summary>
+    /// 发送一条独立的标签消息到指定聊天/话题。用于在转发消息后追加自定义标签。
+    /// 失败时不影响主流程，仅记录日志。
+    /// </summary>
+    public async Task SendTagMessageAsync(long targetChatId, long messageThreadId, string tagsText, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(tagsText)) return;
+
+        try
+        {
+            TdApi.MessageTopic? messageTopic = messageThreadId > 0
+                ? new TdApi.MessageTopic.MessageTopicForum { ForumTopicId = (int)messageThreadId }
+                : null;
+
+            var inputText = new TdApi.InputMessageContent.InputMessageText
+            {
+                Text = new TdApi.FormattedText
+                {
+                    Text = tagsText,
+                    Entities = Array.Empty<TdApi.TextEntity>()
+                },
+                LinkPreviewOptions = null,
+                ClearDraft = false
+            };
+
+            var sent = await Client.SendMessageAsync(
+                chatId: targetChatId,
+                topicId: messageTopic,
+                replyTo: null,
+                options: null,
+                replyMarkup: null,
+                inputMessageContent: inputText
+            );
+
+            _logger.Log($"已追加标签消息: {tagsText}");
+        }
+        catch (TdException ex)
+        {
+            _logger.Log($"发送标签消息失败: {ex.Error.Message}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[TdlService] 发送标签消息异常: {ex.Message}");
+        }
     }
 }

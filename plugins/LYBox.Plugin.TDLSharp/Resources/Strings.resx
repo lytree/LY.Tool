@@ -52,7 +52,8 @@
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
   <data name="NAV_TDL" xml:space="preserve"><value>TDL Sharp</value></data>
   <data name="NAV_TDL_Login" xml:space="preserve"><value>Login &amp; Init</value></data>
-  <data name="NAV_TDL_BatchForward" xml:space="preserve"><value>Batch Deep Forward</value></data>
+  <data name="NAV_TDL_BatchForwardChannel" xml:space="preserve"><value>Batch Forward to Channel</value></data>
+  <data name="NAV_TDL_BatchForwardGroup" xml:space="preserve"><value>Batch Forward to Group</value></data>
   <data name="NAV_TDL_ClearMessage" xml:space="preserve"><value>Clear Messages</value></data>
   <data name="NAV_TDL_DeepCopy" xml:space="preserve"><value>Deep Copy Forward</value></data>
   <data name="NAV_TDL_DeleteForwards" xml:space="preserve"><value>Delete Forwarded Messages</value></data>
@@ -84,8 +85,10 @@
   <data name="LBL_Parameters" xml:space="preserve"><value>Parameters</value></data>
   <data name="LBL_Duration" xml:space="preserve"><value>Duration</value></data>
   <data name="LBL_Actions" xml:space="preserve"><value>Actions</value></data>
-  <data name="SCRIPT_BatchForward_Name" xml:space="preserve"><value>Batch Deep Forward</value></data>
-  <data name="SCRIPT_BatchForward_Desc" xml:space="preserve"><value>Batch deep forward messages from source channel/group to target channel/group</value></data>
+  <data name="SCRIPT_BatchForwardChannel_Name" xml:space="preserve"><value>Batch Forward to Channel</value></data>
+  <data name="SCRIPT_BatchForwardChannel_Desc" xml:space="preserve"><value>Batch deep forward messages from one or more source channels/groups to a target channel</value></data>
+  <data name="SCRIPT_BatchForwardGroup_Name" xml:space="preserve"><value>Batch Forward to Group</value></data>
+  <data name="SCRIPT_BatchForwardGroup_Desc" xml:space="preserve"><value>Batch deep forward messages to a target group. Supports forwarding to a fixed forum topic or creating a topic per source channel.</value></data>
   <data name="SCRIPT_DeepCopy_Name" xml:space="preserve"><value>Deep Copy Forward</value></data>
   <data name="SCRIPT_DeepCopy_Desc" xml:space="preserve"><value>Convert shallow forwarded messages to deep copies (re-send from original source, then delete old shallow forwards). Supports multiple channels, one per line.</value></data>
   <data name="SCRIPT_ClearMessage_Name" xml:space="preserve"><value>Clear Messages</value></data>
@@ -99,17 +102,25 @@
   <data name="WORD_Favorites" xml:space="preserve"><value>Saved Messages</value></data>
   <data name="FMT_ProcessingChannel" xml:space="preserve"><value>━━━ Processing channel [{0}/{1}]: {2} ━━━</value></data>
   <data name="PARAM_Source" xml:space="preserve"><value>Source Message Link</value></data>
-  <data name="PARAM_SourceDesc" xml:space="preserve"><value>Source channel/group message link</value></data>
+  <data name="PARAM_SourceDesc" xml:space="preserve"><value>Source channel/group message link. One per line for multi-source mode. Supports "link|sourceId" format.</value></data>
   <data name="PARAM_SourceId" xml:space="preserve"><value>Source Message ID</value></data>
-  <data name="PARAM_SourceIdDesc" xml:space="preserve"><value>Specify source message ID (optional)</value></data>
+  <data name="PARAM_SourceIdDesc" xml:space="preserve"><value>Specify source message ID (optional). Only used in single-source mode.</value></data>
   <data name="PARAM_Target" xml:space="preserve"><value>Target Link</value></data>
-  <data name="PARAM_TargetDesc" xml:space="preserve"><value>Target channel/group link or username</value></data>
+  <data name="PARAM_TargetDesc" xml:space="preserve"><value>Target channel/group link or username. Must be a forum supergroup when classify is enabled.</value></data>
+  <data name="PARAM_TargetChannelDesc" xml:space="preserve"><value>Target channel link or username</value></data>
+  <data name="PARAM_TargetGroupDesc" xml:space="preserve"><value>Target group link or username. Must be a forum supergroup when fixed topic or classify is enabled.</value></data>
+  <data name="PARAM_FixedTopic" xml:space="preserve"><value>Fixed Topic Name</value></data>
+  <data name="PARAM_FixedTopicDesc" xml:space="preserve"><value>Forward all messages to this single forum topic (created if not exists). Takes precedence over classify. Empty=disabled.</value></data>
   <data name="PARAM_Older" xml:space="preserve"><value>Towards Older Messages</value></data>
   <data name="PARAM_OlderDesc" xml:space="preserve"><value>true=forward to older, false=forward to newer</value></data>
   <data name="PARAM_Limit" xml:space="preserve"><value>Max Count</value></data>
   <data name="PARAM_LimitDesc" xml:space="preserve"><value>0=all</value></data>
   <data name="PARAM_Comments" xml:space="preserve"><value>Forward Comments</value></data>
   <data name="PARAM_CommentsDesc" xml:space="preserve"><value>Whether to forward comments</value></data>
+  <data name="PARAM_ClassifyBySource" xml:space="preserve"><value>Classify by Source Topic</value></data>
+  <data name="PARAM_ClassifyBySourceDesc" xml:space="preserve"><value>Create a forum topic per source channel in the target. Target must be a forum supergroup.</value></data>
+  <data name="PARAM_Tags" xml:space="preserve"><value>Tags</value></data>
+  <data name="PARAM_TagsDesc" xml:space="preserve"><value>Comma-separated tags appended after each forwarded message group (e.g. "tag1,tag2"). Auto-adds # prefix. Empty = use source channel as default tag.</value></data>
   <data name="PARAM_Channel" xml:space="preserve"><value>Channel/Group</value></data>
   <data name="PARAM_ChannelDesc" xml:space="preserve"><value>Channel/group link or username (empty=Saved Messages)</value></data>
   <data name="PARAM_Contains" xml:space="preserve"><value>Match Text</value></data>

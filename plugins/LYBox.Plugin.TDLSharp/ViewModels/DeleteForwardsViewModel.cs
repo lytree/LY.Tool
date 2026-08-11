@@ -6,7 +6,7 @@ using LYBox.Plugin.TDLSharp.Services;
 namespace LYBox.Plugin.TDLSharp.ViewModels;
 
 [NavigationItem("TDL_DeleteForwards")]
-[Menu("NAV_TDL_DeleteForwards", "TDL_DeleteForwards", ParentKey = "NAV_TDL", Order = 9)]
+[Menu("NAV_TDL_DeleteForwards", "TDL_DeleteForwards", ParentKey = "NAV_TDL", Order = 10)]
 [ViewMap(typeof(Pages.DeleteForwardsPage))]
 public partial class DeleteForwardsViewModel : TdlViewModelBase
 {

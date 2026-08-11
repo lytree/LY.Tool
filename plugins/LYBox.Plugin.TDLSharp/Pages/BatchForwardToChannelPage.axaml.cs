@@ -5,11 +5,11 @@ using LYBox.Plugin.TDLSharp.ViewModels;
 
 namespace LYBox.Plugin.TDLSharp.Pages;
 
-public partial class BatchForwardPage : UserControl
+public partial class BatchForwardToChannelPage : UserControl
 {
     private TdlViewModelBase? _currentVm;
 
-    public BatchForwardPage()
+    public BatchForwardToChannelPage()
     {
         InitializeComponent();
         DataContextChanged += OnDataContextChanged;
