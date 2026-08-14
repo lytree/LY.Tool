@@ -507,6 +507,41 @@ public class WebViewIpcHostTests
         await Assert.That(secondCalled).IsTrue();
     }
 
+    [Test]
+    public async Task ResetDocument_取消旧文档正在执行的调用_且不回推结果()
+    {
+        var (host, transport) = Create();
+        var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var cancelled = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        host.RegisterCommand("svc.long", async (_, cancellationToken) =>
+        {
+            started.TrySetResult();
+            try
+            {
+                await Task.Delay(Timeout.Infinite, cancellationToken);
+                return (object?)"unexpected";
+            }
+            catch (OperationCanceledException)
+            {
+                cancelled.TrySetResult();
+                throw;
+            }
+        });
+
+        transport.SimulateFromScript("C" + JsonSerializer.Serialize(new CallMessage
+        {
+            Name = "svc.long",
+            CallbackId = "old-document"
+        }));
+
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(2));
+        host.ResetDocument();
+        await cancelled.Task.WaitAsync(TimeSpan.FromSeconds(2));
+        await Task.Delay(50);
+
+        await Assert.That(transport.ExecutedScripts.Any(script => script.Contains("old-document"))).IsFalse();
+    }
+
     // —— 辅助 ——
 
     private static (WebViewIpcHost host, FakeTransport transport) Create()

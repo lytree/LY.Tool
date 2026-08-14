@@ -1,5 +1,4 @@
 # 开发说明
-
 本文档面向项目开发和维护，说明构建、调试、CI、架构流程和插件开发约定。应用使用和插件安装说明请阅读 [使用说明](USAGE.md)；Web 插件完整操作流程见 [Web 插件使用手册](WEB_PLUGIN_GUIDE.md)，协议与宿主边界见 [Web 插件宿主与 IPC 约定](WEBVIEW_IPC.md)。
 
 ## 构建系统
@@ -34,14 +33,14 @@
 直接运行启动器：
 
 ```powershell
-dotnet run --project src/launcher/Avalonia.Launcher.Desktop
+dotnet run --project src/App/LYBox.Launcher.Desktop
 ```
 
 启动器会扫描应用基础目录下的默认插件目录，也支持通过环境变量追加插件发现目录：
 
 ```powershell
 $env:AVALONIA_EXTRA_PLUGINS_PATH="E:\path\to\plugin\publish"
-dotnet run --project src/launcher/Avalonia.Launcher.Desktop
+dotnet run --project src/App/LYBox.Launcher.Desktop
 ```
 
 `.vscode/launch.json` 中的 VS Code 调试配置会预构建指定插件，并自动设置 `AVALONIA_EXTRA_PLUGINS_PATH`。
@@ -103,7 +102,7 @@ pnpm dev:template
 
 - `.slnx` 是 .NET 10 XML 解决方案文件，不是传统 `.sln` 文件。
 - `Plugins.slnx` 不包含所有插件；构建脚本会动态发现 `plugins/*/*.csproj`。
-- `src/platforms` 下的项目引用仓库外部平台项目，默认不参与启动器和插件构建。
+- `src/Platforms` 下的项目引用仓库外部平台项目，默认不参与启动器和插件构建。
 
 ## 架构流程
 

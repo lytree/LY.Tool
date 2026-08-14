@@ -1,172 +1,146 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "build-host",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/src/launcher/LYBox.Launcher.Desktop/LYBox.Launcher.Desktop.csproj",
-                "-o",
-                "${workspaceFolder}/bin/bin"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "build-fluent-window",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/src/LYBox.FluentWindow/LYBox.FluentWindow.csproj"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "build"
-        },
-        {
-            "label": "publish-host",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "publish",
-                "${workspaceFolder}/src/launcher/LYBox.Launcher.Desktop/LYBox.Launcher.Desktop.csproj",
-                "-c",
-                "Release",
-                "-o",
-                "${workspaceFolder}/bin/publish/host"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "build"
-        },
-        {
-            "label": "publish-fluent-window",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "publish",
-                "${workspaceFolder}/src/LYBox.FluentWindow/LYBox.FluentWindow.csproj",
-                "-c",
-                "Release",
-                "-o",
-                "${workspaceFolder}/bin/publish/fluent-window"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "build"
-        },
-        {
-            "label": "build-plugin-template",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/plugins/LYBox.Plugin.Template/LYBox.Plugin.Template.csproj"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "build"
-        },
-        {
-            "label": "build-plugin-buttons-inputs",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/plugins/LYBox.Plugin.ButtonsInputs/LYBox.Plugin.ButtonsInputs.csproj"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "build"
-        },
-        {
-            "label": "build-plugin-date-time",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/plugins/LYBox.Plugin.DateTime/LYBox.Plugin.DateTime.csproj"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "build"
-        },
-        {
-            "label": "build-plugin-dialog-feedbacks",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/plugins/LYBox.Plugin.DialogFeedbacks/LYBox.Plugin.DialogFeedbacks.csproj"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "build"
-        },
-        {
-            "label": "build-plugin-downloader",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/plugins/LYBox.Plugin.Downloader/LYBox.Plugin.Downloader.csproj"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "build"
-        },
-        {
-            "label": "build-plugin-layout-display",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/plugins/LYBox.Plugin.LayoutDisplay/LYBox.Plugin.LayoutDisplay.csproj"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "build"
-        },
-        {
-            "label": "build-plugin-navigation-menus",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/plugins/LYBox.Plugin.NavigationMenus/LYBox.Plugin.NavigationMenus.csproj"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "build"
-        },
-        {
-            "label": "build-plugin-pro-data-grid",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/plugins/LYBox.Plugin.ProDataGrid/LYBox.Plugin.ProDataGrid.csproj"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "build"
-        },
-        {
-            "label": "build-plugin-scott-plot",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/plugins/LYBox.Plugin.ScottPlot/LYBox.Plugin.ScottPlot.csproj"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "build"
-        },
-        {
-            "label": "build-plugin-tdl-sharp",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/plugins/LYBox.Plugin.TDLSharp/LYBox.Plugin.TDLSharp.csproj"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "build"
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-host",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/src/App/LYBox.Launcher.Desktop/LYBox.Launcher.Desktop.csproj",
+        "-o",
+        "${workspaceFolder}/artifacts/bin/LYBox.Launcher.Desktop/debug"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "publish-host",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/src/App/LYBox.Launcher.Desktop/LYBox.Launcher.Desktop.csproj",
+        "-c",
+        "Release",
+        "-o",
+        "${workspaceFolder}/artifacts/publish/launcher/desktop"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    },
+    {
+      "label": "build-plugin-template",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/plugins/LYBox.Plugin.Template/LYBox.Plugin.Template.csproj"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    },
+    {
+      "label": "build-plugin-buttons-inputs",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/plugins/LYBox.Plugin.ButtonsInputs/LYBox.Plugin.ButtonsInputs.csproj"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    },
+    {
+      "label": "build-plugin-date-time",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/plugins/LYBox.Plugin.DateTime/LYBox.Plugin.DateTime.csproj"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    },
+    {
+      "label": "build-plugin-dialog-feedbacks",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/plugins/LYBox.Plugin.DialogFeedbacks/LYBox.Plugin.DialogFeedbacks.csproj"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    },
+    {
+      "label": "build-plugin-downloader",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/plugins/LYBox.Plugin.Downloader/LYBox.Plugin.Downloader.csproj"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    },
+    {
+      "label": "build-plugin-layout-display",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/plugins/LYBox.Plugin.LayoutDisplay/LYBox.Plugin.LayoutDisplay.csproj"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    },
+    {
+      "label": "build-plugin-navigation-menus",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/plugins/LYBox.Plugin.NavigationMenus/LYBox.Plugin.NavigationMenus.csproj"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    },
+    {
+      "label": "build-plugin-pro-data-grid",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/plugins/LYBox.Plugin.ProDataGrid/LYBox.Plugin.ProDataGrid.csproj"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    },
+    {
+      "label": "build-plugin-scott-plot",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/plugins/LYBox.Plugin.ScottPlot/LYBox.Plugin.ScottPlot.csproj"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    },
+    {
+      "label": "build-plugin-tdl-sharp",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/plugins/LYBox.Plugin.TDLSharp/LYBox.Plugin.TDLSharp.csproj"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    }
+  ]
 }

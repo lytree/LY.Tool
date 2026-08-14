@@ -33,7 +33,8 @@
  */
 
 // 核心 API
-export { rpc, rpcChannel } from './rpc';
+export { rpc, rpcChannel, createRpcClient } from './rpc';
+export type { RpcMethodDefinition, RpcMethodMap, RpcClient } from './rpc';
 export { on, off, emit, whenReady } from './events';
 export { createChannel } from './channel';
 

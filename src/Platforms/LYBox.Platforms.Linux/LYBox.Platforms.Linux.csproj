@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\LYBox.Platforms.Abstractions\LYBox.Platforms.Abstractions.csproj" />
+      <ProjectReference Include="..\LYBox.Platforms.Abstractions\LYBox.Platforms.Abstractions.csproj" />
       <ProjectReference Include="..\..\Avalonia\Avalonia.csproj" />
     </ItemGroup>
 

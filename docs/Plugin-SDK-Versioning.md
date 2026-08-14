@@ -1,5 +1,4 @@
 # 插件 SDK 版本契约
-
 本文档描述宿主与插件之间的 SDK 版本契约机制。所有版本真相源在仓库根 [`Directory.Build.props`](../Directory.Build.props)。
 
 ---
@@ -52,11 +51,11 @@
 `LYBox.Plugin.Shared` NuGet 包（即 Plugin SDK）本身引用了以下第三方包。插件通过 `PrivateAssets="all"` 引用 SDK 时，这些依赖会按下面表格中的"加载位置"规则流入插件或由宿主提供。
 
 > **当前 SDK 版本**：`2.1.0`（即 `HostVersion=2.1.0`）
-> **真相源**：[`src/Directory.Packages.props`](../src/Directory.Packages.props) + [`src/LYBox.Plugin.Shared/LYBox.Plugin.Shared.csproj`](../src/LYBox.Plugin.Shared/LYBox.Plugin.Shared.csproj) + [`buildTransitive/LYBox.Plugin.Shared.props`](../src/LYBox.Plugin.Shared/buildTransitive/LYBox.Plugin.Shared.props) 中的 `_SharedAssembliesPatterns`
+> **真相源**：[`src/Directory.Packages.props`](../src/Directory.Packages.props) + [`src/Plugin/LYBox.Plugin.Shared/LYBox.Plugin.Shared.csproj`](../src/Plugin/LYBox.Plugin.Shared/LYBox.Plugin.Shared.csproj) + [`buildTransitive/LYBox.Plugin.Shared.props`](../src/Plugin/LYBox.Plugin.Shared/buildTransitive/LYBox.Plugin.Shared.props) 中的 `_SharedAssembliesPatterns`
 
 ### 1. 共享程序集（由宿主默认 ALC 提供，插件转发引用）
 
-这些包的类型出现在 SDK 公共 API 中，或属于 Avalonia 框架本体，必须由宿主统一加载，避免类型标识冲突。运行时由 [`PluginLoadContext`](../src/LYBox.Layout.Ursa/Services/PluginLoadContext.cs) 转发到 `AssemblyLoadContext.Default`。
+这些包的类型出现在 SDK 公共 API 中，或属于 Avalonia 框架本体，必须由宿主统一加载，避免类型标识冲突。运行时由 [`PluginLoadContext`](../src/Layout/LYBox.Layout.Ursa/Services/PluginLoadContext.cs) 转发到 `AssemblyLoadContext.Default`。
 
 | 包名 | 当前版本 | 引入版本 | 在 SDK 中的作用 |
 |------|---------|---------|----------------|
@@ -119,7 +118,7 @@
 > git log -p -- src/Directory.Packages.props | Select-String "<AvaloniaVersion>"
 >
 > # 查看 SDK csproj 引用列表的变更
-> git log -p -- src/LYBox.Plugin.Shared/LYBox.Plugin.Shared.csproj
+> git log -p -- src/Plugin/LYBox.Plugin.Shared/LYBox.Plugin.Shared.csproj
 > ```
 >
 > 当未来新增依赖包时，请在本表中显式标注"引入版本 = X.Y.Z"，并升 `HostVersion` 的 Minor（新增 API，向后兼容）或 Major（破坏性变更）。
@@ -155,7 +154,7 @@ IsPluginSdkCompatible(MinPluginSdkVersion, PluginSdkContract.CurrentVersion)
 不通过 → 标记 PluginState.Error，写入错误信息，拒绝加载
 ```
 
-**SemVer 比对规则**（[`PluginLoader.IsPluginSdkCompatible`](../src/LYBox.Layout.Ursa/Services/PluginLoader.cs)）：
+**SemVer 比对规则**（[`PluginLoader.IsPluginSdkCompatible`](../src/Layout/LYBox.Layout.Ursa/Services/PluginLoader.cs)）：
 
 - `null` / 空 → 通过（无约束）
 - 解析失败 → **拒绝**（fail-closed，避免误判不兼容插件）

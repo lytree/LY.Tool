@@ -1,5 +1,4 @@
 # 插件 API 参考文档
-
 本参考详细描述 `LYBox.Plugin.Shared` 命名空间下插件开发者可用的全部 API。所有 API 都位于 NuGet 包 `LYBox.Plugin.Shared` 中，插件通过 `PrivateAssets="all"` 引用，版本由 `$(PluginSdkVersion)` 统一管理。
 
 ---
@@ -991,4 +990,4 @@ public partial class MyPageViewModel : ViewModelBase
 |----------------|----------------|---------|
 | 1.0.0 | 当前 | 初始版本 |
 
-> 升级 Plugin SDK 版本号时，应同步更新 `Directory.Build.props` 中的 `PluginSdkVersion` 并重新构建 `bin/nuget/` 下的 NuGet 包（`.\build.ps1 --build=bin`）。
+> 升级 Plugin SDK 版本号时，应同步更新 `Directory.Build.props` 中的 `PluginSdkVersion` 并重新构建 `artifacts/packages/sdk/` 下的 NuGet 包（`.\build.ps1 --build=bin`）。

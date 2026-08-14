@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 using Cake.Common;
 using Cake.Common.IO;
@@ -43,39 +44,32 @@ Task("Clean")
     if (t.HasFlag(BuildTarget.Bin))
     {
         CleanDirectoryIfExists(c, buildContext.NuGetPackagesDir);
-        CleanDirectoryIfExists(c, buildContext.BinPackagesDir);
+        CleanDirectoryIfExists(c, buildContext.LauncherPublishDir);
+        CleanDirectoryIfExists(c, buildContext.LegacyPackageDir);
 
-        CleanDirectoryIfExists(c, Path.Combine(buildContext.RootDir, "src", "LYBox.Plugin.Generators", "bin"));
-        CleanDirectoryIfExists(c, Path.Combine(buildContext.RootDir, "src", "LYBox.Plugin.Generators", "obj"));
-        CleanDirectoryIfExists(c, Path.Combine(buildContext.RootDir, "src", "LYBox.Plugin.Shared", "bin"));
-        CleanDirectoryIfExists(c, Path.Combine(buildContext.RootDir, "src", "LYBox.Plugin.Shared", "obj"));
-
-        CleanDirectoryIfExists(c, Path.Combine(buildContext.RootDir, "src", "launcher", "LYBox.Launcher.Desktop", "bin"));
-        CleanDirectoryIfExists(c, Path.Combine(buildContext.RootDir, "src", "launcher", "LYBox.Launcher.Desktop", "obj"));
+        CleanDirectoryIfExists(c, buildContext.DesktopPublishDir);
+        CleanDirectoryIfExists(c, buildContext.ConsolePublishDir);
     }
 
     if (t.HasFlag(BuildTarget.Tool))
     {
         CleanDirectoryIfExists(c, buildContext.ToolPackagesDir);
-        CleanDirectoryIfExists(c, Path.Combine(buildContext.RootDir, "tools", "LYBox.MockServer", "bin"));
-        CleanDirectoryIfExists(c, Path.Combine(buildContext.RootDir, "tools", "LYBox.MockServer", "obj"));
     }
 
     if (t.HasFlag(BuildTarget.Plugin))
     {
         CleanDirectoryIfExists(c, buildContext.PluginPackagesDir);
+        CleanDirectoryIfExists(c, buildContext.PluginZipPackagesDir);
 
         foreach (var plugin in buildContext.PluginProjects)
         {
-            var pluginDir = Path.GetDirectoryName(plugin.ProjectPath(buildContext.RootDir))!;
-            CleanDirectoryIfExists(c, Path.Combine(pluginDir, "bin"));
-            CleanDirectoryIfExists(c, Path.Combine(pluginDir, "obj"));
+            CleanDirectoryIfExists(c, Path.Combine(buildContext.PluginPackagesDir, plugin.ProjectName));
         }
     }
 
     if (t.HasFlag(BuildTarget.All))
     {
-        CleanDirectoryIfExists(c, buildContext.PackagesDir);
+        CleanDirectoryIfExists(c, buildContext.ArtifactsDir);
     }
 
     c.Log.Information("Clean completed. Target: {0}", t);
@@ -103,7 +97,7 @@ Task("Build")
     var hostSettings = buildContext.CreateHostMSBuildSettings();
 
     // Bin = SDK 编译 + NuGet 打包 + 宿主编译（统一发版）
-    // 关键：NuGet pack 必须在插件 build 之前完成，因为插件 restore 依赖 bin/nuget/ 本地 feed
+    // 关键：NuGet pack 必须在插件 build 之前完成，因为插件 restore 依赖 artifacts/packages/sdk 本地 feed
     if (buildContext.Target.HasFlag(BuildTarget.Bin))
     {
         // SDK 层：Generators + Shared
@@ -119,7 +113,7 @@ Task("Build")
             MSBuildSettings = hostSettings
         });
 
-        // SDK NuGet 打包（NoBuild=true 复用上一步构建结果，输出到 bin/nuget/）
+        // SDK NuGet 打包（NoBuild=true 复用上一步构建结果，输出到 artifacts/packages/sdk）
         c.EnsureDirectoryExists(buildContext.NuGetPackagesDir);
         c.DotNetPack(buildContext.GeneratorsProject, new DotNetPackSettings
         {
@@ -145,6 +139,11 @@ Task("Build")
             Configuration = buildContext.BuildConfiguration,
             MSBuildSettings = hostSettings
         });
+        c.DotNetBuild(buildContext.ConsoleProject, new DotNetBuildSettings
+        {
+            Configuration = buildContext.BuildConfiguration,
+            MSBuildSettings = hostSettings
+        });
     }
 
     // Tool 独立 dotnet tool 项目构建（lybox-mock 前端调试 Mock 后端）
@@ -166,7 +165,7 @@ Task("Build")
     }
 
     // 插件层：各插件用自己的 PluginVersion（不再被 PackageVersion 覆盖）
-    // 注：插件 restore 依赖 bin/nuget/ 本地 feed，必须等上面的 SDK pack 完成
+    // 注：插件 restore 依赖 artifacts/packages/sdk 本地 feed，必须等上面的 SDK pack 完成
     if (buildContext.Target.HasFlag(BuildTarget.Plugin))
     {
         var buildFailedPlugins = new List<string>();
@@ -176,7 +175,7 @@ Task("Build")
 
             try
             {
-                c.DotNetBuild(plugin.ProjectPath(buildContext.RootDir), new DotNetBuildSettings
+                c.DotNetBuild(plugin.ProjectPath, new DotNetBuildSettings
                 {
                     Configuration = buildContext.BuildConfiguration,
                     MSBuildSettings = pluginMsBuild
@@ -189,9 +188,7 @@ Task("Build")
             }
         }
         if (buildFailedPlugins.Count > 0)
-        {
-            c.Log.Warning("以下 {0} 个插件编译失败: {1}", buildFailedPlugins.Count, string.Join(", ", buildFailedPlugins));
-        }
+            throw new InvalidOperationException($"以下 {buildFailedPlugins.Count} 个插件编译失败: {string.Join(", ", buildFailedPlugins)}");
     }
 
     c.Log.Information("Build completed. Target: {0}", buildContext.Target);
@@ -210,12 +207,12 @@ Task("PackBin")
     }
 
     // 发布宿主 launcher（GUI 版）
-    c.EnsureDirectoryExists(buildContext.BinPackagesDir);
+    c.EnsureDirectoryExists(buildContext.DesktopPublishDir);
 
     var settings = new DotNetPublishSettings
     {
         Configuration = buildContext.BuildConfiguration,
-        OutputDirectory = buildContext.BinPackagesDir,
+        OutputDirectory = buildContext.DesktopPublishDir,
         NoRestore = true,
         NoBuild = true,
     };
@@ -223,7 +220,7 @@ Task("PackBin")
     if (!string.IsNullOrEmpty(buildContext.RuntimeIdentifier))
     {
         settings.Runtime = buildContext.RuntimeIdentifier;
-        settings.OutputDirectory = Path.Combine(buildContext.BinPackagesDir, buildContext.RuntimeIdentifier);
+        settings.OutputDirectory = Path.Combine(buildContext.DesktopPublishDir, buildContext.RuntimeIdentifier);
         // Build 未按 RID 编译，publish 需要重新构建 RID 产物
         settings.NoBuild = false;
         settings.NoRestore = false;
@@ -240,7 +237,7 @@ Task("PackBin")
     var consoleSettings = new DotNetPublishSettings
     {
         Configuration = buildContext.BuildConfiguration,
-        OutputDirectory = buildContext.BinPackagesDir,
+        OutputDirectory = buildContext.ConsolePublishDir,
         NoRestore = true,
         NoBuild = true,
     };
@@ -248,7 +245,7 @@ Task("PackBin")
     if (!string.IsNullOrEmpty(buildContext.RuntimeIdentifier))
     {
         consoleSettings.Runtime = buildContext.RuntimeIdentifier;
-        consoleSettings.OutputDirectory = Path.Combine(buildContext.BinPackagesDir, buildContext.RuntimeIdentifier);
+        consoleSettings.OutputDirectory = Path.Combine(buildContext.ConsolePublishDir, buildContext.RuntimeIdentifier);
         consoleSettings.NoBuild = false;
         consoleSettings.NoRestore = false;
     }
@@ -260,7 +257,8 @@ Task("PackBin")
 
     c.DotNetPublish(buildContext.ConsoleProject, consoleSettings);
 
-    c.Log.Information("Launcher (GUI) + Console published to: {0}", buildContext.BinPackagesDir);
+    c.Log.Information("Desktop launcher published to: {0}", settings.OutputDirectory);
+    c.Log.Information("Console launcher published to: {0}", consoleSettings.OutputDirectory);
 });
 
 Task("LocalInstall")
@@ -321,7 +319,7 @@ Task("PackPlugins")
 
         try
         {
-            c.DotNetPublish(plugin.ProjectPath(buildContext.RootDir), new DotNetPublishSettings
+            c.DotNetPublish(plugin.ProjectPath, new DotNetPublishSettings
             {
                 Configuration = buildContext.BuildConfiguration,
                 OutputDirectory = pluginOutputDir,
@@ -343,9 +341,7 @@ Task("PackPlugins")
     PackPluginZips(c, buildContext);
 
     if (failedPlugins.Count > 0)
-    {
-        c.Log.Warning("以下 {0} 个插件发布失败: {1}", failedPlugins.Count, string.Join(", ", failedPlugins));
-    }
+        throw new InvalidOperationException($"以下 {failedPlugins.Count} 个插件发布失败: {string.Join(", ", failedPlugins)}");
 
     c.Log.Information("All plugins published to: {0}", buildContext.PluginPackagesDir);
 
@@ -382,7 +378,7 @@ Task("PackPlugins")
 
     static void PackPluginZips(ICakeContext ctx, BuildContext bctx)
     {
-        var zipOutputDir = Path.Combine(bctx.PluginPackagesDir, "zip");
+        var zipOutputDir = bctx.PluginZipPackagesDir;
         ctx.EnsureDirectoryExists(zipOutputDir);
 
         foreach (var plugin in bctx.PluginProjects)
@@ -583,11 +579,15 @@ public class BuildContext
     public bool SelfContained { get; }
 
     public string RootDir { get; }
-    public string PackagesDir { get; }
+    public string ArtifactsDir { get; }
     public string NuGetPackagesDir { get; }
-    public string BinPackagesDir { get; }
+    public string LauncherPublishDir { get; }
     public string PluginPackagesDir { get; }
+    public string PluginZipPackagesDir { get; }
     public string ToolPackagesDir { get; }
+    public string DesktopPublishDir { get; }
+    public string ConsolePublishDir { get; }
+    public string LegacyPackageDir { get; }
 
     public string GeneratorsProject { get; }
     public string SharedProject { get; }
@@ -675,17 +675,21 @@ public class BuildContext
         RuntimeIdentifier = context.Argument("runtime-identifier", "");
         SelfContained = context.Argument("self-contained", false);
 
-        RootDir = context.Environment.WorkingDirectory.FullPath;
-        PackagesDir = Path.Combine(RootDir, "bin");
-        NuGetPackagesDir = Path.Combine(PackagesDir, "nuget");
-        BinPackagesDir = Path.Combine(PackagesDir, "bin");
-        PluginPackagesDir = Path.Combine(PackagesDir, "plugins");
-        ToolPackagesDir = Path.Combine(PackagesDir, "tools");
+        RootDir = ResolveRepositoryRoot();
+        ArtifactsDir = Path.Combine(RootDir, "artifacts");
+        NuGetPackagesDir = Path.Combine(ArtifactsDir, "packages", "sdk");
+        LauncherPublishDir = Path.Combine(ArtifactsDir, "publish", "launcher");
+        PluginPackagesDir = Path.Combine(ArtifactsDir, "publish", "plugins");
+        PluginZipPackagesDir = Path.Combine(ArtifactsDir, "packages", "plugins");
+        ToolPackagesDir = Path.Combine(ArtifactsDir, "packages", "tools");
+        DesktopPublishDir = Path.Combine(LauncherPublishDir, "desktop");
+        ConsolePublishDir = Path.Combine(LauncherPublishDir, "console");
+        LegacyPackageDir = Path.Combine(ArtifactsDir, "package");
 
-        GeneratorsProject = Path.Combine(RootDir, "src", "LYBox.Plugin.Generators", "LYBox.Plugin.Generators.csproj");
-        SharedProject = Path.Combine(RootDir, "src", "LYBox.Plugin.Shared", "LYBox.Plugin.Shared.csproj");
-        LauncherProject = Path.Combine(RootDir, "src", "launcher", "LYBox.Launcher.Desktop", "LYBox.Launcher.Desktop.csproj");
-        ConsoleProject = Path.Combine(RootDir, "src", "launcher", "LYBox.Launcher.Console", "LYBox.Launcher.Console.csproj");
+        GeneratorsProject = Path.Combine(RootDir, "src", "Plugin", "LYBox.Plugin.Generators", "LYBox.Plugin.Generators.csproj");
+        SharedProject = Path.Combine(RootDir, "src", "Plugin", "LYBox.Plugin.Shared", "LYBox.Plugin.Shared.csproj");
+        LauncherProject = Path.Combine(RootDir, "src", "App", "LYBox.Launcher.Desktop", "LYBox.Launcher.Desktop.csproj");
+        ConsoleProject = Path.Combine(RootDir, "src", "App", "LYBox.Launcher.Console", "LYBox.Launcher.Console.csproj");
         ToolProject = Path.Combine(RootDir, "tools", "LYBox.MockServer", "LYBox.MockServer.csproj");
 
         PluginProjects = FilterPlugins(DiscoverPlugins(RootDir), PluginFilter);
@@ -713,6 +717,13 @@ public class BuildContext
         {
             context.Log.Information("使用显式 --package-version: {0}（跳过 GitVersion）", PackageVersion);
         }
+    }
+
+    private static string ResolveRepositoryRoot([CallerFilePath] string sourceFilePath = "")
+    {
+        var buildDirectory = Path.GetDirectoryName(sourceFilePath)
+            ?? throw new InvalidOperationException("无法解析 build.cs 所在目录");
+        return Path.GetFullPath(Path.Combine(buildDirectory, ".."));
     }
 
     /// <summary>
@@ -825,10 +836,10 @@ public class BuildContext
             var minPluginSdkVersion = doc.Descendants("MinPluginSdkVersion").FirstOrDefault()?.Value ?? "0.0.0";
 
             plugins.Add(new PluginProjectInfo(
-                projectName, pluginId, pluginName, pluginVersion, pluginAuthor, pluginDescription, minPluginSdkVersion));
+                Path.GetFullPath(csprojFile), projectName, pluginId, pluginName, pluginVersion, pluginAuthor, pluginDescription, minPluginSdkVersion));
         }
 
-        return plugins;
+        return plugins.OrderBy(plugin => plugin.ProjectPath, StringComparer.OrdinalIgnoreCase).ToArray();
     }
 
     private static BuildTarget ParseBuildTarget(string value)
@@ -855,13 +866,11 @@ public class BuildContext
 }
 
 public record PluginProjectInfo(
+    string ProjectPath,
     string ProjectName,
     string PluginId,
     string PluginName,
     string PluginVersion,
     string PluginAuthor,
     string PluginDescription,
-    string MinPluginSdkVersion)
-{
-    public string ProjectPath(string rootDir) => Path.Combine(rootDir, "plugins", ProjectName, $"{ProjectName}.csproj");
-}
+    string MinPluginSdkVersion);

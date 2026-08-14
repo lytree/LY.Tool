@@ -118,7 +118,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: plugin-sdk-nuget
-          path: bin/nuget/*.nupkg
+          path: artifacts/packages/sdk/*.nupkg
           if-no-files-found: error
           retention-days: 7
 
@@ -130,7 +130,7 @@ jobs:
 
       - name: Push plugin SDK NuGet packages
         run: |
-          for pkg in bin/nuget/*.nupkg; do
+          for pkg in artifacts/packages/sdk/*.nupkg; do
             echo "Pushing $pkg"
             dotnet nuget push "$pkg" \
               --api-key ${{ steps.login.outputs.NUGET_API_KEY }} \
@@ -153,12 +153,12 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: plugin-sdk-nuget
-          path: bin/nuget
+          path: artifacts/packages/sdk
 
       - name: Verify local feed
         run: |
           echo "Local NuGet feed contents:"
-          ls -lh bin/nuget/
+          ls -lh artifacts/packages/sdk/
 
       - name: Build & pack plugins
         run: |
@@ -172,13 +172,13 @@ jobs:
       - name: List plugin zips
         run: |
           echo "Generated plugin zips:"
-          ls -lh bin/plugins/zip/
+          ls -lh artifacts/packages/plugins/
 
       - name: Upload plugin zips
         uses: actions/upload-artifact@v7
         with:
           name: plugin-zips
-          path: bin/plugins/zip/*.zip
+          path: artifacts/packages/plugins/*.zip
           if-no-files-found: error
           retention-days: 7
 

@@ -38,7 +38,9 @@ public partial class WebPluginView : UserControl
 
     private WebViewIpcTransport? _transport;
     private WebViewIpcHost? _host;
+    private WebHostService? _webHost;
     private NativeWebView? _webView;
+    private string? _webSession;
     private bool _initialized;
     private bool _isAttached;
 
@@ -92,7 +94,7 @@ public partial class WebPluginView : UserControl
     {
         _isAttached = true;
         base.OnAttachedToVisualTree(e);
-        TryInitialize();
+        _ = TryInitialize();
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
@@ -101,11 +103,19 @@ public partial class WebPluginView : UserControl
         if (_webView is not null)
         {
             _webView.NavigationStarted -= OnNavigationStarted;
+            _webView.NavigationCompleted -= OnNavigationCompleted;
             _webView.WebMessageReceived -= OnDevWebMessageReceived;
         }
 
+        _webHost?.RevokeSession(_webSession);
+        _webSession = null;
+        _host?.Dispose();
+        _host = null;
         _transport?.Detach();
         _transport = null;
+        _webHost = null;
+        _webView = null;
+        _initialized = false;
         base.OnDetachedFromVisualTree(e);
     }
 
@@ -140,6 +150,7 @@ public partial class WebPluginView : UserControl
         // 1. 获取 WebHostService 单例
         if (!ServiceLocator.TryGetService<WebHostService>(out var webHost) || webHost is null)
             return;
+        _webHost = webHost;
 
         // 2. 构造 IPC 传输层 + 主机（注入 SSE pusher + pluginId + webHost 以启用 SSE 推送 + HTTP RPC 桥）
         _transport = new WebViewIpcTransport(webView);
@@ -155,31 +166,7 @@ public partial class WebPluginView : UserControl
         InitializeDevTools(webView, webHost.BaseUrl, pluginId);
 
         // 4. 订阅 NavigationCompleted 注入引导脚本
-        webView.NavigationCompleted += async (_, args) =>
-        {
-            try
-            {
-                UpdateDevStatus(args.IsSuccess ? "Loaded" : "Failed", args);
-                if (!args.IsSuccess)
-                {
-                    HandleNavigationFailure(args.Request, "Navigation failed.");
-                    return;
-                }
-
-                // 4a. 注入 ipc.js（含 __lybox 运行时 + startSse 函数）
-                await _host.InitializeAsync().ConfigureAwait(false);
-                // 4b. 显式启动 SSE（pluginId 由参数传入，非全局变量）
-                var pidJson = JsonSerializer.Serialize(pluginId);
-                await _transport.ExecuteScriptAsync(
-                    $"window.__lybox && window.__lybox.startSse({pidJson});").ConfigureAwait(false);
-                // 4c. 注入绑定清单（window.go.* 胶水）
-                await _host.InjectBindingsAsync().ConfigureAwait(false);
-            }
-            catch
-            {
-                // 页面已销毁或 WebView 未就绪，忽略
-            }
-        };
+        webView.NavigationCompleted += OnNavigationCompleted;
 
         // 5. 导航到插件入口页
         var url = $"{webHost.BaseUrl}/{pluginId}/index.html";
@@ -235,7 +222,16 @@ public partial class WebPluginView : UserControl
 
     private void OnNavigationStarted(object? sender, WebViewNavigationStartingEventArgs e)
     {
+        _host?.ResetDocument();
+        _webHost?.RevokeSession(_webSession);
+        _webSession = null;
+
         var request = e.Request;
+        if (request is null)
+        {
+            e.Cancel = true;
+            return;
+        }
         if (_isErrorPageActive)
         {
             if (!request.Equals(ErrorPageBaseUri))
@@ -258,6 +254,40 @@ public partial class WebPluginView : UserControl
             _statusText.Text = "Loading";
             if (_routeText is not null)
                 _routeText.Text = PluginWebViewDevTools.GetRouteText(request, _routeBasePath);
+        }
+    }
+
+    private async void OnNavigationCompleted(object? sender, WebViewNavigationCompletedEventArgs args)
+    {
+        try
+        {
+            UpdateDevStatus(args.IsSuccess ? "Loaded" : "Failed", args);
+            if (!args.IsSuccess || args.Request is null)
+            {
+                HandleNavigationFailure(args.Request ?? _targetUri ?? ErrorPageBaseUri, "Navigation failed.");
+                return;
+            }
+
+            var pluginId = PluginId;
+            if (_host is null || _transport is null || _webHost is null || string.IsNullOrEmpty(pluginId))
+                return;
+            if (_authorizedBaseUri is null || !PluginWebViewDevTools.IsAllowedNavigation(args.Request, _authorizedBaseUri))
+                return;
+
+            _webHost.RevokeSession(_webSession);
+            _webSession = _webHost.CreateSession(pluginId);
+
+            await _host.InitializeAsync().ConfigureAwait(false);
+            var pidJson = JsonSerializer.Serialize(pluginId);
+            var sessionJson = JsonSerializer.Serialize(_webSession);
+            await _transport.ExecuteScriptAsync(
+                $"window.__lybox && window.__lybox.configureRuntime({pidJson},{sessionJson});" +
+                $"window.__lybox && window.__lybox.startSse({pidJson},{sessionJson});").ConfigureAwait(false);
+            await _host.InjectBindingsAsync().ConfigureAwait(false);
+        }
+        catch
+        {
+            // 页面已销毁、导航已切换或 WebView 未就绪，忽略旧文档回调
         }
     }
 
@@ -288,7 +318,7 @@ public partial class WebPluginView : UserControl
             return;
 
         _statusText.Text = status;
-        if (_routeText is not null)
+        if (_routeText is not null && args.Request is not null)
             _routeText.Text = PluginWebViewDevTools.GetRouteText(args.Request, _routeBasePath);
 
         if (_backButton is not null && _webView is not null)

@@ -129,7 +129,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: main-sdk-nuget
-          path: bin/nuget/*.nupkg
+          path: artifacts/packages/sdk/*.nupkg
           if-no-files-found: error
           retention-days: 7
 
@@ -141,7 +141,7 @@ jobs:
 
       - name: Push SDK NuGet packages
         run: |
-          for pkg in bin/nuget/*.nupkg; do
+          for pkg in artifacts/packages/sdk/*.nupkg; do
             echo "Pushing $pkg"
             dotnet nuget push "$pkg" \
               --api-key ${{ steps.login.outputs.NUGET_API_KEY }} \
@@ -178,10 +178,10 @@ jobs:
       - name: Verify tool package
         run: |
           echo "=== Tool NuGet packages ==="
-          ls -lh bin/tools/*.nupkg
+          ls -lh artifacts/packages/tools/*.nupkg
           echo ""
           echo "=== Package metadata ==="
-          for pkg in bin/tools/*.nupkg; do
+          for pkg in artifacts/packages/tools/*.nupkg; do
             echo "Inspecting: $pkg"
             # 列出包内 ToolCommandName 配置
             unzip -p "$pkg" "*.nuspec" | grep -i "packageType\|toolCommandName\|ToolCommandName" || true
@@ -191,7 +191,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: tool-nuget
-          path: bin/tools/*.nupkg
+          path: artifacts/packages/tools/*.nupkg
           if-no-files-found: error
           retention-days: 7
 
@@ -203,7 +203,7 @@ jobs:
 
       - name: Push tool NuGet package
         run: |
-          for pkg in bin/tools/*.nupkg; do
+          for pkg in artifacts/packages/tools/*.nupkg; do
             echo "Pushing $pkg"
             dotnet nuget push "$pkg" \
               --api-key ${{ steps.login.outputs.NUGET_API_KEY }} \
@@ -247,7 +247,7 @@ jobs:
       - name: Zip published output
         shell: pwsh
         run: |
-          Compress-Archive -Path 'bin/bin/${{ matrix.rid }}/*' -DestinationPath '${{ env.MAIN_PROJECT_NAME }}-${{ matrix.rid }}-${{ needs.resolve_context.outputs.version }}.zip' -Force
+          Compress-Archive -Path 'artifacts/publish/launcher/desktop/${{ matrix.rid }}/*' -DestinationPath '${{ env.MAIN_PROJECT_NAME }}-${{ matrix.rid }}-${{ needs.resolve_context.outputs.version }}.zip' -Force
 
       - name: Verify zip
         shell: pwsh

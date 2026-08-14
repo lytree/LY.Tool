@@ -16,9 +16,9 @@
     <!-- 现有测试（SettingsService/PluginUtilities/PluginLoader）仅依赖 Layout.Core，
          不需要 Layout.Ursa（其 ApplicationViewModel 引用了不存在的 LYBox.UI 命名空间，
          是仓库预存的构建问题）。故直接引用 Layout.Core 以解耦。 -->
-    <ProjectReference Include="..\..\src\LYBox.Layout.Core\LYBox.Layout.Core.csproj" />
+    <ProjectReference Include="..\..\src\Layout\LYBox.Layout.Core\LYBox.Layout.Core.csproj" />
     <!-- WebViewIpcHost 已合并到 LYBox.Plugin.Shared/Rpc 目录，测试通过 Shared 项目引用即可访问。 -->
-    <ProjectReference Include="..\..\src\LYBox.Plugin.Shared\LYBox.Plugin.Shared.csproj" />
+    <ProjectReference Include="..\..\src\Plugin\LYBox.Plugin.Shared\LYBox.Plugin.Shared.csproj" />
   </ItemGroup>
 
 </Project>

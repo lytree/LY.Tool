@@ -1,15 +1,18 @@
 <Solution>
-    <Folder Name="/src/">
-        <Project Path="src/LYBox.Plugin.Generators/LYBox.Plugin.Generators.csproj" />
-        <Project Path="src/LYBox.Plugin.Shared/LYBox.Plugin.Shared.csproj" />
-        <Project Path="src/LYBox.Layout.Core/LYBox.Layout.Core.csproj" />
-        <Project Path="src/LYBox.Layout.Ursa/LYBox.Layout.Ursa.csproj" />
+    <Folder Name="/src/Plugin/">
+        <Project Path="src/Plugin/LYBox.Plugin.Generators/LYBox.Plugin.Generators.csproj" />
+        <Project Path="src/Plugin/LYBox.Plugin.Shared/LYBox.Plugin.Shared.csproj" />
     </Folder>
-    <Folder Name="/src/launcher/">
-        <Project Path="src/launcher/LYBox.Launcher.Desktop/LYBox.Launcher.Desktop.csproj" />
+    <Folder Name="/src/Layout/">
+        <Project Path="src/Layout/LYBox.Layout.Core/LYBox.Layout.Core.csproj" />
+        <Project Path="src/Layout/LYBox.Layout.Ursa/LYBox.Layout.Ursa.csproj" />
     </Folder>
-    <Folder Name="/src/platforms/">
-        <Project Path="src/LYBox.Platforms.Abstractions/LYBox.Platforms.Abstractions.csproj" />
+    <Folder Name="/src/App/">
+        <Project Path="src/App/LYBox.Launcher.Desktop/LYBox.Launcher.Desktop.csproj" />
+        <Project Path="src/App/LYBox.Launcher.Console/LYBox.Launcher.Console.csproj" />
+    </Folder>
+    <Folder Name="/src/Platforms/">
+        <Project Path="src/Platforms/LYBox.Platforms.Abstractions/LYBox.Platforms.Abstractions.csproj" />
     </Folder>
     <Folder Name="/tests/">
         <Project Path="tests/LYBox.Tests/LYBox.Tests.csproj" />

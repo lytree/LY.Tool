@@ -1,6 +1,7 @@
 # LYBox.MockServer 使用手册
 
 LYBox.MockServer 是一个独立运行的 dotnet tool，为 LYBox WebView 插件前端提供 **Mock 后端**，无需启动 Avalonia 宿主即可在浏览器中调试前端页面、验证 RPC 调用与 SSE 推送逻辑。
+> 安全边界：Mock Server 的无 token `/__rpc` 仅用于本地前端开发。桌面生产宿主使用按 `pluginId` 隔离且带短期 session 的 `/__rpc/{pluginId}`，两者不要部署或混用。
 
 > **适用版本**：HostVersion 2.2.0+
 > **命令名**：`lybox-mock`
@@ -51,7 +52,7 @@ dotnet tool install --global LYBox.MockServer
 .\build.ps1 --build=tool
 
 # 2. 从本地 feed 安装
-dotnet tool install --global --add-source bin/tools LYBox.MockServer
+dotnet tool install --global --add-source artifacts/packages/tools LYBox.MockServer
 ```
 
 ### 验证安装
@@ -119,7 +120,7 @@ lybox-mock
 ```
 [mock-server] wwwroot: f:\Code\Dotnet\AvaloniaTemplate\plugins\LYBox.Plugin.WebTemplate\wwwroot
 [mock-server] mock.json: f:\Code\Dotnet\AvaloniaTemplate\plugins\LYBox.Plugin.WebTemplate\wwwroot\.lybox\mock.json
-[mock-server] ipc.js: f:\Code\Dotnet\AvaloniaTemplate\src\LYBox.Plugin.Shared\Rpc\Assets\ipc.js
+[mock-server] ipc.js: f:\Code\Dotnet\LY.Tool\src\Plugin\LYBox.Plugin.Shared\Rpc\Assets\ipc.js
 [mock-server] 启动中: http://localhost:5173
 [mock-server] 前端入口: http://localhost:5173/8a7b6c5d-4e3f-4a2b-9c1d-0e8f7a6b5c4d/index.html
 [mock-server] 按 Ctrl+C 停止
@@ -622,7 +623,7 @@ lybox-mock --wwwroot ./plugins/LYBox.Plugin.YourPlugin/wwwroot --plugin <your-pl
 
 ### Q8：ipc.js 路径显示"(未找到)"
 
-**原因**：Mock Server 向上遍历未找到 `src/LYBox.Plugin.Shared/Rpc/Assets/ipc.js`。
+**原因**：Mock Server 向上遍历未找到 `src/Plugin/LYBox.Plugin.Shared/Rpc/Assets/ipc.js`。
 
 **影响**：`GET /__lybox/ipc.js` 端点将返回 `// ipc.js not found`，前端 `window.__lybox` 不会初始化。
 

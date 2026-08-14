@@ -11,7 +11,6 @@
         <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
         <EnableWindowsTargeting>true</EnableWindowsTargeting>
         <NullabilityInfoContextSupport>True</NullabilityInfoContextSupport>
-        <ErrorOnDuplicatePublishOutputFiles>False</ErrorOnDuplicatePublishOutputFiles>
         <CheckEolWorkloads>false</CheckEolWorkloads>
     </PropertyGroup>
 

@@ -15,6 +15,8 @@
   var callbacks = new Map();             // callbackId -> {resolve, reject}
   var eventListeners = Object.create(null); // name -> Set<cb>
   var channelListeners = Object.create(null);// id -> Set<cb>
+  var runtimePluginId = null;
+  var runtimeSession = null;
 
   // —— 传输层抽象 ——
   var isWebView = (typeof invokeCSharpAction === 'function');
@@ -30,9 +32,9 @@
         httpRpc(payload);
       } else if (prefix === 'E') {
         // 事件 emit 走 POST /__emit（浏览器模式一般用不到，保留通道）
-        fetch('/__emit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload })['catch'](function (e) { console.error('[__lybox] HTTP emit 失败', e); });
+        fetch('/__emit/' + encodeURIComponent(runtimePluginId || 'mock-plugin'), { method: 'POST', headers: httpHeaders(), body: payload })['catch'](function (e) { console.error('[__lybox] HTTP emit 失败', e); });
       } else if (prefix === 'X') {
-        fetch('/__channel/close', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: payload })['catch'](function (e) { console.error('[__lybox] HTTP channel close 失败', e); });
+        fetch('/__channel/close/' + encodeURIComponent(runtimePluginId || 'mock-plugin'), { method: 'POST', headers: httpHeaders('text/plain'), body: payload })['catch'](function (e) { console.error('[__lybox] HTTP channel close 失败', e); });
       }
     }
   }
@@ -42,9 +44,12 @@
   function httpRpc(payload) {
     var msg;
     try { msg = JSON.parse(payload); } catch (e) { return; }
-    fetch('/__rpc', {
+    var endpoint = runtimeSession
+      ? '/__rpc/' + encodeURIComponent(runtimePluginId)
+      : '/__rpc';
+    fetch(endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: httpHeaders(),
       body: JSON.stringify({ name: msg.name, args: msg.args || [], callbackId: msg.callbackId })
     }).then(function (r) { return r.json(); })
       .then(function (r) {
@@ -53,6 +58,12 @@
       })['catch'](function (e) {
         resolve(msg.callbackId, e.message, null);
       });
+  }
+
+  function httpHeaders(contentType) {
+    var headers = { 'Content-Type': contentType || 'application/json' };
+    if (runtimeSession) headers['X-LYBox-Session'] = runtimeSession;
+    return headers;
   }
 
   // JS → C#：发起 RPC 调用，返回 Promise。统一入口。
@@ -125,12 +136,19 @@
   // WebView 模式由宿主在 ipc.js 注入完成后显式调用 startSse(pluginId) 启动。
   // 浏览器模式自动启动（mock-server 或 Avalonia Kestrel 均提供 /sse/{pluginId}）。
   var sseStarted = false;
-  function startSse(pluginId) {
+  function configureRuntime(pluginId, sessionToken) {
+    runtimePluginId = pluginId || runtimePluginId;
+    runtimeSession = sessionToken || runtimeSession;
+  }
+
+  function startSse(pluginId, sessionToken) {
     if (sseStarted) return;
     if (!pluginId || typeof EventSource === 'undefined') return;
     try {
       sseStarted = true;
-      var es = new EventSource('/sse/' + encodeURIComponent(pluginId));
+      configureRuntime(pluginId, sessionToken);
+      var suffix = runtimeSession ? '?session=' + encodeURIComponent(runtimeSession) : '';
+      var es = new EventSource('/sse/' + encodeURIComponent(pluginId) + suffix);
       es.addEventListener('dispatch', function (e) {
         try {
           var msg = JSON.parse(e.data);
@@ -165,6 +183,7 @@
     emit: emit,
     dispatch: dispatch,
     setBindings: setBindings,
+    configureRuntime: configureRuntime,
     startSse: startSse,
     channel: { on: function (id, cb) { return makeChannel(id, '').on(cb); }, onData: channelOnData, onClose: channelOnClose },
     isWebView: isWebView   // 供前端检测当前环境
