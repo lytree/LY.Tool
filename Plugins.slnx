@@ -11,5 +11,6 @@
         <Project Path="plugins/LYBox.Plugin.ScottPlot/LYBox.Plugin.ScottPlot.csproj" />
         <Project Path="plugins/LYBox.Plugin.ProDataGrid/LYBox.Plugin.ProDataGrid.csproj" />
         <Project Path="plugins/LYBox.Plugin.WebTemplate/LYBox.Plugin.WebTemplate.csproj" />
+        <Project Path="plugins/LYBox.Plugin.BTSou/LYBox.Plugin.BTSou.csproj" />
     </Folder>
 </Solution>

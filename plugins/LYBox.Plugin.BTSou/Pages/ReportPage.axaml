@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:LYBox.Plugin.BTSou.ViewModels"
+             x:Class="LYBox.Plugin.BTSou.Pages.ReportPage"
+             x:DataType="vm:ReportViewModel"
+             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="650">
+    <ScrollViewer>
+        <StackPanel Margin="16" Spacing="12">
+            <StackPanel Spacing="4">
+                <TextBlock Text="资源举报" Theme="{StaticResource TitleTextBlock}" Classes="H3" />
+                <TextBlock Text="提交违法资源信息，帮助净化网络环境" Classes="Secondary" />
+            </StackPanel>
+
+            <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="资源标题" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Title}"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="磁力链接" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="1" Grid.Column="1" PlaceholderText="magnet:?xt=urn:btih:..." Text="{Binding MagnetLink}"/>
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="姓名" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Name}"/>
+
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="邮箱" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Email}"/>
+
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="手机号" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Phone}"/>
+
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="身份证号" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding IdCard}"/>
+
+                <TextBlock Grid.Row="6" Grid.Column="0" Text="危害类别" VerticalAlignment="Center"/>
+                <ComboBox Grid.Row="6" Grid.Column="1" ItemsSource="{Binding Categories}"
+                          SelectedItem="{Binding Category}" PlaceholderText="请选择"/>
+
+                <TextBlock Grid.Row="7" Grid.Column="0" Text="详细描述" VerticalAlignment="Top"/>
+                <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding Description}" Height="120"
+                         AcceptsReturn="True" TextWrapping="Wrap" PlaceholderText="请填写详细描述，有助于快速定位违法信息"/>
+
+                <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal" Spacing="12">
+                    <Button Content="提交举报" Command="{Binding SubmitCommand}" MinWidth="120"/>
+                    <TextBlock Text="{Binding StatusText}" Classes="Tertiary" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

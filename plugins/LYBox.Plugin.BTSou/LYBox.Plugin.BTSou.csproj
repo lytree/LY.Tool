@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
+    <PluginId>BTSOU-PLUGIN-2026-0000-000000000001</PluginId>
+    <PluginName>BTSou Search</PluginName>
+    <PluginAuthor>KiongChan</PluginAuthor>
+    <PluginDescription>BTSOU 业务逻辑移植：BT 资源搜索 + MySQL 授权锁/举报系统。源自 BTSOU v24.10.24 反编译分析。</PluginDescription>
+    <PluginVersion>1.0.0</PluginVersion>
+    <Version>$(PluginVersion)</Version>
+    <AssemblyVersion>$(PluginVersion)</AssemblyVersion>
+    <FileVersion>$(PluginVersion)</FileVersion>
+    <MinPluginSdkVersion>2.0.0</MinPluginSdkVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MySql.Data" Version="9.3.0" />
+    <PackageReference Include="LYBox.Plugin.Generators" Version="$(PluginSdkVersion)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <PackageReference Include="LYBox.Plugin.Shared" Version="$(PluginSdkVersion)" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>
