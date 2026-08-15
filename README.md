@@ -26,7 +26,7 @@
 .\build.ps1 --build=all
 
 # 2. 运行启动器
-dotnet run --project src/launcher/LYBox.Launcher.Desktop
+dotnet run --project src/App/LYBox.Launcher.Desktop
 ```
 
 Linux/macOS 用 `./build.sh` 替代 `.\build.ps1`。
@@ -38,9 +38,8 @@ Linux/macOS 用 `./build.sh` 替代 `.\build.ps1`。
 - **构建系统**：Cake.Sdk（`build/build.cs` — .NET 10 文件化应用，Cake.Sdk 6.2.0）。通过 `.\build.ps1`（Windows）或 `./build.sh`（Linux/macOS）调用。
 
   ```
-  .\build.ps1 --build=all                    # 默认：bin（启动器 + NuGet）+ FluentWindow（如存在）+ plugin + tool
+  .\build.ps1 --build=all                    # 默认：bin（启动器 + NuGet）+ plugin + tool
   .\build.ps1 --build=bin                    # 构建启动器 + 打包 SDK NuGet 包（host 与 SDK 同版本号，统一发版）
-  .\build.ps1 --build=fluent-window          # 构建自定义边框窗口布局项目（src/LYBox.Layout.Fluent，如不存在则跳过）
   .\build.ps1 --build=plugin                 # 构建并打包所有插件为 zip
   .\build.ps1 --build=tool                   # 打包 tools/LYBox.MockServer 为 dotnet tool（lybox-mock）
   .\build.ps1 --configuration=Debug          # 覆盖配置（默认：Release）
@@ -55,14 +54,31 @@ Linux/macOS 用 `./build.sh` 替代 `.\build.ps1`。
   ```
 
 - **构建顺序很重要**：`--build=bin` 必须先于 `--build=plugin` 运行（或直接使用 `--build=all`），因为 `--build=bin` 会打包 SDK NuGet 包，而插件依赖本地构建的 `LYBox.Plugin.Generators` + `LYBox.Plugin.Shared` NuGet 包。
-- **直接 `dotnet build`** 可用于单个项目，但若未预先构建本地 NuGet 包，插件可能还原失败（使用 `--build=bin` 或确保 `bin/nuget/` 下有 `.nupkg` 文件）。`--build=nuget` 保留为 `--build=bin` 的兼容别名。
-- **运行启动器**：`dotnet run --project src/launcher/LYBox.Launcher.Desktop`
-- **VS Code 调试**：使用 "Debug Plugin - {Name}" 启动配置 — 每个配置将 `AVALONIA_EXTRA_PLUGINS_PATH` 指向插件的 `bin/Debug/net10.0` 输出目录，用于开发期实时加载。
+- **直接 `dotnet build`** 可用于单个项目，但若未预先构建本地 NuGet 包，插件可能还原失败（使用 `--build=bin` 或确保 `artifacts/packages/sdk/` 下有 `.nupkg` 文件）。`--build=nuget` 保留为 `--build=bin` 的兼容别名。
+- **运行启动器**：`dotnet run --project src/App/LYBox.Launcher.Desktop`
+- **VS Code 调试**：使用 "Debug Plugin - {Name}" 启动配置 — 每个配置将 `AVALONIA_EXTRA_PLUGINS_PATH` 指向 `artifacts/bin/{ProjectName}/debug`，用于开发期实时加载。
 - **测试与 CI**：已有 `tests/LYBox.Tests`（TUnit 测试框架）与 `.github/workflows/` 下的 CI 工作流（`ci.yml`、`release-host.yml`、`release-plugins.yml`、`release-frontend.yml`）。
 
 ---
 
 ## 架构概览
+### 源码与产物布局
+
+```text
+src/
+  App/          桌面与控制台启动器
+  Layout/       布局核心与 Ursa UI
+  Plugin/       插件契约与源生成器
+  Platforms/    跨平台抽象及平台实现
+artifacts/
+  bin/          普通 dotnet build 输出（按项目隔离）
+  obj/          MSBuild 中间产物
+  publish/      Launcher 与插件发布目录
+  packages/     SDK NuGet、Tool NuGet 与插件 zip
+  test-results/ 测试报告
+```
+
+`frontend/`、`plugins/`、`tools/` 保持独立顶层目录。所有生成物统一进入 `artifacts/`，不再使用含义重复的 `bin/bin`。
 
 ### 两个解决方案
 
@@ -86,7 +102,7 @@ LYBox.Launcher.Desktop/         桌面入口（Program.cs → App.axaml.cs）。
 
 ### 平台特定项目
 
-`src/platforms/` 包含：
+`src/Platforms/` 包含：
 - `LYBox.Platforms.Windows` — `net10.0-windows10.0.19041.0`
 - `LYBox.Platforms.MacOs` — `net10.0-macos15.0`
 - `LYBox.Platforms.Linux` — `net10.0`
@@ -152,7 +168,7 @@ Program.cs → App.Initialize()
 - 框架/共享程序集转发到默认上下文（排除清单见 `LYBox.Plugin.Shared.props`/`.targets`）
 - 插件通过 `GeneratePluginManifest` target 自动生成 `plugin.json` 清单
 - 发现位置：`{AppBaseDir}/plugins/` 与 `AVALONIA_EXTRA_PLUGINS_PATH` 环境变量
-- 构建输出：`bin/plugins/{Name}/publish/` + `bin/plugins/zip/{Name}-{Version}.zip`
+- 构建输出：`artifacts/publish/plugins/{Name}/publish/` + `artifacts/packages/plugins/{Name}-{Version}.zip`
 
 ---
 
@@ -289,21 +305,19 @@ var current = PluginSdkContract.CurrentVersion;  // 编译期常量，字符串�
 ### 构建产物概览
 
 ```
-bin/
-├── bin/                                      # 宿主 launcher 发布目录
-│   └── LYBox.Launcher.Desktop(.exe) + 运行时依赖
-├── nuget/                                    # SDK NuGet 包（开发期分发用，与宿主同版本）
-│   ├── LYBox.Plugin.Generators.{HostVersion}.nupkg
-│   └── LYBox.Plugin.Shared.{HostVersion}.nupkg
-└── plugins/
-    ├── {PluginName}/publish/                 # 插件可加载目录
-    │   ├── {PluginName}.dll
-    │   ├── plugin.json                       # ← 含 minPluginSdkVersion
-    │   └── shared-assemblies.txt
-    └── zip/
-        └── {PluginName}-{PluginVer}.zip      # 分发用压缩包
-└── tools/                                    # dotnet tool 产物（lybox-mock，仅 --build=tool 产出）
-    └── LYBox.MockServer.{HostVersion}.nupkg
+artifacts/
+├── bin/{ProjectName}/debug/                  # 普通 dotnet build 编译输出
+├── obj/{ProjectName}/                        # MSBuild 中间文件
+├── publish/
+│   ├── launcher/
+│   │   ├── desktop/{rid?}/                   # 桌面宿主发布目录
+│   │   └── console/{rid?}/                   # 控制台宿主发布目录
+│   └── plugins/{PluginName}/publish/         # 插件可加载目录
+├── packages/
+│   ├── sdk/                                  # Generators / Shared NuGet 包
+│   ├── plugins/{PluginName}-{Version}.zip    # 插件分发包
+│   └── tools/                                # LYBox.MockServer NuGet 包
+└── test-results/                             # 测试结果
 ```
 
 > **重要**：SDK NuGet 包与宿主 launcher 共用同一版本号（`HostVersion`），且在 `--build=bin` 一次性产出。不再有独立的 `nuget` 构建目标，二者一起发版。
@@ -311,7 +325,7 @@ bin/
 ### 标准构建流程
 
 ```powershell
-# 1. 一键构建宿主 + SDK NuGet 包（统一发版，产物在 bin/bin 与 bin/nuget）
+# 1. 一键构建宿主 + SDK NuGet 包（统一发版，产物在 artifacts/publish/launcher/desktop 与 artifacts/packages/sdk）
 .\build.ps1 --build=bin
 
 # 2. 构建并打包所有插件（依赖上一步产出的本地 NuGet 包做 restore）
@@ -372,11 +386,11 @@ Expand-Archive .\LYBox.Plugin.Template-1.0.0.zip -DestinationPath .\plugins\LYBo
 
 #### 方式 B：通过 `AVALONIA_EXTRA_PLUGINS_PATH` 临时加载（开发期）
 
-VS Code launch.json 已为每个插件配置了对应 launch config，设置环境变量指向插件 `bin/Debug/net10.0` 输出目录，可直接热加载调试。
+VS Code launch.json 已为每个插件配置了对应 launch config，设置环境变量指向 `artifacts/bin/{ProjectName}/debug`，可直接热加载调试。
 
 ```powershell
-$env:AVALONIA_EXTRA_PLUGINS_PATH = "F:\Code\Dotnet\LYBox\plugins\LYBox.Plugin.Template\bin\Debug\net10.0"
-dotnet run --project src/launcher/LYBox.Launcher.Desktop
+$env:AVALONIA_EXTRA_PLUGINS_PATH = (Resolve-Path "artifacts/bin/LYBox.Plugin.Template/debug").Path
+dotnet run --project src/App/LYBox.Launcher.Desktop
 ```
 
 #### 方式 C：通过 `IPluginInstallationManager` 编程安装
@@ -399,18 +413,18 @@ if (result.Success)
 | 类别 | 文件 |
 |------|------|
 | **构建系统** | [build/build.cs](build/build.cs)、[Directory.Build.props](Directory.Build.props)、[build.ps1](build.ps1) |
-| **应用入口** | [src/launcher/LYBox.Launcher.Desktop/Program.cs](src/launcher/LYBox.Launcher.Desktop/Program.cs)、[App.axaml.cs](src/launcher/LYBox.Launcher.Desktop/App.axaml.cs) |
-| **插件契约** | [src/LYBox.Plugin.Shared/IPlugin.cs](src/LYBox.Plugin.Shared/IPlugin.cs)、[IPluginMetadata.cs](src/LYBox.Plugin.Shared/IPluginMetadata.cs)、[PluginSdkContract.cs](src/LYBox.Plugin.Shared/PluginSdkContract.cs) |
-| **插件加载** | [src/LYBox.Layout.Ursa/Services/PluginLoader.cs](src/LYBox.Layout.Ursa/Services/PluginLoader.cs)、[PluginLoadContext.cs](src/LYBox.Layout.Ursa/Services/PluginLoadContext.cs) |
-| **插件安装** | [src/LYBox.Layout.Ursa/Services/PluginInstallationManager.cs](src/LYBox.Layout.Ursa/Services/PluginInstallationManager.cs) |
-| **导航与菜单** | [src/LYBox.Layout.Ursa/Services/NavigationService.cs](src/LYBox.Layout.Ursa/Services/NavigationService.cs)、[MenuConfigurationService.cs](src/LYBox.Layout.Ursa/Services/MenuConfigurationService.cs) |
-| **本地化** | [src/LYBox.Layout.Ursa/Services/LocalizationService.cs](src/LYBox.Layout.Ursa/Services/LocalizationService.cs) |
-| **设置** | [src/LYBox.Layout.Ursa/Services/SettingsService.cs](src/LYBox.Layout.Ursa/Services/SettingsService.cs)、[src/LYBox.Plugin.Shared/Models/SettingDefinition.cs](src/LYBox.Plugin.Shared/Models/SettingDefinition.cs) |
-| **任务注册** | [src/LYBox.Plugin.Shared/TaskScope.cs](src/LYBox.Plugin.Shared/TaskScope.cs)、[src/LYBox.Layout.Ursa/Services/TaskRegistry.cs](src/LYBox.Layout.Ursa/Services/TaskRegistry.cs) |
-| **视图解析** | [src/LYBox.Plugin.Shared/ViewLocator.cs](src/LYBox.Plugin.Shared/ViewLocator.cs) |
-| **源生成器** | [src/LYBox.Plugin.Generators/](src/LYBox.Plugin.Generators/) |
-| **共享程序集配置** | [src/LYBox.Plugin.Shared/buildTransitive/LYBox.Plugin.Shared.props](src/LYBox.Plugin.Shared/buildTransitive/LYBox.Plugin.Shared.props)、[.targets](src/LYBox.Plugin.Shared/buildTransitive/LYBox.Plugin.Shared.targets) |
-| **主题与样式** | [src/LYBox.Layout.Ursa/Theme/UrsaSemiTheme.axaml](src/LYBox.Layout.Ursa/Theme/UrsaSemiTheme.axaml)、[FluentDesign/FluentDesignStyles.axaml](src/LYBox.Layout.Ursa/Theme/FluentDesign/FluentDesignStyles.axaml) |
+| **应用入口** | [src/App/LYBox.Launcher.Desktop/Program.cs](src/App/LYBox.Launcher.Desktop/Program.cs)、[App.axaml.cs](src/App/LYBox.Launcher.Desktop/App.axaml.cs) |
+| **插件契约** | [src/Plugin/LYBox.Plugin.Shared/IPlugin.cs](src/Plugin/LYBox.Plugin.Shared/IPlugin.cs)、[IPluginMetadata.cs](src/Plugin/LYBox.Plugin.Shared/IPluginMetadata.cs)、[PluginSdkContract.cs](src/Plugin/LYBox.Plugin.Shared/PluginSdkContract.cs) |
+| **插件加载** | [src/Layout/LYBox.Layout.Ursa/Services/PluginLoader.cs](src/Layout/LYBox.Layout.Ursa/Services/PluginLoader.cs)、[PluginLoadContext.cs](src/Layout/LYBox.Layout.Ursa/Services/PluginLoadContext.cs) |
+| **插件安装** | [src/Layout/LYBox.Layout.Ursa/Services/PluginInstallationManager.cs](src/Layout/LYBox.Layout.Ursa/Services/PluginInstallationManager.cs) |
+| **导航与菜单** | [src/Layout/LYBox.Layout.Ursa/Services/NavigationService.cs](src/Layout/LYBox.Layout.Ursa/Services/NavigationService.cs)、[MenuConfigurationService.cs](src/Layout/LYBox.Layout.Ursa/Services/MenuConfigurationService.cs) |
+| **本地化** | [src/Layout/LYBox.Layout.Ursa/Services/LocalizationService.cs](src/Layout/LYBox.Layout.Ursa/Services/LocalizationService.cs) |
+| **设置** | [src/Layout/LYBox.Layout.Ursa/Services/SettingsService.cs](src/Layout/LYBox.Layout.Ursa/Services/SettingsService.cs)、[src/Plugin/LYBox.Plugin.Shared/Models/SettingDefinition.cs](src/Plugin/LYBox.Plugin.Shared/Models/SettingDefinition.cs) |
+| **任务注册** | [src/Plugin/LYBox.Plugin.Shared/TaskScope.cs](src/Plugin/LYBox.Plugin.Shared/TaskScope.cs)、[src/Layout/LYBox.Layout.Ursa/Services/TaskRegistry.cs](src/Layout/LYBox.Layout.Ursa/Services/TaskRegistry.cs) |
+| **视图解析** | [src/Plugin/LYBox.Plugin.Shared/ViewLocator.cs](src/Plugin/LYBox.Plugin.Shared/ViewLocator.cs) |
+| **源生成器** | [src/Plugin/LYBox.Plugin.Generators/](src/Plugin/LYBox.Plugin.Generators/) |
+| **共享程序集配置** | [src/Plugin/LYBox.Plugin.Shared/buildTransitive/LYBox.Plugin.Shared.props](src/Plugin/LYBox.Plugin.Shared/buildTransitive/LYBox.Plugin.Shared.props)、[.targets](src/Plugin/LYBox.Plugin.Shared/buildTransitive/LYBox.Plugin.Shared.targets) |
+| **主题与样式** | [src/Layout/LYBox.Layout.Ursa/Theme/UrsaSemiTheme.axaml](src/Layout/LYBox.Layout.Ursa/Theme/UrsaSemiTheme.axaml)、[FluentDesign/FluentDesignStyles.axaml](src/Layout/LYBox.Layout.Ursa/Theme/FluentDesign/FluentDesignStyles.axaml) |
 | **示例插件** | [plugins/LYBox.Plugin.Template/](plugins/LYBox.Plugin.Template/)、[plugins/LYBox.Plugin.TDLSharp/](plugins/LYBox.Plugin.TDLSharp/)、[plugins/LYBox.Plugin.Downloader/](plugins/LYBox.Plugin.Downloader/) |
 
 ---

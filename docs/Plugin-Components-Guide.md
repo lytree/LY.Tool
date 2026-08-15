@@ -1,5 +1,4 @@
 # 插件可用组件列表与使用指南
-
 本指南面向插件开发者，列出当前 Host 项目暴露给所有插件的可复用 UI 组件、样式类、服务与基础设施，并给出推荐用法与示例。所有组件均通过 `LYBox.Plugin.Shared` 与 Host 主题系统自动注入，无需插件主动引用额外 NuGet 包。
 
 ---
@@ -99,7 +98,7 @@ xmlns:u="using:Irihi.Ursa.Controls"
 
 ## 4. 项目自定义 Fluent 样式类
 
-文件位置：[`src/LYBox.Layout.Ursa/Theme/FluentDesign/FluentDesignStyles.axaml`](../src/LYBox.Layout.Ursa/Theme/FluentDesign/FluentDesignStyles.axaml)
+文件位置：[`src/Layout/LYBox.Layout.Ursa/Theme/FluentDesign/FluentDesignStyles.axaml`](../src/Layout/LYBox.Layout.Ursa/Theme/FluentDesign/FluentDesignStyles.axaml)
 
 通过 `UrsaSemiTheme` 自动加载，**无需手动 `<StyleInclude>`**。在任意控件上通过 `Classes="类名"` 使用。
 
@@ -371,7 +370,7 @@ WinUI SettingsExpander 风格 - 折叠式设置卡片。
 
 ### Fluent Icons（首选）
 
-文件位置：[`src/LYBox.Layout.Ursa/Theme/Icons/Fluent/`](../src/LYBox.Layout.Ursa/Theme/Icons/Fluent/)
+文件位置：[`src/Layout/LYBox.Layout.Ursa/Theme/Icons/Fluent/`](../src/Layout/LYBox.Layout.Ursa/Theme/Icons/Fluent/)
 
 命名规范：`FluentIcon{Size}{Variant}{Name}`
 

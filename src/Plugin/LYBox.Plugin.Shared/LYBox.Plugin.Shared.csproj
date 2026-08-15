@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<OutputType>Library</OutputType>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<IsPluginSdkProject>true</IsPluginSdkProject>
 		<PackageId>LYBox.Plugin.Shared</PackageId>
 		<!-- SDK 与宿主共用 HostVersion：PluginSdkVersion 在根 Directory.Build.props 中已是 HostVersion 的别名 -->

@@ -2,7 +2,7 @@
  * LYBox Fluent Design Theme
  *
  * 与宿主 Avalonia UrsaFluentTheme 配色方案保持一致的 CSS 变量定义。
- * 颜色值源自 src/LYBox.Layout.Ursa/Theme/FluentDesign/Light.axaml 和 Dark.axaml。
+ * 颜色值源自 src/Layout/LYBox.Layout.Ursa/Theme/FluentDesign/Light.axaml 和 Dark.axaml。
  *
  * 用法：
  *   import '@lybox/theme/css';
@@ -14,7 +14,6 @@
  *   <html data-theme="light"> // 强制浅色
  *   // 不设置时跟随系统 prefers-color-scheme
  */
-
 /* ============================================
  * 浅色主题（默认）
  * 对应 FluentDesign/Light.axaml
@@ -161,7 +160,6 @@
   --lybox-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --lybox-font-family-mono: "Cascadia Code", "Fira Code", "JetBrains Mono", Consolas, "Courier New", monospace;
 }
-
 /* ============================================
  * 深色主题
  * 对应 FluentDesign/Dark.axaml

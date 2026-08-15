@@ -35,7 +35,10 @@ export interface LyboxRuntime {
   setBindings(manifestJson: string): void;
 
   /** 启动 SSE 监听 */
-  startSse(pluginId: string): void;
+  startSse(pluginId: string, sessionToken?: string): void;
+
+  /** 配置生产宿主注入的插件身份与短期会话。Mock 模式无需调用。 */
+  configureRuntime(pluginId: string, sessionToken?: string): void;
 
   /** Channel 辅助 API */
   channel: {

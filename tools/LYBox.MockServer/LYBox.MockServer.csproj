@@ -27,7 +27,6 @@
         <PackAsTool>true</PackAsTool>
         <PackageType>DotnetTool</PackageType>
         <ToolCommandName>lybox-mock</ToolCommandName>
-        <PackageOutputPath>$(MSBuildThisFileDirectory)../../bin/tools</PackageOutputPath>
     </PropertyGroup>
 
     <ItemGroup>

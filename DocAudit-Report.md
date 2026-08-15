@@ -4,7 +4,7 @@
 > 对比基线：仓库实际代码、构建脚本（`build/build.cs`）、`.github/workflows/`、各 `csproj` 与 `git log`
 > 结论：**文档明显滞后于代码**，停留在「WebView 前端 monorepo / 新增 WebView 插件 / 测试 / CI 引入」之前。README 与 AGENTS.md 均存在事实性错误与重大遗漏，二者之间也存在内部矛盾。
 
-> **修订状态（2026-08-01）**：P0 / P1 / P2 中**文档侧**的修正已全部应用（README.md + AGENTS.md）：Cake 版本、测试/CI 描述、插件数 10→12、src 项目补全、启动流程 3 阶段、构建目标补全、命名统一为 Cake.Sdk、新增前端 monorepo 小节、补入两份 WebView 文档索引、产物树补 `bin/tools/`。**仅剩代码侧**遗留：`build.cs` 的 `fluent-window` 目标仍引用已删除的 `src/LYBox.Layout.Fluent`（无害死代码，文档已注明「如不存在则跳过」），如需可单独清理。
+> **修订状态（2026-08-13）**：文档与构建布局已完成更新，废弃的独立窗口项目及其构建、CI、VS Code 配置均已删除。
 
 ---
 
@@ -35,39 +35,33 @@
    - `AGENTS.md` 仅在参数列表顺带提及；`README.md` 的「构建与运行」章节 **未列出 `--build=tool` 目标**。
 
 4. **构建目标清单不全**
-   - 两文档均未记录以下实际支持的参数：`--build=fluent-window`、`--build=tool`、`--host-version`（README 未列）、`--plugin-version`、`--plugin=<Name>`、`--nuget-source`。
-   - `AGENTS.md` 记录了 `--host-version` / `--package-version`，但两文档都漏了 `fluent-window` / `tool` / `plugin-version` / `plugin` / `nuget-source`。
+   - 两文档均未记录以下实际支持的参数：`--build=tool`、`--host-version`（README 未列）、`--plugin-version`、`--plugin=<Name>`、`--nuget-source`。
+   - `AGENTS.md` 记录了 `--host-version` / `--package-version`，但两文档都漏了 `tool` / `plugin-version` / `plugin` / `nuget-source`。
 
 5. **新增共享项目未说明**
    - `LYBox.Plugin.Shared.Chart`（供 ScottPlot 插件）、`LYBox.Plugin.Shared.ProDataGrid`（供 ProDataGrid 插件）的存在、作用与所属解决方案（应在 `Plugins.slnx`）均未写入文档。
 
 ---
 
-## 三、代码与文档的遗留 / 死配置
-
-- `build/build.cs` 的 `fluent-window` 构建目标引用 `src/LYBox.Layout.Fluent/LYBox.Layout.Fluent.csproj`，但 **该项目已被删除**（git 记录 `6f05b21 refactor: Remove Fluent UI components and related services`）。`build.cs` 用 `File.Exists` 守卫，故仅为无害死代码，但 `fluent-window` / `FluentWindow` 目标现在已无意义，建议清理或在文档中标注「已废弃」。
-
----
-
-## 四、文档内部矛盾（README 与 AGENTS 互相不一致）
+## 三、文档内部矛盾（README 与 AGENTS 互相不一致）
 
 | # | 矛盾点 | README | AGENTS |
 |---|--------|--------|--------|
 | 1 | 构建系统命名 | "Cake Frosting" | "Cake Frosting（…Cake.Sdk 6.2.0）"，而 `build.cs` 注释明确「符合官方 Cake.Sdk 项目设置模式，不再继承 FrostingContext」 | 建议统一为 **Cake.Sdk** |
-| 2 | `--build=all` 含义 | "bin（启动器 + NuGet）+ plugin" | 同上 | 实际 `All = Bin | FluentWindow | Plugin | Tool`，两文档都少写了 FluentWindow 与 Tool |
+| 2 | `--build=all` 含义 | "bin（启动器 + NuGet）+ plugin" | 同上 | 实际 `All = Bin | Plugin | Tool`，两文档都少写了 Tool |
 | 3 | 应用启动流程 | 3 阶段（准确） | `LoadPluginsAsync()` 单阶段（过时） | 以 README / 代码为准，更新 AGENTS |
 | 4 | Cake 版本 | 6.1.0（错） | 6.2.0（对） | 统一为 6.2.0 |
 
 ---
 
-## 五、次要 / 措辞问题
+## 四、次要 / 措辞问题
 
 - `README.md` 第 45 行 `--package-version=1.2.3 # 设置版本（默认：1.0.0）`：实际 `build.cs` 默认值为空字符串（""），"默认 1.0.0" 来自插件 `PluginVersion` 的 fallback，建议措辞改为「覆盖所有层版本」。
 - `README.md` 第 350 行称 `AVALONIA_EXTRA_PLUGINS_PATH` 用于「热加载调试」，但前文「插件系统前提约束」明确 **不支持热加载**。属开发期路径加载，建议改为「开发期临时加载」以免歧义。
 
 ---
 
-## 六、建议修复优先级与动作清单
+## 五、建议修复优先级与动作清单
 
 **P0（事实错误，必须立即改）**
 - [ ] 修正 `README.md` Cake 版本 6.1.0 → 6.2.0（第 38 行）。
@@ -79,17 +73,16 @@
 **P1（重大遗漏，建议补）**
 - [ ] 在「架构概览」新增「前端 monorepo（frontend/）」与「WebView 插件体系」小节。
 - [ ] 在 `README.md` 与 `AGENTS.md` 文档索引中补入 `docs/WebView-IPC-Guide.md`、`docs/LYBox-MockServer-Guide.md`。
-- [ ] 补全构建目标说明：`--build=fluent-window`、`--build=tool`、`--host-version`、`--plugin-version`、`--plugin`、`--nuget-source`。
+- [ ] 补全构建目标说明：`--build=tool`、`--host-version`、`--plugin-version`、`--plugin`、`--nuget-source`。
 - [ ] 说明 `tools/LYBox.MockServer`（lybox-mock）的用途与 `--build=tool` 打包方式。
 - [ ] 说明 `LYBox.Plugin.Shared.Chart` / `Shared.ProDataGrid` 与对应插件的关系。
 
-**P2（一致性 / 死代码清理）**
+**P2（一致性清理）**
 - [ ] 统一构建系统命名为「Cake.Sdk」。
-- [ ] 修正 `--build=all` 说明为 `Bin | FluentWindow | Plugin | Tool`。
-- [ ] 评估删除 `build.cs` 中已失效的 `fluent-window` / `FluentWindow` 目标（或显式标注废弃）。
+- [ ] 修正 `--build=all` 说明为 `Bin | Plugin | Tool`。
 
 ---
 
-## 七、总结
+## 六、总结
 
 文档目前最大的问题是 **「前端 / WebView 化」重构未被文档吸收**：新增的 `frontend/` monorepo、两个 WebView 插件（`BlazorApp`/`WebTemplate`）、`MockServer` 工具、相关共享项目与两份 WebView 文档，在 `README.md` 与 `AGENTS.md` 中几乎完全缺席；同时插件数量（10→12）、src 项目（5→9）、测试/CI 的存在性、Cake 版本、启动流程等均有事实错误。建议按 P0→P1→P2 顺序修订，并将两份 WebView 文档纳入索引以消灭孤儿文档。

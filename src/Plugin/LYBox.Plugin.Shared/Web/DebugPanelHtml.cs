@@ -39,6 +39,10 @@ internal static class DebugPanelHtml
 
         sb.Append("<h1>LYBox Debug Panel <span class=\"badge\">DEBUG</span></h1>");
         sb.Append("<p>WebView RPC 命令清单与 SSE 事件流调试器。仅 Debug 配置可用。</p>");
+        sb.Append("<div class=\"card\"><h2>受信会话</h2>");
+        sb.Append("<p>生产宿主调用需要当前 WebView 文档的 pluginId 与 session。独立浏览器不会自动获得 session。</p>");
+        sb.Append("<input type=\"text\" id=\"session-plugin-id\" placeholder=\"pluginId\" size=\"40\"/>");
+        sb.Append("<input type=\"password\" id=\"session-token\" placeholder=\"session token\" size=\"48\"/></div>");
 
         // RPC 命令列表
         sb.Append("<div class=\"card\">");
@@ -85,7 +89,16 @@ internal static class DebugPanelHtml
         // 调用 RPC
         sb.Append(@"
             async function callCmd(idx) {
-                var name = COMMANDS[idx];
+                var qualifiedName = COMMANDS[idx];
+                var separator = qualifiedName.indexOf(':');
+                var listedPluginId = separator >= 0 ? qualifiedName.substring(0, separator) : '';
+                var name = separator >= 0 ? qualifiedName.substring(separator + 1) : qualifiedName;
+                var pluginId = document.getElementById('session-plugin-id').value || listedPluginId;
+                var session = document.getElementById('session-token').value;
+                if (!pluginId || !session) {
+                    document.getElementById('result-' + idx).textContent = '需要 pluginId 与当前 WebView session';
+                    return;
+                }
                 var argsStr = document.getElementById('args-' + idx).value || '[]';
                 var args;
                 try { args = JSON.parse(argsStr); } catch (e) {
@@ -94,9 +107,9 @@ internal static class DebugPanelHtml
                 }
                 document.getElementById('result-' + idx).textContent = '调用中...';
                 try {
-                    var resp = await fetch('/__rpc', {
+                    var resp = await fetch('/__rpc/' + encodeURIComponent(pluginId), {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'X-LYBox-Session': session },
                         body: JSON.stringify({ name: name, args: args })
                     });
                     var r = await resp.json();
@@ -113,8 +126,10 @@ internal static class DebugPanelHtml
             function startSse() {
                 if (sseEs) { sseEs.close(); sseEs = null; }
                 var pid = document.getElementById('sse-plugin-id').value;
+                var session = document.getElementById('session-token').value;
                 if (!pid) { alert('请输入 pluginId'); return; }
-                sseEs = new EventSource('/sse/' + encodeURIComponent(pid));
+                if (!session) { alert('请输入当前 WebView session'); return; }
+                sseEs = new EventSource('/sse/' + encodeURIComponent(pid) + '?session=' + encodeURIComponent(session));
                 sseEs.addEventListener('dispatch', function (e) {
                     appendSse(e.data);
                 });

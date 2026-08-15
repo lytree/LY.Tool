@@ -17,8 +17,8 @@
     <PackageReference Include="ZLogger" Version="$(ZLoggerVersion)" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../LYBox.Plugin.Shared/LYBox.Plugin.Shared.csproj" />
-    <ProjectReference Include="../LYBox.Platforms.Abstractions/LYBox.Platforms.Abstractions.csproj" />
+    <ProjectReference Include="../../Plugin/LYBox.Plugin.Shared/LYBox.Plugin.Shared.csproj" />
+    <ProjectReference Include="../../Platforms/LYBox.Platforms.Abstractions/LYBox.Platforms.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources\Strings.Designer.cs">

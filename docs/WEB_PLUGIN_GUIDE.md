@@ -1,5 +1,4 @@
 # Web 插件使用手册
-
 本文档是仓库中面向插件开发者的 Web 插件统一操作入口，按环境准备、快速体验、接入、调试、构建和发布的顺序说明当前支持的工作流。IPC 报文字段、错误码、安全状态机和生命周期细节以 [Web 插件宿主与 IPC 约定](WEBVIEW_IPC.md) 为准；通用仓库构建约定见 [开发说明](DEVELOPMENT.md)。
 
 ## 1. 适用范围与系统概览
@@ -105,8 +104,8 @@ pnpm dev:template
 
 ```powershell
 dotnet build plugins/Avalonia.Plugin.Template/Avalonia.Plugin.Template.csproj -c Debug
-$env:AVALONIA_EXTRA_PLUGINS_PATH = (Resolve-Path "plugins/Avalonia.Plugin.Template/bin/Debug/net10.0").Path
-dotnet run --project src/launcher/Avalonia.Launcher.Desktop
+$env:AVALONIA_EXTRA_PLUGINS_PATH = (Resolve-Path "artifacts/bin/LYBox.Plugin.Template/debug").Path
+dotnet run --project src/App/LYBox.Launcher.Desktop
 ```
 
 默认 Template 构建会运行 `pnpm build`，把真实 `Web/dist/**` 复制到输出 `web/**`。在 Launcher 中依次打开 Web 首页、Web 设置、Web 关于，检查三个 History 路由和真实 IPC。结束 Launcher 后可清理当前终端变量：

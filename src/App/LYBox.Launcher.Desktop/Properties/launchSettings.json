@@ -17,13 +17,13 @@
       "commandName": "Project",
       "commandLineArgs": "--layout=fluent --no-splash",
       "environmentVariables": {
-        "AVALONIA_EXTRA_PLUGINS_PATH": "$(SolutionDir)plugins/LYBox.Plugin.Template/bin/Debug/net10.0"
+        "AVALONIA_EXTRA_PLUGINS_PATH": "$(SolutionDir)artifacts/bin/LYBox.Plugin.Template/debug"
       }
     },
-    "Launcher + Template Plugin": {
+    "Launcher + TDLSharp Plugin": {
       "commandName": "Project",
       "environmentVariables": {
-        "AVALONIA_EXTRA_PLUGINS_PATH": "$(SolutionDir)plugins/LYBox.Plugin.TDLSharp/bin/Debug/net10.0"
+        "AVALONIA_EXTRA_PLUGINS_PATH": "$(SolutionDir)artifacts/bin/LYBox.Plugin.TDLSharp/debug"
       }
     },
     "WSL": {

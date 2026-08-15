@@ -18,6 +18,10 @@
         发版完成后需更新 Fallback 为本次发布的版本号。
     -->
     <PropertyGroup>
+        <!-- 所有项目的 bin/obj 统一进入 artifacts/bin 与 artifacts/obj。 -->
+        <UseArtifactsOutput>true</UseArtifactsOutput>
+        <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath>
+
         <!-- Fallback: 最近一次正式发布版本（IDE 直接构建时使用，发版后手动更新） -->
         <LyboxLastReleasedVersion>2.2.0</LyboxLastReleasedVersion>
 

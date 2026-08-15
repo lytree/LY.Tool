@@ -1,5 +1,4 @@
 # 常见问题（FAQ）
-
 本文档汇总插件开发与运行过程中常见问题及排查思路。
 
 ---
@@ -83,7 +82,7 @@
 
 1. 在插件项目设置 `<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>`。
 2. 构建后查看 `obj/Generated/` 目录下的 `.g.cs` 文件。
-3. 源生成器项目本身可在 `src/LYBox.Plugin.Generators/` 中调试，启动设置为 "Roslyn Component"。
+3. 源生成器项目本身可在 `src/Plugin/LYBox.Plugin.Generators/` 中调试，启动设置为 "Roslyn Component"。
 
 ---
 

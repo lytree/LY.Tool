@@ -1,5 +1,4 @@
 # 使用说明
-
 本文档面向应用使用和现场部署，说明启动程序、安装插件、覆盖升级插件和运行限制。开发、构建和插件编码说明请阅读 [开发说明](DEVELOPMENT.md)。
 
 ## 启动程序
@@ -9,7 +8,7 @@
 开发调试时可使用：
 
 ```powershell
-dotnet run --project src/launcher/Avalonia.Launcher.Desktop
+dotnet run --project src/App/LYBox.Launcher.Desktop
 ```
 
 ## 插件安装

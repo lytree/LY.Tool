@@ -312,7 +312,7 @@ static string? ResolveIpcJs(string wwwroot)
     var dir = new DirectoryInfo(wwwroot);
     for (var i = 0; i < 6 && dir is not null; i++)
     {
-        var p = Path.Combine(dir.FullName, "src", "LYBox.Plugin.Shared", "Rpc", "Assets", "ipc.js");
+        var p = Path.Combine(dir.FullName, "src", "Plugin", "LYBox.Plugin.Shared", "Rpc", "Assets", "ipc.js");
         if (File.Exists(p)) return p;
         dir = dir.Parent;
     }

@@ -24,7 +24,7 @@ namespace LYBox.Plugin.Shared.Rpc;
 /// 不注入则保持原有 <c>InvokeScript</c> 行为，向后兼容。
 /// </para>
 /// </remarks>
-public sealed class WebViewIpcHost : IRpcHost
+public sealed class WebViewIpcHost : IRpcHost, IDisposable
 {
     private readonly IRpcTransport _transport;
     private readonly IEventPusher? _eventPusher;
@@ -33,16 +33,19 @@ public sealed class WebViewIpcHost : IRpcHost
     private readonly ConcurrentDictionary<string, RpcCommandHandler> _commands = new();
     private readonly ConcurrentDictionary<string, Channel> _channels = new();
     private readonly ConcurrentDictionary<string, List<Action<JsonElement?>>> _eventListeners = new();
-    private readonly TaskCompletionSource _readyTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private TaskCompletionSource _readyTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private CancellationTokenSource _documentLifetime = new();
     private readonly string _bootstrapJs;
     private bool _bootstrapInjected;
+    private int _documentVersion;
+    private bool _disposed;
 
     private const string ReadyEvent = "__lybox:ready";
 
     /// <param name="transport">底层双向传输。</param>
     /// <param name="eventPusher">可选 SSE 推送器。注入后事件分发 / 通道数据优先走 SSE，避免 InvokeScript 队列堆积。</param>
     /// <param name="pluginId">与 SSE 路由 <c>/sse/{pluginId}</c> 对应的插件 ID。<paramref name="eventPusher"/> 非 null 时必须提供。</param>
-    /// <param name="webHost">可选 WebHostService。注入后命令同步注册到 HTTP RPC 桥（POST /__rpc），支持浏览器模式调试。</param>
+    /// <param name="webHost">可选 WebHostService。注入后命令按 pluginId 隔离注册到受会话保护的 HTTP RPC 桥。</param>
     public WebViewIpcHost(IRpcTransport transport, IEventPusher? eventPusher = null, string? pluginId = null, WebHostService? webHost = null)
     {
         _transport = transport;
@@ -79,12 +82,13 @@ public sealed class WebViewIpcHost : IRpcHost
 
     /// <summary>
     /// 注册一个 RPC 命令。命令名建议用短名（如 <c>GreetAsync</c>），与前端 <c>window.__lybox.rpc(name, ...)</c> 的 name 一致。
-    /// 若注入了 <see cref="WebHostService"/>，命令同步注册到 HTTP RPC 桥（POST /__rpc），支持浏览器模式调试。
+    /// 若注入了 <see cref="WebHostService"/>，命令同步注册到按 pluginId 隔离的 HTTP RPC 桥。
     /// </summary>
     public void RegisterCommand(string name, RpcCommandHandler handler)
     {
         _commands[name] = handler;
-        _webHost?.RegisterRpcHandler(name, handler);
+        if (_webHost is not null && _pluginId is not null)
+            _webHost.RegisterRpcHandler(_pluginId, name, handler);
     }
 
     public async Task EmitEventAsync(string name, object? data, CancellationToken cancellationToken = default)
@@ -154,9 +158,13 @@ public sealed class WebViewIpcHost : IRpcHost
             return;
         }
 
+        var documentVersion = _documentVersion;
+        var documentToken = _documentLifetime.Token;
         try
         {
-            var result = await handler(msg.Args, CancellationToken.None);
+            var result = await handler(msg.Args, documentToken);
+            if (documentToken.IsCancellationRequested || documentVersion != _documentVersion)
+                return;
             if (result is Channel ch)
             {
                 var itemType = ch.GetType().IsGenericType
@@ -172,8 +180,36 @@ public sealed class WebViewIpcHost : IRpcHost
         }
         catch (Exception ex)
         {
-            await ResolveAsync(msg.CallbackId, ex.Message, null);
+            if (!documentToken.IsCancellationRequested && documentVersion == _documentVersion)
+                await ResolveAsync(msg.CallbackId, ex.Message, null);
         }
+    }
+
+    /// <summary>清除上一文档的信任与运行状态，并取消其所有正在执行的 RPC。</summary>
+    public void ResetDocument()
+    {
+        if (_disposed) return;
+
+        Interlocked.Increment(ref _documentVersion);
+        var previous = _documentLifetime;
+        _documentLifetime = new CancellationTokenSource();
+        previous.Cancel();
+        previous.Dispose();
+        _readyTcs.TrySetCanceled();
+        _readyTcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _bootstrapInjected = false;
+    }
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _disposed = true;
+        _transport.MessageReceived -= OnMessage;
+        _documentLifetime.Cancel();
+        _documentLifetime.Dispose();
+        foreach (var channel in _channels.Values)
+            _ = channel.CloseAsync();
+        _channels.Clear();
     }
 
     private void HandleEvent(string payload)

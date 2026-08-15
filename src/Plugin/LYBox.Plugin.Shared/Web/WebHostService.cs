@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Security.Cryptography;
 using System.Text.Json;
 using LYBox.Plugin.Shared.Rpc;
 using Microsoft.AspNetCore.Builder;
@@ -34,7 +35,8 @@ public sealed class WebHostService : IAsyncDisposable
 {
     private WebApplication? _app;
     private readonly ConcurrentDictionary<string, string> _pluginRoots = new();
-    private readonly ConcurrentDictionary<string, RpcCommandHandler> _rpcHandlers = new();
+    private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, RpcCommandHandler>> _rpcHandlers = new();
+    private readonly ConcurrentDictionary<string, WebSession> _sessions = new(StringComparer.Ordinal);
     private readonly SseEventPusher _ssePusher = new();
 
     /// <summary>当前监听端口。0 表示尚未启动。</summary>
@@ -47,16 +49,42 @@ public sealed class WebHostService : IAsyncDisposable
     public IEventPusher EventPusher => _ssePusher;
 
     /// <summary>
-    /// 注册一个 RPC 命令处理器。供浏览器模式 HTTP 桥接使用（POST /__rpc）。
-    /// 由 <see cref="WebViewIpcHost.RegisterCommand"/> 同步调用，确保 WebView 与浏览器两种传输层共享同一套命令。
+    /// 注册一个插件范围内的 RPC 命令处理器。生产 HTTP 桥要求 pluginId 与短期会话同时匹配。
     /// </summary>
+    /// <param name="pluginId">命令所属插件。</param>
     /// <param name="name">命令短名（如 <c>GreetAsync</c>），需与前端 <c>window.__lybox.rpc(name, ...)</c> 的 name 参数一致。</param>
     /// <param name="handler">命令处理器。</param>
-    public void RegisterRpcHandler(string name, RpcCommandHandler handler)
-        => _rpcHandlers[name] = handler;
+    public void RegisterRpcHandler(string pluginId, string name, RpcCommandHandler handler)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(pluginId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentNullException.ThrowIfNull(handler);
+
+        _rpcHandlers.GetOrAdd(pluginId, _ => new(StringComparer.Ordinal))[name] = handler;
+    }
+
+    /// <summary>为一个可信 WebView 文档创建短期会话。会话只允许访问指定插件的 RPC 与 SSE。</summary>
+    public string CreateSession(string pluginId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(pluginId);
+        var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
+        _sessions[token] = new WebSession(pluginId);
+        return token;
+    }
+
+    /// <summary>撤销 WebView 文档会话。控件卸载或重建后旧页面不能继续访问宿主。</summary>
+    public void RevokeSession(string? token)
+    {
+        if (!string.IsNullOrEmpty(token) && _sessions.TryRemove(token, out var session))
+            session.Dispose();
+    }
 
     /// <summary>获取所有已注册 RPC 命令名（供调试面板展示）。</summary>
-    public IReadOnlyCollection<string> GetRegisteredRpcCommands() => (IReadOnlyCollection<string>)_rpcHandlers.Keys;
+    public IReadOnlyCollection<string> GetRegisteredRpcCommands() =>
+        _rpcHandlers.SelectMany(pair => pair.Value.Keys.Select(name => $"{pair.Key}:{name}")).ToArray();
 
     /// <summary>
     /// 注册一个 Web 插件的静态资源根目录。
@@ -134,6 +162,12 @@ public sealed class WebHostService : IAsyncDisposable
         // —— SSE 端点 ——
         _app.MapGet("/sse/{pluginId}", async (string pluginId, HttpContext ctx) =>
         {
+            if (!TryAuthorize(ctx, pluginId, allowQueryToken: true, out var session))
+            {
+                ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return;
+            }
+
             ctx.Response.ContentType = "text/event-stream";
             ctx.Response.Headers["Cache-Control"] = "no-cache";
             ctx.Response.Headers["Connection"] = "keep-alive";
@@ -148,8 +182,11 @@ public sealed class WebHostService : IAsyncDisposable
             _ssePusher.Subscribe(pluginId, client);
             try
             {
-                // 阻塞直到客户端断开
-                await Task.Delay(Timeout.Infinite, ctx.RequestAborted).ConfigureAwait(false);
+                // 页面断开或宿主撤销文档会话时结束连接
+                using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(
+                    ctx.RequestAborted,
+                    session.CancellationToken);
+                await Task.Delay(Timeout.Infinite, lifetime.Token).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -162,11 +199,18 @@ public sealed class WebHostService : IAsyncDisposable
         });
 
         // —— HTTP RPC 桥接端点（浏览器模式 / 调试面板使用）——
-        // POST /__rpc，body = {name, args, callbackId?}
+        // POST /__rpc/{pluginId}，body = {name, args, callbackId?}
         // 响应 {result: ...} 或 {error: "..."}
         // 复用 WebViewIpcHost.RegisterCommand 同步注册到本服务的同一套 handler，确保 WebView 与浏览器行为一致。
-        _app.MapPost("/__rpc", async (HttpContext ctx) =>
+        _app.MapPost("/__rpc/{pluginId}", async (string pluginId, HttpContext ctx) =>
         {
+            if (!TryAuthorize(ctx, pluginId, allowQueryToken: false, out _))
+            {
+                ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                await ctx.Response.WriteAsJsonAsync(new { error = "Web 会话无效或已过期" }, ctx.RequestAborted).ConfigureAwait(false);
+                return;
+            }
+
             HttpRequestRpcBody? body;
             try
             {
@@ -185,7 +229,8 @@ public sealed class WebHostService : IAsyncDisposable
                 return;
             }
 
-            if (!_rpcHandlers.TryGetValue(body.Name, out var handler))
+            if (!_rpcHandlers.TryGetValue(pluginId, out var pluginHandlers)
+                || !pluginHandlers.TryGetValue(body.Name, out var handler))
             {
                 ctx.Response.StatusCode = StatusCodes.Status404NotFound;
                 await ctx.Response.WriteAsJsonAsync(new { error = $"命令未注册: {body.Name}" }, ctx.RequestAborted).ConfigureAwait(false);
@@ -208,16 +253,26 @@ public sealed class WebHostService : IAsyncDisposable
         // —— 事件 emit 端点（浏览器模式，前端 __lybox.emit 走 HTTP）——
         // POST /__emit，body = {name, data}
         // 当前为接收端存根：浏览器模式无 WebViewIpcHost 消费事件，仅记录日志。
-        _app.MapPost("/__emit", (HttpContext ctx) =>
+        _app.MapPost("/__emit/{pluginId}", (string pluginId, HttpContext ctx) =>
         {
+            if (!TryAuthorize(ctx, pluginId, allowQueryToken: false, out _))
+            {
+                ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            }
             // 浏览器模式的事件 emit 一般无业务需求，返回 202 Accepted 即可。
             ctx.Response.StatusCode = StatusCodes.Status202Accepted;
             return Task.CompletedTask;
         });
 
         // —— 通道关闭端点（浏览器模式）——
-        _app.MapPost("/__channel/close", (HttpContext ctx) =>
+        _app.MapPost("/__channel/close/{pluginId}", (string pluginId, HttpContext ctx) =>
         {
+            if (!TryAuthorize(ctx, pluginId, allowQueryToken: false, out _))
+            {
+                ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            }
             ctx.Response.StatusCode = StatusCodes.Status202Accepted;
             return Task.CompletedTask;
         });
@@ -226,7 +281,7 @@ public sealed class WebHostService : IAsyncDisposable
         // GET /__lybox/debug 返回纯 HTML 调试器，列出所有已注册 RPC 命令 + SSE 事件流查看器。
 #if DEBUG
         _app.MapGet("/__lybox/debug", () => Results.Content(
-            DebugPanelHtml.Render(_rpcHandlers.Keys),
+            DebugPanelHtml.Render(GetRegisteredRpcCommands()),
             "text/html; charset=utf-8"));
 #endif
 
@@ -242,9 +297,12 @@ public sealed class WebHostService : IAsyncDisposable
             }
 
             // 防目录穿越：标准化路径后确保结果仍在 root 之下
-            var rootFull = Path.GetFullPath(root);
+            var rootFull = Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
             var combined = Path.GetFullPath(Path.Combine(rootFull, path.Replace('/', Path.DirectorySeparatorChar)));
-            if (!combined.StartsWith(rootFull, StringComparison.OrdinalIgnoreCase))
+            var relative = Path.GetRelativePath(rootFull, combined);
+            if (relative.Equals("..", StringComparison.Ordinal)
+                || relative.StartsWith($"..{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                || Path.IsPathRooted(relative))
             {
                 ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
                 return;
@@ -269,6 +327,32 @@ public sealed class WebHostService : IAsyncDisposable
         Port = ExtractPort(_app.Urls.FirstOrDefault());
     }
 
+    private bool TryAuthorize(
+        HttpContext context,
+        string pluginId,
+        bool allowQueryToken,
+        out WebSession session)
+    {
+        session = null!;
+        if (!_pluginRoots.ContainsKey(pluginId))
+            return false;
+
+        var token = context.Request.Headers["X-LYBox-Session"].FirstOrDefault();
+        if (allowQueryToken && string.IsNullOrEmpty(token))
+            token = context.Request.Query["session"].FirstOrDefault();
+
+        if (string.IsNullOrEmpty(token)
+            || !_sessions.TryGetValue(token, out var authorizedSession)
+            || !string.Equals(authorizedSession.PluginId, pluginId, StringComparison.Ordinal)
+            || authorizedSession.CancellationToken.IsCancellationRequested)
+            return false;
+        session = authorizedSession;
+
+        var origin = context.Request.Headers.Origin.FirstOrDefault();
+        return string.IsNullOrEmpty(origin)
+            || string.Equals(origin.TrimEnd('/'), BaseUrl, StringComparison.OrdinalIgnoreCase);
+    }
+
     /// <inheritdoc />
     public async ValueTask DisposeAsync()
     {
@@ -282,6 +366,9 @@ public sealed class WebHostService : IAsyncDisposable
             await _app.DisposeAsync().ConfigureAwait(false);
             _app = null;
         }
+        foreach (var session in _sessions.Values)
+            session.Dispose();
+        _sessions.Clear();
         Port = 0;
     }
 
@@ -318,6 +405,21 @@ public sealed class WebHostService : IAsyncDisposable
             ".wasm" => "application/wasm",
             _ => "application/octet-stream",
         };
+    }
+}
+
+internal sealed class WebSession(string pluginId) : IDisposable
+{
+    private readonly CancellationTokenSource _lifetime = new();
+
+    public string PluginId { get; } = pluginId;
+
+    public CancellationToken CancellationToken => _lifetime.Token;
+
+    public void Dispose()
+    {
+        _lifetime.Cancel();
+        _lifetime.Dispose();
     }
 }
 
