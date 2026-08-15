@@ -47,6 +47,9 @@ public sealed class WebHostService : IAsyncDisposable
     /// <summary>是否已启动 Kestrel 监听。仅当有插件主动注册后才会启动。</summary>
     public bool IsRunning => _app is not null;
 
+    /// <summary>是否有插件已显式注册 Web 资源根目录。无注册则静态资源服务保持关闭。</summary>
+    public bool HasRegisteredPlugins => _pluginRoots.Count > 0;
+
     /// <summary>指定插件是否已主动注册其 Web 资源根目录。</summary>
     public bool IsRegistered(string pluginId) =>
         !string.IsNullOrEmpty(pluginId) && _pluginRoots.ContainsKey(pluginId);

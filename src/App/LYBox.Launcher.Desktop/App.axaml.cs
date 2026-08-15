@@ -150,9 +150,9 @@ public partial class App : Application
     }
 
     /// <summary>
-    /// 触发嵌入式 HTTP 资源服务启动（懒加载）。Web 插件在 <see cref="IPlugin.RegisterAsync"/> 阶段
-    /// 主动调用 <see cref="WebHostService.MapPluginRoot"/> 注册其 wwwroot，此处仅触发启动；
-    /// <see cref="WebHostService"/> 内部在无任何插件注册时保持关闭。
+    /// 懒加载初始化嵌入式 HTTP 静态资源服务。Web 插件在 <see cref="IPlugin.RegisterAsync"/> 阶段
+    /// 主动调用 <see cref="WebHostService.MapPluginRoot"/> 注册其 wwwroot；此处仅当存在已注册的
+    /// Web 插件时才初始化并启动服务，否则直接跳过，不占用端口。
     /// 在 <see cref="PluginLoader.RegisterAllPluginsAsync"/> 之后、<see cref="RegisterPluginNavigationAndMenus"/>
     /// 之前调用，确保 Web 插件页面导航时 HTTP 服务已可用。启动失败不阻塞应用（Web 插件功能降级）。
     /// </summary>
@@ -163,14 +163,22 @@ public partial class App : Application
             var webHost = ServiceProvider?.GetRequiredService<WebHostService>();
             if (webHost is null) return;
 
-            // 懒加载：插件已主动注册路由，仅当存在注册时才真正启动 Kestrel
+            // 懒加载：仅当插件显式注册了 Web 资源时才初始化并启用静态资源服务，否则保持关闭
+            if (!webHost.HasRegisteredPlugins)
+            {
+                var skipLogger = ServiceProvider?.GetRequiredService<ILogger<App>>();
+                skipLogger?.LogInformation("无插件显式注册 Web 资源，静态资源服务保持关闭（懒加载）");
+                return;
+            }
+
+            // 已有插件注册路由，启动 Kestrel
             webHost.StartAsync().GetAwaiter().GetResult();
 
             var bootLogger = ServiceProvider?.GetRequiredService<ILogger<App>>();
             if (webHost.IsRunning)
                 bootLogger?.LogInformation("WebHostService 已启动，监听 {BaseUrl}", webHost.BaseUrl);
             else
-                bootLogger?.LogInformation("未发现已注册的 Web 插件，WebHostService 保持关闭（懒加载）");
+                bootLogger?.LogInformation("WebHostService 启动未生效，监听端口未就绪");
         }
         catch (Exception ex)
         {
