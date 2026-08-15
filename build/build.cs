@@ -100,9 +100,10 @@ Task("Build")
 {
     var hostSettings = buildContext.CreateHostMSBuildSettings();
 
-    // Bin = SDK 编译 + NuGet 打包 + 宿主编译（统一发版）
     // 关键：NuGet pack 必须在插件 build 之前完成，因为插件 restore 依赖 artifacts/packages/sdk 本地 feed
-    if (buildContext.Target.HasFlag(BuildTarget.Bin))
+    // SDK 编译：Bin 与 NuGet 目标都需要（NuGet 目标下 PackNuGet 以 NoBuild=true 复用此构建结果）
+    var needSdk = buildContext.Target.HasFlag(BuildTarget.Bin) || buildContext.Target.HasFlag(BuildTarget.NuGet);
+    if (needSdk)
     {
         // SDK 层：Generators + Shared
         c.DotNetBuild(buildContext.GeneratorsProject, new DotNetBuildSettings
@@ -116,7 +117,10 @@ Task("Build")
             Configuration = buildContext.BuildConfiguration,
             MSBuildSettings = hostSettings
         });
+    }
 
+    if (buildContext.Target.HasFlag(BuildTarget.Bin))
+    {
         // SDK NuGet 打包（NoBuild=true 复用上一步构建结果，输出到 artifacts/packages/sdk）
         c.EnsureDirectoryExists(buildContext.NuGetPackagesDir);
         c.DotNetPack(buildContext.GeneratorsProject, new DotNetPackSettings
@@ -381,7 +385,8 @@ Task("PackPlugins")
 
                     // 排除调试符号、文档注释、构建配置等运行时不需要的文件
                     var extension = Path.GetExtension(file);
-                    if (ExcludedExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
+                    if (extension.Equals(".pdb", StringComparison.OrdinalIgnoreCase) ||
+                        extension.Equals(".xml", StringComparison.OrdinalIgnoreCase))
                     {
                         ctx.Log.Debug("Skipping excluded file: {0}", relativePath);
                         continue;
@@ -640,8 +645,8 @@ public class BuildContext
         PluginFilter = context.Argument("plugin", "");
         NuGetSource = context.Argument("nuget-source", "https://api.nuget.org/v3/index.json");
         NuGetApiKey = context.Argument("nuget-api-key", "");
-        var requestedRuntimeIdentifier = NormalizeRuntimeIdentifier(context.Argument("runtime-identifier", ""));
-        var requestedSelfContained = context.Argument("self-contained", false);
+        RuntimeIdentifier = SelectRuntimeIdentifier(Target, NormalizeRuntimeIdentifier(context.Argument("runtime-identifier", "")));
+        SelfContained = SelectSelfContained(Target, context.Argument("self-contained", false), context.HasArgument("self-contained"));
         NoBuild = context.Argument("no-build", false);
 
         RootDir = ResolveRepositoryRoot();
@@ -655,10 +660,10 @@ public class BuildContext
         ConsolePublishDir = Path.Combine(LauncherPublishDir, "console");
         LegacyPackageDir = Path.Combine(ArtifactsDir, "package");
 
-        GeneratorsProject = Path.Combine(RootDir, "src", "LYBox.Plugin.Generators", "LYBox.Plugin.Generators.csproj");
-        SharedProject = Path.Combine(RootDir, "src", "LYBox.Plugin.Shared", "LYBox.Plugin.Shared.csproj");
-        LauncherProject = Path.Combine(RootDir, "src", "launcher", "LYBox.Launcher.Desktop", "LYBox.Launcher.Desktop.csproj");
-        ConsoleProject = Path.Combine(RootDir, "src", "launcher", "LYBox.Launcher.Console", "LYBox.Launcher.Console.csproj");
+        GeneratorsProject = Path.Combine(RootDir, "src", "Plugin", "LYBox.Plugin.Generators", "LYBox.Plugin.Generators.csproj");
+        SharedProject = Path.Combine(RootDir, "src", "Plugin", "LYBox.Plugin.Shared", "LYBox.Plugin.Shared.csproj");
+        LauncherProject = Path.Combine(RootDir, "src", "App", "LYBox.Launcher.Desktop", "LYBox.Launcher.Desktop.csproj");
+        ConsoleProject = Path.Combine(RootDir, "src", "App", "LYBox.Launcher.Console", "LYBox.Launcher.Console.csproj");
         ToolProject = Path.Combine(RootDir, "tools", "LYBox.MockServer", "LYBox.MockServer.csproj");
 
         var discoveredPlugins = DiscoverPlugins(RootDir);
@@ -1118,233 +1123,6 @@ public record PluginProjectInfo(
 
 public static class BuildTasks
 {
-    // 插件 zip 排除的文件扩展名（调试符号、文档注释等运行时不需要的文件）
-    private static readonly HashSet<string> ExcludedExtensions = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ".pdb",
-        ".xml",
-    };
-
-    public static void Clean(BuildContext context)
-    {
-        var t = context.Target;
-
-        if (t.HasFlag(BuildTarget.NuGet))
-        {
-            CleanDirectoryIfExists(context, context.NuGetPackagesDir);
-            CleanProjectBinObj(context, context.RootDir, "src", "LYBox.Plugin.Generators");
-            CleanProjectBinObj(context, context.RootDir, "src", "LYBox.Plugin.Shared");
-        }
-
-        if (t.HasFlag(BuildTarget.Bin))
-        {
-            CleanDirectoryIfExists(context, context.BinPackagesDir);
-            CleanProjectBinObj(context, context.RootDir, "src", "launcher", "LYBox.Launcher.Desktop");
-            CleanProjectBinObj(context, context.RootDir, "src", "launcher", "LYBox.Launcher.Console");
-        }
-
-        if (t.HasFlag(BuildTarget.Plugin))
-        {
-            CleanDirectoryIfExists(context, context.PluginPackagesDir);
-            foreach (var plugin in context.PluginProjects)
-            {
-                var pluginDir = System.IO.Path.GetDirectoryName(plugin.ProjectPath)!;
-                CleanDirectoryIfExists(context, System.IO.Path.Combine(pluginDir, "bin"));
-                CleanDirectoryIfExists(context, System.IO.Path.Combine(pluginDir, "obj"));
-            }
-        }
-
-        if (t.HasFlag(BuildTarget.Tool))
-        {
-            CleanDirectoryIfExists(context, context.ToolPackagesDir);
-            CleanProjectBinObj(context, context.RootDir, "tools", "LYBox.MockServer");
-        }
-
-        if (t.HasFlag(BuildTarget.All))
-        {
-            CleanDirectoryIfExists(context, context.PackagesDir);
-        }
-
-        context.Log.Information("Clean completed. Target: {0}", t);
-    }
-
-    private static void CleanDirectoryIfExists(BuildContext context, string dir)
-    {
-        if (Directory.Exists(dir))
-        {
-            try
-            {
-                context.CleanDirectory(dir);
-            }
-            catch (DirectoryNotFoundException ex)
-            {
-                context.Log.Warning("CleanDirectory skipped due to inaccessible path: {0}", ex.Message);
-            }
-        }
-    }
-
-    private static void CleanProjectBinObj(BuildContext context, string rootDir, params string[] segments)
-    {
-        var projectDir = Path.Combine(new[] { rootDir }.Concat(segments).Prepend("").Skip(1).Where(s => !string.IsNullOrEmpty(s)).ToArray());
-        CleanDirectoryIfExists(context, Path.Combine(projectDir, "bin"));
-        CleanDirectoryIfExists(context, Path.Combine(projectDir, "obj"));
-    }
-
-    private static bool NeedsSdkNuGet(BuildTarget target) =>
-        target.HasFlag(BuildTarget.NuGet)
-        || target.HasFlag(BuildTarget.Bin)
-        || target.HasFlag(BuildTarget.Plugin)
-        || target.HasFlag(BuildTarget.NuGetPublish);
-
-    public static void Build(BuildContext context)
-    {
-        var hostSettings = context.CreateHostMSBuildSettings();
-        var sdkSettings = context.CreateSdkMSBuildSettings();
-
-        // 任何需要 SDK NuGet 包的目标（NuGet/Bin/Plugin/NuGetPublish）都必须先构建并打包 SDK。
-        // 关键：NuGet pack 必须在插件 build 之前完成，因为插件 restore 依赖 bin/nuget/ 本地 feed。
-        if (NeedsSdkNuGet(context.Target))
-        {
-            context.EnsureDirectoryExists(context.NuGetPackagesDir);
-
-            context.DotNetBuild(context.GeneratorsProject, new DotNetBuildSettings
-            {
-                Configuration = context.BuildConfiguration,
-                MSBuildSettings = sdkSettings
-            });
-
-            context.DotNetPack(context.GeneratorsProject, new DotNetPackSettings
-            {
-                Configuration = context.BuildConfiguration,
-                OutputDirectory = context.NuGetPackagesDir,
-                NoRestore = true,
-                NoBuild = true,
-                MSBuildSettings = sdkSettings
-            });
-
-            context.DotNetBuild(context.SharedProject, new DotNetBuildSettings
-            {
-                Configuration = context.BuildConfiguration,
-                MSBuildSettings = sdkSettings
-            });
-
-            context.DotNetPack(context.SharedProject, new DotNetPackSettings
-            {
-                Configuration = context.BuildConfiguration,
-                OutputDirectory = context.NuGetPackagesDir,
-                NoRestore = true,
-                NoBuild = true,
-                MSBuildSettings = sdkSettings
-            });
-
-            context.Log.Information("SDK NuGet packages created in: {0}", context.NuGetPackagesDir);
-        }
-
-        // 宿主层：Launcher + Console
-        if (context.Target.HasFlag(BuildTarget.Bin))
-        {
-            context.DotNetBuild(context.LauncherProject, new DotNetBuildSettings
-            {
-                Configuration = context.BuildConfiguration,
-                MSBuildSettings = hostSettings
-            });
-
-            context.DotNetBuild(context.ConsoleProject, new DotNetBuildSettings
-            {
-                Configuration = context.BuildConfiguration,
-                MSBuildSettings = hostSettings
-            });
-        }
-
-        // Tool 独立 dotnet tool 项目构建（lybox-mock 前端调试 Mock 后端）
-        if (context.Target.HasFlag(BuildTarget.Tool))
-        {
-            if (File.Exists(context.ToolProject))
-            {
-                context.DotNetBuild(context.ToolProject, new DotNetBuildSettings
-                {
-                    Configuration = context.BuildConfiguration,
-                    MSBuildSettings = hostSettings
-                });
-                context.Log.Information("Tool project built: {0}", context.ToolProject);
-            }
-            else
-            {
-                context.Log.Warning("Tool project not found at {0}, skipping", context.ToolProject);
-            }
-        }
-
-        // 插件层：各插件用自己的 PluginVersion（不被 PackageVersion 覆盖）
-        if (context.Target.HasFlag(BuildTarget.Plugin))
-        {
-            var buildFailedPlugins = new List<string>();
-            foreach (var plugin in context.PluginProjects)
-            {
-                var pluginMsBuild = context.CreatePluginMSBuildSettings(plugin);
-                try
-                {
-                    context.DotNetBuild(plugin.ProjectPath, new DotNetBuildSettings
-                    {
-                        Configuration = context.BuildConfiguration,
-                        MSBuildSettings = pluginMsBuild
-                    });
-                }
-                catch (Exception ex)
-                {
-                    context.Log.Error("插件 {0} 编译失败，跳过（不影响其他插件）: {1}", plugin.ProjectName, ex.Message);
-                    buildFailedPlugins.Add(plugin.ProjectName);
-                }
-            }
-            if (buildFailedPlugins.Count > 0)
-                context.Log.Warning("以下 {0} 个插件编译失败: {1}", buildFailedPlugins.Count, string.Join(", ", buildFailedPlugins));
-        }
-
-        context.Log.Information("Build completed. Target: {0}", context.Target);
-    }
-
-    public static void PackBin(BuildContext context)
-    {
-        context.EnsureDirectoryExists(context.BinPackagesDir);
-
-        var settings = CreateBinPublishSettings(context, context.BinPackagesDir);
-
-        if (context.SelfContained)
-            settings.SelfContained = true;
-
-        context.DotNetPublish(context.LauncherProject, settings);
-
-        // 同时发布控制台调试版（LYBox.Launcher.Console.exe），两个可执行文件共用同一套启动逻辑
-        var consoleSettings = CreateBinPublishSettings(context, context.BinPackagesDir);
-        if (context.SelfContained)
-            consoleSettings.SelfContained = true;
-
-        context.DotNetPublish(context.ConsoleProject, consoleSettings);
-
-        context.Log.Information("Launcher (GUI) + Console published to: {0}", context.BinPackagesDir);
-    }
-
-    private static DotNetPublishSettings CreateBinPublishSettings(BuildContext context, string outputDir)
-    {
-        var settings = new DotNetPublishSettings
-        {
-            Configuration = context.BuildConfiguration,
-            OutputDirectory = outputDir,
-            NoRestore = true,
-            NoBuild = true,
-        };
-
-        if (!string.IsNullOrEmpty(context.RuntimeIdentifier))
-        {
-            settings.Runtime = context.RuntimeIdentifier;
-            settings.OutputDirectory = Path.Combine(outputDir, context.RuntimeIdentifier);
-            // Build 未按 RID 编译，publish 需要重新构建 RID 产物
-            settings.NoBuild = false;
-            settings.NoRestore = false;
-        }
-
-        return settings;
-    }
-
     public static void PackNuGet(BuildContext context)
     {
         context.EnsureDirectoryExists(context.NuGetPackagesDir);
@@ -1449,165 +1227,5 @@ public static class BuildTasks
         context.Log.Information("LYBox.MockServer dotnet tool packed to: {0}", context.ToolPackagesDir);
         context.Log.Information("Install with: dotnet tool install --global --add-source {0} LYBox.MockServer", context.ToolPackagesDir);
         context.Log.Information("Then run: lybox-mock --help");
-    }
-
-    public static void PackPlugins(BuildContext context)
-    {
-        context.EnsureDirectoryExists(context.PluginPackagesDir);
-
-        var failedPlugins = new List<string>();
-        foreach (var plugin in context.PluginProjects)
-        {
-            var pluginOutputDir = Path.Combine(context.PluginPackagesDir, plugin.ProjectName, "publish");
-            context.EnsureDirectoryExists(pluginOutputDir);
-
-            var pluginMsBuild = context.CreatePluginMSBuildSettings(plugin);
-
-            try
-            {
-                context.DotNetPublish(plugin.ProjectPath, new DotNetPublishSettings
-                {
-                    Configuration = context.BuildConfiguration,
-                    OutputDirectory = pluginOutputDir,
-                    MSBuildSettings = pluginMsBuild
-                });
-
-                // 复制插件 wwwroot/ 前端资源到发布目录（仅当源目录存在时）
-                CopyPluginWwwroot(context, plugin, pluginOutputDir);
-
-                context.Log.Information("Plugin published: {0} -> {1}", plugin.ProjectName, pluginOutputDir);
-            }
-            catch (Exception ex)
-            {
-                context.Log.Error("插件 {0} 发布失败，跳过（不影响其他插件）: {1}", plugin.ProjectName, ex.Message);
-                failedPlugins.Add(plugin.ProjectName);
-            }
-        }
-
-        PackPluginZips(context);
-
-        if (failedPlugins.Count > 0)
-            context.Log.Warning("以下 {0} 个插件发布失败: {1}", failedPlugins.Count, string.Join(", ", failedPlugins));
-
-        context.Log.Information("All plugins published to: {0}", context.PluginPackagesDir);
-    }
-
-    private static void CopyPluginWwwroot(BuildContext context, PluginProjectInfo plugin, string publishDir)
-    {
-        var pluginSrcDir = Path.Combine(context.RootDir, "plugins", plugin.ProjectName);
-        var wwwrootSrc = Path.Combine(pluginSrcDir, "wwwroot");
-
-        if (!Directory.Exists(wwwrootSrc))
-        {
-            context.Log.Debug("插件 {0} 无 wwwroot 目录，跳过前端资源复制", plugin.ProjectName);
-            return;
-        }
-
-        var wwwrootDest = Path.Combine(publishDir, "wwwroot");
-        CopyDirectoryRecursive(wwwrootSrc, wwwrootDest);
-        context.Log.Information("插件 {0} wwwroot 已复制到 {1}", plugin.ProjectName, wwwrootDest);
-    }
-
-    private static void CopyDirectoryRecursive(string sourceDir, string destDir)
-    {
-        Directory.CreateDirectory(destDir);
-        foreach (var file in Directory.GetFiles(sourceDir, "*", SearchOption.TopDirectoryOnly))
-        {
-            var destFile = Path.Combine(destDir, Path.GetFileName(file));
-            File.Copy(file, destFile, overwrite: true);
-        }
-        foreach (var subDir in Directory.GetDirectories(sourceDir, "*", SearchOption.TopDirectoryOnly))
-        {
-            CopyDirectoryRecursive(subDir, Path.Combine(destDir, Path.GetFileName(subDir)));
-        }
-    }
-
-    private static void PackPluginZips(BuildContext context)
-    {
-        var zipOutputDir = Path.Combine(context.PluginPackagesDir, "zip");
-        context.EnsureDirectoryExists(zipOutputDir);
-
-        foreach (var plugin in context.PluginProjects)
-        {
-            var publishDir = Path.Combine(context.PluginPackagesDir, plugin.ProjectName, "publish");
-
-            if (!Directory.Exists(publishDir))
-            {
-                context.Log.Warning("Publish directory not found for plugin: {0}, skipping zip packaging", plugin.ProjectName);
-                continue;
-            }
-
-            EnsurePluginManifest(context, publishDir, plugin);
-
-            var effectiveVersion = context.GetEffectivePluginVersion(plugin);
-            var zipPath = Path.Combine(zipOutputDir, $"{plugin.ProjectName}-{effectiveVersion}.zip");
-
-            if (File.Exists(zipPath))
-                File.Delete(zipPath);
-
-            using (var zipStream = new FileStream(zipPath, FileMode.Create))
-            using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Create))
-            {
-                foreach (var file in Directory.GetFiles(publishDir, "*", SearchOption.AllDirectories))
-                {
-                    var relativePath = Path.GetRelativePath(publishDir, file).Replace('\\', '/');
-                    var fileName = Path.GetFileName(file);
-                    var extension = Path.GetExtension(file);
-
-                    // 排除调试符号、文档注释
-                    if (ExcludedExtensions.Contains(extension))
-                        continue;
-
-                    // 排除 .deps.json、.runtimeconfig.json 等 SDK 生成的配置
-                    if (fileName.EndsWith(".deps.json", StringComparison.OrdinalIgnoreCase) ||
-                        fileName.EndsWith(".runtimeconfig.json", StringComparison.OrdinalIgnoreCase))
-                        continue;
-
-                    var entry = archive.CreateEntry(relativePath);
-                    using (var entryStream = entry.Open())
-                    using (var fileStream = File.OpenRead(file))
-                    {
-                        fileStream.CopyTo(entryStream);
-                    }
-                }
-            }
-
-            context.Log.Information("Plugin zip created: {0}", zipPath);
-        }
-
-        context.Log.Information("All plugin zip packages created in: {0}", zipOutputDir);
-    }
-
-    private static void EnsurePluginManifest(BuildContext context, string publishDir, PluginProjectInfo plugin)
-    {
-        var manifestPath = Path.Combine(publishDir, "plugin.json");
-        if (File.Exists(manifestPath)) return;
-
-        var mainDll = Path.Combine(publishDir, $"{plugin.ProjectName}.dll");
-        var assemblyName = plugin.ProjectName;
-
-        if (File.Exists(mainDll))
-        {
-            try
-            {
-                var asmName = System.Reflection.AssemblyName.GetAssemblyName(mainDll);
-                assemblyName = asmName.Name ?? plugin.ProjectName;
-            }
-            catch { }
-        }
-
-        var effectiveVersion = context.GetEffectivePluginVersion(plugin);
-
-        var json = $@"{{
-  ""pluginId"": ""{plugin.PluginId}"",
-  ""name"": ""{plugin.PluginName}"",
-  ""version"": ""{effectiveVersion}"",
-  ""author"": ""{plugin.PluginAuthor}"",
-  ""description"": ""{plugin.PluginDescription}"",
-  ""assembly"": ""{assemblyName}.dll"",
-  ""dependencies"": [],
-  ""minPluginSdkVersion"": ""{plugin.MinPluginSdkVersion}""
-}}";
-        File.WriteAllText(manifestPath, json);
     }
 }
