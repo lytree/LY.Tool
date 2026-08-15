@@ -35,71 +35,14 @@
             "stopAtEntry": false
         },
         {
-            "name": "Fluent Layout - Standard",
+            "name": "Launcher Console - Debug Output",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build-host",
-            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
-            "args": ["--layout=fluent"],
+            "preLaunchTask": "build-launcher-console",
+            "program": "${workspaceFolder}/src/launcher/LYBox.Launcher.Console/bin/Debug/net10.0/LYBox.Launcher.Console.dll",
+            "args": ["--no-splash"],
             "env": {},
-            "console": "internalConsole",
-            "stopAtEntry": false
-        },
-        {
-            "name": "Fluent Layout - No Splash",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build-host",
-            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
-            "args": ["--layout=fluent", "--no-splash"],
-            "env": {},
-            "console": "internalConsole",
-            "stopAtEntry": false
-        },
-        {
-            "name": "Fluent Layout - Plugin - Template",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build-plugin-template",
-            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
-            "args": ["--layout=fluent", "--no-splash"],
-            "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.Template/bin/Debug/net10.0"
-            },
-            "console": "internalConsole",
-            "stopAtEntry": false
-        },
-        {
-            "name": "FluentWindow - Standard",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build-fluent-window",
-            "program": "${workspaceFolder}/src/LYBox.FluentWindow/bin/Debug/net10.0/LYBox.FluentWindow.dll",
-            "args": [],
-            "env": {},
-            "console": "internalConsole",
-            "stopAtEntry": false
-        },
-        {
-            "name": "FluentWindow - Acrylic",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build-fluent-window",
-            "program": "${workspaceFolder}/src/LYBox.FluentWindow/bin/Debug/net10.0/LYBox.FluentWindow.dll",
-            "args": ["--acrylic"],
-            "env": {},
-            "console": "internalConsole",
-            "stopAtEntry": false
-        },
-        {
-            "name": "FluentWindow - Dialog Mode",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build-fluent-window",
-            "program": "${workspaceFolder}/src/LYBox.FluentWindow/bin/Debug/net10.0/LYBox.FluentWindow.dll",
-            "args": ["--dialog"],
-            "env": {},
-            "console": "internalConsole",
+            "console": "integratedTerminal",
             "stopAtEntry": false
         },
         {
@@ -110,6 +53,18 @@
             "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
             "env": {
                 "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.Template/bin/Debug/net10.0"
+            },
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Plugin - BTSou",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-plugin-btsou",
+            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
+            "env": {
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.BTSou/bin/Debug/net10.0"
             },
             "console": "internalConsole",
             "stopAtEntry": false
@@ -218,6 +173,18 @@
             "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
             "env": {
                 "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.TDLSharp/bin/Debug/net10.0"
+            },
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Plugin - WebTemplate",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-plugin-web-template",
+            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
+            "env": {
+                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.WebTemplate/bin/Debug/net10.0"
             },
             "console": "internalConsole",
             "stopAtEntry": false

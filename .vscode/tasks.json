@@ -18,12 +18,12 @@
             }
         },
         {
-            "label": "build-fluent-window",
+            "label": "build-launcher-console",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/src/LYBox.FluentWindow/LYBox.FluentWindow.csproj"
+                "${workspaceFolder}/src/launcher/LYBox.Launcher.Console/LYBox.Launcher.Console.csproj"
             ],
             "problemMatcher": "$msCompile",
             "group": "build"
@@ -44,27 +44,23 @@
             "group": "build"
         },
         {
-            "label": "publish-fluent-window",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "publish",
-                "${workspaceFolder}/src/LYBox.FluentWindow/LYBox.FluentWindow.csproj",
-                "-c",
-                "Release",
-                "-o",
-                "${workspaceFolder}/bin/publish/fluent-window"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "build"
-        },
-        {
             "label": "build-plugin-template",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "build",
                 "${workspaceFolder}/plugins/LYBox.Plugin.Template/LYBox.Plugin.Template.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build"
+        },
+        {
+            "label": "build-plugin-btsou",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/plugins/LYBox.Plugin.BTSou/LYBox.Plugin.BTSou.csproj"
             ],
             "problemMatcher": "$msCompile",
             "group": "build"
@@ -164,6 +160,17 @@
             "args": [
                 "build",
                 "${workspaceFolder}/plugins/LYBox.Plugin.TDLSharp/LYBox.Plugin.TDLSharp.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build"
+        },
+        {
+            "label": "build-plugin-web-template",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/plugins/LYBox.Plugin.WebTemplate/LYBox.Plugin.WebTemplate.csproj"
             ],
             "problemMatcher": "$msCompile",
             "group": "build"
