@@ -40,6 +40,7 @@
       "require": "./dist/theme/index.cjs"
     },
     "./css": "./src/theme/lybox-theme.css",
+    "./components": "./src/theme/lybox-components.css",
     "./tokens": "./src/theme/tokens.json",
     "./tokens.json": "./src/theme/tokens.json",
     "./package.json": "./package.json"

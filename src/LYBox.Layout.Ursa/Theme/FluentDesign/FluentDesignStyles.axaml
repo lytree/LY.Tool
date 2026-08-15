@@ -59,6 +59,15 @@
         <Setter Property="BorderThickness" Value="0,0,1,0" />
     </Style>
 
+    <!-- 主内容表面 (Border) — 与导航面板分隔的内容区外壳（WinUI MainContent 风格） -->
+    <Style Selector="Border.FluentMainContentSurface">
+        <Setter Property="Background" Value="{DynamicResource FluentColorBackground3}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1,1,0,0" />
+        <Setter Property="CornerRadius" Value="8,0,0,0" />
+        <Setter Property="BoxShadow" Value="0 1 2 0 #0A000000" />
+    </Style>
+
     <!-- 标题栏 (Border) — 顶部应用标题区域 -->
     <Style Selector="Border.FluentTitleBar">
         <Setter Property="Background" Value="{DynamicResource FluentSubtleBrush}" />
@@ -75,6 +84,31 @@
         <Setter Property="BorderThickness" Value="0,0,0,1" />
         <Setter Property="Padding" Value="0,0,16,0" />
         <Setter Property="MinHeight" Value="44" />
+    </Style>
+
+    <!-- 工具栏按钮 (Button) — 顶部操作行按钮；加 .accent 变体为主操作按钮 -->
+    <Style Selector="Button.FluentToolbarButton">
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="16,8" />
+        <Setter Property="MinHeight" Value="32" />
+    </Style>
+    <Style Selector="Button.FluentToolbarButton.accent">
+        <Setter Property="Background" Value="{DynamicResource FluentAccentBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Button.FluentToolbarButton.accent:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource FluentAccentPointeroverBrush}" />
+    </Style>
+    <Style Selector="Button.FluentToolbarButton.accent:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource FluentAccentPressedBrush}" />
+    </Style>
+
+    <!-- 小型按钮 (Button) — 紧凑尺寸动作按钮 -->
+    <Style Selector="Button.FluentSmall">
+        <Setter Property="Padding" Value="10,5" />
+        <Setter Property="MinHeight" Value="28" />
+        <Setter Property="CornerRadius" Value="4" />
     </Style>
 
     <!-- 页面头部容器 (StackPanel) — 标题 + 描述组合 -->
@@ -359,6 +393,18 @@
         <Setter Property="Fill" Value="{DynamicResource FluentAccentBrush}" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <!-- 状态徽章 (Label) — 列表项/表格单元格的状态标记（WinUI StatusBadge 风格） -->
+    <Style Selector="Label.FluentStatusBadge">
+        <Setter Property="Background" Value="{DynamicResource FluentColorPrimaryLight}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentAccentBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="6,1" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
 
     <!-- ===== ProgressRing（WinUI 圆环进度指示器） ===== -->
@@ -902,6 +948,54 @@
         <Setter Property="Padding" Value="16,12" />
         <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
         <Setter Property="BorderThickness" Value="0,1,0,0" />
+    </Style>
+
+    <!-- ============================================================
+         插件页面外壳（PluginPage/PluginPageHeader/PluginCommandCard/
+         PluginDataCard/DataCard）— 统一插件内容区域外观
+         ============================================================ -->
+
+    <!-- 插件页面容器 (Grid) — 页面级 margin -->
+    <Style Selector="Grid.FluentPluginPage">
+        <Setter Property="Margin" Value="24" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+
+    <!-- 插件页面头部 (StackPanel) — 标题 + 操作行组合 -->
+    <Style Selector="StackPanel.FluentPluginPageHeader">
+        <Setter Property="Spacing" Value="4" />
+        <Setter Property="Margin" Value="0,0,0,16" />
+    </Style>
+
+    <!-- 插件命令卡片 (Border) — 命令/操作区域容器 -->
+    <Style Selector="Border.FluentPluginCommandCard">
+        <Setter Property="Background" Value="{DynamicResource FluentCardBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="Margin" Value="0,0,0,12" />
+        <Setter Property="BoxShadow" Value="0 1 2 0 #0A000000" />
+    </Style>
+
+    <!-- 插件数据卡片 (Border) — 数据展示/列表容器 -->
+    <Style Selector="Border.FluentPluginDataCard">
+        <Setter Property="Background" Value="{DynamicResource FluentCardBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="BoxShadow" Value="0 1 2 0 #0A000000" />
+    </Style>
+
+    <!-- 通用数据卡片 (Border) — 比 PluginDataCard 更轻量的表格区域卡片 -->
+    <Style Selector="Border.FluentDataCard">
+        <Setter Property="Background" Value="{DynamicResource FluentCardBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="BoxShadow" Value="0 1 2 0 #0A000000" />
     </Style>
 
 </Styles>

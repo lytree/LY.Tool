@@ -1,4 +1,4 @@
-using Avalonia;
+using LYBox.Launcher.Desktop;
 
 namespace LYBox.Launcher.Console;
 
@@ -7,13 +7,11 @@ namespace LYBox.Launcher.Console;
 /// 但以控制台子系统（OutputType=Exe）运行，便于直接查看 ZLogger 日志与异常堆栈。
 /// 发布产物：LYBox.Launcher.Console.exe
 /// </summary>
-sealed class Program
+internal static class Program
 {
     [STAThread]
-    public static void Main(string[] args)
+    private static void Main(string[] args)
     {
-        // 复用 GUI 版 Program 的 AppBuilder（Configure<App> + UsePlatformDetect + LogToTrace）
-        LYBox.Launcher.Desktop.Program.BuildAvaloniaApp()
-            .StartWithClassicDesktopLifetime(args);
+        DesktopLauncher.StartWithConsole(args);
     }
 }

@@ -70,6 +70,11 @@
     <SolidColorBrush x:Key="FluentColorText2" Opacity="0.7" Color="#FFFFFF" />
     <SolidColorBrush x:Key="FluentColorText3" Opacity="0.5" Color="#FFFFFF" />
 
+    <!-- FluentTextPrimary/Secondary/TertiaryBrush 命名别名（兼容 F:\Code 项目引用） -->
+    <StaticResource x:Key="FluentTextPrimaryBrush" ResourceKey="FluentColorText0" />
+    <StaticResource x:Key="FluentTextSecondaryBrush" ResourceKey="FluentColorText1" />
+    <StaticResource x:Key="FluentTextTertiaryBrush" ResourceKey="FluentColorText2" />
+
     <!-- Link -->
     <SolidColorBrush x:Key="FluentColorLink" Color="#60CDFF" />
     <SolidColorBrush x:Key="FluentColorLinkPointerover" Color="#78D4FF" />

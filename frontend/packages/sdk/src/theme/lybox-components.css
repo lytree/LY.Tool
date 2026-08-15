@@ -1,0 +1,337 @@
+/**
+ * LYBox Fluent Design 共享组件样式层
+ *
+ * 构建在 lybox-theme.css 之上（依赖其 CSS 变量），提供与宿主 Avalonia
+ * Fluent/Ursa 风格一致的组件类。所有颜色/圆角/间距均引用语义变量，
+ * 不写死字面量，因此自动适配浅色/深色/系统跟随主题。
+ *
+ * 用法：
+ *   import '@lybox/sdk/css';          // 仅主题变量
+ *   import '@lybox/sdk/components';   // 主题变量 + 组件样式
+ *
+ * 主题切换：<html data-theme="dark|light">（详见 lybox-theme.css）
+ */
+
+/* ============================================
+ * 焦点环（全局统一）
+ * ============================================ */
+:where(button, input, textarea, select, a, [tabindex], [role="button"]):focus-visible {
+  outline: 2px solid var(--lybox-color-border-focus);
+  outline-offset: 2px;
+}
+
+/* ============================================
+ * 禁用态（全局统一）
+ * ============================================ */
+:where([disabled], [aria-disabled="true"], .ly-disabled) {
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+/* ============================================
+ * Button
+ * ============================================ */
+.ly-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lybox-spacing-tight);
+  height: 32px;
+  padding: 0 var(--lybox-spacing-base);
+  border: 1px solid transparent;
+  border-radius: var(--lybox-corner-radius-control);
+  font-family: var(--lybox-font-family);
+  font-size: var(--lybox-font-size-body);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* 主要 */
+.ly-btn-primary {
+  color: #fff;
+  background-color: var(--lybox-color-primary);
+}
+.ly-btn-primary:hover { background-color: var(--lybox-color-primary-hover); }
+.ly-btn-primary:active { background-color: var(--lybox-color-primary-active); }
+.ly-btn-primary[disabled] { background-color: var(--lybox-color-primary-disabled); }
+
+/* 次级（描边） */
+.ly-btn-secondary {
+  color: var(--lybox-color-text-0);
+  background-color: transparent;
+  border-color: var(--lybox-color-border);
+}
+.ly-btn-secondary:hover { background-color: var(--lybox-color-fill-1); }
+.ly-btn-secondary:active { background-color: var(--lybox-color-fill-2); }
+
+/* 三级（无边框） */
+.ly-btn-tertiary {
+  color: var(--lybox-color-text-0);
+  background-color: transparent;
+}
+.ly-btn-tertiary:hover { background-color: var(--lybox-color-fill-1); }
+.ly-btn-tertiary:active { background-color: var(--lybox-color-fill-2); }
+
+/* 语义色 */
+.ly-btn-danger {
+  color: #fff;
+  background-color: var(--lybox-color-danger);
+}
+.ly-btn-danger:hover { background-color: var(--lybox-color-danger-hover); }
+.ly-btn-danger:active { background-color: var(--lybox-color-danger-active); }
+
+.ly-btn-success {
+  color: #fff;
+  background-color: var(--lybox-color-success);
+}
+.ly-btn-success:hover { background-color: var(--lybox-color-success-hover); }
+.ly-btn-success:active { background-color: var(--lybox-color-success-active); }
+
+.ly-btn-warning {
+  color: var(--lybox-color-text-0);
+  background-color: var(--lybox-color-warning);
+}
+.ly-btn-warning:hover { background-color: var(--lybox-color-warning-hover); }
+.ly-btn-warning:active { background-color: var(--lybox-color-warning-active); }
+
+/* 尺寸 */
+.ly-btn-sm { height: 24px; padding: 0 var(--lybox-spacing-base-tight); font-size: var(--lybox-font-size-caption); }
+.ly-btn-lg { height: 40px; padding: 0 var(--lybox-spacing-loose); font-size: var(--lybox-font-size-subtitle); }
+
+/* 图标按钮 */
+.ly-btn-icon {
+  width: 32px;
+  padding: 0;
+}
+.ly-btn-icon svg, .ly-btn-icon img { width: 16px; height: 16px; }
+
+/* 块级 */
+.ly-btn-block {
+  display: flex;
+  width: 100%;
+}
+
+/* ============================================
+ * Input / Textarea / Select
+ * ============================================ */
+.ly-input,
+.ly-textarea,
+.ly-select {
+  width: 100%;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 var(--lybox-spacing-base-tight);
+  border: 1px solid var(--lybox-color-border);
+  border-radius: var(--lybox-corner-radius-control);
+  background-color: var(--lybox-color-background-1);
+  color: var(--lybox-color-text-0);
+  font-family: var(--lybox-font-family);
+  font-size: var(--lybox-font-size-body);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.ly-textarea {
+  height: auto;
+  min-height: 72px;
+  padding: var(--lybox-spacing-tight) var(--lybox-spacing-base-tight);
+  resize: vertical;
+  line-height: 1.5;
+}
+.ly-input::placeholder,
+.ly-textarea::placeholder {
+  color: var(--lybox-color-text-3);
+}
+.ly-input:hover:not([disabled]),
+.ly-textarea:hover:not([disabled]),
+.ly-select:hover:not([disabled]) {
+  border-color: var(--lybox-color-text-3);
+}
+.ly-input:focus:not([disabled]),
+.ly-textarea:focus:not([disabled]),
+.ly-select:focus:not([disabled]) {
+  border-color: var(--lybox-color-border-focus);
+  box-shadow: 0 0 0 1px var(--lybox-color-border-focus);
+  outline: none;
+}
+.ly-input[disabled],
+.ly-textarea[disabled],
+.ly-select[disabled] {
+  background-color: var(--lybox-color-disabled-background);
+  color: var(--lybox-color-text-disabled);
+  border-color: var(--lybox-color-border-disabled);
+}
+
+/* 输入着色 */
+.ly-input-error,
+.ly-textarea-error {
+  border-color: var(--lybox-color-danger);
+}
+.ly-input-error:focus,
+.ly-textarea-error:focus {
+  border-color: var(--lybox-color-danger);
+  box-shadow: 0 0 0 1px var(--lybox-color-danger);
+}
+
+/* ============================================
+ * Card
+ * ============================================ */
+.ly-card {
+  background-color: var(--lybox-card-background);
+  border: 1px solid var(--lybox-card-stroke);
+  border-radius: var(--lybox-corner-radius-card);
+  padding: var(--lybox-spacing-base);
+}
+.ly-card-elevated {
+  box-shadow: var(--lybox-shadow-card);
+}
+.ly-card-hover:hover {
+  background-color: var(--lybox-subtle);
+  transition: background-color 0.15s ease;
+}
+
+/* ============================================
+ * Badge
+ * ============================================ */
+.ly-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lybox-spacing-extra-tight);
+  height: 20px;
+  padding: 0 var(--lybox-spacing-tight);
+  border-radius: var(--lybox-radius-small);
+  font-size: var(--lybox-font-size-caption);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+.ly-badge-neutral {
+  color: var(--lybox-color-text-2);
+  background-color: var(--lybox-color-fill-1);
+}
+.ly-badge-primary {
+  color: var(--lybox-color-primary);
+  background-color: var(--lybox-color-primary-light);
+}
+.ly-badge-info {
+  color: var(--lybox-color-info);
+  background-color: var(--lybox-color-primary-light);
+}
+.ly-badge-success {
+  color: var(--lybox-color-success);
+  background-color: var(--lybox-color-success-light);
+}
+.ly-badge-warning {
+  color: var(--lybox-color-warning-hover);
+  background-color: var(--lybox-color-warning-light);
+}
+.ly-badge-danger {
+  color: var(--lybox-color-danger);
+  background-color: var(--lybox-color-danger-light);
+}
+
+/* 点状徽章 */
+.ly-badge-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: var(--lybox-corner-radius-full);
+}
+.ly-badge-dot.ly-badge-primary { background-color: var(--lybox-color-primary); }
+.ly-badge-dot.ly-badge-success { background-color: var(--lybox-color-success); }
+.ly-badge-dot.ly-badge-warning { background-color: var(--lybox-color-warning); }
+.ly-badge-dot.ly-badge-danger { background-color: var(--lybox-color-danger); }
+
+/* ============================================
+ * Alert
+ * ============================================ */
+.ly-alert {
+  display: flex;
+  gap: var(--lybox-spacing-base-tight);
+  align-items: flex-start;
+  padding: var(--lybox-spacing-base-tight) var(--lybox-spacing-base);
+  border-radius: var(--lybox-corner-radius-card);
+  border: 1px solid transparent;
+  font-size: var(--lybox-font-size-body);
+  line-height: 1.5;
+}
+.ly-alert-info {
+  color: var(--lybox-color-info);
+  background-color: var(--lybox-color-primary-light);
+  border-color: var(--lybox-color-primary-light-active);
+}
+.ly-alert-success {
+  color: var(--lybox-color-success);
+  background-color: var(--lybox-color-success-light);
+  border-color: var(--lybox-color-success-light-active);
+}
+.ly-alert-warning {
+  color: var(--lybox-color-warning-hover);
+  background-color: var(--lybox-color-warning-light);
+  border-color: var(--lybox-color-warning-light-active);
+}
+.ly-alert-danger {
+  color: var(--lybox-color-danger);
+  background-color: var(--lybox-color-danger-light);
+  border-color: var(--lybox-color-danger-light-active);
+}
+.ly-alert-title {
+  font-weight: 600;
+  margin: 0 0 var(--lybox-spacing-extra-tight);
+}
+.ly-alert-body {
+  margin: 0;
+  flex: 1;
+}
+
+/* ============================================
+ * Loading（旋转指示器 + 覆盖层）
+ * ============================================ */
+.ly-loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--lybox-color-text-3);
+  border-top-color: var(--lybox-color-primary);
+  border-radius: var(--lybox-corner-radius-full);
+  animation: lybox-spin 0.8s linear infinite;
+}
+.ly-loading-sm { width: 14px; height: 14px; border-width: 2px; }
+.ly-loading-lg { width: 32px; height: 32px; border-width: 3px; }
+
+@keyframes lybox-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ly-loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lybox-spacing-tight);
+  background-color: var(--lybox-color-overlay);
+  border-radius: inherit;
+  z-index: 10;
+}
+.ly-loading-overlay .ly-loading-text {
+  color: var(--lybox-color-text-0);
+  font-size: var(--lybox-font-size-body);
+}
+
+/* ============================================
+ * 响应式工具
+ * ============================================ */
+.ly-hidden-sm { display: none !important; }
+@media (min-width: 640px) {
+  .ly-hidden-sm { display: revert !important; }
+  .ly-hidden-md-and-up { display: none !important; }
+}
+@media (min-width: 1024px) {
+  .ly-hidden-md { display: none !important; }
+  .ly-hidden-sm { display: revert !important; }
+}

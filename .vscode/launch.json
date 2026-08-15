@@ -38,8 +38,8 @@
             "name": "Launcher Console - Debug Output",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build-launcher-console",
-            "program": "${workspaceFolder}/src/launcher/LYBox.Launcher.Console/bin/Debug/net10.0/LYBox.Launcher.Console.dll",
+            "preLaunchTask": "build-host",
+            "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Console.dll",
             "args": ["--no-splash"],
             "env": {},
             "console": "integratedTerminal",
@@ -51,9 +51,7 @@
             "request": "launch",
             "preLaunchTask": "build-plugin-template",
             "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
-            "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.Template/bin/Debug/net10.0"
-            },
+            "env": {"AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.Template/bin/Debug/net10.0"},
             "console": "internalConsole",
             "stopAtEntry": false
         },
@@ -63,9 +61,7 @@
             "request": "launch",
             "preLaunchTask": "build-plugin-btsou",
             "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
-            "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.BTSou/bin/Debug/net10.0"
-            },
+            "env": {"AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.BTSou/bin/Debug/net10.0"},
             "console": "internalConsole",
             "stopAtEntry": false
         },
@@ -75,9 +71,7 @@
             "request": "launch",
             "preLaunchTask": "build-plugin-buttons-inputs",
             "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
-            "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.ButtonsInputs/bin/Debug/net10.0"
-            },
+            "env": {"AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.ButtonsInputs/bin/Debug/net10.0"},
             "console": "internalConsole",
             "stopAtEntry": false
         },
@@ -87,9 +81,7 @@
             "request": "launch",
             "preLaunchTask": "build-plugin-date-time",
             "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
-            "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.DateTime/bin/Debug/net10.0"
-            },
+            "env": {"AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.DateTime/bin/Debug/net10.0"},
             "console": "internalConsole",
             "stopAtEntry": false
         },
@@ -99,9 +91,7 @@
             "request": "launch",
             "preLaunchTask": "build-plugin-dialog-feedbacks",
             "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
-            "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.DialogFeedbacks/bin/Debug/net10.0"
-            },
+            "env": {"AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.DialogFeedbacks/bin/Debug/net10.0"},
             "console": "internalConsole",
             "stopAtEntry": false
         },
@@ -111,9 +101,7 @@
             "request": "launch",
             "preLaunchTask": "build-plugin-downloader",
             "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
-            "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.Downloader/bin/Debug/net10.0"
-            },
+            "env": {"AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.Downloader/bin/Debug/net10.0"},
             "console": "internalConsole",
             "stopAtEntry": false
         },
@@ -123,9 +111,7 @@
             "request": "launch",
             "preLaunchTask": "build-plugin-layout-display",
             "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
-            "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.LayoutDisplay/bin/Debug/net10.0"
-            },
+            "env": {"AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.LayoutDisplay/bin/Debug/net10.0"},
             "console": "internalConsole",
             "stopAtEntry": false
         },
@@ -135,9 +121,7 @@
             "request": "launch",
             "preLaunchTask": "build-plugin-navigation-menus",
             "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
-            "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.NavigationMenus/bin/Debug/net10.0"
-            },
+            "env": {"AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.NavigationMenus/bin/Debug/net10.0"},
             "console": "internalConsole",
             "stopAtEntry": false
         },
@@ -147,9 +131,7 @@
             "request": "launch",
             "preLaunchTask": "build-plugin-pro-data-grid",
             "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
-            "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.ProDataGrid/bin/Debug/net10.0"
-            },
+            "env": {"AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.ProDataGrid/bin/Debug/net10.0"},
             "console": "internalConsole",
             "stopAtEntry": false
         },
@@ -159,9 +141,7 @@
             "request": "launch",
             "preLaunchTask": "build-plugin-scott-plot",
             "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
-            "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.ScottPlot/bin/Debug/net10.0"
-            },
+            "env": {"AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.ScottPlot/bin/Debug/net10.0"},
             "console": "internalConsole",
             "stopAtEntry": false
         },
@@ -171,9 +151,7 @@
             "request": "launch",
             "preLaunchTask": "build-plugin-tdl-sharp",
             "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
-            "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.TDLSharp/bin/Debug/net10.0"
-            },
+            "env": {"AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.TDLSharp/bin/Debug/net10.0"},
             "console": "internalConsole",
             "stopAtEntry": false
         },
@@ -183,9 +161,7 @@
             "request": "launch",
             "preLaunchTask": "build-plugin-web-template",
             "program": "${workspaceFolder}/bin/bin/LYBox.Launcher.Desktop.dll",
-            "env": {
-                "AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.WebTemplate/bin/Debug/net10.0"
-            },
+            "env": {"AVALONIA_EXTRA_PLUGINS_PATH": "${workspaceFolder}/plugins/LYBox.Plugin.WebTemplate/bin/Debug/net10.0"},
             "console": "internalConsole",
             "stopAtEntry": false
         }
