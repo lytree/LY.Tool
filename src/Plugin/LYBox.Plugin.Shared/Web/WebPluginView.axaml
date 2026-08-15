@@ -59,6 +59,15 @@
                 </Grid>
             </Border>
             <web:NativeWebView x:Name="PART_WebView" Grid.Row="1" />
+            <!-- 懒加载占位：插件未主动注册 Web 服务时显示，不渲染 WebView -->
+            <Border x:Name="PART_Placeholder" Grid.Row="1" IsVisible="False"
+                    Background="{DynamicResource FluentBackgroundBrush}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8" Margin="24">
+                    <TextBlock Text="Web 服务未启用" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                    <TextBlock x:Name="PART_PlaceholderMessage" Text="" Opacity="0.7"
+                               TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
         </Grid>
     </Border>
 </UserControl>

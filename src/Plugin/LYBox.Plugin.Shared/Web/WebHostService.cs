@@ -18,12 +18,14 @@ namespace LYBox.Plugin.Shared.Web;
 /// </summary>
 /// <remarks>
 /// <para>
-/// 生命周期：在 <c>App.Initialize()</c> 中通过 DI 注册为单例，<c>ServiceProvider</c> 构建后调用
-/// <see cref="StartAsync"/>；应用退出时随 <c>ServiceProvider.Dispose()</c> 自动停止
+/// 生命周期：在 <c>App.Initialize()</c> 中通过 DI 注册为单例，<c>ServiceProvider</c> 构建后由宿主调用
+/// <see cref="StartAsync"/>；但懒加载——只有插件主动调用 <see cref="MapPluginRoot"/> 注册资源根目录后
+/// 才真正启动 Kestrel，否则保持关闭。应用退出时随 <c>ServiceProvider.Dispose()</c> 自动停止
 /// （实现 <see cref="IAsyncDisposable"/>）。
 /// </para>
 /// <para>
-/// 路由注册：每个 Web 插件通过 <see cref="MapPluginRoot"/> 注册其 <c>wwwroot</c> 目录，
+/// 路由注册：每个 Web 插件在 <c>RegisterAsync</c> 阶段主动调用 <see cref="MapPluginRoot"/> 注册其
+/// <c>wwwroot</c> 目录；未主动注册的插件不会被服务，其 <c>WebPluginView</c> 也不会渲染 WebView。
 /// 请求 <c>/{pluginId}/foo.css</c> 时按 pluginId 查找目录后通过 <c>StaticFiles</c> 中间件返回。
 /// </para>
 /// <para>
@@ -41,6 +43,13 @@ public sealed class WebHostService : IAsyncDisposable
 
     /// <summary>当前监听端口。0 表示尚未启动。</summary>
     public int Port { get; private set; }
+
+    /// <summary>是否已启动 Kestrel 监听。仅当有插件主动注册后才会启动。</summary>
+    public bool IsRunning => _app is not null;
+
+    /// <summary>指定插件是否已主动注册其 Web 资源根目录。</summary>
+    public bool IsRegistered(string pluginId) =>
+        !string.IsNullOrEmpty(pluginId) && _pluginRoots.ContainsKey(pluginId);
 
     /// <summary>资源服务 BaseUrl，例如 <c>http://127.0.0.1:54321</c>。</summary>
     public string BaseUrl => $"http://127.0.0.1:{Port}";
@@ -149,10 +158,11 @@ public sealed class WebHostService : IAsyncDisposable
         return null;
     }
 
-    /// <summary>启动 Kestrel 监听。</summary>
+    /// <summary>启动 Kestrel 监听。懒加载：若没有任何插件主动注册 Web 资源则不启动（保持关闭）。</summary>
     public async Task StartAsync(CancellationToken cancellationToken = default)
     {
         if (_app is not null) return; // 幂等
+        if (_pluginRoots.Count == 0) return; // 懒加载：无插件注册则不启动 Kestrel
 
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseUrls("http://127.0.0.1:0");

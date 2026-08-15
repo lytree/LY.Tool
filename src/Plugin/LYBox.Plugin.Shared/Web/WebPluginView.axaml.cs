@@ -152,6 +152,18 @@ public partial class WebPluginView : UserControl
             return;
         _webHost = webHost;
 
+        // 懒加载门控：仅当服务已启动且当前插件已主动注册时才渲染 WebView，否则显示占位
+        if (!webHost.IsRunning || !webHost.IsRegistered(pluginId))
+        {
+            ShowPlaceholder($"插件 {pluginId} 未主动注册 Web 资源，Web 界面未启用");
+            return;
+        }
+
+        // 插件已注册，确保 WebView 可见、占位隐藏
+        if (webView.IsVisible == false) webView.IsVisible = true;
+        var placeholder = this.FindControl<Border>("PART_Placeholder");
+        if (placeholder is not null) placeholder.IsVisible = false;
+
         // 2. 构造 IPC 传输层 + 主机（注入 SSE pusher + pluginId + webHost 以启用 SSE 推送 + HTTP RPC 桥）
         _transport = new WebViewIpcTransport(webView);
         _host = new WebViewIpcHost(_transport, webHost.EventPusher, pluginId, webHost);
@@ -172,6 +184,19 @@ public partial class WebPluginView : UserControl
         var url = $"{webHost.BaseUrl}/{pluginId}/index.html";
         _targetUri = new Uri(url);
         webView.Source = _targetUri;
+    }
+
+    /// <summary>插件未主动注册 Web 服务时显示占位提示，隐藏 WebView，不渲染 Web 界面。</summary>
+    private void ShowPlaceholder(string message)
+    {
+        if (_webView is not null)
+            _webView.IsVisible = false;
+        var placeholder = this.FindControl<Border>("PART_Placeholder");
+        if (placeholder is not null)
+            placeholder.IsVisible = true;
+        var msg = this.FindControl<TextBlock>("PART_PlaceholderMessage");
+        if (msg is not null)
+            msg.Text = message;
     }
 
     private void RegisterPluginBindings(string pluginId)

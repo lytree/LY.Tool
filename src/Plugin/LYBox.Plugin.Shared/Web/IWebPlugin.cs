@@ -2,20 +2,16 @@ namespace LYBox.Plugin.Shared.Web;
 
 /// <summary>
 /// Web 插件契约：在 <see cref="IPlugin"/> 基础上额外声明前端资源位置。
+/// 实现此接口的插件应在 <c>RegisterAsync</c> 阶段主动调用
+/// <c>serviceProvider.GetService&lt;WebHostService&gt;()?.MapPluginRoot(PluginId, WwwrootPath)</c>
+/// 注册其前端资源，否则 <see cref="WebPluginView"/> 将不会渲染 WebView。
+/// 宿主在 <c>RegisterAsync</c> 之前会自动调用 <c>PluginLoader.InjectWebPluginBaseDirs()</c>
+/// 注入 <see cref="PluginBaseDir"/>，使 <see cref="WwwrootPath"/> 正确计算。
 /// </summary>
 /// <remarks>
 /// <para>
-/// 实现此接口的插件会被 <c>PluginLoader.GetWebPluginRoots()</c> 扫描到，
-/// 其 <see cref="WwwrootPath"/> 指向的目录会被 <c>WebHostService.MapPluginRoot</c>
-/// 注册到 Kestrel 的路由 <c>/{pluginId}/...</c> 下。
-/// </para>
-/// <para>
-/// 默认 <see cref="WwwrootPath"/> 由 <see cref="PluginBaseDir"/> 拼接 <c>wwwroot</c> 子目录得到。
-/// 插件作者可在 <c>RegisterAsync</c> 阶段动态修改 <see cref="WwwrootPath"/>
-/// （例如指向用户自定义目录），但必须在 <c>WebHostService</c> 启动前完成。
-/// </para>
-/// <para>
 /// 该接口不破坏现有 <see cref="IPlugin"/> 契约，未实现此接口的传统插件不受影响。
+/// 未主动注册的插件不会被 WebHostService 服务，其 WebPluginView 页面也将显示占位提示而非 WebView。
 /// </para>
 /// </remarks>
 public interface IWebPlugin : IPlugin

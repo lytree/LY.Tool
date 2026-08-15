@@ -115,8 +115,10 @@ public partial class App : Application
         InitializeLocalization();
 
         // 阶段3：调用插件 RegisterAsync(IServiceProvider)，执行多语言注册等
+        // 先注入 Web 插件的安装路径，供插件在 RegisterAsync 阶段主动注册其 wwwroot
+        pluginLoader.InjectWebPluginBaseDirs();
         pluginLoader.RegisterAllPluginsAsync(ServiceProvider).GetAwaiter().GetResult();
-        InitializeWebHost(pluginLoader);
+        InitializeWebHost();
         RegisterPluginNavigationAndMenus(pluginLoader);
 
         DataContext = new ApplicationViewModel();
@@ -148,30 +150,27 @@ public partial class App : Application
     }
 
     /// <summary>
-    /// 启动嵌入式 HTTP 资源服务并注册所有 Web 插件的 wwwroot 路由。
-    /// 在 <see cref="PluginLoader.RegisterAllPluginsAsync"/> 之后调用，确保插件实例已就绪；
-    /// 在 <see cref="RegisterPluginNavigationAndMenus"/> 之前调用，确保 Web 插件页面导航时 HTTP 服务已可用。
-    /// 启动失败不阻塞应用（Web 插件功能降级，传统插件不受影响）。
+    /// 触发嵌入式 HTTP 资源服务启动（懒加载）。Web 插件在 <see cref="IPlugin.RegisterAsync"/> 阶段
+    /// 主动调用 <see cref="WebHostService.MapPluginRoot"/> 注册其 wwwroot，此处仅触发启动；
+    /// <see cref="WebHostService"/> 内部在无任何插件注册时保持关闭。
+    /// 在 <see cref="PluginLoader.RegisterAllPluginsAsync"/> 之后、<see cref="RegisterPluginNavigationAndMenus"/>
+    /// 之前调用，确保 Web 插件页面导航时 HTTP 服务已可用。启动失败不阻塞应用（Web 插件功能降级）。
     /// </summary>
-    private void InitializeWebHost(PluginLoader pluginLoader)
+    private void InitializeWebHost()
     {
         try
         {
             var webHost = ServiceProvider?.GetRequiredService<WebHostService>();
             if (webHost is null) return;
 
-            var roots = pluginLoader.GetWebPluginRoots();
-            foreach (var (pluginId, wwwrootPath) in roots)
-            {
-                webHost.MapPluginRoot(pluginId, wwwrootPath);
-                var logger = ServiceProvider?.GetRequiredService<ILogger<App>>();
-                logger?.LogInformation("已注册 Web 插件路由: /{PluginId}/ → {Path}", pluginId, wwwrootPath);
-            }
-
-            // 启动 Kestrel（自动分配端口）
+            // 懒加载：插件已主动注册路由，仅当存在注册时才真正启动 Kestrel
             webHost.StartAsync().GetAwaiter().GetResult();
+
             var bootLogger = ServiceProvider?.GetRequiredService<ILogger<App>>();
-            bootLogger?.LogInformation("WebHostService 已启动，监听 {BaseUrl}", webHost.BaseUrl);
+            if (webHost.IsRunning)
+                bootLogger?.LogInformation("WebHostService 已启动，监听 {BaseUrl}", webHost.BaseUrl);
+            else
+                bootLogger?.LogInformation("未发现已注册的 Web 插件，WebHostService 保持关闭（懒加载）");
         }
         catch (Exception ex)
         {

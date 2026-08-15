@@ -525,10 +525,31 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
     }
 
     /// <summary>
-    /// 扫描所有已加载插件，返回实现了 <see cref="IWebPlugin"/> 的插件的 wwwroot 目录映射。
-    /// 同时把 <see cref="PluginEntry.Info.InstallPath"/> 注入到 <see cref="IWebPlugin.PluginBaseDir"/>，
-    /// 供 <see cref="IWebPlugin.WwwrootPath"/> 计算使用。
-    /// 跳过 wwwroot 目录不存在的插件（记录警告），不影响其他插件。
+    /// 为所有已加载的 <see cref="IWebPlugin"/> 注入 <see cref="IWebPlugin.PluginBaseDir"/>，
+    /// 供插件在 <c>RegisterAsync</c> 阶段主动注册其 <c>wwwroot</c> 时计算 <see cref="IWebPlugin.WwwrootPath"/>。
+    /// 仅在插件 <c>RegisterAsync</c> 之前调用一次即可。
+    /// </summary>
+    public void InjectWebPluginBaseDirs()
+    {
+        List<PluginEntry> snapshot;
+        lock (_sync)
+        {
+            snapshot = _entries.Values
+                .Where(e => e.Plugin is IWebPlugin && e.Info.State == PluginState.Loaded)
+                .ToList();
+        }
+
+        foreach (var entry in snapshot)
+        {
+            var webPlugin = (IWebPlugin)entry.Plugin!;
+            webPlugin.PluginBaseDir = entry.Info.InstallPath;
+        }
+    }
+
+    /// <summary>
+    /// 扫描所有已加载的插件，返回实现了 <see cref="IWebPlugin"/> 且 wwwroot 目录存在的插件映射。
+    /// 各插件在 <c>RegisterAsync</c> 阶段主动调用 <see cref="WebHostService.MapPluginRoot"/> 注册，
+    /// 此方法仅用于兼容或调试场景，宿主不再依赖此方法进行初始注册。
     /// </summary>
     /// <returns>插件 ID → wwwroot 绝对路径的字典。无 Web 插件时返回空字典。</returns>
     public Dictionary<string, string> GetWebPluginRoots()
@@ -545,10 +566,7 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
 
         foreach (var entry in snapshot)
         {
-            var webPlugin = (IWebPlugin)entry.Plugin!;
-            webPlugin.PluginBaseDir = entry.Info.InstallPath;
-
-            var wwwroot = webPlugin.WwwrootPath;
+            var wwwroot = ((IWebPlugin)entry.Plugin!).WwwrootPath;
             if (string.IsNullOrEmpty(wwwroot) || !Directory.Exists(wwwroot))
             {
                 _logger.LogWarning("Web 插件 {PluginId} 的 wwwroot 目录不存在: {Path}，跳过 HTTP 路由注册",
