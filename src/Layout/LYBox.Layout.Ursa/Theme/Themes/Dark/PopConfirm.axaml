@@ -2,5 +2,5 @@
     <StaticResource x:Key="PopConfirmBackground" ResourceKey="FluentColorBackground3" />
     <StaticResource x:Key="PopConfirmBorderBrush" ResourceKey="FluentColorBorder" />
     <StaticResource x:Key="PopConfirmContentForeground" ResourceKey="FluentColorText2" />
-    <StaticResource x:Key="PopConfirmBorderBoxShadows" ResourceKey="FluentShadowElevated" />
+    <StaticResource x:Key="PopConfirmBorderBoxShadows" ResourceKey="FluentShadowRaised" />
 </ResourceDictionary>

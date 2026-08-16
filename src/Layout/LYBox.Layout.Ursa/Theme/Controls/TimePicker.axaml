@@ -167,7 +167,7 @@
                                     BorderBrush="{DynamicResource ComboBoxPopupBorderBrush}"
                                     BorderThickness="{DynamicResource ComboBoxPopupBorderThickness}"
                                     BoxShadow="{DynamicResource ComboBoxPopupBoxShadow}"
-                                    CornerRadius="6">
+                                    CornerRadius="{DynamicResource DateTimePickerPopupCornerRadius}">
                                     <DockPanel>
                                         <StackPanel DockPanel.Dock="Bottom" IsVisible="{TemplateBinding NeedConfirmation}">
                                             <Button

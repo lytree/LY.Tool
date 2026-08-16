@@ -109,8 +109,11 @@
     <SolidColorBrush x:Key="FluentColorHighlightBackground" Opacity="0.2" Color="#FCE100" />
     <SolidColorBrush x:Key="FluentColorHighlight" Color="#FFFFFF" />
 
-    <!-- Shadow (Fluent Elevation) -->
+    <!-- Shadow (Fluent Elevation 分层) -->
     <BoxShadows x:Key="FluentColorShadow">0 0 #0A000000</BoxShadows>
+    <BoxShadows x:Key="FluentShadowSunken">0 0 0 0 #00000000</BoxShadows>
+    <BoxShadows x:Key="FluentShadowSoft">0 1 3 0 #2E000000</BoxShadows>
+    <BoxShadows x:Key="FluentShadowRaised">0 2 6 0 #3D000000, 0 6 12 0 #26000000</BoxShadows>
     <BoxShadows x:Key="FluentShadowElevated">inset 0 0 0 1 #1AFFFFFF, 0 4 14 #40000000</BoxShadows>
 
     <!-- Fluent Background Colors for direct use -->
@@ -121,12 +124,33 @@
     <SolidColorBrush x:Key="FluentAccentPointeroverBrush" Color="#78D4FF" />
     <SolidColorBrush x:Key="FluentAccentPressedBrush" Color="#38B0F0" />
     <SolidColorBrush x:Key="FluentAccentDisabledBrush" Opacity="0.35" Color="#60CDFF" />
+    <SolidColorBrush x:Key="FluentAccentForegroundBrush" Color="#000000" />
     <SolidColorBrush x:Key="FluentCardBackgroundBrush" Color="#2C2C2C" />
     <SolidColorBrush x:Key="FluentCardStrokeBrush" Opacity="0.08" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="FluentCardStrokePointeroverBrush" Opacity="0.15" Color="#FFFFFF" />
     <!-- Layer background (nav pane + title bar, same layer for visual consistency) -->
     <SolidColorBrush x:Key="FluentSubtleBrush" Color="#202020" />
     <SolidColorBrush x:Key="FluentSubtleHoverBrush" Opacity="0.08" Color="#FFFFFF" />
     <SolidColorBrush x:Key="FluentSubtlePressedBrush" Opacity="0.12" Color="#FFFFFF" />
+
+    <!-- ===== WinUI 3 shell / surface 语义 brush（对齐 F:\Code Avalonia.UI 参考） ===== -->
+    <SolidColorBrush x:Key="FluentShellBackgroundBrush" Color="#202020" />
+    <SolidColorBrush x:Key="FluentPageBackgroundBrush" Color="#272727" />
+    <SolidColorBrush x:Key="FluentNavPaneBackgroundBrush" Color="#202020" />
+    <SolidColorBrush x:Key="FluentTitleBarBackgroundBrush" Color="#202020" />
+    <SolidColorBrush x:Key="FluentSearchBoxBackgroundBrush" Opacity="0.06" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="FluentDividerBrush" Opacity="0.10" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="FluentShellContentBorderBrush" Opacity="0.10" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="FluentShellTitleBarBorderBrush" Opacity="0.08" Color="#FFFFFF" />
+    <BoxShadows x:Key="FluentPaneBoxShadow">0 0 0 0 Transparent</BoxShadows>
+    <BoxShadows x:Key="FluentShellContentBoxShadow">0 1 3 0 #66000000</BoxShadows>
+    <BoxShadows x:Key="FluentCardBoxShadow">inset 0 0 0 1 #08FFFFFF, 0 1 2 0 #52000000</BoxShadows>
+    <BoxShadows x:Key="FluentCardPointeroverBoxShadow">inset 0 0 0 1 #12FFFFFF, 0 2 6 0 #70000000</BoxShadows>
+
+    <!-- 布局尺寸 token -->
+    <x:Double x:Key="FluentPaneExpandedWidth">280</x:Double>
+    <x:Double x:Key="FluentPaneCollapsedWidth">48</x:Double>
+    <x:Double x:Key="FluentTitleBarHeight">48</x:Double>
 
     <!-- ===== Avalonia-Fluent-UI semantic color tokens (WinUI 3 token mapping) ===== -->
     <!-- Text fill -->

@@ -2,7 +2,8 @@
     <StaticResource x:Key="WindowBorderShadow" ResourceKey="FluentShadowElevated" />
     <StaticResource x:Key="WindowBackground" ResourceKey="FluentColorBackground0" />
     <StaticResource x:Key="WindowBorderBrush" ResourceKey="FluentCardStrokeBrush" />
-    <StaticResource x:Key="TitleBarBackground" ResourceKey="FluentColorBackground0" />
+    <!-- 标题栏背景与左侧导航面板同色（#202020），形成 WinUI NavigationView 顶部连续条 -->
+    <StaticResource x:Key="TitleBarBackground" ResourceKey="FluentTitleBarBackgroundBrush" />
 
     <!-- 失焦状态：标题栏与边框使用更暗的灰色，与 WinUI 3 inactive 行为一致 -->
     <SolidColorBrush x:Key="TitleBarInactiveBackground" Color="#2A2A2A" />

@@ -9,7 +9,7 @@
     <StaticResource x:Key="CalendarDatePickerFocusBorderBrush" ResourceKey="FluentColorPrimary" />
     <StaticResource x:Key="CalendarDatePickerDisabledBackground" ResourceKey="FluentColorDisabledFill" />
     <StaticResource x:Key="CalendarDatePickerDisabledIconForeground" ResourceKey="FluentColorDisabledText" />
-    <StaticResource x:Key="CalendarDatePickerPopupBoxShadows" ResourceKey="FluentShadowElevated" />
+    <StaticResource x:Key="CalendarDatePickerPopupBoxShadows" ResourceKey="FluentShadowRaised" />
     <SolidColorBrush x:Key="CalendarDatePickerBorderedDefaultBackground" Color="Transparent" />
     <StaticResource x:Key="CalendarDatePickerBorderedDefaultBorderBrush" ResourceKey="FluentColorBorder" />
     <SolidColorBrush x:Key="CalendarDatePickerBorderedPointeroverBackground" Color="Transparent" />

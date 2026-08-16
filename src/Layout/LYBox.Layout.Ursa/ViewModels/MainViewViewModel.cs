@@ -28,6 +28,11 @@ public partial class MainViewViewModel : ViewModelBase
     [ObservableProperty] private string? _searchText;
     [ObservableProperty] private MenuItemViewModel? _selectedMenuItem;
 
+    // 状态栏
+    [ObservableProperty] private string? _statusText;
+    [ObservableProperty] private string? _statusPageText;
+    [ObservableProperty] private string? _statusVersion;
+
     // 搜索防抖：避免每次击键都触发导航和过滤
     private DispatcherTimer? _searchDebounceTimer;
 
@@ -86,13 +91,30 @@ public partial class MainViewViewModel : ViewModelBase
         UpdateLocalizedStrings();
         Menus.RefreshHeaders();
         WeakReferenceMessenger.Default.Register<MainViewViewModel, string, string>(this, "JumpTo", OnNavigation);
+        InitializeStatusBar();
         OnNavigation(this, "Introduction");
+    }
+
+    private void InitializeStatusBar()
+    {
+        StatusText = _localizationService?.GetString("STATUS_Ready", "就绪") ?? "就绪";
+        StatusVersion = GetAppVersion();
+    }
+
+    private static string GetAppVersion()
+    {
+        var version = typeof(MainViewViewModel).Assembly.GetName().Version;
+        return version is null
+            ? string.Empty
+            : $"{version.Major}.{version.Minor}.{version.Build}";
     }
 
     private void OnCultureChanged(object? sender, System.Globalization.CultureInfo culture)
     {
         UpdateLocalizedStrings();
         Menus.RefreshHeaders();
+        StatusText = _localizationService?.GetString("STATUS_Ready", "就绪") ?? "就绪";
+        StatusPageText = SelectedMenuItem?.MenuHeader;
     }
 
     private void UpdateLocalizedStrings()
@@ -121,6 +143,7 @@ public partial class MainViewViewModel : ViewModelBase
         Content = _navigationService.CreateViewModel(s);
         // 使用扁平索引 O(1) 查找菜单项，替代递归遍历
         SelectedMenuItem = _menuConfigurationService.GetMenuItemByKey(s);
+        StatusPageText = SelectedMenuItem?.MenuHeader;
     }
 
     /// <summary>

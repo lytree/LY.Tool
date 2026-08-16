@@ -19,5 +19,5 @@
     <SolidColorBrush x:Key="DateTimePickerButtonDisabledBorderBrush" Color="Transparent" />
     <StaticResource x:Key="DateTimePickerButtonDisabledBackground" ResourceKey="FluentColorDisabledFill" />
     <StaticResource x:Key="DateTimePickerButtonDisabledIconForeground" ResourceKey="FluentColorDisabledText" />
-    <StaticResource x:Key="DateTimePickerFlyoutBoxShadow" ResourceKey="FluentShadowElevated" />
+    <StaticResource x:Key="DateTimePickerFlyoutBoxShadow" ResourceKey="FluentShadowRaised" />
 </ResourceDictionary>

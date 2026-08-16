@@ -120,7 +120,7 @@
                     Background="{TemplateBinding Background}"
                     BorderBrush="{TemplateBinding BorderBrush}"
                     BorderThickness="{TemplateBinding BorderThickness}"
-                    CornerRadius="3">
+                    CornerRadius="4">
                     <DockPanel LastChildFill="True">
                         <Button
                             Name="{x:Static u:ClosableTag.PART_CloseButton}"

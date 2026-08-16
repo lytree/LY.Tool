@@ -32,10 +32,12 @@
              顶部 Margin=48 让出 UrsaWindow TitleBar 高度，避免 NavMenu 与汉堡按钮重合。 -->
         <Grid Classes.Blur="{Binding $parent[u:UrsaWindow].(u:OverlayDialogHost.IsInModalStatus)}"
               Margin="0,48,0,0"
+              Background="{DynamicResource FluentShellBackgroundBrush}"
+              RowDefinitions="*,Auto"
               ColumnDefinitions="Auto,*">
             <!-- 左侧导航栏：汉堡按钮已移至 UrsaWindow.LeftContent（TitleBar 左侧），
                  避免 TitleBar 覆盖 MainView 顶部 48px 拦截点击。 -->
-            <Border Classes="FluentNavPane" Grid.Column="0">
+            <Border Classes="FluentNavPane" Grid.Row="0" Grid.Column="0">
                 <Grid RowDefinitions="*,Auto">
                     <!-- NavMenu 菜单列表（无 Header/Footer，纯菜单项） -->
                     <u:NavMenu
@@ -45,16 +47,21 @@
                         IsHorizontalCollapsed="{Binding IsCollapsed}"
                         ItemsSource="{Binding Menus.MenuItems}"
                         SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
-                        ExpandWidth="260"
-                        CollapseWidth="48"
+                        ExpandWidth="{DynamicResource FluentPaneExpandedWidth}"
+                        CollapseWidth="{DynamicResource FluentPaneCollapsedWidth}"
                         HeaderBinding="{Binding MenuHeader}"
+                        IconBinding="{Binding MenuIconName}"
                         SubMenuBinding="{Binding Children}">
                         <u:NavMenu.IconTemplate>
-                            <DataTemplate x:DataType="viewmodels:MenuItemViewModel">
-                                <PathIcon
+                            <DataTemplate x:DataType="x:String">
+                                <u:TwoTonePathIcon
                                     Width="20" Height="20"
-                                    Data="{Binding MenuIconName, Converter={StaticResource IconConverter}}"
-                                    Foreground="{DynamicResource FluentColorText1}" />
+                                    Data="{Binding Converter={StaticResource IconConverter}}"
+                                    Foreground="{DynamicResource FluentTextSecondaryBrush}"
+                                    StrokeBrush="{DynamicResource FluentTextSecondaryBrush}"
+                                    ActiveForeground="{DynamicResource FluentAccentBrush}"
+                                    ActiveStrokeBrush="{DynamicResource FluentAccentBrush}"
+                                    IsActive="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=u:NavMenuItem}, Path=IsHighlighted, Mode=TwoWay}" />
                             </DataTemplate>
                         </u:NavMenu.IconTemplate>
                     </u:NavMenu>
@@ -62,7 +69,7 @@
                     <StackPanel Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,0,0,8">
                         <Border Classes="FluentDivider" Margin="8,0,8,8" />
                         <Button
-                            Classes="FluentNavToggle"
+                            Classes="FluentNavFooterItem"
                             HorizontalAlignment="Stretch"
                             Background="Transparent"
                             BorderThickness="0"
@@ -76,7 +83,7 @@
                                     Width="20" Height="20"
                                     Margin="14,8,8,8"
                                     Data="{DynamicResource FluentSettings20Regular}"
-                                    Foreground="{DynamicResource FluentColorText1}" />
+                                    Foreground="{DynamicResource FluentTextSecondaryBrush}" />
                                 <TextBlock
                                     Grid.Column="1"
                                     Margin="0,8,8,8"
@@ -87,7 +94,7 @@
                             </Grid>
                         </Button>
                         <Button
-                            Classes="FluentNavToggle"
+                            Classes="FluentNavFooterItem"
                             HorizontalAlignment="Stretch"
                             Background="Transparent"
                             BorderThickness="0"
@@ -101,7 +108,7 @@
                                     Width="20" Height="20"
                                     Margin="14,8,8,8"
                                     Data="{DynamicResource FluentPuzzlePiece20Regular}"
-                                    Foreground="{DynamicResource FluentColorText1}" />
+                                    Foreground="{DynamicResource FluentTextSecondaryBrush}" />
                                 <TextBlock
                                     Grid.Column="1"
                                     Margin="0,8,8,8"
@@ -115,15 +122,34 @@
                 </Grid>
             </Border>
 
-            <!-- 右侧内容区:滚动由各插件页面自行管理(标题固定 + 内容滚动) -->
-            <ContentControl
-                Grid.Column="1"
-                Margin="36,24"
-                Content="{Binding Content}">
-                <ContentControl.ContentTemplate>
-                    <plugin:ViewLocator />
-                </ContentControl.ContentTemplate>
-            </ContentControl>
+            <!-- 右侧内容区：主内容表面（WinUI MainContent 风格外壳），内边距 36,24 -->
+            <Border Grid.Row="0" Grid.Column="1" Classes="FluentMainContentSurface">
+                <ContentControl
+                    Margin="36,24"
+                    Content="{Binding Content}">
+                    <ContentControl.ContentTemplate>
+                        <plugin:ViewLocator />
+                    </ContentControl.ContentTemplate>
+                </ContentControl>
+            </Border>
+
+            <!-- 底部状态栏：从左到右为 就绪状态 + 当前页面 + 右侧版本号（WinUI 底部状态栏风格） -->
+            <Border Grid.Row="1" Grid.ColumnSpan="2" Classes="FluentStatusBar">
+                <Grid ColumnDefinitions="Auto,Auto,*,Auto" VerticalAlignment="Center">
+                    <TextBlock Classes="FluentStatusItemStrong" Text="{Binding StatusText, FallbackValue=就绪}" />
+                    <Border Grid.Column="1" Classes="FluentStatusBarSeparator" />
+                    <TextBlock
+                        Grid.Column="2"
+                        Margin="16,0,0,0"
+                        Classes="FluentStatusItem"
+                        Text="{Binding StatusPageText, FallbackValue=Introduction}"
+                        TextTrimming="CharacterEllipsis" />
+                    <TextBlock
+                        Grid.Column="3"
+                        Classes="FluentStatusItem"
+                        Text="{Binding StatusVersion, FallbackValue=v1.0.0}" />
+                </Grid>
+            </Border>
         </Grid>
     </Panel>
 </UserControl>

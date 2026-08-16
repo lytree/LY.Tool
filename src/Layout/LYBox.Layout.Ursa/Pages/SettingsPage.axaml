@@ -36,75 +36,84 @@
 					</ItemsControl.ItemsPanel>
 					<ItemsControl.ItemTemplate>
 						<DataTemplate x:DataType="viewModels:SettingsGroupViewModel">
-							<Border Classes="FluentCard">
-								<StackPanel Spacing="12">
-									<TextBlock Text="{Binding GroupName}" Classes="FluentSectionHeader" Margin="0" />
-									<ItemsControl ItemsSource="{Binding Items}">
-										<ItemsControl.ItemsPanel>
-											<ItemsPanelTemplate>
-												<StackPanel Spacing="8" />
-											</ItemsPanelTemplate>
-										</ItemsControl.ItemsPanel>
-										<ItemsControl.DataTemplates>
-											<DataTemplate x:DataType="viewModels:TextSettingEntryViewModel">
-												<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+							<StackPanel Spacing="8">
+								<TextBlock Text="{Binding GroupName}" Classes="FluentSectionHeader" Margin="0" />
+								<ItemsControl ItemsSource="{Binding Items}">
+									<ItemsControl.ItemsPanel>
+										<ItemsPanelTemplate>
+											<StackPanel Spacing="8" />
+										</ItemsPanelTemplate>
+									</ItemsControl.ItemsPanel>
+									<ItemsControl.DataTemplates>
+										<DataTemplate x:DataType="viewModels:TextSettingEntryViewModel">
+											<Border Classes="FluentSettingsCard">
+												<Grid ColumnDefinitions="*,Auto">
 													<StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
-														<TextBlock Text="{Binding DisplayName}" Classes="FluentBody" />
-														<TextBlock Text="{Binding Description}" Classes="FluentCaption"
+														<TextBlock Text="{Binding DisplayName}" Classes="FluentSettingsCardTitle" />
+														<TextBlock Text="{Binding Description}" Classes="FluentSettingsCardDescription"
 																   IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
 													</StackPanel>
-													<TextBox Grid.Column="1" Grid.RowSpan="2"
+													<TextBox Grid.Column="1"
 															 Text="{Binding TextValue}"
 															 Width="240"
+															 VerticalAlignment="Center"
 															 PlaceholderText="{Binding PlaceholderText}" />
 												</Grid>
-											</DataTemplate>
-											<DataTemplate x:DataType="viewModels:SwitchSettingEntryViewModel">
-												<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+											</Border>
+										</DataTemplate>
+										<DataTemplate x:DataType="viewModels:SwitchSettingEntryViewModel">
+											<Border Classes="FluentSettingsCard">
+												<Grid ColumnDefinitions="*,Auto">
 													<StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
-														<TextBlock Text="{Binding DisplayName}" Classes="FluentBody" />
-														<TextBlock Text="{Binding Description}" Classes="FluentCaption"
+														<TextBlock Text="{Binding DisplayName}" Classes="FluentSettingsCardTitle" />
+														<TextBlock Text="{Binding Description}" Classes="FluentSettingsCardDescription"
 																   IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
 													</StackPanel>
-													<ToggleSwitch Grid.Column="1" Grid.RowSpan="2"
+													<ToggleSwitch Grid.Column="1"
 																  IsChecked="{Binding SwitchValue, Mode=TwoWay}" />
 												</Grid>
-											</DataTemplate>
-											<DataTemplate x:DataType="viewModels:DropdownSettingEntryViewModel">
-												<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+											</Border>
+										</DataTemplate>
+										<DataTemplate x:DataType="viewModels:DropdownSettingEntryViewModel">
+											<Border Classes="FluentSettingsCard">
+												<Grid ColumnDefinitions="*,Auto">
 													<StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
-														<TextBlock Text="{Binding DisplayName}" Classes="FluentBody" />
-														<TextBlock Text="{Binding Description}" Classes="FluentCaption"
+														<TextBlock Text="{Binding DisplayName}" Classes="FluentSettingsCardTitle" />
+														<TextBlock Text="{Binding Description}" Classes="FluentSettingsCardDescription"
 																   IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
 													</StackPanel>
-													<ComboBox Grid.Column="1" Grid.RowSpan="2"
+													<ComboBox Grid.Column="1"
 															  ItemsSource="{Binding DropdownOptions}"
 															  SelectedItem="{Binding DropdownValue, Mode=TwoWay}"
-															  Width="240" />
+															  Width="240"
+															  VerticalAlignment="Center" />
 												</Grid>
-											</DataTemplate>
-											<DataTemplate x:DataType="viewModels:PathSettingEntryViewModel">
-												<Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto">
+											</Border>
+										</DataTemplate>
+										<DataTemplate x:DataType="viewModels:PathSettingEntryViewModel">
+											<Border Classes="FluentSettingsCard">
+												<Grid ColumnDefinitions="*,Auto,Auto">
 													<StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
-														<TextBlock Text="{Binding DisplayName}" Classes="FluentBody" />
-														<TextBlock Text="{Binding Description}" Classes="FluentCaption"
+														<TextBlock Text="{Binding DisplayName}" Classes="FluentSettingsCardTitle" />
+														<TextBlock Text="{Binding Description}" Classes="FluentSettingsCardDescription"
 																   IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
 													</StackPanel>
-													<TextBox Grid.Column="1" Grid.RowSpan="2"
+													<TextBox Grid.Column="1"
 															 Text="{Binding PathValue}"
 															 Width="200"
+															 VerticalAlignment="Center"
 															 PlaceholderText="{Binding PlaceholderText}"
 															 IsReadOnly="True" />
-													<Button Grid.Column="2" Grid.RowSpan="2"
+													<Button Grid.Column="2"
 															Content="{DynamicResource BROWSE}" Command="{Binding BrowseCommand}"
 															Classes="FluentStandard"
 															VerticalAlignment="Center" Margin="8,0,0,0" />
 												</Grid>
-											</DataTemplate>
-										</ItemsControl.DataTemplates>
-									</ItemsControl>
-								</StackPanel>
-							</Border>
+											</Border>
+										</DataTemplate>
+									</ItemsControl.DataTemplates>
+								</ItemsControl>
+							</StackPanel>
 						</DataTemplate>
 					</ItemsControl.ItemTemplate>
 				</ItemsControl>

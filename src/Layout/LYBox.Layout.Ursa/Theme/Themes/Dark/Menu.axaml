@@ -4,7 +4,7 @@
     <!--  MenuFlyout  -->
     <StaticResource x:Key="MenuFlyoutBackground" ResourceKey="FluentColorBackground3" />
     <StaticResource x:Key="MenuFlyoutBorderBrush" ResourceKey="FluentColorBorder" />
-    <StaticResource x:Key="MenuFlyoutBorderBoxShadow" ResourceKey="FluentShadowElevated" />
+    <StaticResource x:Key="MenuFlyoutBorderBoxShadow" ResourceKey="FluentShadowRaised" />
     <!--  MenuItem  -->
     <SolidColorBrush x:Key="MenuItemBackground" Color="Transparent" />
     <StaticResource x:Key="MenuItemForeground" ResourceKey="FluentColorText0" />

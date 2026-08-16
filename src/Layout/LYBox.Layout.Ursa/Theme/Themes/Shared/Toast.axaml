@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <x:Double x:Key="ToastCardMinHeight">40</x:Double>
     <Thickness x:Key="ToastCardBorderThickness">1</Thickness>
-    <CornerRadius x:Key="ToastCardCornerRadius">6</CornerRadius>
+    <CornerRadius x:Key="ToastCardCornerRadius">4</CornerRadius>
 
     <Thickness x:Key="ToastCardMargin">12</Thickness>
     <Thickness x:Key="ToastCardPadding">12 8</Thickness>

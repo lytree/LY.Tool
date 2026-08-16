@@ -52,29 +52,29 @@
         <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
     </Style>
 
-    <!-- 导航面板背景层 (Border) — 左侧导航区域 -->
+    <!-- 导航面板背景层 (Border) — 左侧导航区域（WinUI NavigationView Pane 背景） -->
     <Style Selector="Border.FluentNavPane">
-        <Setter Property="Background" Value="{DynamicResource FluentSubtleBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
-        <Setter Property="BorderThickness" Value="0,0,1,0" />
+        <Setter Property="Background" Value="{DynamicResource FluentNavPaneBackgroundBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="BoxShadow" Value="{DynamicResource FluentPaneBoxShadow}" />
     </Style>
 
     <!-- 主内容表面 (Border) — 与导航面板分隔的内容区外壳（WinUI MainContent 风格） -->
     <Style Selector="Border.FluentMainContentSurface">
-        <Setter Property="Background" Value="{DynamicResource FluentColorBackground3}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="Background" Value="{DynamicResource FluentPageBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentShellContentBorderBrush}" />
         <Setter Property="BorderThickness" Value="1,1,0,0" />
         <Setter Property="CornerRadius" Value="8,0,0,0" />
-        <Setter Property="BoxShadow" Value="0 1 2 0 #0A000000" />
+        <Setter Property="BoxShadow" Value="{DynamicResource FluentShellContentBoxShadow}" />
     </Style>
 
-    <!-- 标题栏 (Border) — 顶部应用标题区域 -->
+    <!-- 标题栏 (Border) — 顶部应用标题区域（与导航面板同层色，视觉一致） -->
     <Style Selector="Border.FluentTitleBar">
-        <Setter Property="Background" Value="{DynamicResource FluentSubtleBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="Background" Value="{DynamicResource FluentTitleBarBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentShellTitleBarBorderBrush}" />
         <Setter Property="BorderThickness" Value="0,0,0,1" />
         <Setter Property="Padding" Value="0,0,16,0" />
-        <Setter Property="MinHeight" Value="48" />
+        <Setter Property="MinHeight" Value="{DynamicResource FluentTitleBarHeight}" />
     </Style>
 
     <!-- 工具栏容器 (Border) — 自绘标题栏下方的汉堡/搜索/操作行 -->
@@ -236,18 +236,47 @@
         <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
     </Style>
 
+    <!-- 导航页脚按钮 (Button) — 页面底部系统入口（设置/插件管理），默认次级色，hover 提亮 -->
+    <Style Selector="Button.FluentNavFooterItem">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="12,10" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentTextSecondaryBrush}" />
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.083" />
+                    <BrushTransition Property="Foreground" Duration="0:0:0.083" />
+                </Transitions>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style Selector="Button.FluentNavFooterItem:pointerover">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentTextPrimaryBrush}" />
+    </Style>
+    <Style Selector="Button.FluentNavFooterItem:pressed">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
+    </Style>
+
     <!-- ===== Ursa NavMenuItem Fluent 风格覆盖 ===== -->
 
-    <!-- NavMenuItem: 选中指示器（左侧 accent 竖条） -->
+    <!-- NavMenuItem: 选中项背景 + 左侧 accent 指示竖条（WinUI NavViewItem 选中态） -->
     <Style Selector="u|NavMenuItem:selected /template/ Border#PART_Border">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
         <Setter Property="BorderThickness" Value="3,0,0,0" />
     </Style>
     <Style Selector="u|NavMenuItem:selected:pointerover /template/ Border#PART_Border">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
         <Setter Property="BorderThickness" Value="3,0,0,0" />
     </Style>
     <Style Selector="u|NavMenuItem:selected:focus /template/ Border#PART_Border">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
         <Setter Property="BorderThickness" Value="3,0,0,0" />
     </Style>
@@ -255,6 +284,14 @@
     <!-- NavMenuItem: 选中图标 accent 色 -->
     <Style Selector="u|NavMenuItem:selected /template/ ContentPresenter#PART_IconPresenter">
         <Setter Property="Foreground" Value="{DynamicResource FluentAccentBrush}" />
+    </Style>
+
+    <!-- NavMenuItem: 选中文字 accent 色 + 半粗体（WinUI AccentTextFillColorPrimary 选中强调） -->
+    <Style Selector="u|NavMenuItem:selected /template/ ContentPresenter#PART_HeaderPresenter">
+        <Setter Property="Foreground" Value="{DynamicResource FluentAccentBrush}" />
+    </Style>
+    <Style Selector="u|NavMenuItem:selected /template/ ContentPresenter#PART_HeaderPresenter TextBlock">
+        <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
 
     <!-- NavMenuItem: hover 微妙背景 -->
@@ -723,6 +760,38 @@
     <!-- 用于自定义 Dialog/Drawer 的遮罩层。用法：<Border Classes="FluentSmokeOverlay" /> -->
     <Style Selector="Border.FluentSmokeOverlay">
         <Setter Property="Background" Value="{DynamicResource SmokeFillColorDefaultBrush}" />
+    </Style>
+
+    <!-- ===== StatusBar（WinUI 底部状态栏补充样式） ===== -->
+    <!-- 用法：
+         <Border Classes="FluentStatusBar">
+             <StackPanel Orientation="Horizontal" Spacing="16">
+                 <TextBlock Classes="FluentStatusItem" Text="就绪" />
+                 <Border Classes="FluentStatusBarSeparator" />
+                 <TextBlock Classes="FluentStatusItemStrong" Text="插件：12" />
+             </StackPanel>
+         </Border> -->
+    <Style Selector="Border.FluentStatusBar">
+        <Setter Property="Background" Value="{DynamicResource FluentColorBackground1}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentShellContentBorderBrush}" />
+        <Setter Property="BorderThickness" Value="0,1,0,0" />
+        <Setter Property="MinHeight" Value="40" />
+        <Setter Property="Padding" Value="16,0" />
+    </Style>
+    <Style Selector="TextBlock.FluentStatusItem">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText2}" />
+    </Style>
+    <Style Selector="TextBlock.FluentStatusItemStrong">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText1}" />
+    </Style>
+    <Style Selector="Border.FluentStatusBarSeparator">
+        <Setter Property="Width" Value="1" />
+        <Setter Property="Height" Value="14" />
+        <Setter Property="Background" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
     <!-- ============================================================

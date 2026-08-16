@@ -20,5 +20,5 @@
     <!--  CommandBar overflow popup  -->
     <StaticResource x:Key="CommandBarOverflowBackground" ResourceKey="FluentColorBackground3" />
     <StaticResource x:Key="CommandBarOverflowBorderBrush" ResourceKey="FluentColorBorder" />
-    <StaticResource x:Key="CommandBarOverflowBoxShadow" ResourceKey="FluentShadowElevated" />
+    <StaticResource x:Key="CommandBarOverflowBoxShadow" ResourceKey="FluentShadowRaised" />
 </ResourceDictionary>
