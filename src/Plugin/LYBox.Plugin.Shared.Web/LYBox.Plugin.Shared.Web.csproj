@@ -10,8 +10,6 @@
 		<PackageId>LYBox.Plugin.Shared.Web</PackageId>
 		<!-- SDK 与宿主共用 HostVersion：PluginSdkVersion 在根 Directory.Build.props 中已是 HostVersion 的别名 -->
 		<Version>$(HostVersion)</Version>
-		<AssemblyVersion>$(HostVersion)</AssemblyVersion>
-		<FileVersion>$(HostVersion)</FileVersion>
 		<Description>Web SDK for LYBox Avalonia Web plugins: WebView control, embedded Kestrel static host, and WebView IPC (RPC/SSE/Channel).</Description>
 		<Authors>LYBoxPlugin</Authors>
 		<PackageTags>avalonia;plugin;web;webview;ipc;sse</PackageTags>

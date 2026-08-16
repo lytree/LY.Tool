@@ -86,7 +86,7 @@
 
 ### S-8. PluginSdkContract 版本注入链路正确但脆弱【信息】
 
-`GeneratePluginSdkContract`（csproj:116-133）把 `$(HostVersion)` 编译进 `PluginSdkContract.g.cs`；三处 SDK 兼容校验（加载/升级/安装）依赖主版本号相等。链路正确；注意 `Directory.Build.props` 的 `LyboxLastReleasedVersion` fallback 会让 IDE 直接构建产出与 GitVersion 不同的版本——文档已记载，保持现状即可。
+`GeneratePluginSdkContract`（csproj:116-133）把 `$(HostVersion)` 编译进 `PluginSdkContract.g.cs`；三处 SDK 兼容校验（加载/升级/安装）依赖主版本号相等。链路正确；宿主版本号现统一由仓库根 `version.props` 的 `<LyboxVersion>` 提供（唯一真相源），IDE 直接构建与 CI 产出一致，不再存在 GitVersion 与 fallback 版本漂移。
 
 ---
 

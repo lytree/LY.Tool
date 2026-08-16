@@ -9,10 +9,8 @@
 		<PluginName>Dialog &amp; Feedback Plugin</PluginName>
 		<PluginAuthor>LYBoxPlugin</PluginAuthor>
 		<PluginDescription>UI components for dialogs, notifications and feedback</PluginDescription>
-		<PluginVersion>1.0.0</PluginVersion>
+		<PluginVersion>1.0.0-preview.1</PluginVersion>
 		<Version>$(PluginVersion)</Version>
-		<AssemblyVersion>$(PluginVersion)</AssemblyVersion>
-		<FileVersion>$(PluginVersion)</FileVersion>
 		<MinPluginSdkVersion>2.0.0</MinPluginSdkVersion>
 	</PropertyGroup>
 

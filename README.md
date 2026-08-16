@@ -43,9 +43,9 @@ Linux/macOS 用 `./build.sh` 替代 `.\build.ps1`。
   .\build.ps1 --build=plugin                 # 构建并打包所有插件为 zip
   .\build.ps1 --build=tool                   # 打包 tools/LYBox.MockServer 为 dotnet tool（lybox-mock）
   .\build.ps1 --configuration=Debug          # 覆盖配置（默认：Release）
-  .\build.ps1 --host-version=2.3.0           # 显式覆盖宿主+SDK 版本（优先级最高，跳过 GitVersion）
+  .\build.ps1 --host-version=2.3.0           # 显式覆盖宿主+SDK 版本（优先级最高，覆盖 version.props）
   .\build.ps1 --plugin-version=1.2.3         # 覆盖所有插件版本
-  .\build.ps1 --package-version=1.2.3        # 兼容旧用法（覆盖所有层版本，优先级高于 GitVersion、低于 --host-version）
+  .\build.ps1 --package-version=1.2.3        # 兼容旧用法（覆盖所有层版本，优先级高于 version.props、低于 --host-version）
   .\build.ps1 --plugin=LYBox.Plugin.Template # 仅构建指定插件（逗号分隔多个）
   .\build.ps1 --runtime-identifier=win-x64   # 设置启动器发布的 RID
   .\build.ps1 --self-contained=true          # 启动器自包含发布

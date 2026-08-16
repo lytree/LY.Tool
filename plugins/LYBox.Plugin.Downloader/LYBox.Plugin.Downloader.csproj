@@ -9,10 +9,8 @@
 		<PluginName>Downloader Plugin</PluginName>
 		<PluginAuthor>Downloader</PluginAuthor>
 		<PluginDescription>Pure C# HLS/DASH/MSS downloader (N_m3u8DL-RE compatible): VOD download, live record, decrypt &amp; mux, tool settings.</PluginDescription>
-		<PluginVersion>1.0.0</PluginVersion>
+		<PluginVersion>1.0.0-preview.1</PluginVersion>
 		<Version>$(PluginVersion)</Version>
-		<AssemblyVersion>$(PluginVersion)</AssemblyVersion>
-		<FileVersion>$(PluginVersion)</FileVersion>
 		<MinPluginSdkVersion>2.0.0</MinPluginSdkVersion>
 	</PropertyGroup>
 

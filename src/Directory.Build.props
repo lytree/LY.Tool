@@ -18,11 +18,10 @@
         宿主与 SDK 共用 HostVersion（统一发版）。
         SDK 项目（Generators / Shared）通过 csproj 内 <IsPluginSdkProject>true</IsPluginSdkProject>
         单独声明 Version（仍是 HostVersion），不在此处统一，便于 NuGet 包元数据走 SDK 自己的 PackageId。
-        Version / AssemblyVersion / FileVersion 三件套同步，确保运行时 Assembly.GetName().Version 可用。
+        Version 继承 HostVersion（允许预发布后缀）；AssemblyVersion / FileVersion 由根 Directory.Build.props
+        从 HostVersion 派生纯数字版本，无需在此重复声明。
     -->
     <PropertyGroup Condition="'$(IsPluginSdkProject)' != 'true'">
         <Version>$(HostVersion)</Version>
-        <AssemblyVersion>$(HostVersion)</AssemblyVersion>
-        <FileVersion>$(HostVersion)</FileVersion>
     </PropertyGroup>
 </Project>

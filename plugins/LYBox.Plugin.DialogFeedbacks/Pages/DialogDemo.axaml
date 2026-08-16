@@ -209,7 +209,7 @@
                         <DataTemplate DataType="x:String">
                             <TextBlock
                                 Margin="24,24,48,24"
-                                Foreground="Red"
+                                Foreground="{DynamicResource SemiColorDanger}"
                                 Text="{Binding Path=.}" />
                         </DataTemplate>
                     </u:OverlayDialogHost.DialogDataTemplates>

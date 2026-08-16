@@ -7,7 +7,7 @@ namespace LYBox.Tests;
 
 /// <summary>
 /// PluginLoader.IsPluginSdkCompatible 的单元测试。
-/// 宿主 SDK 版本由 PluginSdkContract.CurrentVersion 编译时注入（当前为 "2.2.0"）。
+/// 宿主 SDK 版本由 PluginSdkContract.CurrentVersion 编译时注入（当前为 "2.3.0-preview.3"，剥离预发布后为 2.3.0）。
 /// </summary>
 public class PluginLoaderSdkCompatibilityTests
 {
@@ -98,9 +98,9 @@ public class PluginLoaderSdkCompatibilityTests
 
     public static IEnumerable<object[]> MinorLowerCases() => new List<object[]>
     {
-        new object[] { "2.3.0" },     // 宿主次版本(2) < 要求(3) → 不兼容
-        new object[] { "2.5.0" },     // 远高次版本
-        new object[] { "2.3.1" },      // 次版本+修订号都更高
+        new object[] { "2.4.0" },     // 宿主次版本(3) < 要求(4) → 不兼容
+        new object[] { "2.6.0" },     // 远高次版本
+        new object[] { "2.5.0" },      // 次版本更高 + 修订号更高
     };
 
     #endregion
@@ -133,8 +133,8 @@ public class PluginLoaderSdkCompatibilityTests
 
     public static IEnumerable<object[]> BuildHigherCases() => new List<object[]>
     {
-        new object[] { "2.2.1" },     // 同主+次版本，修订号更高 → 不兼容
-        new object[] { "2.2.999" },   // 远高修订号
+        new object[] { "2.3.1" },     // 同主+次版本，修订号更高 → 不兼容
+        new object[] { "2.3.999" },   // 远高修订号
     };
 
     #endregion
@@ -166,8 +166,8 @@ public class PluginLoaderSdkCompatibilityTests
 
     public static IEnumerable<object[]> PreReleaseStrippedAndRejectsWhenHigherCases() => new List<object[]>
     {
-        new object[] { "2.3.0-preview" },  // 剥离后 2.3.0 > 宿主 2.2.0 → 不兼容
-        new object[] { "2.2.5-beta" },     // 剥离后 2.2.5 > 宿主 2.2.0 → 不兼容
+        new object[] { "2.3.1-preview" },  // 剥离后 2.3.1 > 宿主 2.3.0 → 不兼容
+        new object[] { "2.4.0-beta" },     // 剥离后 2.4.0 > 宿主 2.3.0 → 不兼容
     };
 
     #endregion

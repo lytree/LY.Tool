@@ -43,7 +43,7 @@
             <Button Content="{DynamicResource BTN_ApplySupplier}" Command="{Binding BatchSetSupplierCommand}" />
         </StackPanel>
         <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
-            <TextBlock Text="{Binding EditStatus}" Foreground="Green" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding EditStatus}" Foreground="{DynamicResource SemiColorSuccess}" FontWeight="SemiBold" />
             <TextBlock VerticalAlignment="Center" Opacity="0.7" Text="{Binding DirtyCountText}" />
         </StackPanel>
         <DataGrid

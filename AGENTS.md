@@ -11,34 +11,23 @@ OpenCode 智能体在本仓库工作时的精简指南。
   .\build.ps1 --build=plugin                 # 构建并打包所有插件为 zip
   .\build.ps1 --build=tool                   # 打包 tools/LYBox.MockServer 为 dotnet tool（lybox-mock）
   .\build.ps1 --configuration=Debug          # 覆盖配置（默认：Release）
-  .\build.ps1 --host-version=2.3.0           # 显式覆盖宿主+SDK 版本（优先级最高，跳过 GitVersion）
+  .\build.ps1 --host-version=2.3.0           # 显式覆盖宿主+SDK 版本（优先级最高，覆盖 version.props）
   .\build.ps1 --plugin-version=1.2.3         # 覆盖所有插件版本
-  .\build.ps1 --package-version=1.2.3        # 兼容旧用法（覆盖所有层版本，优先级高于 GitVersion、低于 --host-version）
+  .\build.ps1 --package-version=1.2.3        # 兼容旧用法（覆盖所有层版本，优先级高于 version.props、低于 --host-version）
   .\build.ps1 --plugin=LYBox.Plugin.Template # 仅构建指定插件（逗号分隔多个）
   .\build.ps1 --runtime-identifier=win-x64   # 设置启动器发布的 RID
   .\build.ps1 --self-contained=true          # 启动器自包含发布
   .\build.ps1 --nuget-source=<URL>           # 指定 NuGet 推送源（默认 nuget.org）
   .\build.ps1 --nuget-api-key=<KEY>          # 推送包到 nuget.org
   ```
-- **版本管理（GitVersion）**：宿主版本由 `GitVersion.Tool`（`dotnet-tools.json` 声明）自动计算，配置见 `GitVersion.yml`。
-  - 首次克隆后需执行 `dotnet tool restore` 安装 GitVersion.Tool。
+- **版本管理（单一真相源）**：宿主 + SDK + 前端共用同一版本号，唯一维护于仓库根 `version.props` 的 `<LyboxVersion>`。**已移除 GitVersion 依赖**（GitVersion.yml / dotnet-tools.json 中的 GitVersion.Tool / build.cs 中相关逻辑均已删除）。
+  - 宿主（Launcher / UI / Platforms.*）与 SDK（Generators / Shared / Shared.Web）版本号严格一致（`HostVersion == PluginSdkVersion`），由 `Directory.Build.props` 导入 `version.props` 解析。
   - **版本来源优先级**（高 → 低）：
     1. `--host-version` 命令行参数（CI 手动触发 / 紧急覆盖）
-    2. `--package-version` 命令行参数（兼容旧用法）
-    3. GitVersion 计算结果（基于 Git 标签与提交历史）
-    4. `Directory.Build.props` 中 `LyboxLastReleasedVersion`（IDE 直接构建的 Fallback）
-  - **版本号规则**：
-    - 标签 `V2.2.0` → `2.2.0`（正式发布）
-    - 标签 `V2.3.0-preview.1` → `2.3.0-preview.1`（预发布）
-    - main 分支提交（V2.2.0 之后）→ `2.2.1-preview.1`、`2.2.1-preview.2` ...
-    - feature/* 分支 → `2.2.1-feature.<name>.1`
-  - **提交消息 bump**（commit message 中包含 `+semver: <token>`）：
-    - `breaking` / `major` → 主版本
-    - `feature` / `minor` → 次版本
-    - `fix` / `patch` → 修订版本
-    - `none` / `skip` → 不递增
-  - **插件版本独立**：插件版本由各插件 csproj 内 `<PluginVersion>` 声明，不受 GitVersion 影响。
-  - **发版后**：更新 `Directory.Build.props` 中的 `LyboxLastReleasedVersion` 为本次发布版本号（IDE 构建 Fallback）。
+    2. 环境变量 `LYBOX_HOST_VERSION`（CI/脚本注入）
+    3. `version.props` 中 `<LyboxVersion>`（唯一真相源，本地 / IDE / CI 默认兜底）
+  - **发版流程**：修改 `version.props` 中 `<LyboxVersion>` → 提交 → 打标签 `V<version>` → push 触发 `release-host.yml`。
+  - **插件版本独立**：插件版本由各插件 csproj 内 `<PluginVersion>` 各自声明与维护，不受 `version.props` 控制。
 - **构建顺序很重要**：`--build=bin` 必须先于 `--build=plugin` 运行（或直接使用 `--build=all`），因为 `--build=bin` 会打包 SDK NuGet 包，而插件依赖本地构建的 `LYBox.Plugin.Generators` + `LYBox.Plugin.Shared` NuGet 包。
 - **直接 `dotnet build`** 可用于单个项目，但若未预先构建本地 NuGet 包，插件可能还原失败（使用 `--build=bin` 或确保 `artifacts/packages/sdk/` 下有 `.nupkg` 文件）。`--build=nuget` 保留为 `--build=bin` 的兼容别名。
 - **运行启动器**：`dotnet run --project src/App/LYBox.Launcher.Desktop`
@@ -283,7 +272,7 @@ Program.cs → App.Initialize()
 - ScottPlot: `5.1.59`
 - ZLogger: `2.5.10`
 - SkiaSharp: `3.119.4`（锁定 3.x，Avalonia 12.x 与 ScottPlot 5.1.x 均依赖）
-- 插件 NuGet 包：`LYBox.Plugin.Generators` + `LYBox.Plugin.Shared`，版本由 GitVersion 自动计算（与宿主同版本号），本地构建到 `artifacts/packages/sdk/`
+- 插件 NuGet 包：`LYBox.Plugin.Generators` + `LYBox.Plugin.Shared`，版本与宿主一致（唯一真相源 `version.props` 的 `<LyboxVersion>`），本地构建到 `artifacts/packages/sdk/`
 
 ## NuGet 配置
 

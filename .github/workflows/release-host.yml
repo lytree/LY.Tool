@@ -12,9 +12,10 @@ name: Release Main
 #     2. GitHub 仓库 → Settings → Environments → 新建 release 环境 → 添加 secret NUGET_USER=<nuget.org 用户名>
 #
 # 版本解析：
-#   - tag push（V2.3.0 / V2.3.0-preview.1）：由 resolve_context 调用 dotnet gitversion 读取标签版本
-#   - workflow_dispatch：用户输入版本号，跳过 GitVersion，直接传入 --host-version
-#   - build.cs 内部也集成了 GitVersion 兜底，CI 通过 --host-version 显式覆盖以确保一致性
+#   - 主体版本唯一真相源：仓库根 `version.props` 的 <LyboxVersion>
+#   - resolve_context 读取该文件得到版本号，再由各作业经 --host-version 传入 build.cs
+#   - 发版流程：修改 version.props → 提交 → 打标签 V<version> → push 触发本工作流
+#   - workflow_dispatch 手动触发时同样以 version.props 为准，tag 固定为 V<version>
 
 on:
   push:
@@ -49,36 +50,25 @@ jobs:
       is_prerelease: ${{ steps.ctx.outputs.is_prerelease }}
     steps:
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0  # GitVersion 需要完整历史
 
-      - uses: actions/setup-dotnet@v6
-        with:
-          dotnet-version: '10.0.x'
-
-      - name: Restore dotnet tools (GitVersion.Tool)
-        run: dotnet tool restore
-
-      - name: Resolve version via GitVersion or input
+      - name: Resolve version from version.props
         id: ctx
         shell: bash
         run: |
           set -euo pipefail
 
+          # 主体版本唯一真相源：仓库根 version.props 的 <LyboxVersion>
+          VERSION="$(grep -oP '(?<=<LyboxVersion>)[^<]+' version.props | head -n1)"
+          if [ -z "$VERSION" ]; then
+            echo "::error::无法从 version.props 解析 <LyboxVersion>"
+            exit 1
+          fi
+
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            # 手动触发：使用用户输入的版本号，不调用 GitVersion
-            VERSION="${{ inputs.version }}"
             TAG="V${VERSION}"
           else
-            # 标签触发：通过 GitVersion 读取标签对应的版本号
+            # 标签触发：标签即为 V<version>，需与 version.props 保持一致
             TAG="${GITHUB_REF_NAME}"
-            VERSION="$(dotnet gitversion /showvariable MajorMinorPatch /nocache)"
-            # 若标签带 prerelease（如 V2.3.0-preview.1），追加 prerelease 后缀
-            FULL_SEMVER="$(dotnet gitversion /showvariable FullSemVer /nocache)"
-            PRE_RELEASE_TAG="$(dotnet gitversion /showvariable PreReleaseTag /nocache)"
-            if [ -n "$PRE_RELEASE_TAG" ]; then
-              VERSION="$FULL_SEMVER"
-            fi
           fi
 
           # 校验版本号格式
@@ -115,9 +105,6 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
-
-      - name: Restore dotnet tools
-        run: dotnet tool restore
 
       - name: Build launcher + pack SDK
         run: |
@@ -231,9 +218,6 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
-
-      - name: Restore dotnet tools
-        run: dotnet tool restore
 
       - name: Publish launcher
         shell: bash

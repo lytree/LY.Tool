@@ -11,8 +11,6 @@
 
         <!-- 版本跟随仓库 HostVersion 真相源（由根 Directory.Build.props 提供）-->
         <Version>$(HostVersion)</Version>
-        <AssemblyVersion>$(HostVersion)</AssemblyVersion>
-        <FileVersion>$(HostVersion)</FileVersion>
 
         <!-- NuGet 包元数据 -->
         <PackageId>LYBox.MockServer</PackageId>

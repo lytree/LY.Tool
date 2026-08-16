@@ -95,7 +95,7 @@
                     <Rectangle
                         Width="10"
                         Height="10"
-                        Fill="Red" />
+                        Fill="{DynamicResource SemiColorDanger}" />
                 </u:NavMenuItem.Icon>
                 <u:NavMenuItem Header="Sub Menu 1" />
                 <u:NavMenuItem Header="Sub Menu 2" />
@@ -106,7 +106,7 @@
                     <Rectangle
                         Width="10"
                         Height="10"
-                        Fill="Red" />
+                        Fill="{DynamicResource SemiColorDanger}" />
                 </u:NavMenuItem.Icon>
             </u:NavMenuItem>
             <u:NavMenuItem Header="Menu 3">
@@ -114,7 +114,7 @@
                     <Rectangle
                         Width="10"
                         Height="10"
-                        Fill="Red" />
+                        Fill="{DynamicResource SemiColorDanger}" />
                 </u:NavMenuItem.Icon>
             </u:NavMenuItem>
         </u:NavMenu>

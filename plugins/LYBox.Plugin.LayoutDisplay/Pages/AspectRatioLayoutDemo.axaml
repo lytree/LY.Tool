@@ -17,7 +17,7 @@
 
         <u:AspectRatioLayout Name="AspectRatioLayout" Grid.Row="1"
                              BorderThickness="1"
-                             BorderBrush="Red"
+                             BorderBrush="{DynamicResource SemiColorDanger}"
                              Margin="2"
                              CornerRadius="10">
             <u:AspectRatioLayoutItem AcceptAspectRatioMode="HorizontalRectangle">

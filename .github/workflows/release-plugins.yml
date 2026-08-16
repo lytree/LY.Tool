@@ -109,10 +109,11 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Build plugin SDK NuGet feed
+        # 宿主/SDK 版本由仓库唯一真相源 version.props 驱动（--host-version 缺省回退到该单一文件），
+        # 与 release-host.yml 保持严格一致，避免插件发布侧以插件版本覆盖 SDK 版本。
         run: |
           dotnet build/build.cs \
-            --build=bin \
-            --host-version=${{ needs.resolve_context.outputs.plugin_version }}
+            --build=bin
 
       - name: Upload plugin SDK NuGet artifacts
         uses: actions/upload-artifact@v7
@@ -161,8 +162,10 @@ jobs:
           ls -lh artifacts/packages/sdk/
 
       - name: Build & pack plugins
+        # 插件版本由各自 csproj <PluginVersion> 独立驱动（--plugin-version 缺省不回退、不覆盖），
+        # 标签中的版本仅用于 GitHub Release 命名，不再强制注入为插件打包版本。
         run: |
-          ARGS="--build=plugin --plugin-version=${{ needs.resolve_context.outputs.plugin_version }}"
+          ARGS="--build=plugin"
           if [ -n "${{ needs.resolve_context.outputs.plugin_filter }}" ]; then
             ARGS="$ARGS --plugin=${{ needs.resolve_context.outputs.plugin_filter }}"
           fi

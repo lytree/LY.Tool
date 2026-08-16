@@ -24,6 +24,7 @@
                 <u:Avatar.HoverMask>
                     <Border Opacity="0.6">
                         <Panel>
+                            <!-- 头像悬停暗色遮罩：#16161A 为目标图下方的通用深色覆盖层，跨主题恒定，属 AGENTS 允许的掩码字面量场景 -->
                             <Border
                                 Background="#16161A"
                                 Width="{Binding $parent[u:Avatar].Width}"
@@ -79,6 +80,7 @@
                 <u:Avatar.HoverMask>
                     <Border Opacity="0.6">
                         <Panel>
+                            <!-- 头像悬停暗色遮罩：#16161A 为目标图下方的通用深色覆盖层，跨主题恒定，属 AGENTS 允许的掩码字面量场景 -->
                             <Border
                                 Background="#16161A"
                                 Width="{Binding $parent[u:Avatar].Width}"

@@ -9,10 +9,8 @@
     <PluginName>BTSou Search</PluginName>
     <PluginAuthor>KiongChan</PluginAuthor>
     <PluginDescription>BTSOU 精简版：BT 资源搜索 + 迅雷一键下载（已移除数据库/举报/授权逻辑，仅用于学习研究）。</PluginDescription>
-    <PluginVersion>1.1.0</PluginVersion>
+    <PluginVersion>1.1.0-preview.1</PluginVersion>
     <Version>$(PluginVersion)</Version>
-    <AssemblyVersion>$(PluginVersion)</AssemblyVersion>
-    <FileVersion>$(PluginVersion)</FileVersion>
     <MinPluginSdkVersion>2.0.0</MinPluginSdkVersion>
   </PropertyGroup>
 

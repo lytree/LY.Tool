@@ -17,9 +17,10 @@ name: Release Frontend
 #   - npm publish --provenance 在 GitHub Actions 中自动用 OIDC token 鉴权
 #
 # 版本同步：
-#   - 标签触发时，使用 GitVersion 计算的版本号覆盖所有前端 package.json
+#   - 前端版本与主体版本严格一致，唯一真相源为仓库根 `version.props` 的 <LyboxVersion>
+#   - resolve_context 读取该文件获取版本号并覆盖所有前端 package.json
 #   - 仅在 CI 环境临时修改，不提交回仓库
-#   - 这样保证前端版本与 host 版本严格一致
+#   - 发版流程：修改 version.props → 提交 → 打标签 V<version> → push 触发本工作流
 
 on:
   push:
@@ -58,33 +59,18 @@ jobs:
       is_prerelease: ${{ steps.ctx.outputs.is_prerelease }}
     steps:
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0  # GitVersion 需要完整历史
 
-      - uses: actions/setup-dotnet@v6
-        with:
-          dotnet-version: '10.0.x'
-
-      - name: Restore dotnet tools (GitVersion.Tool)
-        run: dotnet tool restore
-
-      - name: Resolve version via GitVersion or input
+      - name: Resolve version from version.props
         id: ctx
         shell: bash
         run: |
           set -euo pipefail
 
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VERSION="${{ inputs.version }}"
-          else
-            # 标签触发：通过 GitVersion 读取版本号
-            TAG="${GITHUB_REF_NAME}"
-            VERSION="$(dotnet gitversion /showvariable MajorMinorPatch /nocache)"
-            FULL_SEMVER="$(dotnet gitversion /showvariable FullSemVer /nocache)"
-            PRE_RELEASE_TAG="$(dotnet gitversion /showvariable PreReleaseTag /nocache)"
-            if [ -n "$PRE_RELEASE_TAG" ]; then
-              VERSION="$FULL_SEMVER"
-            fi
+          # 前端版本与主体版本严格一致，唯一真相源为仓库根 version.props 的 <LyboxVersion>
+          VERSION="$(grep -oP '(?<=<LyboxVersion>)[^<]+' version.props | head -n1)"
+          if [ -z "$VERSION" ]; then
+            echo "::error::无法从 version.props 解析 <LyboxVersion>"
+            exit 1
           fi
 
           # 校验版本号格式
