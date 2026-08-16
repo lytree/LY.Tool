@@ -7,7 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using Ursa.Common;
 using Ursa.Controls;
 using Ursa.Controls.Options;
-using LYBox.Plugin.Shared.Dialogs;
+using LYBox.Plugin.DialogFeedbacks.Dialogs;
 
 
 namespace LYBox.Plugin.DialogFeedbacks.ViewModels;

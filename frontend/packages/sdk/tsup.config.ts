@@ -1,8 +1,8 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  // 主入口 + theme 子入口（对应 package.json exports 的 "./theme"）
-  entry: ['src/index.ts', 'src/theme/index.ts'],
+  // 主入口 + theme/debug 子入口（对应 package.json exports 的 "./theme" 与 "./debug"）
+  entry: ['src/index.ts', 'src/theme/index.ts', 'src/debug.ts'],
   format: ['esm', 'cjs'],
   dts: true,
   splitting: false,

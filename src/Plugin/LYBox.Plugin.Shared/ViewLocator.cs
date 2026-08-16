@@ -41,12 +41,6 @@ public class ViewLocator : IDataTemplate
         _viewCache.Remove(viewModel);
     }
 
-    public static void InvalidateAllViewCache()
-    {
-        // ConditionalWeakTable 不支持 Clear，替换为新实例使旧表所有条目变为不可达，由 GC 自动回收。
-        _viewCache = new ConditionalWeakTable<object, Control>();
-    }
-
     public Control? Build(object? data)
     {
         if (data is null) return null;

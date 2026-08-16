@@ -3,6 +3,13 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <LYBoxPluginSharedExclusionsEnabled Condition="'$(LYBoxPluginSharedExclusionsEnabled)' == ''">true</LYBoxPluginSharedExclusionsEnabled>
     <GeneratePluginManifest Condition="'$(GeneratePluginManifest)' == ''">true</GeneratePluginManifest>
+    <!--
+      Web 插件声明（S1）：以 csproj 为单一事实来源，构建期写入 plugin.json 清单（kind/web），
+      运行期由宿主据此注册。默认值使非 Web 插件无需声明即可获得 Avalonia 分类（向后兼容）。
+    -->
+    <PluginKind Condition="'$(PluginKind)' == ''">Avalonia</PluginKind>
+    <PluginWwwroot Condition="'$(PluginWwwroot)' == ''">wwwroot</PluginWwwroot>
+    <PluginEntryPage Condition="'$(PluginEntryPage)' == ''">index.html</PluginEntryPage>
   </PropertyGroup>
 
   <!--
@@ -24,6 +31,25 @@
     as a glob pattern and expands it to matching filenames in the project directory.
     A property preserves the literal "*" character.
   -->
+  <!--
+    Expose plugin metadata MSBuild properties to the Roslyn source generator
+    (LYBox.Plugin.Generators.MetadataGenerator) via build_property.* global options.
+    This makes the csproj the single source of truth for IPluginMetadata, so the
+    generator emits Name/Version/Author/Description/PluginId/MinPluginSdkVersion
+    instead of them being hand-written twice in the plugin entry class (O-1/O-8).
+  -->
+  <ItemGroup>
+    <CompilerVisibleProperty Include="PluginId" />
+    <CompilerVisibleProperty Include="PluginName" />
+    <CompilerVisibleProperty Include="PluginAuthor" />
+    <CompilerVisibleProperty Include="PluginDescription" />
+    <CompilerVisibleProperty Include="PluginVersion" />
+    <CompilerVisibleProperty Include="MinPluginSdkVersion" />
+    <CompilerVisibleProperty Include="PluginKind" />
+    <CompilerVisibleProperty Include="PluginWwwroot" />
+    <CompilerVisibleProperty Include="PluginEntryPage" />
+  </ItemGroup>
+
   <PropertyGroup Condition="'$(LYBoxPluginSharedExclusionsEnabled)' == 'true'">
     <_SharedAssembliesPatterns>System.*
 System.Private.Uri
@@ -49,13 +75,8 @@ Semi.Avalonia
 Microsoft.EntityFrameworkCore
 Microsoft.EntityFrameworkCore.*
 ProDataGrid
-Microsoft.AspNetCore
-Microsoft.AspNetCore.*
-Microsoft.Extensions.FileProviders.*
-Microsoft.Extensions.Hosting.Abstractions
-Microsoft.Extensions.Features
-System.IO.Pipelines
 System.Net.Http
-System.Security.Cryptography.*</_SharedAssembliesPatterns>
+System.Security.Cryptography.*
+</_SharedAssembliesPatterns>
   </PropertyGroup>
 </Project>

@@ -23,7 +23,7 @@ public class WebHostServiceTests
             await host.StartAsync();
 
             using var client = new HttpClient { BaseAddress = new Uri(host.BaseUrl) };
-            var noSession = await client.PostAsJsonAsync("/__rpc/plugin-a", new { name = "same.command", args = Array.Empty<object>() });
+            var noSession = await client.PostAsJsonAsync("/__bridge/plugin-a/rpc", new { name = "same.command", args = Array.Empty<object>() });
             await Assert.That(noSession.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
 
             var sessionA = host.CreateSession("plugin-a");
@@ -75,7 +75,7 @@ public class WebHostServiceTests
 
     private static HttpRequestMessage CreateRpcRequest(string pluginId, string session)
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, $"/__rpc/{pluginId}")
+        var request = new HttpRequestMessage(HttpMethod.Post, $"/__bridge/{pluginId}/rpc")
         {
             Content = JsonContent.Create(new { name = "same.command", args = Array.Empty<object>() })
         };

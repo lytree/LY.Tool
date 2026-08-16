@@ -10,10 +10,16 @@
     <PluginDescription>WebView + HTTP + IPC + SSE demo plugin with vanilla HTML/JS frontend</PluginDescription>
     <PluginVersion>1.0.0</PluginVersion>
     <MinPluginSdkVersion>2.0.0</MinPluginSdkVersion>
+    <!-- S1/S2：声明 Web 插件类别，构建期写入 plugin.json（kind/web），宿主据此统一注册 -->
+    <PluginKind>Web</PluginKind>
+    <PluginWwwroot>wwwroot</PluginWwwroot>
+    <PluginEntryPage>index.html</PluginEntryPage>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="LYBox.Plugin.Generators" Version="$(PluginSdkVersion)"
       OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <PackageReference Include="LYBox.Plugin.Shared" Version="$(PluginSdkVersion)" PrivateAssets="all" />
+    <!-- S3：Web 插件额外引用 Web 包（WebView / ASP.NET Core / IPC），非 Web 插件无需此引用 -->
+    <PackageReference Include="LYBox.Plugin.Shared.Web" Version="$(PluginSdkVersion)" PrivateAssets="all" />
   </ItemGroup>
 </Project>

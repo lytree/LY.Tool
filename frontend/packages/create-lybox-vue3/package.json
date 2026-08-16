@@ -7,8 +7,7 @@
     "create-lybox-vue3-template": "index.js"
   },
   "files": [
-    "index.js",
-    "template"
+    "index.js"
   ],
   "license": "MIT",
   "author": "lytree",

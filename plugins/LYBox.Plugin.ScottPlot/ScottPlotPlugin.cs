@@ -1,27 +1,8 @@
-using LYBox.Plugin.Shared;
 using LYBox.Plugin.Shared.Attributes;
-using LYBox.Plugin.Shared.Services;
-using LYBox.Plugin.ScottPlot.Resources;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace LYBox.Plugin.ScottPlot;
 
 [GenerateMetadata]
-public partial class ScottPlotPlugin : IPluginMetadata
+public partial class ScottPlotPlugin
 {
-    public string Name => "ScottPlot Plugin";
-    public string Version => "1.0.0";
-    public string Author => "AvaloniaTemplate";
-    public string Description => "ScottPlot charting and plotting controls demo plugin.";
-    public IEnumerable<string> Dependencies => [];
-    public string PluginId => "0F2F7DB6-0E9B-D872-442F-2CBC3DAC1FA0";
-
-    public Task InitializeAsync(IServiceCollection services) => Task.CompletedTask;
-
-    public Task RegisterAsync(IServiceProvider serviceProvider)
-    {
-        if (serviceProvider.GetService<ILocalizationService>() is { } loc)
-            loc.RegisterResourceManager(Strings.ResourceManager);
-        return Task.CompletedTask;
-    }
 }

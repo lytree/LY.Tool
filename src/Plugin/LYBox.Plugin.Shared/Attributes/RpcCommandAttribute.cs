@@ -13,9 +13,9 @@ namespace LYBox.Plugin.Shared.Attributes;
 ///     public Task&lt;int&gt; AddAsync(int a, int b) => Task.FromResult(a + b);
 /// }
 /// </code>
-/// 命令名为 "<paramref name="Name"/>"（缺省为方法名）。前端通过
-/// <c>window.go.&lt;Namespace&gt;.&lt;Class&gt;.&lt;Name&gt;(...args)</c> 调用，
-/// 返回 Promise。方法可为实例或静态；实例方法所在类须有公共无参构造函数
+/// 命令名缺省为方法名（亦可用 <paramref name="Name"/> 显式指定）。前端通过
+/// <c>window.__lybox.rpc('&lt;Name&gt;', ...args)</c> 调用，返回 Promise。
+/// 方法可为实例或静态；实例方法所在类须有公共无参构造函数
 /// （生成代码会创建单例实例）。
 /// 方法参数与返回值必须可被 System.Text.Json 序列化。
 /// </remarks>

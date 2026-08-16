@@ -26,12 +26,6 @@ public interface IMenuConfigurationService
     void RegisterMenuItems(List<KeyValuePair<string?, MenuItemViewModel>> menuItems);
 
     /// <summary>
-    /// 移除菜单项
-    /// </summary>
-    /// <param name="key">菜单项键</param>
-    void RemoveMenuItem(string key);
-
-    /// <summary>
     /// 获取所有菜单项键
     /// </summary>
     /// <returns>菜单项键集合</returns>

@@ -77,6 +77,15 @@ public partial class App : Application
 #if DEBUG
         this.AttachDeveloperTools();
 #endif
+        // 启动序列整体收敛到单一 async 入口，消除分散的 sync-over-async。
+        // 安全说明：Avalonia 的 Application.Initialize() 在 UI 消息循环启动前执行（MainWindow
+        // 尚未创建），此时 UI 线程无嵌套事件泵，因此单点 .GetResult() 阻塞不会死锁；
+        // 插件生命周期方法（Discover/Initialize/Register）均不触碰 UI 控件，await 续体可安全执行。
+        InitializeCoreAsync().GetAwaiter().GetResult();
+    }
+
+    private async Task InitializeCoreAsync()
+    {
         var services = new ServiceCollection();
         services.AddAvaloniaServices();
         // 注册 Ursa 宿主层服务：NavigationService / MenuConfigurationService / LocalizationService
@@ -85,10 +94,10 @@ public partial class App : Application
         // 阶段1：发现所有插件程序集，创建 IPlugin 实例
         var pluginLoader = new PluginLoader();
         _pluginLoader = pluginLoader;
-        pluginLoader.DiscoverAllPluginAssembliesAsync().GetAwaiter().GetResult();
+        await pluginLoader.DiscoverAllPluginAssembliesAsync();
 
         // 阶段2：调用插件 InitializeAsync(IServiceCollection)，注册 DI 服务
-        pluginLoader.InitializeAllPluginsAsync(services).GetAwaiter().GetResult();
+        await pluginLoader.InitializeAllPluginsAsync(services);
 
         // 统一注入：将提前实例化的 pluginLoader 注册到 DI（避免双重注册产生孤立实例）
         services.AddSingleton<PluginLoader>(pluginLoader);
@@ -115,10 +124,13 @@ public partial class App : Application
         InitializeLocalization();
 
         // 阶段3：调用插件 RegisterAsync(IServiceProvider)，执行多语言注册等
-        // 先注入 Web 插件的安装路径，供插件在 RegisterAsync 阶段主动注册其 wwwroot
-        pluginLoader.InjectWebPluginBaseDirs();
-        pluginLoader.RegisterAllPluginsAsync(ServiceProvider).GetAwaiter().GetResult();
-        InitializeWebHost();
+        await pluginLoader.RegisterAllPluginsAsync(ServiceProvider);
+
+        // S2：宿主统一注册 Web 插件（依据清单 kind=Web），无需插件手动 MapPluginRoot
+        var webHost = ServiceProvider.GetRequiredService<WebHostService>();
+        pluginLoader.RegisterWebPlugins(webHost);
+
+        await InitializeWebHostAsync();
         RegisterPluginNavigationAndMenus(pluginLoader);
 
         DataContext = new ApplicationViewModel();
@@ -150,13 +162,13 @@ public partial class App : Application
     }
 
     /// <summary>
-    /// 懒加载初始化嵌入式 HTTP 静态资源服务。Web 插件在 <see cref="IPlugin.RegisterAsync"/> 阶段
-    /// 主动调用 <see cref="WebHostService.MapPluginRoot"/> 注册其 wwwroot；此处仅当存在已注册的
-    /// Web 插件时才初始化并启动服务，否则直接跳过，不占用端口。
-    /// 在 <see cref="PluginLoader.RegisterAllPluginsAsync"/> 之后、<see cref="RegisterPluginNavigationAndMenus"/>
-    /// 之前调用，确保 Web 插件页面导航时 HTTP 服务已可用。启动失败不阻塞应用（Web 插件功能降级）。
+    /// 懒加载初始化嵌入式 HTTP 静态资源服务。Web 插件由宿主 <see cref="PluginLoader.RegisterWebPlugins"/>
+    /// 统一注册其 wwwroot（S2 BC-3）；此处仅当存在已注册的 Web 插件时才初始化并启动服务，
+    /// 否则直接跳过，不占用端口。启动失败不阻塞应用（Web 插件功能降级）。
+    /// 在 <see cref="PluginLoader.RegisterAllPluginsAsync"/> 与 RegisterWebPlugins 之后、
+    /// <see cref="RegisterPluginNavigationAndMenus"/> 之前调用，确保 Web 插件页面导航时 HTTP 服务已可用。
     /// </summary>
-    private void InitializeWebHost()
+    private async Task InitializeWebHostAsync()
     {
         try
         {
@@ -172,7 +184,7 @@ public partial class App : Application
             }
 
             // 已有插件注册路由，启动 Kestrel
-            webHost.StartAsync().GetAwaiter().GetResult();
+            await webHost.StartAsync();
 
             var bootLogger = ServiceProvider?.GetRequiredService<ILogger<App>>();
             if (webHost.IsRunning)
@@ -210,10 +222,13 @@ public partial class App : Application
                 var plugin = pluginLoader.GetLoadedPlugin(pluginInfo.PluginId);
                 if (plugin == null) continue;
 
+                // O-12 校验前置：先获取该插件全部定义（纯数据，无副作用），
+                // 获取通过后再统一写入导航、菜单、视图。避免单插件在写入中途抛异常
+                // 导致导航/菜单/视图部分注册、状态不一致时才 MarkPluginError。
                 var navigationItems = plugin.GetNavigationItems();
-                navigationService.RegisterNavigations(navigationItems);
-
                 var menuItems = plugin.GetMenuItems();
+
+                navigationService.RegisterNavigations(navigationItems, pluginInfo.PluginId);
                 menuConfigurationService.RegisterMenuItems(menuItems);
 
                 ViewLocator.RegisterPlugin(plugin);

@@ -7,7 +7,7 @@ using System.Windows.Input;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Input;
 using Ursa.Controls;
-using LYBox.Plugin.Shared.Dialogs;
+using LYBox.Plugin.DialogFeedbacks.Dialogs;
 
 
 namespace LYBox.Plugin.DialogFeedbacks.ViewModels;

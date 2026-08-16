@@ -160,31 +160,70 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
                 .ToList();
         }
 
-        foreach (var entry in toRegister)
+        // 批量本地化注册：所有插件注册期间延迟 LocalizationService 缓存重建，
+        // 结束后统一重建一次（O-14），同时自动扫描各插件资源并注册（O-6）。
+        var loc = serviceProvider.GetService<ILocalizationService>();
+        loc?.BeginBatchRegistration();
+        try
         {
-            List<PluginInfo> eventsToFire = [];
+            foreach (var entry in toRegister)
+            {
+                List<PluginInfo> eventsToFire = [];
 
-            try
-            {
-                await entry.Plugin!.RegisterAsync(serviceProvider);
-            }
-            catch (Exception ex)
-            {
-                lock (_sync)
+                try
                 {
-                    var errInfo = entry.Info.WithState(PluginState.Error, $"Plugin registration failed: {ex.Message}");
-                    var errEntry = GetOrCreateEntry(errInfo.PluginId);
-                    errEntry.Info = errInfo;
-                    SavePluginManifest(errInfo);
-                    InvalidateSnapshot();
-                    eventsToFire.Add(errInfo);
+                    await entry.Plugin!.RegisterAsync(serviceProvider);
+                    AutoRegisterLocalization(entry, loc);
                 }
-                FireEventsOutsideLock(eventsToFire);
-                continue;
-            }
+                catch (Exception ex)
+                {
+                    lock (_sync)
+                    {
+                        var errInfo = entry.Info.WithState(PluginState.Error, $"Plugin registration failed: {ex.Message}");
+                        var errEntry = GetOrCreateEntry(errInfo.PluginId);
+                        errEntry.Info = errInfo;
+                        SavePluginManifest(errInfo);
+                        InvalidateSnapshot();
+                        eventsToFire.Add(errInfo);
+                    }
+                    FireEventsOutsideLock(eventsToFire);
+                    continue;
+                }
 
-            eventsToFire.Add(entry.Info);
-            FireEventsOutsideLock(eventsToFire);
+                eventsToFire.Add(entry.Info);
+                FireEventsOutsideLock(eventsToFire);
+            }
+        }
+        finally
+        {
+            loc?.EndBatchRegistration();
+        }
+    }
+
+    /// <summary>
+    /// 按命名约定自动注册插件本地化资源：静态类 <c>{PluginNs}.Resources.Strings</c> 暴露
+    /// 静态 <c>ResourceManager</c> 属性。扫描失败不阻塞插件注册（本地化降级为显示原始 key）。
+    /// </summary>
+    private static void AutoRegisterLocalization(PluginEntry entry, ILocalizationService? loc)
+    {
+        if (loc is null || entry.Plugin is null) return;
+
+        try
+        {
+            var assembly = entry.Plugin.GetType().Assembly;
+            var stringsType = assembly.GetTypes()
+                .FirstOrDefault(t => t.IsClass && t.IsAbstract && t.IsSealed && t.Name == "Strings"
+                    && t.GetProperty("ResourceManager", BindingFlags.Public | BindingFlags.Static) is not null);
+
+            if (stringsType is null) return;
+
+            var rm = stringsType.GetProperty("ResourceManager", BindingFlags.Public | BindingFlags.Static)?.GetValue(null);
+            if (rm is System.Resources.ResourceManager resourceManager)
+                loc.RegisterResourceManager(resourceManager);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "自动注册插件 {PluginId} 本地化资源失败", entry.Info.PluginId);
         }
     }
 
@@ -206,7 +245,7 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
                 {
                     Success = true,
                     Plugin = existing.Plugin,
-                    Metadata = existing.Metadata
+                    Metadata = existing.Plugin as IPluginMetadata
                 };
             }
 
@@ -273,9 +312,12 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
                 if (typeof(IPlugin).IsAssignableFrom(type) && plugin == null)
                 {
                     plugin = (IPlugin)Activator.CreateInstance(type)!;
+                    // 入口类由 [GenerateMetadata] 同时实现 IPlugin 与 IPluginMetadata，
+                    // 复用同一实例，避免对同一类型创建两份引用（O-11 PluginEntry 收敛）。
+                    if (metadata == null && plugin is IPluginMetadata pluginAsMeta)
+                        metadata = pluginAsMeta;
                 }
-
-                if (typeof(IPluginMetadata).IsAssignableFrom(type) && metadata == null)
+                else if (metadata == null && typeof(IPluginMetadata).IsAssignableFrom(type))
                 {
                     metadata = (IPluginMetadata)Activator.CreateInstance(type)!;
                 }
@@ -326,7 +368,6 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
             entry.Plugin = plugin;
             if (metadata != null)
             {
-                entry.Metadata = metadata;
                 pluginInfo = pluginInfo.WithMetadata(true);
             }
 
@@ -520,64 +561,44 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
     {
         lock (_sync)
         {
-            return _entries.TryGetValue(pluginId, out var entry) ? entry.Metadata : null;
+            return _entries.TryGetValue(pluginId, out var entry) ? entry.Plugin as IPluginMetadata : null;
         }
     }
 
     /// <summary>
-    /// 为所有已加载的 <see cref="IWebPlugin"/> 注入 <see cref="IWebPlugin.PluginBaseDir"/>，
-    /// 供插件在 <c>RegisterAsync</c> 阶段主动注册其 <c>wwwroot</c> 时计算 <see cref="IWebPlugin.WwwrootPath"/>。
-    /// 仅在插件 <c>RegisterAsync</c> 之前调用一次即可。
+    /// S2 BC-3：宿主统一注册 Web 插件。输入为清单（<see cref="PluginInfo.Kind"/> == "Web"
+    /// 且 <see cref="PluginState.Loaded"/>），由宿主拼接 <c>{InstallPath}/{web.wwwroot}</c>
+    /// 后调用 <see cref="WebHostService.MapPluginRoot"/>。
+    /// 插件代码不再包含任何注册调用（声明即注册，消除"忘写注册"类错误）。
+    /// 必须在 <see cref="InitializeAllPluginsAsync"/> / <see cref="RegisterAllPluginsAsync"/>
+    /// 之后、WebHostService.StartAsync 之前调用。
     /// </summary>
-    public void InjectWebPluginBaseDirs()
+    public void RegisterWebPlugins(WebHostService webHost)
     {
-        List<PluginEntry> snapshot;
-        lock (_sync)
-        {
-            snapshot = _entries.Values
-                .Where(e => e.Plugin is IWebPlugin && e.Info.State == PluginState.Loaded)
-                .ToList();
-        }
-
-        foreach (var entry in snapshot)
-        {
-            var webPlugin = (IWebPlugin)entry.Plugin!;
-            webPlugin.PluginBaseDir = entry.Info.InstallPath;
-        }
-    }
-
-    /// <summary>
-    /// 扫描所有已加载的插件，返回实现了 <see cref="IWebPlugin"/> 且 wwwroot 目录存在的插件映射。
-    /// 各插件在 <c>RegisterAsync</c> 阶段主动调用 <see cref="WebHostService.MapPluginRoot"/> 注册，
-    /// 此方法仅用于兼容或调试场景，宿主不再依赖此方法进行初始注册。
-    /// </summary>
-    /// <returns>插件 ID → wwwroot 绝对路径的字典。无 Web 插件时返回空字典。</returns>
-    public Dictionary<string, string> GetWebPluginRoots()
-    {
-        var result = new Dictionary<string, string>();
+        ArgumentNullException.ThrowIfNull(webHost);
 
         List<PluginEntry> snapshot;
         lock (_sync)
         {
             snapshot = _entries.Values
-                .Where(e => e.Plugin is IWebPlugin && e.Info.State == PluginState.Loaded)
+                .Where(e => string.Equals(e.Info.Kind, "Web", StringComparison.OrdinalIgnoreCase)
+                    && e.Info.State == PluginState.Loaded)
                 .ToList();
         }
 
         foreach (var entry in snapshot)
         {
-            var wwwroot = ((IWebPlugin)entry.Plugin!).WwwrootPath;
-            if (string.IsNullOrEmpty(wwwroot) || !Directory.Exists(wwwroot))
+            try
             {
-                _logger.LogWarning("Web 插件 {PluginId} 的 wwwroot 目录不存在: {Path}，跳过 HTTP 路由注册",
-                    entry.Info.PluginId, wwwroot);
-                continue;
+                var wwwrootName = entry.Info.Web?.Wwwroot ?? "wwwroot";
+                var wwwrootPath = Path.Combine(entry.Info.InstallPath, wwwrootName);
+                webHost.MapPluginRoot(entry.Info.PluginId, wwwrootPath);
             }
-
-            result[entry.Info.PluginId] = wwwroot;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "注册 Web 插件 {PluginId} 的 wwwroot 失败", entry.Info.PluginId);
+            }
         }
-
-        return result;
     }
 
     private PluginEntry GetOrCreateEntry(string pluginId)
@@ -1134,7 +1155,9 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
             InstallTime = manifest.InstallTime,
             IsBuiltIn = manifest.IsBuiltIn,
             HasMetadata = !string.IsNullOrEmpty(manifest.PluginId),
-            MinPluginSdkVersion = manifest.MinPluginSdkVersion
+            MinPluginSdkVersion = manifest.MinPluginSdkVersion,
+            Kind = string.IsNullOrWhiteSpace(manifest.Kind) ? "Avalonia" : manifest.Kind,
+            Web = manifest.Web
         };
     }
 
@@ -1168,7 +1191,9 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
                 State = pluginInfo.State.ToString(),
                 InstallTime = pluginInfo.InstallTime,
                 IsBuiltIn = pluginInfo.IsBuiltIn,
-                MinPluginSdkVersion = pluginInfo.MinPluginSdkVersion
+                MinPluginSdkVersion = pluginInfo.MinPluginSdkVersion,
+                Kind = pluginInfo.Kind,
+                Web = pluginInfo.Kind == "Web" ? pluginInfo.Web : null
             };
 
             var manifestPath = Path.Combine(pluginDir, "plugin.json");
@@ -1325,7 +1350,6 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
     {
         public PluginInfo Info { get; set; } = new();
         public IPlugin? Plugin { get; set; }
-        public IPluginMetadata? Metadata { get; set; }
         public AssemblyLoadContext? Context { get; set; }
         public bool IsInitialized { get; set; }
     }

@@ -1,0 +1,30 @@
+{
+  "name": "create-lybox",
+  "version": "2.2.1-preview.3",
+  "description": "LYBox 插件前端通用脚手架（React / Vue3 + Vite + TypeScript），支持 --template react|vue3",
+  "type": "module",
+  "bin": {
+    "create-lybox": "index.js"
+  },
+  "files": [
+    "index.js",
+    "template-react",
+    "template-vue3"
+  ],
+  "license": "MIT",
+  "author": "lytree",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lytree/LY.Tool",
+    "directory": "frontend/packages/create-lybox"
+  },
+  "keywords": [
+    "lybox",
+    "react",
+    "vue3",
+    "vite",
+    "template",
+    "scaffold",
+    "avalonia"
+  ]
+}

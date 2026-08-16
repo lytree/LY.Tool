@@ -31,6 +31,17 @@ public record PluginInfo
     public string? MinPluginSdkVersion { get; init; }
 
     /// <summary>
+    /// S1 清单 v2：插件类别。缺省 "Avalonia"（向后兼容）。可能值："Avalonia" | "Web"。
+    /// 宿主在清单加载阶段（创建 ALC 之前）即可据此区分 Web 插件（P4）。
+    /// </summary>
+    public string Kind { get; init; } = "Avalonia";
+
+    /// <summary>
+    /// S1 清单 v2：Web 插件前端资源描述。仅当 <see cref="Kind"/> 为 "Web" 时有效。
+    /// </summary>
+    public WebDescriptor? Web { get; init; }
+
+    /// <summary>
     /// 待升级场景：用户已调度升级但尚未重启时，此字段记录新版本号，便于 UI 显示。
     /// 真相源是 plugins/.pending/{PluginId}.upgrade.json 的 NewVersion 字段。
     /// 仅当 State == PendingUpgrade 时有效。

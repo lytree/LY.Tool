@@ -1,6 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:web="clr-namespace:LYBox.Plugin.Shared.Web;assembly=LYBox.Plugin.Shared"
+             xmlns:web="clr-namespace:LYBox.Plugin.Shared.Web;assembly=LYBox.Plugin.Shared.Web"
              xmlns:vm="clr-namespace:LYBox.Plugin.WebTemplate.ViewModels"
              x:Class="LYBox.Plugin.WebTemplate.Pages.WebTemplatePage"
              x:DataType="vm:WebTemplatePageViewModel">

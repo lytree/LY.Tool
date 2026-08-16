@@ -23,11 +23,6 @@ public interface IPluginMetadata
     string Description { get; }
 
     /// <summary>
-    /// 插件依赖
-    /// </summary>
-    IEnumerable<string> Dependencies { get; }
-
-    /// <summary>
     /// 插件唯一标识
     /// </summary>
     string PluginId { get; }

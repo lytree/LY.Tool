@@ -1,7 +1,7 @@
 # LYBox.MockServer 使用手册
 
 LYBox.MockServer 是一个独立运行的 dotnet tool，为 LYBox WebView 插件前端提供 **Mock 后端**，无需启动 Avalonia 宿主即可在浏览器中调试前端页面、验证 RPC 调用与 SSE 推送逻辑。
-> 安全边界：Mock Server 的无 token `/__rpc` 仅用于本地前端开发。桌面生产宿主使用按 `pluginId` 隔离且带短期 session 的 `/__rpc/{pluginId}`，两者不要部署或混用。
+> 安全边界：Mock Server 的无 token `/__bridge/{pluginId}/rpc` 仅用于本地前端开发。桌面生产宿主同样使用 `/__bridge/{pluginId}/{action}` 但要求带短期 session token，两者不要部署或混用。
 
 > **适用版本**：HostVersion 2.2.0+
 > **命令名**：`lybox-mock`
@@ -77,10 +77,12 @@ LYBox Mock Server —— 前端调试 Mock 后端
   --help, -h              显示帮助
 
 端点:
-  GET  /__lybox/ipc.js     返回 ipc.js
-  POST /__rpc              Mock RPC
-  GET  /sse/{pluginId}     Mock SSE
-  GET  /{pluginId}/{path}  静态资源
+  GET  /__lybox/ipc.js                    返回 ipc.js
+  POST /__bridge/{pluginId}/rpc           Mock RPC
+  POST /__bridge/{pluginId}/emit          浏览器模式事件 emit（返回 202）
+  POST /__bridge/{pluginId}/channel-close 通道关闭（返回 202）
+  GET  /sse/{pluginId}                    Mock SSE
+  GET  /{pluginId}/{path}                 静态资源
 
 示例:
   lybox-mock
@@ -120,7 +122,7 @@ lybox-mock
 ```
 [mock-server] wwwroot: f:\Code\Dotnet\AvaloniaTemplate\plugins\LYBox.Plugin.WebTemplate\wwwroot
 [mock-server] mock.json: f:\Code\Dotnet\AvaloniaTemplate\plugins\LYBox.Plugin.WebTemplate\wwwroot\.lybox\mock.json
-[mock-server] ipc.js: f:\Code\Dotnet\LY.Tool\src\Plugin\LYBox.Plugin.Shared\Rpc\Assets\ipc.js
+[mock-server] ipc.js: f:\Code\Dotnet\AvaloniaTemplate\src\Plugin\LYBox.Plugin.Shared.Web\Rpc\Assets\ipc.js
 [mock-server] 启动中: http://localhost:5173
 [mock-server] 前端入口: http://localhost:5173/8a7b6c5d-4e3f-4a2b-9c1d-0e8f7a6b5c4d/index.html
 [mock-server] 按 Ctrl+C 停止
@@ -137,7 +139,7 @@ http://localhost:5173/8a7b6c5d-4e3f-4a2b-9c1d-0e8f7a6b5c4d/index.html
 ### 4. 调试 RPC 与 SSE
 
 页面加载后：
-- 点击 **GreetAsync** 按钮 → 触发 `POST /__rpc`，返回 mock 数据
+- 点击 **GreetAsync** 按钮 → 触发 `POST /__bridge/{pluginId}/rpc`，返回 mock 数据
 - 点击 **AddAsync** / **GetPluginInfoAsync** → 同上
 - SSE 自动连接 `GET /sse/{pluginId}`，每 2 秒推送 `tick` 事件，页面右上角徽章计数递增
 
@@ -180,10 +182,10 @@ lybox-mock --port 3000 --wwwroot ./plugins/LYBox.Plugin.WebTemplate/wwwroot --mo
 |------|------|------|
 | `GET` | `/` | 健康检查，返回服务信息 JSON |
 | `GET` | `/__lybox/ipc.js` | 返回 `ipc.js` 脚本（供 HTML `<script>` 引入） |
-| `POST` | `/__rpc` | Mock RPC，根据 `mock.json` 返回预设数据 |
+| `POST` | `/__bridge/{pluginId}/rpc` | Mock RPC，根据 `mock.json` 返回预设数据 |
+| `POST` | `/__bridge/{pluginId}/emit` | 浏览器模式事件 emit（接收并返回 202，不处理） |
+| `POST` | `/__bridge/{pluginId}/channel-close` | 通道关闭（返回 202） |
 | `GET` | `/sse/{pluginId}` | Mock SSE，建立 Server-Sent Events 连接，定时推送事件 |
-| `POST` | `/__emit` | 浏览器模式事件 emit（接收并返回 202，不处理） |
-| `POST` | `/__channel/close` | 通道关闭（返回 202） |
 | `GET` | `/{pluginId}/{**path}` | 静态资源服务（从 wwwroot 提供文件） |
 
 ### 端点详解
@@ -202,7 +204,7 @@ curl http://localhost:5173/
 }
 ```
 
-#### `POST /__rpc` Mock RPC
+#### `POST /__bridge/{pluginId}/rpc` Mock RPC
 
 请求体：
 
@@ -213,6 +215,8 @@ curl http://localhost:5173/
   "callbackId": "cb_1"
 }
 ```
+
+> `{pluginId}` 为插件 ID（如 WebTemplate 的 `8a7b6c5d-4e3f-4a2b-9c1d-0e8f7a6b5c4d`）。Mock 模式无会话校验，`pluginId` 仅用于日志与路由对齐（对齐生产 WebHostService）。
 
 响应（成功）：
 
@@ -463,7 +467,7 @@ const info = await window.__lybox.rpc('GetPluginInfoAsync');
 if (window.__lybox.isWebView) {
     // WebView 模式：使用原生 IPC（invokeCSharpAction）
 } else {
-    // 浏览器模式：使用 HTTP fetch（自动走 /__rpc）
+    // 浏览器模式：使用 HTTP fetch（自动走 /__bridge/{pluginId}/rpc）
 }
 ```
 
@@ -487,7 +491,7 @@ Mock Server 在控制台输出所有 RPC 调用：
 curl http://localhost:5173/
 
 # 测试 RPC
-curl -X POST http://localhost:5173/__rpc \
+curl -X POST http://localhost:5173/__bridge/8a7b6c5d-4e3f-4a2b-9c1d-0e8f7a6b5c4d/rpc \
   -H "Content-Type: application/json" \
   -d '{"name":"GreetAsync","args":["World"],"callbackId":"cb_1"}'
 
@@ -501,7 +505,7 @@ curl http://localhost:5173/8a7b6c5d-4e3f-4a2b-9c1d-0e8f7a6b5c4d/index.html
 ### 3. 浏览器 DevTools
 
 打开浏览器开发者工具：
-- **Network** 标签：查看 `/__rpc` 请求与响应
+- **Network** 标签：查看 `/__bridge/{pluginId}/rpc` 请求与响应
 - **EventSource** 连接：查看 `/sse/{pluginId}` 的 SSE 流
 - **Console**：查看 `ipc.js` 日志输出
 
@@ -623,7 +627,7 @@ lybox-mock --wwwroot ./plugins/LYBox.Plugin.YourPlugin/wwwroot --plugin <your-pl
 
 ### Q8：ipc.js 路径显示"(未找到)"
 
-**原因**：Mock Server 向上遍历未找到 `src/Plugin/LYBox.Plugin.Shared/Rpc/Assets/ipc.js`。
+**原因**：Mock Server 向上遍历未找到 `src/Plugin/LYBox.Plugin.Shared.Web/Rpc/Assets/ipc.js`。
 
 **影响**：`GET /__lybox/ipc.js` 端点将返回 `// ipc.js not found`，前端 `window.__lybox` 不会初始化。
 

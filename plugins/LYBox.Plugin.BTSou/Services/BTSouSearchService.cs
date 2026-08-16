@@ -15,11 +15,8 @@ namespace LYBox.Plugin.BTSou.Services;
 /// 还原原程序核心逻辑：资源池解析、来源库模板、屏蔽词/广告过滤、
 /// 磁力/ed2k/thunder 链接解析、相对时间换算、迅雷一键下载。
 /// </summary>
-public class BTSouSearchService
+public class BTSouSearchService : IDisposable
 {
-    /// <summary>静态单例（ViewModel 由生成器无参构造，服务经单例访问）</summary>
-    public static BTSouSearchService Current { get; } = new();
-
     private readonly HttpClient _http;
 
     /// <summary>资源池原始文本</summary>
@@ -48,6 +45,9 @@ public class BTSouSearchService
         _http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
         _http.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (BTSou/24.10)");
     }
+
+    /// <summary>释放 HttpClient（由 DI 容器在应用退出时调用）</summary>
+    public void Dispose() => _http.Dispose();
 
     // ==================== 资源池加载与解析 ====================
 

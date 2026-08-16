@@ -8,7 +8,7 @@ using SP = global::ScottPlot;
 namespace LYBox.Plugin.ScottPlot.ViewModels;
 
 [NavigationItem("KeyQuickStart")]
-[Menu("NAV_QuickStart", "KeyQuickStart", "NAV_ScottPlot")]
+[Menu("NAV_QuickStart", "KeyQuickStart", "NAV_ScottPlot", IconName = "ChartMultiple")]
 [ViewMap(typeof(QuickStartDemo))]
 public partial class QuickStartDemoViewModel : ObservableObject
 {

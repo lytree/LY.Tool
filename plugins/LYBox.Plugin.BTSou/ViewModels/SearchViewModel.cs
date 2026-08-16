@@ -43,10 +43,13 @@ public partial class SearchViewModel : ViewModelBase
     [ObservableProperty] private bool _isSearching;
     [ObservableProperty] private SearchResultItem? _selectedResult;
 
-    /// <summary>生成器要求公共无参构造函数，服务经静态单例访问。</summary>
+    /// <summary>生成器要求公共无参构造函数，服务经 DI 容器按需获取。</summary>
     public SearchViewModel()
     {
-        _search = BTSouSearchService.Current;
+        // VM 由生成器无参构造，无法构造函数注入；经 ServiceLocator 静态网关获取容器注册的单例服务
+        _search = ServiceLocator.TryGetService<BTSouSearchService>(out var svc)
+            ? svc!
+            : new BTSouSearchService();
         // 异步初始化（不阻塞 UI）：加载资源池、来源库、热搜
         _ = InitializeAsync();
     }

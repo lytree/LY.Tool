@@ -4,14 +4,6 @@ namespace LYBox.Plugin.Shared;
 
 public static class MenuItemTreeBuilder
 {
-    private static readonly Dictionary<string, string> ParentIconMap = new()
-    {
-        ["Leaf"] = "Branch",
-        ["NAV_NBData"] = "Database",
-        ["NAV_ScottPlot"] = "ChartMultiple",
-        ["NAV_ProDataGrid"] = "Table",
-    };
-
     public static List<KeyValuePair<string?, MenuItemViewModel>> BuildTree(
         List<(string? Parent, MenuItemViewModel Item, int Order)> allItems)
     {
@@ -25,7 +17,13 @@ public static class MenuItemTreeBuilder
 
         foreach (var pHeader in missingParents)
         {
-            var iconName = ParentIconMap.TryGetValue(pHeader!, out var icon) ? icon : null;
+            // 父菜单图标去硬编码：从引用该父级的子菜单项继承图标（取首个非空 MenuIconName）。
+            // 子项图标来自 [Menu(IconName=...)] 特性，新增父级分组无需再改中心代码。
+            var iconName = allItems
+                .Where(x => x.Parent == pHeader)
+                .Select(x => x.Item.MenuIconName)
+                .FirstOrDefault(n => !string.IsNullOrEmpty(n));
+
             var virtualParent = new MenuItemViewModel { MenuHeader = pHeader!, Key = pHeader!, MenuIconName = iconName };
             itemLookup[pHeader!] = virtualParent;
             allItems.Add((null, virtualParent, 0));

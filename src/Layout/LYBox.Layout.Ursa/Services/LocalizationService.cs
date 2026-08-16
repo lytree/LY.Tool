@@ -14,6 +14,7 @@ public sealed class LocalizationService : ILocalizationService
     private readonly ConcurrentDictionary<string, (string? LookupPrefix, ResourceManager Manager)> _resourceManagers = new();
     private CultureInfo _currentCulture = new("zh-CN");
     private bool _initialSync = true;
+    private int _batchDepth;
     private ConcurrentDictionary<string, string>? _stringCache;
     // 跟踪已注册到 Application.Resources 的键，切换文化时清理残留避免内存累积
     private HashSet<string>? _registeredResourceKeys;
@@ -99,7 +100,22 @@ public sealed class LocalizationService : ILocalizationService
         _resourceManagers[dictKey] = (prefix, manager);
         _stringCache = null;
 
-        if (!_initialSync)
+        // 批量注册期间延迟重建，由 EndBatchRegistration 统一触发一次
+        if (!_initialSync && _batchDepth == 0)
+            RebuildCacheAndSyncResources();
+    }
+
+    public void BeginBatchRegistration()
+    {
+        _batchDepth++;
+    }
+
+    public void EndBatchRegistration()
+    {
+        if (_batchDepth > 0)
+            _batchDepth--;
+
+        if (_batchDepth == 0 && !_initialSync)
             RebuildCacheAndSyncResources();
     }
 

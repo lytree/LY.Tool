@@ -1,27 +1,8 @@
-using LYBox.Plugin.Shared;
 using LYBox.Plugin.Shared.Attributes;
-using LYBox.Plugin.Shared.Services;
-using LYBox.Plugin.NavigationMenus.Resources;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace LYBox.Plugin.NavigationMenus;
 
 [GenerateMetadata]
-public partial class NavigationMenusPlugin : IPluginMetadata
+public partial class NavigationMenusPlugin
 {
-    public string Name => "Navigation & Menus Plugin";
-    public string Version => "1.0.0";
-    public string Author => "AvaloniaTemplate";
-    public string Description => "Navigation and menu controls demo plugin.";
-    public IEnumerable<string> Dependencies => [];
-    public string PluginId => "LYBox.Plugin.NavigationMenus";
-
-    public Task InitializeAsync(IServiceCollection services) => Task.CompletedTask;
-
-    public Task RegisterAsync(IServiceProvider serviceProvider)
-    {
-        if (serviceProvider.GetService<ILocalizationService>() is { } loc)
-            loc.RegisterResourceManager(Strings.ResourceManager);
-        return Task.CompletedTask;
-    }
 }

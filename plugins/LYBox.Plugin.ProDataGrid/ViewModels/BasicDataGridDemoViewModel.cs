@@ -9,7 +9,7 @@ using System.Collections.ObjectModel;
 namespace LYBox.Plugin.ProDataGrid.ViewModels;
 
 [NavigationItem("KeyBasicDataGrid")]
-[Menu("NAV_BasicDataGrid", "KeyBasicDataGrid", "NAV_ProDataGrid")]
+[Menu("NAV_BasicDataGrid", "KeyBasicDataGrid", "NAV_ProDataGrid", IconName = "Table")]
 [ViewMap(typeof(BasicDataGridDemo))]
 public partial class BasicDataGridDemoViewModel : ObservableObject
 {

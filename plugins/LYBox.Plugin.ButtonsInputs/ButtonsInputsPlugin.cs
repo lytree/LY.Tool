@@ -1,28 +1,8 @@
-using LYBox.Plugin.Shared;
 using LYBox.Plugin.Shared.Attributes;
-using LYBox.Plugin.Shared.Services;
-using LYBox.Plugin.ButtonsInputs.Resources;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace LYBox.Plugin.ButtonsInputs;
 
 [GenerateMetadata]
-public partial class ButtonsInputsPlugin : IPluginMetadata
+public partial class ButtonsInputsPlugin
 {
-    public string Name => "Buttons & Inputs Plugin";
-    public string Version => "1.0.0";
-    public string Author => "AvaloniaPlugin";
-    public string Description => "UI component library for buttons and input controls";
-    public IEnumerable<string> Dependencies => [];
-    public string PluginId => "0F2F7DB6-0E9B-D872-442F-2CBC3DAC1F56";
-
-    public Task InitializeAsync(IServiceCollection services) => Task.CompletedTask;
-
-    public Task RegisterAsync(IServiceProvider serviceProvider)
-    {
-        if (serviceProvider.GetService<ILocalizationService>() is { } loc)
-            loc.RegisterResourceManager(Strings.ResourceManager);
-        return Task.CompletedTask;
-    }
 }
-

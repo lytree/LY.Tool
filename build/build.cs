@@ -117,6 +117,12 @@ Task("Build")
             Configuration = buildContext.BuildConfiguration,
             MSBuildSettings = hostSettings
         });
+
+        c.DotNetBuild(buildContext.WebSharedProject, new DotNetBuildSettings
+        {
+            Configuration = buildContext.BuildConfiguration,
+            MSBuildSettings = hostSettings
+        });
     }
 
     if (buildContext.Target.HasFlag(BuildTarget.Bin))
@@ -132,6 +138,14 @@ Task("Build")
             MSBuildSettings = hostSettings
         });
         c.DotNetPack(buildContext.SharedProject, new DotNetPackSettings
+        {
+            Configuration = buildContext.BuildConfiguration,
+            OutputDirectory = buildContext.NuGetPackagesDir,
+            NoRestore = true,
+            NoBuild = true,
+            MSBuildSettings = hostSettings
+        });
+        c.DotNetPack(buildContext.WebSharedProject, new DotNetPackSettings
         {
             Configuration = buildContext.BuildConfiguration,
             OutputDirectory = buildContext.NuGetPackagesDir,
@@ -535,6 +549,7 @@ public class BuildContext
 
     public string GeneratorsProject { get; }
     public string SharedProject { get; }
+    public string WebSharedProject { get; }
     public string LauncherProject { get; }
     public string ConsoleProject { get; }
     public string ToolProject { get; }
@@ -662,6 +677,7 @@ public class BuildContext
 
         GeneratorsProject = Path.Combine(RootDir, "src", "Plugin", "LYBox.Plugin.Generators", "LYBox.Plugin.Generators.csproj");
         SharedProject = Path.Combine(RootDir, "src", "Plugin", "LYBox.Plugin.Shared", "LYBox.Plugin.Shared.csproj");
+        WebSharedProject = Path.Combine(RootDir, "src", "Plugin", "LYBox.Plugin.Shared.Web", "LYBox.Plugin.Shared.Web.csproj");
         LauncherProject = Path.Combine(RootDir, "src", "App", "LYBox.Launcher.Desktop", "LYBox.Launcher.Desktop.csproj");
         ConsoleProject = Path.Combine(RootDir, "src", "App", "LYBox.Launcher.Console", "LYBox.Launcher.Console.csproj");
         ToolProject = Path.Combine(RootDir, "tools", "LYBox.MockServer", "LYBox.MockServer.csproj");
@@ -1139,6 +1155,15 @@ public static class BuildTasks
         });
 
         context.DotNetPack(context.SharedProject, new DotNetPackSettings
+        {
+            Configuration = context.BuildConfiguration,
+            OutputDirectory = context.NuGetPackagesDir,
+            NoRestore = true,
+            NoBuild = true,
+            MSBuildSettings = sdkSettings
+        });
+
+        context.DotNetPack(context.WebSharedProject, new DotNetPackSettings
         {
             Configuration = context.BuildConfiguration,
             OutputDirectory = context.NuGetPackagesDir,

@@ -43,6 +43,11 @@
     "./components": "./src/theme/lybox-components.css",
     "./tokens": "./src/theme/tokens.json",
     "./tokens.json": "./src/theme/tokens.json",
+    "./debug": {
+      "types": "./dist/debug.d.ts",
+      "import": "./dist/debug.js",
+      "require": "./dist/debug.cjs"
+    },
     "./package.json": "./package.json"
   },
   "sideEffects": [

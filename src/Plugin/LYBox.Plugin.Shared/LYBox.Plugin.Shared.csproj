@@ -48,7 +48,6 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="$(CommunityToolkit)" />
 		<PackageReference Include="Irihi.Ursa" Version="$(IrihiUrsaVersion)" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="$(EfCoreVersion)" />
-		<PackageReference Include="System.Reactive" Version="7.0.0" />
 		<PackageReference Include="ProDataGrid" Version="$(ProDataGridVersion)" />
 
 		<!-- 递归依赖（共享）：显式声明以锁定版本，运行时由宿主通过 _SharedAssembliesPatterns 提供 -->
@@ -67,21 +66,6 @@
 
 		<!-- Ursa 递归依赖（Irihi.Ursa 的传递依赖） -->
 		<PackageReference Include="Irihi.Avalonia.Shared" Version="$(IrihiAvaloniaSharedVersion)" />
-
-		<!-- WebView + 嵌入式 HTTP 资源服务（P1 引入） -->
-		<!-- Avalonia.Controls.WebView：官方 WebView 控件，承载 Vue/React 前端页面 -->
-		<PackageReference Include="Avalonia.Controls.WebView" Version="$(AvaloniaControlsWebView)" />
-	</ItemGroup>
-
-	<!--
-		ASP.NET Core 共享框架引用：提供 Kestrel + 静态文件 + SSE 端点所需的类型。
-		自 .NET Core 3+ 起，Microsoft.AspNetCore.Server.Kestrel / Microsoft.AspNetCore.StaticFiles
-		不再发布为独立 NuGet 包，必须通过 FrameworkReference 引用 Microsoft.AspNetCore.App 共享框架。
-		此引用会在生成的 NuGet 包中作为 framework reference 声明，消费方（宿主与插件）需提供该共享框架。
-		宿主 LYBox.Launcher.Desktop 已同步添加 FrameworkReference 以便运行时加载 Kestrel。
-	-->
-	<ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -90,20 +74,13 @@
 	</ItemGroup>
 
 	<!--
-		Channel<T> 的构造函数为 internal（强制通过 IRpcHost.CreateChannel<T> 创建）。
-		WebViewIpcHost 与 Channel<T> 同程序集，可直接构造；测试项目通过 WebViewIpcHost
-		的公共 API 使用通道，但部分白盒测试需要访问内部类型，故向其暴露内部成员。
+		S3：Web 相关依赖（ASP.NET Core FrameworkReference、Avalonia.Controls.WebView、ipc.js 引导脚本）
+		已迁至 LYBox.Plugin.Shared.Web 包。核心包仅承载非 Web 插件所需的契约与控件，
+		非 Web 插件不再背负 ASP.NET Core 与 WebView。
 	-->
 	<ItemGroup>
 		<InternalsVisibleTo Include="LYBox.Tests" />
-	</ItemGroup>
-
-	<!--
-		WebView IPC 引导脚本：作为嵌入资源打包，由 WebViewIpcHost.LoadBootstrap() 运行时读取
-		并经 IRpcTransport.ExecuteScriptAsync 注入页面。
-	-->
-	<ItemGroup>
-		<EmbeddedResource Include="Rpc\Assets\ipc.js" />
+		<InternalsVisibleTo Include="LYBox.Layout.Core" />
 	</ItemGroup>
 
 	<!--

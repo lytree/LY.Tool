@@ -18,6 +18,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../Plugin/LYBox.Plugin.Shared/LYBox.Plugin.Shared.csproj" />
+    <!-- S3：WebHostService / IWebPlugin 等 Web 契约迁至 Web 包，宿主统一注册依赖之 -->
+    <ProjectReference Include="../../Plugin/LYBox.Plugin.Shared.Web/LYBox.Plugin.Shared.Web.csproj" />
     <ProjectReference Include="../../Platforms/LYBox.Platforms.Abstractions/LYBox.Platforms.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>

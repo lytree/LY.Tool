@@ -28,4 +28,27 @@ public class PluginManifest
     /// 主体程序加载时与 PluginSdkContract.CurrentVersion 比对，不满足则拒绝加载。
     /// </summary>
     public string? MinPluginSdkVersion { get; set; }
+
+    /// <summary>
+    /// S1 清单 v2：插件类别。缺省解析为 "Avalonia"（向后兼容）。
+    /// 可能值："Avalonia" | "Web"。
+    /// </summary>
+    public string? Kind { get; set; }
+
+    /// <summary>
+    /// S1 清单 v2：仅当 <see cref="Kind"/> 为 "Web" 时存在，描述 Web 插件前端资源位置。
+    /// </summary>
+    public WebDescriptor? Web { get; set; }
+}
+
+/// <summary>
+/// Web 插件前端资源描述。仅当清单 <see cref="PluginManifest.Kind"/> 为 "Web" 时有效。
+/// </summary>
+public class WebDescriptor
+{
+    /// <summary>前端资源根目录名称（相对 <see cref="PluginInfo.InstallPath"/>），默认 "wwwroot"。</summary>
+    public string? Wwwroot { get; set; }
+
+    /// <summary>入口页面文件名，默认 "index.html"。</summary>
+    public string? EntryPage { get; set; }
 }

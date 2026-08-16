@@ -6,8 +6,8 @@
  * 不写死字面量，因此自动适配浅色/深色/系统跟随主题。
  *
  * 用法：
- *   import '@lybox/sdk/css';          // 仅主题变量
- *   import '@lybox/sdk/components';   // 主题变量 + 组件样式
+ *   import '@lytree/sdk/css';          // 仅主题变量
+ *   import '@lytree/sdk/components';   // 主题变量 + 组件样式
  *
  * 主题切换：<html data-theme="dark|light">（详见 lybox-theme.css）
  */

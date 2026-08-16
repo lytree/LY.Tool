@@ -105,44 +105,6 @@ public sealed class MenuConfigurationService : IMenuConfigurationService
         }
     }
 
-    public void RemoveMenuItem(string key)
-    {
-        _menuItemsMap.TryRemove(key, out _);
-        RemoveMenuItemFromParent(key);
-    }
-
-    private void RemoveMenuItemFromParent(string key)
-    {
-        var menuItemToRemove = FindAvaloniaMenuItem(key);
-        if (menuItemToRemove != null && _menuViewModel.MenuItems.Remove(menuItemToRemove))
-        {
-            return;
-        }
-
-        foreach (var parentItem in _menuViewModel.MenuItems)
-        {
-            if (RemoveFromChildren(parentItem, key))
-                return;
-        }
-    }
-
-    private static bool RemoveFromChildren(MenuItemViewModel parentItem, string key)
-    {
-        if (parentItem.Children == null) return false;
-
-        var menuItemToRemove = FindAvaloniaMenuItemRecursive(parentItem.Children, key);
-        if (menuItemToRemove != null && parentItem.Children.Remove(menuItemToRemove))
-            return true;
-
-        foreach (var childItem in parentItem.Children)
-        {
-            if (RemoveFromChildren(childItem, key))
-                return true;
-        }
-
-        return false;
-    }
-
     public IEnumerable<string> GetMenuItemKeys()
     {
         return _menuItemsMap.Keys;

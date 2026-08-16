@@ -61,15 +61,14 @@ artifacts/bin/、obj/、publish/、packages/、test-results/
 ### 两个解决方案
 | 解决方案 | 内容 |
 |----------|----------|
-| `Core.slnx` | 宿主：Generators、Shared、UI、Launcher、Platforms.Abstractions |
-| `Plugins.slnx` | Generators、Shared、所有 `plugins/*` 项目（12 个插件） |
+| `Core.slnx` | 宿主：Generators、Shared、Shared.Web、UI、Launcher、Platforms.Abstractions |
+| `Plugins.slnx` | Generators、Shared、Shared.Web、所有 `plugins/*` 项目（12 个插件） |
 
 ### 项目分层（src/）
 ```
 LYBox.Plugin.Generators/        Roslyn 增量源生成器（netstandard2.1，IsRoslynComponent）
-LYBox.Plugin.Shared/            共享契约：IPlugin、IPluginMetadata、ViewLocator、ServiceLocator、特性、控件
-LYBox.Plugin.Shared.Chart/      图表类插件共享契约与辅助（配合 ScottPlot 插件）
-LYBox.Plugin.Shared.ProDataGrid/ 数据网格类插件共享契约与辅助（配合 ProDataGrid 插件）
+LYBox.Plugin.Shared/            共享契约（核心包）：IPlugin、IPluginMetadata、ViewLocator、ServiceLocator、特性、控件（不含 Web 依赖）
+LYBox.Plugin.Shared.Web/        Web 包：Rpc/（IRpcHost、WebViewIpcHost、Channel、SseEventPusher）、Web/（WebHostService、SystemCommands、WebPluginView）、嵌入式 ipc.js
 LYBox.Platforms.Abstractions/   跨平台抽象基类（仅空 README）
 LYBox.Layout.Core/              宿主布局核心（ViewModels、Services、Resources 等共享布局基础设施）
 LYBox.Layout.Ursa/                       宿主应用：ViewModels、Views、Services（EF Core、导航、菜单、本地化、ZLogger）
@@ -92,9 +91,9 @@ LYBox.Launcher.Desktop/         桌面入口（Program.cs → App.axaml.cs）。
 <PluginVersion>1.0.0</PluginVersion>  <!-- 可选，缺省回退到 <Version> -->
 ```
 
-12 个插件：ButtonsInputs、DateTime、DialogFeedbacks、Downloader、LayoutDisplay、NavigationMenus、ProDataGrid、ScottPlot、TDLSharp、Template、BlazorApp、WebTemplate。
+12 个插件：ButtonsInputs、DateTime、DialogFeedbacks、Downloader、LayoutDisplay、NavigationMenus、ProDataGrid、ScottPlot、TDLSharp、Template、BTSou、WebTemplate。
 
-其中 `BlazorApp`、`WebTemplate` 为 **WebView 插件**：宿主通过 WebView 承载前端页面，前端代码位于独立的 `frontend/` monorepo（pnpm workspace，发布 `@lybox/sdk`、`create-lybox-react`、`create-lybox-vue3`）。前端与宿主通信（WebView IPC）见 [docs/WebView-IPC-Guide.md](docs/WebView-IPC-Guide.md)，本地 Mock 后端（`lybox-mock` dotnet tool）见 [docs/LYBox-MockServer-Guide.md](docs/LYBox-MockServer-Guide.md)。
+其中 `WebTemplate` 为 **WebView 插件**：宿主通过 WebView 承载前端页面，前端代码位于独立的 `frontend/` monorepo（pnpm workspace，发布 `@lytree/sdk`、统一脚手架 `create-lybox`，以及 `create-lybox-react`/`create-lybox-vue3` 薄封装）。前端与宿主通信（WebView IPC）见 [docs/WebView-IPC-Guide.md](docs/WebView-IPC-Guide.md)，本地 Mock 后端（`lybox-mock` dotnet tool）见 [docs/LYBox-MockServer-Guide.md](docs/LYBox-MockServer-Guide.md)。
 
 ### 应用启动流程
 ```
@@ -140,9 +139,9 @@ Program.cs → App.Initialize()
 | **ViewLocator** | 全局 `IDataTemplate`，使用 `ConditionalWeakTable` 缓存（VM→View 循环无泄漏）。在 XAML 中注册 — `ContentControl.Content="{Binding Content}"` 自动解析。 |
 | **导航** | 基于 key 的 `NavigationService` + `WeakReferenceMessenger` 发布/订阅（"JumpTo" 消息）。插件在 `IPlugin.GetNavigationItems()` 中注册导航项。 |
 | **菜单层级** | 扁平菜单项 + 可选 `parentKey`。`MenuItemTreeBuilder.BuildTree()` 解析为树。`MenuConfigurationService` 管理增删。 |
-| **源生成器** | 在实现 `IPluginMetadata` 的类上标注 `[GenerateMetadata]` → 自动生成 `IPlugin` 实现。扫描伴生类上的 `[ViewMap]`、`[NavigationItem]`、`[Menu]` 特性。 |
+| **源生成器** | 在插件入口类上标注 `[GenerateMetadata]` → 自动生成 `IPlugin` + `IPluginMetadata` 实现。`IPluginMetadata` 属性（Name/Version/Author/Description/PluginId/MinPluginSdkVersion）由生成器从 csproj 元数据属性注入（单一事实来源，见 O-1/O-8），入口类无需手写。同时扫描伴生类上的 `[ViewMap]`、`[NavigationItem]`、`[Menu]` 特性。 |
 | **本地化** | `ILocalizationService` 堆叠 `.resx` `ResourceManager` 实例。插件在 `Initialize()` 中注册自己的 ResourceManager。 |
-| **插件生命周期** | `NotInstalled → Installed → Loaded → Disabled → PendingUninstall`。状态变更触发事件通知 UI。 |
+| **插件生命周期** | `NotInstalled → Installed → Loaded → Disabled → PendingUninstall`（另有 `PendingUpgrade`、`Error`，共 7 个状态）。状态变更触发事件通知 UI。 |
 
 ## UI 组件与样式规范（强制）
 
@@ -303,12 +302,18 @@ Program.cs → App.Initialize()
 
 ## 已安装的 Skills（本地）
 
-`.agents/skills/` 中有三个 Avalonia/Zafiro skill（来自 `sickn33/antigravity-awesome-skills`）：
+`.agents/skills/` 中的 skill 分为两组：
+
+**Avalonia/Zafiro 通用 skill**（来自 `sickn33/antigravity-awesome-skills`）：
 - `avalonia-layout-zafiro` — XAML 布局约定
 - `avalonia-viewmodels-zafiro` — ViewModel/Wizard 模式
 - `avalonia-zafiro-development` — 强制约定与规则
 
-这些 skill 处于激活状态，当其模式适用时应予使用。
+**LYBox 项目 skill**（本仓库维护，插件开发必读）：
+- `lybox-plugin` — 非 Web 插件（Avalonia 原生）开发规范：csproj 声明、GenerateMetadata 特性、本地化/设置注册、生命周期约束
+- `lybox-web-plugin` — Web 插件开发规范：PluginKind 声明与 Web 描述符、wwwroot、WebView IPC（RPC/事件/Channel/SSE）、前端 `@lytree/sdk`、lybox-mock 浏览器开发模式
+
+这些 skill 处于激活状态，当其模式适用时应予使用。开发 `plugins/` 下的插件时，先按插件类型选用 `lybox-plugin` 或 `lybox-web-plugin`。
 
 ## 插件 .csproj 模板（用于新插件）
 
@@ -323,6 +328,8 @@ Program.cs → App.Initialize()
     <PluginName>...</PluginName>
     <PluginAuthor>...</PluginAuthor>
     <PluginDescription>...</PluginDescription>
+    <PluginVersion>1.0.0</PluginVersion>
+    <MinPluginSdkVersion>2.0.0</MinPluginSdkVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="LYBox.Plugin.Generators" Version="1.0.0"
@@ -331,6 +338,8 @@ Program.cs → App.Initialize()
   </ItemGroup>
 </Project>
 ```
+
+**Web 插件差异**：在 `<PropertyGroup>` 中追加 `<PluginKind>Web</PluginKind>`，并额外引用 Web 包 `<PackageReference Include="LYBox.Plugin.Shared.Web" Version="1.0.0" PrivateAssets="all" />`。宿主依据 `PluginKind=Web` 自动注册 `wwwroot`（声明即注册），非 Web 插件**不要**引用 `LYBox.Plugin.Shared.Web`。
 
 ## WebView IPC 调研结论（特性分支 `feat-avalonia-webview-ipc`）
 

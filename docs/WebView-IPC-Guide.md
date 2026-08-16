@@ -3,7 +3,7 @@
 LYBox WebView IPC 是一套基于 `Avalonia.Controls.WebView` 的双向通讯框架，采用 **Wails v2 模型为主干 + Tauri Channel 流式扩展** 的混合策略，让宿主 C# 代码与嵌入前端页面之间实现类型安全、可流式推送的 RPC 通讯。
 
 > **适用版本**：HostVersion 2.1.0+  
-> **依赖项目**：`LYBox.Plugin.Shared`、`LYBox.Plugin.Generators`  
+> **依赖项目**：`LYBox.Plugin.Shared`（契约）、`LYBox.Plugin.Shared.Web`（IPC 运行时/WebHost）、`LYBox.Plugin.Generators`  
 > **测试覆盖**：WebView IPC 与生产 HTTP 会话均由 `tests/LYBox.Tests/Rpc/` 下的 TUnit 测试覆盖。
 
 ---
@@ -101,8 +101,6 @@ Avalonia WebView 抽象层仅提供两个低级通道：
 │                      ┌──────────────┴──────────────┐        │
 │                      │ IRpcBindingSource（源生成器）│        │
 │                      │ - RegisterBindings(host)    │        │
-│                      │ - TsDeclarations (static)   │        │
-│                      │ - JsGlue (static)           │        │
 │                      └─────────────────────────────┘        │
 │                                     ▲                        │
 │                     [RpcCommand] 标注的方法                   │
@@ -113,8 +111,9 @@ Avalonia WebView 抽象层仅提供两个低级通道：
 
 | 项目 | 职责 |
 |------|------|
-| `LYBox.Plugin.Shared` | 契约层 + IPC 运行时：`[RpcCommand]`、`IRpcTransport`、`IRpcHost`、`IRpcBindingSource`、`Channel<T>`、`RpcEnvelope`、`WebViewIpcHost`、嵌入式 `ipc.js` |
-| `LYBox.Plugin.Generators` | Roslyn 增量源生成器：扫描 `[RpcCommand]` 生成 `IRpcBindingSource` partial 实现 |
+| `LYBox.Plugin.Shared` | 契约层（核心包）：`[RpcCommand]`、`RpcCommandAttribute` 等共享契约，不含 Web 依赖 |
+| `LYBox.Plugin.Shared.Web` | Web 包（依赖 ASP.NET Core / WebView）：`IRpcTransport`、`IRpcHost`、`IRpcBindingSource`、`Channel<T>`、`RpcEnvelope`、`WebViewIpcHost`、`SseEventPusher`、`WebHostService`、`WebPluginView`、嵌入式 `ipc.js` |
+| `LYBox.Plugin.Generators` | Roslyn 增量源生成器：扫描 `[RpcCommand]` 生成 `IRpcBindingSource` partial 实现（仅 `RegisterBindings`） |
 | 宿主项目 | 提供 `WebViewIpcTransport`（包装 `Avalonia.Controls.WebView`）+ 演示页面 |
 
 ---
@@ -210,7 +209,7 @@ public sealed class RpcCommandAttribute : Attribute
 
 | 属性 | 类型 | 说明 |
 |------|------|------|
-| `Name` | `string?` | 命令名。缺省为方法名。前端通过 `window.go.<Namespace>.<Class>.<Name>` 调用 |
+| `Name` | `string?` | 命令名。缺省为方法名。前端通过 `window.__lybox.rpc('<Name>', ...args)` 调用 |
 
 **约束**：
 - 仅可标注方法（`AttributeTargets.Method`）
@@ -221,7 +220,7 @@ public sealed class RpcCommandAttribute : Attribute
 ### `IRpcTransport` 传输抽象
 
 **命名空间**：`LYBox.Plugin.Shared.Rpc`  
-**文件**：[src/Plugin/LYBox.Plugin.Shared/Rpc/IRpcTransport.cs](../src/Plugin/LYBox.Plugin.Shared/Rpc/IRpcTransport.cs)
+**文件**：[src/Plugin/LYBox.Plugin.Shared.Web/Rpc/IRpcTransport.cs](../src/Plugin/LYBox.Plugin.Shared.Web/Rpc/IRpcTransport.cs)
 
 ```csharp
 public interface IRpcTransport
@@ -243,7 +242,7 @@ public interface IRpcTransport
 ### `IRpcHost` 主机接口
 
 **命名空间**：`LYBox.Plugin.Shared.Rpc`  
-**文件**：[src/Plugin/LYBox.Plugin.Shared/Rpc/IRpcHost.cs](../src/Plugin/LYBox.Plugin.Shared/Rpc/IRpcHost.cs)
+**文件**：[src/Plugin/LYBox.Plugin.Shared.Web/Rpc/IRpcHost.cs](../src/Plugin/LYBox.Plugin.Shared.Web/Rpc/IRpcHost.cs)
 
 ```csharp
 public delegate Task<object?> RpcCommandHandler(JsonElement[] args, CancellationToken cancellationToken);
@@ -276,7 +275,7 @@ unsub();
 ### `WebViewIpcHost` 运行时
 
 **命名空间**：`LYBox.Plugin.Shared.Rpc`  
-**文件**：[src/Plugin/LYBox.Plugin.Shared/Rpc/WebViewIpcHost.cs](../src/Plugin/LYBox.Plugin.Shared/Rpc/WebViewIpcHost.cs)
+**文件**：[src/Plugin/LYBox.Plugin.Shared.Web/Rpc/WebViewIpcHost.cs](../src/Plugin/LYBox.Plugin.Shared.Web/Rpc/WebViewIpcHost.cs)
 
 实现 `IRpcHost`，在 `IRpcTransport.MessageReceived` 上按 Wails v2 前缀信封分发。
 
@@ -316,7 +315,7 @@ await host.EmitEventAsync("app.started", new { version = "2.1.0" });
 ### `Channel<T>` 流式通道
 
 **命名空间**：`LYBox.Plugin.Shared.Rpc`  
-**文件**：[src/Plugin/LYBox.Plugin.Shared/Rpc/Channel.cs](../src/Plugin/LYBox.Plugin.Shared/Rpc/Channel.cs)
+**文件**：[src/Plugin/LYBox.Plugin.Shared.Web/Rpc/Channel.cs](../src/Plugin/LYBox.Plugin.Shared.Web/Rpc/Channel.cs)
 
 借鉴 Tauri Channel，弥补 Wails 无原生流式的缺陷。C# 侧创建并拥有，每次 `WriteAsync` 把数据推送到前端。
 
@@ -387,7 +386,7 @@ const unsub = ch.on(progress => {
 
 ### 系统级命令（SystemCommands）
 
-**文件**：[src/Plugin/LYBox.Plugin.Shared/Web/SystemCommands.cs](../src/Plugin/LYBox.Plugin.Shared/Web/SystemCommands.cs)
+**文件**：[src/Plugin/LYBox.Plugin.Shared.Web/Web/SystemCommands.cs](../src/Plugin/LYBox.Plugin.Shared.Web/Web/SystemCommands.cs)
 
 `SystemCommands` 是一个静态注册器，在 `WebPluginView` 初始化时自动将系统级 RPC 命令注册到每个 WebView 实例。所有 web 插件无需编写任何 C# 代码即可调用系统能力。
 
@@ -543,7 +542,7 @@ Mock Server 已内置系统命令的 mock 响应，浏览器调试模式下返�
 
 ## 前端 JS API
 
-**文件**：[src/Plugin/LYBox.Plugin.Shared/Rpc/Assets/ipc.js](../src/Plugin/LYBox.Plugin.Shared/Rpc/Assets/ipc.js)
+**文件**：[src/Plugin/LYBox.Plugin.Shared.Web/Rpc/Assets/ipc.js](../src/Plugin/LYBox.Plugin.Shared.Web/Rpc/Assets/ipc.js)
 
 宿主通过 `InitializeAsync()` 注入 `ipc.js`，提供 `window.__lybox` 运行时。前端无需手动引入任何库。
 
@@ -773,20 +772,22 @@ unmount();
 
 ### 项目模板
 
-提供两个脚手架包，一键创建集成 SDK 的前端项目：
+提供脚手架包 `create-lybox`，一键创建集成 SDK 的前端项目（React / Vue3 二选一）：
 
 ```bash
-# Vue3 + Vite + TypeScript
-npm create lybox-vue3 my-plugin
+# 统一入口，--template 指定 react | vue3（缺省 react）
+npm create lybox my-plugin -- --template vue3
+npm create lybox my-plugin -- --template react
 
-# React + Vite + TypeScript
-npm create lybox-react my-plugin
+# 兼容薄封装（固定模板，等价于上面带 --template 的写法）
+npm create lybox-vue3 my-plugin    # 固定 Vue3
+npm create lybox-react my-plugin   # 固定 React
 ```
 
 模板特性：
 - 预配置 `@lytree/sdk` 依赖与 CSS 引入
-- Vite 开发代理到 `lybox-mock`（5173 端口）
-- 内置 RPC 调用、SSE 订阅、主题切换示例
+- Vite 开发代理到 `lybox-mock`（`/__bridge`、`/sse` 等）
+- 内置类型化 RPC（`createRpcClient`）、SSE 订阅、主题切换示例
 - `mock.json` 已配置好 mock 响应
 
 ### 调试流程
@@ -798,9 +799,9 @@ npm create lybox-react my-plugin
 │  Vite Dev Server (5174)  ──proxy──►  lybox-mock (5173)     │
 │       │                                    │                 │
 │       │ import '@lytree/sdk/css'            │ mock.json       │
-│       │ rpc() → fetch /__rpc               │ SSE /sse/{id}   │
+│       │ rpc() → fetch /__bridge/{id}/rpc   │ SSE /sse/{id}   │
 │       │ on()  → EventSource                │                 │
-│       └────────────────────────────────────┘                 │
+│       └────────────────────────────────────────────────────┘ │
 │                                                             │
 │  启动：lybox-mock --port 5173                                │
 │       cd my-plugin && pnpm dev  # Vite 5174                 │
@@ -843,20 +844,13 @@ public partial class CounterService
 生成器产出（`CounterService.Rpc.g.cs`）：
 
 ```csharp
-public partial class CounterService : global::LYBox.Plugin.Shared.Rpc.IRpcBindingSource
+public partial class CounterService : global::LYBox.Plugin.Shared.Web.Rpc.IRpcBindingSource
 {
     private static readonly CounterService __instance = new();
 
-    public static string TsDeclarations => @"
-// Generated TypeScript declarations
-export function AddAsync(a: number, b: number): Promise<number>;
-";
-
-    public static string JsGlue => @"[{""id"":""MyApp.Services.CounterService.AddAsync"",""name"":""AddAsync"",""argCount"":2}]";
-
-    public void RegisterBindings(global::LYBox.Plugin.Shared.Rpc.IRpcHost host)
+    public void RegisterBindings(global::LYBox.Plugin.Shared.Web.Rpc.IRpcHost host)
     {
-        host.RegisterCommand("MyApp.Services.CounterService.AddAsync", async (args, ct) =>
+        host.RegisterCommand("AddAsync", async (args, ct) =>
         {
             var p0 = 0 < args.Length ? args[0].Deserialize<int>() : default;
             var p1 = 1 < args.Length ? args[1].Deserialize<int>() : default;
@@ -867,27 +861,7 @@ export function AddAsync(a: number, b: number): Promise<number>;
 }
 ```
 
-### TypeScript 类型映射
-
-| C# 类型 | TypeScript 类型 |
-|---------|----------------|
-| `bool` | `boolean` |
-| `string` | `string` |
-| `byte`/`short`/`int`/`long`/`float`/`double`/`decimal` | `number` |
-| `DateTime` | `string` |
-| `object` | `any` |
-| `Task<T>` / `ValueTask<T>` | `T`（解包） |
-| `Task` / `ValueTask` | `void` |
-| `Channel<T>` | `{ id: string; itemType: string }` |
-| 其他 | `any` |
-
-### 获取 TS 声明
-
-```csharp
-// 运行时获取生成的 TypeScript 声明（可写入 .d.ts 文件供前端使用）
-string ts = CounterService.TsDeclarations;
-File.WriteAllText("counter-service.d.ts", ts);
-```
+> 命令名使用**短名**（方法名，如 `AddAsync`）注册，前端经 `window.__lybox.rpc('AddAsync', ...)` 调用。源生成器不再产出 TypeScript 声明代码——前端类型安全由 `@lytree/sdk` 的 `createRpcClient<Methods>()` 方法表客户端在编译期提供。
 
 ### 生成器约束
 
@@ -902,7 +876,7 @@ File.WriteAllText("counter-service.d.ts", ts);
 
 ## 消息协议
 
-**文件**：[src/Plugin/LYBox.Plugin.Shared/Rpc/RpcEnvelope.cs](../src/Plugin/LYBox.Plugin.Shared/Rpc/RpcEnvelope.cs)
+**文件**：[src/Plugin/LYBox.Plugin.Shared.Web/Rpc/RpcEnvelope.cs](../src/Plugin/LYBox.Plugin.Shared.Web/Rpc/RpcEnvelope.cs)
 
 ### JS → C#（经 `invokeCSharpAction(body)`，body 为字符串）
 
@@ -1160,12 +1134,12 @@ Assert.Contains(transport.ExecutedScripts, s => s.Contains("resolve") && s.Conta
 # 生产宿主安全边界
 桌面宿主与 `lybox-mock` 的 HTTP 行为刻意不同：
 
-- 生产宿主的 RPC 地址为 `POST /__rpc/{pluginId}`，命令处理器按插件隔离，不允许不同插件通过同名命令相互覆盖或调用。
+- 生产宿主的 RPC 统一入口为 `POST /__bridge/{pluginId}/rpc`，命令处理器按插件隔离，不允许不同插件通过同名命令相互覆盖或调用。`/__emit`、`/__channel/close` 旧端点已合并为 `/__bridge/{pluginId}/{action}`（`action = emit | channel-close`，返回 202）。
 - RPC、SSE、emit 与 channel-close 均要求宿主为当前可信 WebView 文档生成的短期 session token。
 - session 与 `pluginId` 绑定；页面导航、WebView 卸载或重建后立即撤销，旧页面正在执行的 RPC 也会收到取消信号。
-- 请求带有 `Origin` 时，只接受当前 loopback 宿主的 Origin。
+- 请求带有 `Origin` 时，只接受当前 loopback 宿主的 Origin（或 `WebHostService` 构造函数注入的 `AllowedOrigins` 白名单）。
 - session 由 `WebPluginView` 在可信导航完成后注入，插件页面不应自行保存、转发或拼接该 token。
-- `lybox-mock` 保留无 token 的 `/__rpc`，仅用于独立前端开发，不代表生产宿主协议。
+- `lybox-mock` 保留无 token 的 `/__bridge/{pluginId}/rpc`，仅用于独立前端开发，不代表生产宿主协议。
 
 ## 方法表类型客户端
 

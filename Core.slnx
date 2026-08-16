@@ -2,6 +2,7 @@
     <Folder Name="/src/Plugin/">
         <Project Path="src/Plugin/LYBox.Plugin.Generators/LYBox.Plugin.Generators.csproj" />
         <Project Path="src/Plugin/LYBox.Plugin.Shared/LYBox.Plugin.Shared.csproj" />
+        <Project Path="src/Plugin/LYBox.Plugin.Shared.Web/LYBox.Plugin.Shared.Web.csproj" />
     </Folder>
     <Folder Name="/src/Layout/">
         <Project Path="src/Layout/LYBox.Layout.Core/LYBox.Layout.Core.csproj" />

@@ -10,13 +10,13 @@
 //   lybox-mock --plugin <pluginId>          // 默认 pluginId（用于日志提示）
 //
 // 端点：
-//   GET  /__lybox/ipc.js         返回 ipc.js（供 HTML <script> 引入）
-//   POST /__rpc                   Mock RPC，读 mock.json 返回假数据
-//   GET  /sse/{pluginId}          Mock SSE，定时推送事件
-//   POST /__emit                  浏览器模式事件 emit（返回 202）
-//   POST /__channel/close         通道关闭（返回 202）
-//   GET  /{pluginId}/{**path}     静态资源
-//   GET  /                        健康检查
+//   GET  /__lybox/ipc.js              返回 ipc.js（供 HTML <script> 引入）
+//   POST /__bridge/{pluginId}/rpc      Mock RPC，读 mock.json 返回假数据
+//   POST /__bridge/{pluginId}/emit     浏览器模式事件 emit（返回 202）
+//   POST /__bridge/{pluginId}/channel-close  通道关闭（返回 202）
+//   GET  /sse/{pluginId}               Mock SSE，定时推送事件
+//   GET  /{pluginId}/{**path}          静态资源
+//   GET  /                             健康检查
 
 using System.IO;
 using System.Text.Json;
@@ -79,9 +79,19 @@ var app = builder.Build();
 // 端点 1：ipc.js 注入
 app.MapGet("/__lybox/ipc.js", () => Results.Content(ipcJsContent, "application/javascript; charset=utf-8"));
 
-// 端点 2：Mock RPC
-app.MapPost("/__rpc", async (HttpContext ctx) =>
+// 端点 2：统一 HTTP 桥（S4 BC-6 对齐生产 WebHostService）
+// POST /__bridge/{pluginId}/{action}
+//   action = "rpc"             读 mock.json 返回假数据
+//   action = "emit" / "channel-close"  返回 202 Accepted
+// pluginId 非空即放行（Mock 模式无会话校验），仅用于日志与路由对齐。
+app.MapPost("/__bridge/{pluginId}/{action}", async (string pluginId, string action, HttpContext ctx) =>
 {
+    if (action != "rpc")
+    {
+        ctx.Response.StatusCode = StatusCodes.Status202Accepted;
+        return;
+    }
+
     JsonDocument? body;
     try
     {
@@ -187,21 +197,7 @@ app.MapGet("/sse/{pluginId}", async (string pluginId, HttpContext ctx) =>
     catch { /* 客户端断开 */ }
 });
 
-// 端点 4：事件 emit
-app.MapPost("/__emit", (HttpContext ctx) =>
-{
-    ctx.Response.StatusCode = StatusCodes.Status202Accepted;
-    return Task.CompletedTask;
-});
-
-// 端点 5：通道关闭
-app.MapPost("/__channel/close", (HttpContext ctx) =>
-{
-    ctx.Response.StatusCode = StatusCodes.Status202Accepted;
-    return Task.CompletedTask;
-});
-
-// 端点 6：静态资源
+// 端点 4：静态资源
 app.MapGet("/{pluginId}/{**path}", async (string pluginId, string path, HttpContext ctx) =>
 {
     var fullPath = Path.GetFullPath(Path.Combine(wwwroot, path.Replace('/', Path.DirectorySeparatorChar)));
@@ -221,7 +217,7 @@ app.MapGet("/{pluginId}/{**path}", async (string pluginId, string path, HttpCont
     }
 });
 
-// 端点 7：健康检查
+// 端点 5：健康检查
 app.MapGet("/", () => Results.Ok(new { service = "LYBox.MockServer", port = options.Port, wwwroot }));
 
 Console.WriteLine($"[mock-server] 启动中: {urls}");
@@ -276,10 +272,10 @@ static void PrintHelp()
       --help, -h              显示帮助
 
     端点:
-      GET  /__lybox/ipc.js     返回 ipc.js
-      POST /__rpc              Mock RPC
-      GET  /sse/{pluginId}     Mock SSE
-      GET  /{pluginId}/{path}  静态资源
+      GET  /__lybox/ipc.js             返回 ipc.js
+      POST /__bridge/{pluginId}/rpc    Mock RPC
+      GET  /sse/{pluginId}             Mock SSE
+      GET  /{pluginId}/{path}          静态资源
 
     示例:
       lybox-mock
@@ -312,7 +308,7 @@ static string? ResolveIpcJs(string wwwroot)
     var dir = new DirectoryInfo(wwwroot);
     for (var i = 0; i < 6 && dir is not null; i++)
     {
-        var p = Path.Combine(dir.FullName, "src", "Plugin", "LYBox.Plugin.Shared", "Rpc", "Assets", "ipc.js");
+        var p = Path.Combine(dir.FullName, "src", "Plugin", "LYBox.Plugin.Shared.Web", "Rpc", "Assets", "ipc.js");
         if (File.Exists(p)) return p;
         dir = dir.Parent;
     }

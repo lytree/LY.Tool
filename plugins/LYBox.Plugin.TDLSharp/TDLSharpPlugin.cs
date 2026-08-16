@@ -10,15 +10,8 @@ using Microsoft.Extensions.Logging;
 namespace LYBox.Plugin.TDLSharp;
 
 [GenerateMetadata]
-public partial class TDLSharpPlugin : IPluginMetadata
+public partial class TDLSharpPlugin
 {
-    public string Name => "TDLSharp Plugin";
-    public string Version => "1.0.0";
-    public string Author => "TDLSharp";
-    public string Description => "Telegram TDLib integration plugin providing batch forward, message export, media download and more.";
-    public IEnumerable<string> Dependencies => [];
-    public string PluginId => "A1B2C3D4-E5F6-7890-ABCD-TDLSHARP00001";
-
     public Task InitializeAsync(IServiceCollection services)
     {
         services.AddSingleton<TdlClientManager>(sp =>
@@ -35,10 +28,17 @@ public partial class TDLSharpPlugin : IPluginMetadata
 
     public Task RegisterAsync(IServiceProvider serviceProvider)
     {
-        if (serviceProvider.GetService<ILocalizationService>() is { } loc)
-            loc.RegisterResourceManager(Strings.ResourceManager);
-
         RegisterSettings(serviceProvider);
+        return Task.CompletedTask;
+    }
+
+    /// <summary>应用退出时显式释放 TdLib 客户端（原生资源）。Dispose 幂等，容器后续释放由守卫兜底。</summary>
+    public Task ShutdownAsync()
+    {
+        if (ServiceLocator.TryGetService<TdlClientManager>(out var manager))
+        {
+            manager.Dispose();
+        }
         return Task.CompletedTask;
     }
 

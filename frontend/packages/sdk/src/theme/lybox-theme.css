@@ -4,8 +4,11 @@
  * 与宿主 Avalonia UrsaFluentTheme 配色方案保持一致的 CSS 变量定义。
  * 颜色值源自 src/Layout/LYBox.Layout.Ursa/Theme/FluentDesign/Light.axaml 和 Dark.axaml。
  *
+ * 本文件由脚本生成，请勿手改 —— 单一数据源见 src/theme/tokens.json。
+ * 重新生成： dotnet fsi packages/sdk/scripts/build-tokens.fsx
+ *
  * 用法：
- *   import '@lybox/theme/css';
+ *   import '@lytree/sdk/css';
  *   // 或在 HTML 中：
  *   // <link rel="stylesheet" href="..." />
  *
@@ -14,6 +17,7 @@
  *   <html data-theme="light"> // 强制浅色
  *   // 不设置时跟随系统 prefers-color-scheme
  */
+
 /* ============================================
  * 浅色主题（默认）
  * 对应 FluentDesign/Light.axaml
@@ -124,7 +128,6 @@
   /* 阴影 */
   --lybox-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04);
   --lybox-shadow-overlay: 0 4px 14px rgba(0, 0, 0, 0.25);
-
   /* 尺寸（对应 Themes/Shared/Variables.axaml） */
   --lybox-corner-radius-control: 4px;
   --lybox-corner-radius-card: 8px;
@@ -160,12 +163,13 @@
   --lybox-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --lybox-font-family-mono: "Cascadia Code", "Fira Code", "JetBrains Mono", Consolas, "Courier New", monospace;
 }
+
 /* ============================================
  * 深色主题
  * 对应 FluentDesign/Dark.axaml
  * ============================================ */
 :root[data-theme="dark"] {
-  /* 主色 */
+  /* 主色（Accent） */
   --lybox-color-primary: #60CDFF;
   --lybox-color-primary-hover: #78D4FF;
   --lybox-color-primary-active: #38B0F0;
@@ -216,7 +220,7 @@
   --lybox-color-danger-light-hover: rgba(255, 153, 164, 0.30);
   --lybox-color-danger-light-active: rgba(255, 153, 164, 0.40);
 
-  /* 文本色 */
+  /* 文本色（4 级灰度） */
   --lybox-color-text-0: #FFFFFF;
   --lybox-color-text-1: rgba(255, 255, 255, 0.9);
   --lybox-color-text-2: rgba(255, 255, 255, 0.7);
@@ -229,14 +233,14 @@
   --lybox-color-link-active: #38B0F0;
   --lybox-color-link-visited: #60CDFF;
 
-  /* 背景色 */
+  /* 背景色（5 级） */
   --lybox-color-background-0: #202020;
   --lybox-color-background-1: #2C2C2C;
   --lybox-color-background-2: #323232;
   --lybox-color-background-3: #383838;
   --lybox-color-background-4: #454545;
 
-  /* 填充色 */
+  /* 填充色（叠加透明度） */
   --lybox-color-fill-0: rgba(255, 255, 255, 0.12);
   --lybox-color-fill-1: rgba(255, 255, 255, 0.16);
   --lybox-color-fill-2: rgba(255, 255, 255, 0.20);
@@ -260,7 +264,7 @@
   --lybox-color-highlight-background: rgba(252, 225, 0, 0.2);
   --lybox-color-highlight: #FFFFFF;
 
-  /* 卡片 */
+  /* 卡片（语义 Brush，对应 FluentCardBackgroundBrush 等） */
   --lybox-card-background: #2C2C2C;
   --lybox-card-stroke: rgba(255, 255, 255, 0.08);
   --lybox-subtle: #202020;
@@ -277,111 +281,111 @@
  * ============================================ */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]):not([data-theme="dark"]) {
-    /* 主色 */
-    --lybox-color-primary: #60CDFF;
-    --lybox-color-primary-hover: #78D4FF;
-    --lybox-color-primary-active: #38B0F0;
-    --lybox-color-primary-disabled: rgba(96, 205, 255, 0.35);
-    --lybox-color-primary-light: rgba(96, 205, 255, 0.15);
-    --lybox-color-primary-light-hover: rgba(96, 205, 255, 0.20);
-    --lybox-color-primary-light-active: rgba(96, 205, 255, 0.25);
+    /* 主色（Accent） */
+      --lybox-color-primary: #60CDFF;
+      --lybox-color-primary-hover: #78D4FF;
+      --lybox-color-primary-active: #38B0F0;
+      --lybox-color-primary-disabled: rgba(96, 205, 255, 0.35);
+      --lybox-color-primary-light: rgba(96, 205, 255, 0.15);
+      --lybox-color-primary-light-hover: rgba(96, 205, 255, 0.20);
+      --lybox-color-primary-light-active: rgba(96, 205, 255, 0.25);
 
     /* 次级色 */
-    --lybox-color-secondary: #60CDFF;
-    --lybox-color-secondary-hover: #78D4FF;
-    --lybox-color-secondary-active: #38B0F0;
+      --lybox-color-secondary: #60CDFF;
+      --lybox-color-secondary-hover: #78D4FF;
+      --lybox-color-secondary-active: #38B0F0;
 
     /* 三级色 */
-    --lybox-color-tertiary: #C5C5C5;
-    --lybox-color-tertiary-hover: #D4D4D4;
-    --lybox-color-tertiary-active: #E8E8E8;
-    --lybox-color-tertiary-light: rgba(255, 255, 255, 0.20);
-    --lybox-color-tertiary-light-hover: rgba(255, 255, 255, 0.30);
-    --lybox-color-tertiary-light-active: rgba(255, 255, 255, 0.40);
+      --lybox-color-tertiary: #C5C5C5;
+      --lybox-color-tertiary-hover: #D4D4D4;
+      --lybox-color-tertiary-active: #E8E8E8;
+      --lybox-color-tertiary-light: rgba(255, 255, 255, 0.20);
+      --lybox-color-tertiary-light-hover: rgba(255, 255, 255, 0.30);
+      --lybox-color-tertiary-light-active: rgba(255, 255, 255, 0.40);
 
     /* 信息色 */
-    --lybox-color-info: #60CDFF;
-    --lybox-color-info-hover: #78D4FF;
-    --lybox-color-info-active: #38B0F0;
+      --lybox-color-info: #60CDFF;
+      --lybox-color-info-hover: #78D4FF;
+      --lybox-color-info-active: #38B0F0;
 
     /* 成功色 */
-    --lybox-color-success: #6CCB5F;
-    --lybox-color-success-hover: #8FD984;
-    --lybox-color-success-active: #B2E5A9;
-    --lybox-color-success-light: rgba(108, 203, 95, 0.20);
-    --lybox-color-success-light-hover: rgba(108, 203, 95, 0.30);
-    --lybox-color-success-light-active: rgba(108, 203, 95, 0.40);
+      --lybox-color-success: #6CCB5F;
+      --lybox-color-success-hover: #8FD984;
+      --lybox-color-success-active: #B2E5A9;
+      --lybox-color-success-light: rgba(108, 203, 95, 0.20);
+      --lybox-color-success-light-hover: rgba(108, 203, 95, 0.30);
+      --lybox-color-success-light-active: rgba(108, 203, 95, 0.40);
 
     /* 警告色 */
-    --lybox-color-warning: #FCE100;
-    --lybox-color-warning-hover: #FDE94A;
-    --lybox-color-warning-active: #FEF08A;
-    --lybox-color-warning-light: rgba(252, 225, 0, 0.20);
-    --lybox-color-warning-light-hover: rgba(252, 225, 0, 0.30);
-    --lybox-color-warning-light-active: rgba(252, 225, 0, 0.40);
+      --lybox-color-warning: #FCE100;
+      --lybox-color-warning-hover: #FDE94A;
+      --lybox-color-warning-active: #FEF08A;
+      --lybox-color-warning-light: rgba(252, 225, 0, 0.20);
+      --lybox-color-warning-light-hover: rgba(252, 225, 0, 0.30);
+      --lybox-color-warning-light-active: rgba(252, 225, 0, 0.40);
 
     /* 危险色 */
-    --lybox-color-danger: #FF99A4;
-    --lybox-color-danger-hover: #FFBCBC;
-    --lybox-color-danger-active: #FFDEDE;
-    --lybox-color-danger-light: rgba(255, 153, 164, 0.20);
-    --lybox-color-danger-light-hover: rgba(255, 153, 164, 0.30);
-    --lybox-color-danger-light-active: rgba(255, 153, 164, 0.40);
+      --lybox-color-danger: #FF99A4;
+      --lybox-color-danger-hover: #FFBCBC;
+      --lybox-color-danger-active: #FFDEDE;
+      --lybox-color-danger-light: rgba(255, 153, 164, 0.20);
+      --lybox-color-danger-light-hover: rgba(255, 153, 164, 0.30);
+      --lybox-color-danger-light-active: rgba(255, 153, 164, 0.40);
 
-    /* 文本色 */
-    --lybox-color-text-0: #FFFFFF;
-    --lybox-color-text-1: rgba(255, 255, 255, 0.9);
-    --lybox-color-text-2: rgba(255, 255, 255, 0.7);
-    --lybox-color-text-3: rgba(255, 255, 255, 0.5);
-    --lybox-color-text-disabled: rgba(255, 255, 255, 0.35);
+    /* 文本色（4 级灰度） */
+      --lybox-color-text-0: #FFFFFF;
+      --lybox-color-text-1: rgba(255, 255, 255, 0.9);
+      --lybox-color-text-2: rgba(255, 255, 255, 0.7);
+      --lybox-color-text-3: rgba(255, 255, 255, 0.5);
+      --lybox-color-text-disabled: rgba(255, 255, 255, 0.35);
 
     /* 链接色 */
-    --lybox-color-link: #60CDFF;
-    --lybox-color-link-hover: #78D4FF;
-    --lybox-color-link-active: #38B0F0;
-    --lybox-color-link-visited: #60CDFF;
+      --lybox-color-link: #60CDFF;
+      --lybox-color-link-hover: #78D4FF;
+      --lybox-color-link-active: #38B0F0;
+      --lybox-color-link-visited: #60CDFF;
 
-    /* 背景色 */
-    --lybox-color-background-0: #202020;
-    --lybox-color-background-1: #2C2C2C;
-    --lybox-color-background-2: #323232;
-    --lybox-color-background-3: #383838;
-    --lybox-color-background-4: #454545;
+    /* 背景色（5 级） */
+      --lybox-color-background-0: #202020;
+      --lybox-color-background-1: #2C2C2C;
+      --lybox-color-background-2: #323232;
+      --lybox-color-background-3: #383838;
+      --lybox-color-background-4: #454545;
 
-    /* 填充色 */
-    --lybox-color-fill-0: rgba(255, 255, 255, 0.12);
-    --lybox-color-fill-1: rgba(255, 255, 255, 0.16);
-    --lybox-color-fill-2: rgba(255, 255, 255, 0.20);
+    /* 填充色（叠加透明度） */
+      --lybox-color-fill-0: rgba(255, 255, 255, 0.12);
+      --lybox-color-fill-1: rgba(255, 255, 255, 0.16);
+      --lybox-color-fill-2: rgba(255, 255, 255, 0.20);
 
     /* 边框色 */
-    --lybox-color-border: rgba(255, 255, 255, 0.08);
-    --lybox-color-border-focus: #60CDFF;
-    --lybox-color-border-disabled: rgba(255, 255, 255, 0.08);
+      --lybox-color-border: rgba(255, 255, 255, 0.08);
+      --lybox-color-border-focus: #60CDFF;
+      --lybox-color-border-disabled: rgba(255, 255, 255, 0.08);
 
     /* 禁用态 */
-    --lybox-color-disabled-background: rgba(255, 255, 255, 0.08);
-    --lybox-color-disabled-fill: rgba(255, 255, 255, 0.04);
+      --lybox-color-disabled-background: rgba(255, 255, 255, 0.08);
+      --lybox-color-disabled-fill: rgba(255, 255, 255, 0.04);
 
     /* 导航 */
-    --lybox-color-nav-background: #2C2C2C;
+      --lybox-color-nav-background: #2C2C2C;
 
     /* 遮罩 */
-    --lybox-color-overlay: rgba(32, 32, 32, 0.6);
+      --lybox-color-overlay: rgba(32, 32, 32, 0.6);
 
     /* 高亮 */
-    --lybox-color-highlight-background: rgba(252, 225, 0, 0.2);
-    --lybox-color-highlight: #FFFFFF;
+      --lybox-color-highlight-background: rgba(252, 225, 0, 0.2);
+      --lybox-color-highlight: #FFFFFF;
 
-    /* 卡片 */
-    --lybox-card-background: #2C2C2C;
-    --lybox-card-stroke: rgba(255, 255, 255, 0.08);
-    --lybox-subtle: #202020;
-    --lybox-subtle-hover: rgba(255, 255, 255, 0.08);
-    --lybox-subtle-pressed: rgba(255, 255, 255, 0.12);
+    /* 卡片（语义 Brush，对应 FluentCardBackgroundBrush 等） */
+      --lybox-card-background: #2C2C2C;
+      --lybox-card-stroke: rgba(255, 255, 255, 0.08);
+      --lybox-subtle: #202020;
+      --lybox-subtle-hover: rgba(255, 255, 255, 0.08);
+      --lybox-subtle-pressed: rgba(255, 255, 255, 0.12);
 
     /* 阴影 */
-    --lybox-shadow-card: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 4px 14px rgba(0, 0, 0, 0.25);
-    --lybox-shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.5);
+      --lybox-shadow-card: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 4px 14px rgba(0, 0, 0, 0.25);
+      --lybox-shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.5);
   }
 }
 

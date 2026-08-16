@@ -17,8 +17,9 @@
          不需要 Layout.Ursa（其 ApplicationViewModel 引用了不存在的 LYBox.UI 命名空间，
          是仓库预存的构建问题）。故直接引用 Layout.Core 以解耦。 -->
     <ProjectReference Include="..\..\src\Layout\LYBox.Layout.Core\LYBox.Layout.Core.csproj" />
-    <!-- WebViewIpcHost 已合并到 LYBox.Plugin.Shared/Rpc 目录，测试通过 Shared 项目引用即可访问。 -->
+    <!-- WebViewIpcHost / WebHostService 位于 LYBox.Plugin.Shared.Web 包（S3 拆分），测试直接引用。 -->
     <ProjectReference Include="..\..\src\Plugin\LYBox.Plugin.Shared\LYBox.Plugin.Shared.csproj" />
+    <ProjectReference Include="..\..\src\Plugin\LYBox.Plugin.Shared.Web\LYBox.Plugin.Shared.Web.csproj" />
   </ItemGroup>
 
 </Project>
