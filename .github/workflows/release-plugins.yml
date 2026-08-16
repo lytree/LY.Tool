@@ -97,10 +97,9 @@ jobs:
     name: Pack Plugin SDK NuGet
     needs: resolve_context
     runs-on: ubuntu-latest
-    environment: release  # GitHub 环境：承载 NUGET_USER secret 与审批门禁
+    environment: release  # GitHub 环境：发布审批门禁（本作业不再推 NuGet，SDK 包仅本地打包供 build_plugins 还原）
     permissions:
-      id-token: write     # OIDC 令牌颁发（NuGet 可信发布必需）
-      contents: read      # 仅读取代码，发布 GitHub Release 由 release 作业负责
+      contents: read      # 仅读取代码；发布 GitHub Release 由 release 作业负责
     steps:
       - uses: actions/checkout@v7
 
@@ -122,22 +121,6 @@ jobs:
           path: artifacts/packages/sdk/*.nupkg
           if-no-files-found: error
           retention-days: 7
-
-      - name: NuGet login (OIDC → 短期 API key)
-        id: login
-        uses: NuGet/login@v1
-        with:
-          user: ${{ secrets.NUGET_USER }}  # nuget.org 用户名（profile name，非邮箱）
-
-      - name: Push plugin SDK NuGet packages
-        run: |
-          for pkg in artifacts/packages/sdk/*.nupkg; do
-            echo "Pushing $pkg"
-            dotnet nuget push "$pkg" \
-              --api-key ${{ steps.login.outputs.NUGET_API_KEY }} \
-              --source https://api.nuget.org/v3/index.json \
-              --skip-duplicate
-          done
 
   build_plugins:
     name: Build Plugins
