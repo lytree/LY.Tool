@@ -18,6 +18,7 @@ public partial class NotificationDemoViewModel : ObservableObject
 
     [ObservableProperty] private bool _showIcon = true;
     [ObservableProperty] private bool _showClose = true;
+    [ObservableProperty] private Ursa.Controls.MessageCloseReason? _reason;
 
     [RelayCommand]
     public void ChangePosition(object obj)
@@ -38,7 +39,8 @@ public partial class NotificationDemoViewModel : ObservableObject
             new Notification("Welcome", "This is message"),
             showIcon: ShowIcon,
             showClose: ShowClose,
-            type: notificationType);
+            type: notificationType,
+            onClose: OnClose);
     }
 
     [RelayCommand]
@@ -51,7 +53,13 @@ public partial class NotificationDemoViewModel : ObservableObject
             showIcon: ShowIcon,
             showClose: ShowClose,
             type: notificationType,
+            onClose: OnClose,
             classes: ["Light"]);
+    }
+
+    private void OnClose(Ursa.Controls.MessageCloseReason reason)
+    {
+        Reason = reason;
     }
 }
 

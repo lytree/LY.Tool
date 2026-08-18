@@ -17,6 +17,7 @@
     <UserControl.Resources>
         <converters:IconNameToPathConverter x:Key="IconConverter" />
     </UserControl.Resources>
+    <DockPanel>
     <Grid
         HorizontalAlignment="Left"
         ColumnDefinitions="Auto, Auto"
@@ -118,5 +119,6 @@
                 </u:NavMenuItem.Icon>
             </u:NavMenuItem>
         </u:NavMenu>
-    </Grid>
+        </Grid>
+    </DockPanel>
 </UserControl>

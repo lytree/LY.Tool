@@ -11,13 +11,14 @@
     x:CompileBindings="True"
     x:DataType="vm:WindowDialogDemoViewModel"
     mc:Ignorable="d">
-    <ScrollViewer>
-        <TabControl TabStripPlacement="Left">
+    <DockPanel>
+        <ScrollViewer>
+            <TabControl TabStripPlacement="Left">
             <TabItem Header="Standard Window Dialog">
                 <u:Form
                     Width="300"
                     Margin="16,0"
-                    DataContext="{Binding DefaultWindowDialogViewModel}"
+                    DataContext="{Binding DefaultWindowDialogDemoViewModel}"
                     LabelPosition="Top">
                     <TextBox
                         HorizontalAlignment="Stretch"
@@ -76,7 +77,7 @@
                 <u:Form
                     Width="300"
                     Margin="16,0"
-                    DataContext="{Binding CustomWindowDialogViewModel}"
+                    DataContext="{Binding CustomWindowDialogDemoViewModel}"
                     LabelPosition="Top">
                     <TextBox
                         HorizontalAlignment="Stretch"
@@ -109,5 +110,6 @@
                 </u:Form>
             </TabItem>
         </TabControl>
-    </ScrollViewer>
+        </ScrollViewer>
+    </DockPanel>
 </UserControl>

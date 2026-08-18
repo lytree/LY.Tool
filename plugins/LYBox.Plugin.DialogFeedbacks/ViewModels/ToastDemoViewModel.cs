@@ -17,6 +17,7 @@ public partial class ToastDemoViewModel : ObservableObject
 
     [ObservableProperty] private bool _showIcon = true;
     [ObservableProperty] private bool _showClose = true;
+    [ObservableProperty] private Ursa.Controls.MessageCloseReason? _reason;
 
     [RelayCommand]
     public void ShowNormal(object obj)
@@ -28,7 +29,8 @@ public partial class ToastDemoViewModel : ObservableObject
                 new Toast("This is message"),
                 showIcon: ShowIcon,
                 showClose: ShowClose,
-                type: notificationType);
+                type: notificationType,
+                onClose: OnClose);
         }
 
         // ToastManager?.Show(new ToastDemoViewModel
@@ -49,8 +51,14 @@ public partial class ToastDemoViewModel : ObservableObject
                 showIcon: ShowIcon,
                 showClose: ShowClose,
                 type: notificationType,
+                onClose: OnClose,
                 classes: ["Light"]);
         }
+    }
+
+    private void OnClose(Ursa.Controls.MessageCloseReason reason)
+    {
+        Reason = reason;
     }
 
     public string? Content { get; set; }

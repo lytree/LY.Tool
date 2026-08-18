@@ -15,7 +15,7 @@
     <UserControl.Resources>
         <converters:IconNameToPathConverter x:Key="IconConverter" />
     </UserControl.Resources>
-    <StackPanel>
+    <StackPanel Spacing="20">
         
         <u:Breadcrumb>
             <TextBlock Text="Hello" />

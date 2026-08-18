@@ -4,13 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:u="https://irihi.tech/ursa"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="LYBox.Plugin.ButtonsInputs.Pages.ClassInputDemo">
-    <StackPanel HorizontalAlignment="Left" Spacing="20">
+             x:Class="LYBox.Plugin.ButtonsInputs.Pages.ClassInputDemo"
+             x:DataType="viewModels:ClassInputDemoViewModel"
+             xmlns:viewModels="clr-namespace:LYBox.Plugin.ButtonsInputs.ViewModels">
+    <StackPanel HorizontalAlignment="Stretch" Spacing="20" >
         <u:ControlClassesInput Name="input" Separator=" " />
         <Button u:ControlClassesInput.Source="{Binding #input}" Content="Hello Panda" />
         <Button u:ControlClassesInput.Source="{Binding #input}" Content="Hello Panda" />
         <Button u:ControlClassesInput.Source="{Binding #input}" Content="Hello Panda" />
-        <TextBox u:ControlClassesInput.Source="{Binding #input}" Width="100" Text="100"></TextBox>
-        <ProgressBar u:ControlClassesInput.Source="{Binding #input}" Width="200" Value="20" ShowProgressText="True"></ProgressBar>
+        <TextBox u:ControlClassesInput.Source="{Binding #input}" Width="100" Text="100" />
+        <ProgressBar u:ControlClassesInput.Source="{Binding #input}" Width="200" Value="20" ShowProgressText="True" />
     </StackPanel>
 </UserControl>

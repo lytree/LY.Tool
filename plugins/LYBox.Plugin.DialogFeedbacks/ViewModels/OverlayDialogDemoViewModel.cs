@@ -16,11 +16,11 @@ namespace LYBox.Plugin.DialogFeedbacks.ViewModels;
 public partial class OverlayDialogDemoViewModel : ObservableObject
 {
     public const string LocalHost = "LocalHost";
-    public DefaultOverlayDialogViewModel DefaultOverlayDialogViewModel { get; set; } = new();
-    public CustomOverlayDialogViewModel CustomOverlayDialogViewModel { get; set; } = new();
+    public DefaultOverlayDialogDemoViewModel DefaultOverlayDialogDemoViewModel { get; set; } = new();
+    public CustomOverlayDialogDemoViewModel CustomOverlayDialogDemoViewModel { get; set; } = new();
 }
 
-public partial class DefaultOverlayDialogViewModel : ObservableObject
+public partial class DefaultOverlayDialogDemoViewModel : ObservableObject
 {
     [ObservableProperty] private HorizontalPosition _horizontalAnchor;
     [ObservableProperty] private VerticalPosition _verticalAnchor;
@@ -40,7 +40,7 @@ public partial class DefaultOverlayDialogViewModel : ObservableObject
 
     public ICommand ShowDialogCommand { get; }
 
-    public DefaultOverlayDialogViewModel()
+    public DefaultOverlayDialogDemoViewModel()
     {
         ShowDialogCommand = new AsyncRelayCommand(ShowDialog);
         HorizontalAnchor = HorizontalPosition.Center;
@@ -81,7 +81,7 @@ public partial class DefaultOverlayDialogViewModel : ObservableObject
     }
 }
 
-public partial class CustomOverlayDialogViewModel : ObservableObject
+public partial class CustomOverlayDialogDemoViewModel : ObservableObject
 {
     [ObservableProperty] private HorizontalPosition _horizontalAnchor;
     [ObservableProperty] private VerticalPosition _verticalAnchor;
@@ -98,7 +98,7 @@ public partial class CustomOverlayDialogViewModel : ObservableObject
 
     public ICommand ShowDialogCommand { get; }
 
-    public CustomOverlayDialogViewModel()
+    public CustomOverlayDialogDemoViewModel()
     {
         ShowDialogCommand = new AsyncRelayCommand(ShowDialog);
         HorizontalAnchor = HorizontalPosition.Center;

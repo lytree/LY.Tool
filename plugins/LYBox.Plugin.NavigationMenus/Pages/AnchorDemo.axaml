@@ -10,7 +10,8 @@
     d:DesignWidth="800"
     x:DataType="viewModels:AnchorDemoViewModel"
     mc:Ignorable="d">
-    <TabControl>
+    <DockPanel>
+        <TabControl>
         <TabItem Header="XAML Inline">
             <Grid ColumnDefinitions="*, Auto">
                 <ScrollViewer
@@ -202,12 +203,8 @@
                     Width="200"
                     Margin="24"
                     ItemsSource="{Binding AnchorItems}"
-                    TargetContainer="{Binding #container2}">
-                    <u:Anchor.Styles>
-                        <Style x:DataType="viewModels:AnchorItemViewModel" Selector="u|AnchorItem">
-                            <Setter Property="AnchorId" Value="{Binding AnchorId}" />
-                        </Style>
-                    </u:Anchor.Styles>
+                    TargetContainer="{Binding #container2}"
+                    AnchorIdMemberBinding="{Binding AnchorId}">
                     <u:Anchor.ItemTemplate>
                         <TreeDataTemplate ItemsSource="{Binding Children}">
                             <TextBlock Text="{Binding Header}" />
@@ -261,5 +258,6 @@
                 </u:Anchor>
             </StackPanel>
         </TabItem>
-    </TabControl>
+        </TabControl>
+    </DockPanel>
 </UserControl>

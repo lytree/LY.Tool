@@ -12,7 +12,7 @@
     <Design.DataContext>
         <vm:SkeletonDemoViewModel />
     </Design.DataContext>
-    <StackPanel>
+    <StackPanel Spacing="20">
         <ToggleSwitch Name="loading" Content="Loading" />
         <ToggleSwitch Name="active" Content="Active" />
         <Grid

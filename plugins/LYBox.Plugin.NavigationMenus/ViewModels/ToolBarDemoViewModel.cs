@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using LYBox.Plugin.Shared;
 using LYBox.Plugin.Shared.Attributes;
 using LYBox.Plugin.NavigationMenus.Pages;
+using Avalonia.Layout;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
@@ -15,6 +16,21 @@ namespace LYBox.Plugin.NavigationMenus.ViewModels;
 public partial class ToolBarDemoViewModel : ObservableObject
 {
     public ObservableCollection<ToolBarItemViewModel> Items { get; set; }
+
+    [ObservableProperty] private Orientation _panelOrientation = Orientation.Vertical;
+    [ObservableProperty] private Orientation _toolBarOrientation = Orientation.Horizontal;
+
+    partial void OnToolBarOrientationChanged(Orientation value)
+    {
+        if (value == Orientation.Horizontal)
+        {
+            PanelOrientation = Orientation.Vertical;
+        }
+        else
+        {
+            PanelOrientation = Orientation.Horizontal;
+        }
+    }
 
     public ToolBarDemoViewModel()
     {

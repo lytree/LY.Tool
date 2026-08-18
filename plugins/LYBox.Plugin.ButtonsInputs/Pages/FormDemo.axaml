@@ -2,7 +2,6 @@
     x:Class="LYBox.Plugin.ButtonsInputs.Pages.FormDemo"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:common="clr-namespace:Ursa.Common;assembly=Ursa"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:u="https://irihi.tech/ursa"
@@ -14,7 +13,8 @@
     x:CompileBindings="True"
     x:DataType="vm:FormDemoViewModel"
     mc:Ignorable="d">
-        <StackPanel HorizontalAlignment="Left" Margin="24  0 0 0 ">
+    <ScrollViewer>
+        <StackPanel HorizontalAlignment="Stretch" >
             <u:Divider Content="Simple Form"/>
             <u:Form LabelPosition="Left" LabelWidth="*">
                 <TextBox Width="300" u:FormItem.Label="Name" u:FormItem.IsRequired="True" />
@@ -40,8 +40,8 @@
                 </u:FormGroup>
                 <u:FormGroup Header="Education Information">
                     <TextBox Width="300" u:FormItem.Label="Collage" />
-                    <u:FormItem u:FormItem.Label="Study Time">
-                        <u:DateRangePicker Width="300"></u:DateRangePicker>
+                    <u:FormItem Label="Study Time">
+                        <u:DateRangePicker Width="300" />
                     </u:FormItem>
                 </u:FormGroup>
                 <Button Content="Submit" Theme="{DynamicResource SolidButton}" u:FormItem.NoLabel="True" HorizontalAlignment="Stretch"/>
@@ -77,4 +77,5 @@
                 </u:Form.ItemTemplate>
             </u:Form>
         </StackPanel>
+    </ScrollViewer>
 </UserControl>

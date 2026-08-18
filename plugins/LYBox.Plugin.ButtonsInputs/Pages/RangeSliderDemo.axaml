@@ -16,7 +16,7 @@
             <Setter Property="Width" Value="300" />
         </Style>
     </UserControl.Styles>
-    <StackPanel>
+    <StackPanel Spacing="20">
         <u:RangeSlider
             IsSnapToTick="True"
             TickFrequency="5"

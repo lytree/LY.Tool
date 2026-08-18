@@ -27,7 +27,8 @@
             </Setter>
         </Style>
     </UserControl.Styles>
-    <Grid ColumnDefinitions="*, *, *, *, *" RowDefinitions="Auto, *">
+    <DockPanel>
+        <Grid ColumnDefinitions="*, *, *, *, *" RowDefinitions="Auto, *">
         <TextBlock Grid.Row="0" Grid.Column="0">Scroll To Top</TextBlock>
         <TextBlock Grid.Row="0" Grid.Column="1">Scroll To Bottom</TextBlock>
         <TextBlock Grid.Row="0" Grid.Column="2">Scroll To Left</TextBlock>
@@ -73,5 +74,6 @@
             ItemsSource="{Binding Items}"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
             ScrollViewer.VerticalScrollBarVisibility="Auto" />
-    </Grid>
+        </Grid>
+    </DockPanel>
 </UserControl>

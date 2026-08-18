@@ -16,12 +16,13 @@
             <Setter Property="Margin" Value="8" />
         </Style>
     </UserControl.Styles>
-    <StackPanel HorizontalAlignment="Left">
+    <StackPanel HorizontalAlignment="Stretch" Spacing="20">
         <ComboBox ItemsSource="{Binding Icons}" SelectedItem="{Binding SelectedIcon}" />
         <ToggleSwitch Content="Try Long Message" IsChecked="{Binding UseLong}" />
         <ToggleSwitch Content="Show Title" IsChecked="{Binding UseTitle}" />
         <ToggleSwitch Content="Overlay" IsChecked="{Binding UseOverlay}" />
         <Button Command="{Binding DefaultMessageBoxCommand}" Content="Default" />
+        <Button Command="{Binding ObservableDemoCommand}" Content="Observable Demo" />
         <Button Command="{Binding OkCommand}" Content="OK" />
         <Button Command="{Binding OkCancelCommand}" Content="OKCancel" />
         <Button Command="{Binding YesNoCommand}" Content="YesNo" />

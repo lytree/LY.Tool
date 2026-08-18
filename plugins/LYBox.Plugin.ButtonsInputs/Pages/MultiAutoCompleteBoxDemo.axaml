@@ -8,9 +8,10 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:MultiAutoCompleteBoxDemoViewModel"
              x:Class="LYBox.Plugin.ButtonsInputs.Pages.MultiAutoCompleteBoxDemo">
-    <StackPanel Spacing="20" HorizontalAlignment="Left">
+    <StackPanel Spacing="20" HorizontalAlignment="Stretch">
         <TextBlock Text="Multi-AutoCompleteBox"/>
         <u:MultiAutoCompleteBox ItemsSource="{Binding Items}" 
+                                HorizontalAlignment="Left"
                                 MaxWidth="400"
                                 InnerLeftContent="Controls"
                                 SelectedItems="{Binding SelectedItems}"

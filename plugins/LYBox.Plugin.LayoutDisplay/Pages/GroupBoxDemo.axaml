@@ -11,7 +11,7 @@
     mc:Ignorable="d"
     x:DataType="viewModels:GroupBoxDemoViewModel"
     xmlns:viewModels="clr-namespace:LYBox.Plugin.LayoutDisplay.ViewModels">
-    <ScrollViewer Margin="16">
+    <ScrollViewer>
         <StackPanel Spacing="24">
             <!--  Basic UrsaGroupBox with text header  -->
             <u:UrsaGroupBox Header="Connection Settings" HeaderSpacing="12">

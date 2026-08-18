@@ -8,7 +8,7 @@
              d:DesignHeight="450"
              x:DataType="viewModels:PopConfirmDemoViewModel"
              x:Class="LYBox.Plugin.DialogFeedbacks.Pages.PopConfirmDemo">
-    <StackPanel HorizontalAlignment="Left">
+    <StackPanel HorizontalAlignment="Stretch" Spacing="20">
         <Border Theme="{DynamicResource CardBorder}">
             <u:Form>
                 <u:ControlClassesInput 

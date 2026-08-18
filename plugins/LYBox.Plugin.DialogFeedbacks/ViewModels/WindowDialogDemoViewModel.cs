@@ -17,11 +17,11 @@ namespace LYBox.Plugin.DialogFeedbacks.ViewModels;
 [ViewMap(typeof(WindowDialogDemo))]
 public partial class WindowDialogDemoViewModel : ObservableObject
 {
-    public DefaultWindowDialogViewModel DefaultWindowDialogViewModel { get; set; } = new();
-    public CustomWindowDialogViewModel CustomWindowDialogViewModel { get; set; } = new();
+    public DefaultWindowDialogDemoViewModel DefaultWindowDialogDemoViewModel { get; set; } = new();
+    public CustomWindowDialogDemoViewModel CustomWindowDialogDemoViewModel { get; set; } = new();
 }
 
-public partial class DefaultWindowDialogViewModel : ObservableObject
+public partial class DefaultWindowDialogDemoViewModel : ObservableObject
 {
     [ObservableProperty] private WindowStartupLocation _location;
     [ObservableProperty] private int? _x;
@@ -37,7 +37,7 @@ public partial class DefaultWindowDialogViewModel : ObservableObject
 
     public ICommand ShowDialogCommand { get; }
 
-    public DefaultWindowDialogViewModel()
+    public DefaultWindowDialogDemoViewModel()
     {
         ShowDialogCommand = new AsyncRelayCommand(ShowDialog);
         Mode = DialogMode.None;
@@ -73,7 +73,7 @@ public partial class DefaultWindowDialogViewModel : ObservableObject
     }
 }
 
-public partial class CustomWindowDialogViewModel : ObservableObject
+public partial class CustomWindowDialogDemoViewModel : ObservableObject
 {
     [ObservableProperty] private WindowStartupLocation _location;
     [ObservableProperty] private int? _x;
@@ -87,7 +87,7 @@ public partial class CustomWindowDialogViewModel : ObservableObject
 
     public ICommand ShowDialogCommand { get; }
 
-    public CustomWindowDialogViewModel()
+    public CustomWindowDialogDemoViewModel()
     {
         ShowDialogCommand = new AsyncRelayCommand(ShowDialog);
         Location = WindowStartupLocation.CenterScreen;

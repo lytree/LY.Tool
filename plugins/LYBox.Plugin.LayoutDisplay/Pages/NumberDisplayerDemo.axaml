@@ -11,8 +11,8 @@
     x:CompileBindings="True"
     x:DataType="vm:NumberDisplayerDemoViewModel"
     mc:Ignorable="d">
-    <StackPanel HorizontalAlignment="Left">
-        <Button Command="{Binding IncreaseCommand}">Change</Button>
+    <StackPanel Spacing="20">
+        <Button Command="{Binding IncreaseCommand}" HorizontalAlignment="Left">Change</Button>
         <u:Int32Displayer Value="{Binding Value}" />
         <u:Int64Displayer Value="{Binding LongValue}" />
         <u:DoubleDisplayer StringFormat="N2" Value="{Binding DoubleValue}" />
@@ -20,7 +20,7 @@
             FontSize="30"
             StringFormat="yyyy-MM-dd"
             Value="{Binding DateValue}" />
-        <TextBlock Text="Selectable: "></TextBlock>
+        <TextBlock Text="Selectable: " />
         <u:Int32Displayer Value="{Binding Value}" IsSelectable="True" />
         <u:Int64Displayer Value="{Binding LongValue}" IsSelectable="True" />
         <u:DoubleDisplayer StringFormat="N2" Value="{Binding DoubleValue}" IsSelectable="True" />

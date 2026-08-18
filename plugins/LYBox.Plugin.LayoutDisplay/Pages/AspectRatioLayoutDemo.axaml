@@ -29,7 +29,7 @@
             <u:AspectRatioLayoutItem AcceptAspectRatioMode="Square">
                 <Button>Square ControlLayout</Button>
             </u:AspectRatioLayoutItem>
-            <u:AspectRatioLayoutItem StartAspectRatioValue="2" EndAspectRatioValue="2.2">
+            <u:AspectRatioLayoutItem EndAspectRatioValue="2.2" StartAspectRatioValue="2">
                 <TextBlock
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center">
@@ -38,7 +38,7 @@
                     <Run Text="{Binding $parent[u:AspectRatioLayoutItem].EndAspectRatioValue,StringFormat='EndAspectRatioValue {0}'}"></Run>
                 </TextBlock>
             </u:AspectRatioLayoutItem>
-            <u:AspectRatioLayoutItem StartAspectRatioValue="2" EndAspectRatioValue="2.4">
+            <u:AspectRatioLayoutItem EndAspectRatioValue="2.4" StartAspectRatioValue="2">
                 <TextBlock
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center">
@@ -47,7 +47,7 @@
                     <Run Text="{Binding $parent[u:AspectRatioLayoutItem].EndAspectRatioValue,StringFormat='EndAspectRatioValue {0}'}"></Run>
                 </TextBlock>
             </u:AspectRatioLayoutItem> 
-            <u:AspectRatioLayoutItem StartAspectRatioValue="2" EndAspectRatioValue="2.6">
+            <u:AspectRatioLayoutItem EndAspectRatioValue="2.6" StartAspectRatioValue="2">
                 <TextBlock
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center">
@@ -56,7 +56,7 @@
                     <Run Text="{Binding $parent[u:AspectRatioLayoutItem].EndAspectRatioValue,StringFormat='EndAspectRatioValue {0}'}"></Run>
                 </TextBlock>
             </u:AspectRatioLayoutItem> 
-            <u:AspectRatioLayoutItem StartAspectRatioValue="2" EndAspectRatioValue="2.8">
+            <u:AspectRatioLayoutItem EndAspectRatioValue="2.8" StartAspectRatioValue="2">
                 <TextBlock
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center">
@@ -65,7 +65,7 @@
                     <Run Text="{Binding $parent[u:AspectRatioLayoutItem].EndAspectRatioValue,StringFormat='EndAspectRatioValue {0}'}"></Run>
                 </TextBlock>
             </u:AspectRatioLayoutItem> 
-            <u:AspectRatioLayoutItem StartAspectRatioValue="1.3" EndAspectRatioValue="1.5">
+            <u:AspectRatioLayoutItem EndAspectRatioValue="1.5" StartAspectRatioValue="1.3">
                 <TextBlock
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center">

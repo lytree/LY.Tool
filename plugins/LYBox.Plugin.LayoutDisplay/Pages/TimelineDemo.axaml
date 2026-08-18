@@ -23,8 +23,9 @@
             </templateselectors:TimelineIconTemplateSelector>
         </ResourceDictionary>
     </UserControl.Resources>
-    <WrapPanel>
-        <u:Timeline
+    <DockPanel>
+        <WrapPanel>
+            <u:Timeline
             HorizontalAlignment="Left"
             ContentMemberBinding="{Binding Description}"
             HeaderMemberBinding="{Binding Header}"
@@ -79,5 +80,6 @@
                 TimeFormat="yyyy-MM-dd"
                 Type="Error" />
         </u:Timeline>
-    </WrapPanel>
+        </WrapPanel>
+    </DockPanel>
 </UserControl>

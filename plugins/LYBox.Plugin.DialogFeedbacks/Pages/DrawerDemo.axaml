@@ -12,8 +12,9 @@
     x:CompileBindings="True"
     x:DataType="vm:DrawerDemoViewModel"
     mc:Ignorable="d">
-    <Grid ColumnDefinitions="Auto, *">
-        <u:Form Width="300" Grid.Column="0" LabelPosition="Top">
+    <DockPanel>
+        <Grid ColumnDefinitions="Auto, *">
+            <u:Form Width="300" Grid.Column="0" LabelPosition="Top">
             <TextBox u:FormItem.Label="Title" Text="{Binding Title}"/>
             <u:EnumSelector
                 u:FormItem.Label="Position"
@@ -50,4 +51,5 @@
             </Border>
         </Grid>
     </Grid>
+    </DockPanel>
 </UserControl>

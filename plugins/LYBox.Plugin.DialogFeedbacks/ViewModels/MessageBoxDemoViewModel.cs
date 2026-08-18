@@ -101,6 +101,20 @@ public partial class MessageBoxDemoViewModel: ObservableObject
         }
         
     }
+
+    [RelayCommand]
+    private async Task OnObservableDemoAsync()
+    {
+        // Simplified observable demo: pop a MessageBox and capture the result.
+        if (UseOverlay)
+        {
+            Result = await OverlayMessageBox.ShowAsync(_message, _title, icon: SelectedIcon);
+        }
+        else
+        {
+            Result = await MessageBox.ShowAsync(_message, _title, icon: SelectedIcon);
+        }
+    }
     
     private async Task OnOkAsync()
     {

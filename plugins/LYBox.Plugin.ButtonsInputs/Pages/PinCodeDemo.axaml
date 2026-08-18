@@ -8,7 +8,7 @@
              x:CompileBindings="True"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="LYBox.Plugin.ButtonsInputs.Pages.PinCodeDemo">
-    <StackPanel>
+    <StackPanel Spacing="20">
         <u:Form>
             <u:PinCode u:FormItem.Label="Regular" Count="4" Name="v4" CompleteCommand="{Binding CompleteCommand}"/>
             <u:PinCode u:FormItem.Label="Digit Only" Count="4" Mode="Digit" DataValidationErrors.Errors="{Binding Error}"/>

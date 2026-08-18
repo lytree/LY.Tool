@@ -13,7 +13,7 @@
     <Design.DataContext>
         <viewModels:PaginationDemoViewModel />
     </Design.DataContext>
-    <StackPanel>
+    <StackPanel Spacing="20">
         <StackPanel Orientation="Horizontal">
             <TextBlock Text="Current Page: "></TextBlock>
             <TextBlock Text="{Binding #page.CurrentPage}" />

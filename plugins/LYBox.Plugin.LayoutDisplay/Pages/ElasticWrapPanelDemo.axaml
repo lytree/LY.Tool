@@ -23,7 +23,8 @@
         </Style>
     </UserControl.Styles>
     <DockPanel>
-        <u:Form DockPanel.Dock="Left"
+        <DockPanel>
+            <u:Form DockPanel.Dock="Left"
                 LabelAlignment="Left"
                 LabelPosition="Left"
                 LabelWidth="*"
@@ -348,6 +349,7 @@
                     </TabControl>
                 </DockPanel>
             </TabItem>
-        </TabControl>
+            </TabControl>
+        </DockPanel>
     </DockPanel>
 </UserControl>

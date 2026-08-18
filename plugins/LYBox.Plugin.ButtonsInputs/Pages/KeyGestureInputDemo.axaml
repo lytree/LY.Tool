@@ -11,7 +11,7 @@
     x:CompileBindings="True"
     x:DataType="vm:KeyGestureInputDemoViewModel"
     mc:Ignorable="d">
-    <StackPanel Margin="20">
+    <StackPanel Spacing="20">
         <TextBlock Text="Accept all keys" />
         <u:KeyGestureInput HorizontalAlignment="Left" />
         <TextBlock Text="Accept only A,B and C" />

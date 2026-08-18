@@ -8,8 +8,9 @@
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
-    <Grid RowDefinitions="Auto, Auto, *">
-        <ToggleSwitch Name="s" Content="Loading" />
+    <DockPanel>
+        <Grid RowDefinitions="Auto, Auto, *">
+            <ToggleSwitch Name="s" Content="Loading" />
         <StackPanel Grid.Row="1" Orientation="Horizontal">
             <u:LoadingIcon Classes="Small" />
             <u:LoadingIcon />
@@ -21,5 +22,6 @@
             LoadingMessage="Loading...">
             <Calendar />
         </u:LoadingContainer>
-    </Grid>
+        </Grid>
+    </DockPanel>
 </UserControl>

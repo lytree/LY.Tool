@@ -12,19 +12,21 @@
     mc:Ignorable="d">
     <ScrollViewer>
         <StackPanel
-            Margin="20"
             HorizontalAlignment="Stretch"
             Spacing="8">
+
             <StackPanel HorizontalAlignment="Left">
                 <ToggleSwitch
                     Name="showOffset"
                     Content="Show Offset Selection"
                     IsChecked="True" />
+
                 <TextBlock Text="Default (Local offset)" />
                 <u:DateOffsetPicker
                     Width="280"
                     DisplayFormat="yyyy-MM-dd"
                     ShowOffsetSelection="{Binding #showOffset.IsChecked}" />
+
                 <TextBlock Text="UTC, Local, Beijing, New York" />
                 <u:DateOffsetPicker
                     Width="280"
@@ -39,6 +41,7 @@
                         </u:OffsetDefinitions>
                     </u:DateOffsetPicker.OffsetDefinitions>
                 </u:DateOffsetPicker>
+
                 <TextBlock Text="Binding" />
                 <TextBlock Text="{Binding SelectedDate, StringFormat='Selected: {0:yyyy-MM-dd zzz}'}" />
                 <u:DateOffsetPicker
@@ -55,6 +58,7 @@
                         </u:OffsetDefinitions>
                     </u:DateOffsetPicker.OffsetDefinitions>
                 </u:DateOffsetPicker>
+
                 <TextBlock Text="Clear Button" />
                 <u:DateOffsetPicker
                     Width="280"
@@ -62,6 +66,7 @@
                     DisplayFormat="yyyy-MM-dd"
                     OffsetDefinitions="Utc, Local, +8:00, -5:00"
                     ShowOffsetSelection="{Binding #showOffset.IsChecked}" />
+
                 <TextBlock Text="IsReadOnly" />
                 <ToggleSwitch Name="readonlyToggle" Content="Read Only" />
                 <u:DateOffsetPicker
@@ -71,6 +76,19 @@
                     SelectedDate="2025-06-26+08:00"
                     ShowOffsetSelection="{Binding #showOffset.IsChecked}" />
             </StackPanel>
+
+            <StackPanel HorizontalAlignment="Left" Spacing="8">
+                <TextBlock FontWeight="Bold" FontSize="16" Text="Data Validation" />
+                <TextBlock Foreground="{DynamicResource TextBoxPlaceholderForeground}"
+                           Text="Clear the date to trigger [Required] validation and see the error feedback." />
+                <u:DateOffsetPicker HorizontalAlignment="Left"
+                    Width="280"
+                    Classes="ClearButton"
+                    DisplayFormat="yyyy-MM-dd"
+                    ShowOffsetSelection="{Binding #showOffset.IsChecked}"
+                    SelectedDate="{Binding ValidatedDate, Mode=TwoWay}" />
+            </StackPanel>
+
         </StackPanel>
     </ScrollViewer>
 </UserControl>

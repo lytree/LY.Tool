@@ -21,6 +21,7 @@
         </Style>
     </UserControl.Styles>
 
+    <DockPanel>
     <Grid ColumnDefinitions="*,*" RowDefinitions="100,*">
         <StackPanel Grid.ColumnSpan="2">
             <u:Divider Content="Demo"/>
@@ -204,6 +205,10 @@
 
             <u:NumericUIntUpDown InnerLeftContent="Min" Value="{Binding Minimum}" />
 
+            <u:NumericUIntUpDown Classes="Split"
+                                 PlaceholderText="Split"
+                                 Margin="0 8" />
+
             <Label Content="{Binding Step, StringFormat='Step {0}'}" />
             <Slider
                 Minimum="1"
@@ -214,4 +219,5 @@
 
         </StackPanel>
     </Grid>
+    </DockPanel>
 </UserControl>
