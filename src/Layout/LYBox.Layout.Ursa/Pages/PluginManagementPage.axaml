@@ -9,19 +9,23 @@
              mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600">
     <Grid Margin="36,24" RowDefinitions="Auto,Auto,Auto,*">
 
-        <!-- Fluent Page Header -->
-        <StackPanel Grid.Row="0" Classes="FluentPageHeader" Spacing="4">
-            <TextBlock Text="{DynamicResource PLUGIN_MANAGEMENT_TITLE}" Classes="FluentLargeTitle" />
-            <TextBlock Text="{DynamicResource PLUGIN_MANAGEMENT_DESC}" Classes="FluentPageDescription" />
-        </StackPanel>
-
-        <!-- Action Bar -->
-        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0 0 0 16">
-            <StackPanel Orientation="Horizontal" Spacing="8">
+        <!-- Fluent Page Header + Actions（标题与按钮同排） -->
+        <Grid Grid.Row="0" RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" Margin="0 0 0 16">
+            <StackPanel Grid.Row="0" Grid.Column="0" Classes="FluentPageHeader" Spacing="4">
+                <TextBlock Text="{DynamicResource PLUGIN_MANAGEMENT_TITLE}" Classes="FluentLargeTitle" />
+                <TextBlock Text="{DynamicResource PLUGIN_MANAGEMENT_DESC}" Classes="FluentPageDescription" />
+            </StackPanel>
+            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                 <Button Content="{DynamicResource INSTALL_PLUGIN}" Command="{Binding InstallPluginCommand}" IsEnabled="{Binding !IsInstalling}"
                         Classes="FluentAccent"/>
                 <Button Content="{DynamicResource REFRESH}" Command="{Binding RefreshPluginsCommand}" Classes="FluentStandard"/>
             </StackPanel>
+            <ProgressBar Grid.Row="1" Grid.ColumnSpan="2" IsVisible="{Binding IsInstalling}" Value="{Binding InstallProgress}"
+                         Height="4" Margin="0 12 0 0" IsIndeterminate="False"/>
+        </Grid>
+
+        <!-- Status Message -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0 0 0 16">
             <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" VerticalAlignment="Center" Classes="FluentCaption" />
         </Grid>
 
@@ -34,9 +38,6 @@
                 <TextBlock Text="{DynamicResource RESTART_REQUIRED}" Classes="FluentBody" VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
-
-        <ProgressBar Grid.Row="1" IsVisible="{Binding IsInstalling}" Value="{Binding InstallProgress}"
-                     Height="4" Margin="0 40 0 0" IsIndeterminate="False"/>
 
         <Grid Grid.Row="3">
             <ScrollViewer>
