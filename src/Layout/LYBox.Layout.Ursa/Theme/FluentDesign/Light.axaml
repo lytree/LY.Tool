@@ -132,6 +132,10 @@
     <SolidColorBrush x:Key="FluentSubtleBrush" Color="#F3F3F3" />
     <SolidColorBrush x:Key="FluentSubtleHoverBrush" Color="#EDEDED" />
     <SolidColorBrush x:Key="FluentSubtlePressedBrush" Color="#E0E0E0" />
+    <!-- NavItem 选中态 accent-tint 背景（WinUI NavigationViewItem 选中效果） -->
+    <SolidColorBrush x:Key="FluentNavItemSelectedBackgroundBrush" Color="#E6F4FF" />
+    <SolidColorBrush x:Key="FluentNavItemSelectedHoverBrush" Color="#D6E9F9" />
+    <SolidColorBrush x:Key="FluentNavItemSelectedPressedBrush" Color="#C7E0F4" />
 
     <!-- ===== WinUI 3 shell / surface 语义 brush（对齐 F:\Code Avalonia.UI 参考） ===== -->
     <SolidColorBrush x:Key="FluentShellBackgroundBrush" Color="#F3F3F3" />

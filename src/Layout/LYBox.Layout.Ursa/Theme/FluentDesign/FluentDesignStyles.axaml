@@ -282,21 +282,21 @@
 
     <!-- ===== Ursa NavMenuItem Fluent 风格覆盖 ===== -->
 
-    <!-- NavMenuItem: 选中项背景 + 左侧 accent 指示竖条（WinUI NavViewItem 选中态） -->
+    <!-- NavMenuItem: 选中项 accent-tint 背景 + 左侧 accent 指示竖条（WinUI NavigationViewItem 选中态） -->
     <Style Selector="u|NavMenuItem:selected /template/ Border#PART_Border">
-        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
+        <Setter Property="Background" Value="{DynamicResource FluentNavItemSelectedBackgroundBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
-        <Setter Property="BorderThickness" Value="3,0,0,0" />
+        <Setter Property="BorderThickness" Value="2,0,0,0" />
     </Style>
     <Style Selector="u|NavMenuItem:selected:pointerover /template/ Border#PART_Border">
-        <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
+        <Setter Property="Background" Value="{DynamicResource FluentNavItemSelectedHoverBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
-        <Setter Property="BorderThickness" Value="3,0,0,0" />
+        <Setter Property="BorderThickness" Value="2,0,0,0" />
     </Style>
     <Style Selector="u|NavMenuItem:selected:focus /template/ Border#PART_Border">
-        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
+        <Setter Property="Background" Value="{DynamicResource FluentNavItemSelectedBackgroundBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
-        <Setter Property="BorderThickness" Value="3,0,0,0" />
+        <Setter Property="BorderThickness" Value="2,0,0,0" />
     </Style>
 
     <!-- NavMenuItem: 选中图标 accent 色 -->
@@ -314,9 +314,6 @@
 
     <!-- NavMenuItem: hover 微妙背景 -->
     <Style Selector="u|NavMenuItem /template/ Border#PART_Border:pointerover">
-        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
-    </Style>
-    <Style Selector="u|NavMenuItem:selected /template/ Border#PART_Border:pointerover">
         <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
     </Style>
 

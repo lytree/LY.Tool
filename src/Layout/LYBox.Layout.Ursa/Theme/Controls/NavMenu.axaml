@@ -55,11 +55,11 @@
             <Border
                 Name="PART_Border"
                 Grid.Row="0"
-                MinHeight="32"
+                MinHeight="36"
                 HorizontalAlignment="Stretch"
                 Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
-                CornerRadius="4"
+                CornerRadius="{DynamicResource NavigationMenuItemDefaultCornerRadius}"
                 Cursor="Hand">
                 <Grid
                     Name="PART_RootGrid"
