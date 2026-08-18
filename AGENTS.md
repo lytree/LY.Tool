@@ -34,6 +34,70 @@ OpenCode 智能体在本仓库工作时的精简指南。
 - **VS Code 调试**：使用 "Debug Plugin - {Name}" 启动配置 — 每个配置将 `AVALONIA_EXTRA_PLUGINS_PATH` 指向 `artifacts/bin/{ProjectName}/debug`，用于开发期实时加载。
 - **CI 工作流**：`.github/workflows/ci.yml`（push/PR 验证构建）、`release-host.yml`（宿主+SDK+Tool 发布）、`release-plugins.yml`（插件发布）。
 
+## Setting Up A New Cake.Sdk Project 构建
+
+本仓库的构建并不是传统的 "cake.exe + build.cake" 模式，而是 **Cake.Sdk 文件化应用**：一个自引导的 C# 单文件 `build/build.cs`，通过 `#:sdk` 指令自动拉取运行器，无 cake.exe、无 `.cake` 脚本、无需 `.config/dotnet-tools.json` 工具清单。搭建一个新 Cake.Sdk 构建项目只需以下四步。
+
+### 1. 前置条件
+- .NET SDK（本仓库 `global.json` 仅配置测试运行器，未锁定 SDK 版本；按需补 `<sdk><version>`）。
+- 无需安装命令行工具；`dotnet-tools.json`（根目录，`"tools": {}`）可以保持为空。
+
+### 2. 新增构建脚本（最小骨架）
+在新建目录（如 `build/`）放一个 `build.cs`，文件头声明 SDK 与依赖，正文用 Cake 的 `Task`/`RunTarget` 描述构建流程：
+
+```csharp
+#!/usr/bin/env dotnet
+#:sdk Cake.Sdk@6.2.0       // 运行器版本，缺省从仓库依赖解析
+#:package Spectre.Console@0.57.2   // 可选附加包
+#:property PublishAot=false
+
+using Cake.Common;
+using Cake.Common.Tools.DotNet.Build;
+
+var target   = Argument("target", "Default");
+var buildNumber = Argument("build-number", 0);
+
+Task("Build")
+    .Does(ctx => {
+        ctx.DotNetBuild("./src/MyApp/MyApp.csproj",
+            new DotNetBuildSettings { Configuration = "Release" });
+    });
+
+RunTarget(target);
+```
+
+约定：
+- 用 `Argument("名称", 默认值)` 接收命令行（`--名称=值`）；复杂项目可抽一个 `BuildContext` 类缓存已解析设置，并用 `[Flags] enum` 表示多目标（如本仓库 `BuildTarget`）。
+- 任务可组合：`Task("Default")` 用 `.IsDependentOn("Build")` 串联别名。
+- 结尾必须 `RunTarget(target);` 并把 `target` 设为 `Default`。
+
+### 3. 封装启动脚本
+在仓库根提供 `build.ps1`（Windows）与 `build.sh`（Linux/macOS），二者仅转调文件脚本并透传参数、透传退出码：
+
+```powershell
+# build.ps1
+Push-Location $PSScriptRoot
+try { dotnet build/build.cs -- $args; exit $LASTEXITCODE }
+finally { Pop-Location }
+```
+
+```bash
+# build.sh（Linux/macOS）
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
+exec dotnet build/build.cs -- "$@"
+```
+
+### 4. 运行
+```bash
+.\build.ps1 --build=all            # Windows
+./build.sh --build=all             # Linux/macOS
+dotnet build/build.cs -- --build=all   # 免脚本直接调用
+```
+
+关键点：`--` 之后的参数由 Cake.Sdk 原样解析为 `Argument`，与 `build.cs` 内定义的键一一对应。首次运行会按 `#:sdk` 自动获取运行器（需联网还原），后续幂等。
+
 ## 架构
 ### 目录与产物分层
 
@@ -149,7 +213,7 @@ Program.cs → App.Initialize()
 
 ### 2. 自定义 Fluent 补充样式速查表
 
-所有补充样式位于 `src/Layout/LYBox.Layout.Ursa/Theme/FluentDesign/FluentDesignStyles.axaml`，通过 `UrsaSemiTheme` 自动加载，无需手动 `<StyleInclude>`。
+所有补充样式位于 `src/Layout/LYBox.Layout.Ursa/Theme/FluentDesign/FluentDesignStyles.axaml`，通过 `UrsaFluentTheme` 自动加载，无需手动 `<StyleInclude>`。
 
 | 类名 | 控件类型 | 替代的 WinUI 控件 | 用途 |
 |------|---------|------------------|------|
@@ -164,6 +228,12 @@ Program.cs → App.Initialize()
 | `FluentContentDialogSurface` / `FluentContentDialogTitle` / `FluentContentDialogBody` / `FluentContentDialogButtonRow` | `Border` / `TextBlock` / `StackPanel` | `ContentDialog` | 模态对话框外观（控件仍走 Ursa `Dialog` API） |
 | `FluentNumeric` | `u:NumericUpDown` | `NumberBox` | Ursa NumericUpDown 的 Fluent 边框微调 |
 | `FluentTagInput` | `u:TagInput` | — | Ursa TagInput 的 Fluent 边框微调 |
+| `FluentComboBox` | `ComboBox` | `ComboBox` | WinUI 3 下拉框（32px 高、4px 圆角、边框/浮层样式） |
+| `FluentListItem` | `ListBoxItem` | `ListView` 项 | WinUI 3 列表项（pointerover/pressed/selected 状态） |
+| `FluentSegmentedItem` | `ListBoxItem` | `Segmented` | 分段选择器项（配合水平 `ListBox` 使用） |
+| `FluentToolTip` | `ToolTip` | `ToolTip` | WinUI 3 工具提示外观 |
+| `FluentContextMenu` / `FluentMenuItem` | `ContextMenu` / `MenuItem` | `MenuFlyout` | WinUI 3 右键菜单与菜单项 |
+| `FluentTabView` / `FluentTabItem` | `TabControl` / `TabItem` | `TabView` | WinUI 3 标签页（下划线选中态） |
 
 **示例**：
 ```xml
@@ -208,15 +278,16 @@ Program.cs → App.Initialize()
 ### 3. 样式风格约束（限定 Fluent-UI 风格）
 
 - **唯一允许的视觉风格**：Fluent Design System（WinUI 3 风格）。
-- **禁止**直接使用 Semi 风格的硬编码色值。Semi 资源键（如 `SemiColorText0`、`SemiColorText1`、`SemiColorText2`、`SemiColorDanger`、`SemiColorWarning`、`SemiColorSuccess`、`SemiColorPrimary`）**仅作为动态资源引用**，由 `UrsaSemiTheme` 的 ThemeDictionary 自动映射到 Fluent 配色，不允许在 XAML 中写死颜色字面量（如 `#FF0078D4`）。
+- **语义色键使用规则**：宿主与插件 XAML **直接使用 `Fluent*` 语义色键**（`FluentColorText0/1/2`、`FluentColorPrimary`、`FluentColorDanger`、`FluentColorWarning`、`FluentColorSuccess`、`FluentColorInfo`，定义于 `Theme/FluentDesign/Light.axaml` / `Dark.axaml`，均含 `Pointerover` / `Active` / `Light` 状态变体）。`SemiColor*` 键仅为 Ursa 控件模板内部兼容保留（由 `UrsaFluentTheme` 的 ThemeDictionary 自动映射到 Fluent 配色），业务代码**不要再新增 `SemiColor*` 引用**。不允许在 XAML 中写死颜色字面量（如 `#FF0078D4`）。
 - **颜色资源层级**：
-  1. Fluent 语义资源（首选）：`FluentAccentBrush`、`FluentAccentPointeroverBrush`、`FluentAccentPressedBrush`、`FluentCardBackgroundBrush`、`FluentCardStrokeBrush`、`FluentSubtleBrush`、`FluentSubtleHoverBrush`、`FluentSubtlePressedBrush`
-  2. Semi 语义资源（次选，由 UrsaSemiTheme 自动适配到 Fluent 配色）：`SemiColorText0/1/2`、`SemiColorPrimary`、`SemiColorDanger`、`SemiColorWarning`、`SemiColorSuccess`、`SemiColorInfo`
-  3. 字面量颜色（仅用于阴影 `BoxShadow`、`Opacity` mask 等无法用语义资源表达的场景）：使用 `#XXRRGGBB` 格式，且必须注释说明原因
+  1. Fluent 语义 brush（首选）：`FluentAccentBrush`、`FluentAccentPointeroverBrush`、`FluentAccentPressedBrush`、`FluentCardBackgroundBrush`、`FluentCardStrokeBrush`、`FluentSubtleBrush`、`FluentSubtleHoverBrush`、`FluentSubtlePressedBrush`
+  2. `FluentColor*` token（次选，随 Light/Dark 主题字典切换）：`FluentColorText0/1/2`、`FluentColorPrimary`、`FluentColorDanger`、`FluentColorWarning`、`FluentColorSuccess`、`FluentColorInformation`
+  3. `SemiColor*` 键（仅 Ursa 控件模板兼容，业务代码禁用）
+  4. 字面量颜色（仅用于阴影 `BoxShadow`、`Opacity` mask 等无法用语义资源表达的场景）：使用 `#XXRRGGBB` 格式，且必须注释说明原因
 - **圆角规范**：卡片 8px、徽章/小按钮 4px、点状元素圆形（`CornerRadius="0"` + `CornerRadius` 全值 = 宽/2）。
 - **间距规范**：内边距遵循 12/16/24 三档；元素间用 `Spacing` 而非 `Margin`。
-- **动画规范**：颜色/画刷过渡统一用 `BrushTransition`，时长 `0:0:0.15`；阴影过渡用 `BoxShadowsTransition`。复杂动画引用 `Theme/Animations/` 下的 `DefaultSizeAnimations`、`NavMenuSizeAnimations`、`SemiPopupAnimations`。
-- **主题入口**：所有样式通过 `src/Layout/LYBox.Layout.Ursa/Theme/UrsaSemiTheme.axaml` 注册，应用入口 `App.axaml` 仅引用 `<fluent:FluentTheme />` + `<theme:UrsaSemiTheme />` + `<sizeanimations:SemiPopupAnimations />` + `<datagrid:DataGridFluentTheme />`，**不要**在 `App.axaml` 中追加额外 `<StyleInclude>`。
+- **动画规范**：颜色/画刷过渡统一用 `BrushTransition`，时长 `0:0:0.15`；阴影过渡用 `BoxShadowsTransition`。复杂动画引用 `Theme/Animations/` 下的 `DefaultSizeAnimations`、`NavMenuSizeAnimations`、`FluentPopupAnimations`。
+- **主题入口**：所有样式通过 `src/Layout/LYBox.Layout.Ursa/Theme/UrsaFluentTheme.axaml` 注册，应用入口 `App.axaml` 仅引用 `<fluent:FluentTheme />` + `<theme:UrsaFluentTheme />` + `<sizeanimations:FluentPopupAnimations />`，**不要**在 `App.axaml` 中追加额外 `<StyleInclude>`。
 
 ### 4. 图标使用规则（优先 Fluent-UI icon）
 
@@ -257,6 +328,14 @@ Program.cs → App.Initialize()
 - **命令**：用 `[RelayCommand]` 自动生成 `ICommand`。**禁止**手写 `RelayCommand`/`DelegateCommand` 实例。
 - **CompiledBindings**：`AvaloniaUseCompiledBindingsByDefault=true`（已全局开启）。所有 `Binding` 必须有正确的 `x:DataType`，避免运行时反射开销。
 - **MVVM Toolkit 源生成器**：partial VM 类必须标注 `[INotifyPropertyChanged]` 或继承 `ObservableObject`，否则 `[ObservableProperty]` 不会生成。
+
+### 6. 字体与窗口材质（WinUI 3 Mica）
+
+- **字体**：WinUI 3 标准字体链 `Segoe UI Variable Text → Segoe UI → Microsoft YaHei UI（CJK）→ PingFang SC / Noto Sans CJK SC → sans-serif`，由 `Theme/UrsaFluentTheme.axaml.cs` 以 `FluentFontFamilyRegular` 资源注入（代码字体为 `Cascadia Code → Consolas → …` 的 `CodeFontFamily`），业务代码无需另行设置。
+- **Mica 材质（Windows 11）**：`MainWindow.axaml` 设置 `TransparencyLevelHint="Mica"` + `Background="Transparent"`；`MainWindow.axaml.cs` 的 `ApplyBackdropBrushes()` 在 `ActualTransparencyLevel == Mica` 时将 shell 层资源键（`FluentShellBackgroundBrush`、`FluentNavPaneBackgroundBrush`、`FluentTitleBarBackgroundBrush`、`TitleBarBackground`、`WindowBackground`）覆写为半透明 `FluentShellMicaBrush`，否则移除覆盖回退不透明主题色。
+- **材质资源定义**：`FluentShellMicaBrush` 位于 `Theme/FluentDesign/Light.axaml`（`#B3F3F3F3`）与 `Dark.axaml`（`#D9202020`），经 `Themes/{Light,Dark}/_index.axaml` 挂入 `UrsaFluentTheme` 的 ThemeDictionaries。
+- **平台回退**：非 Win11（无 Mica）环境 DWM 自动降级透明等级，`ApplyBackdropBrushes()` 监听 `ActualTransparencyLevel` / `ActualThemeVariant` 变化并在 `OnOpened` 后重算，Linux/macOS/低版本 Windows 自动回退不透明配色，无需条件编译。
+- **新增窗口若需 Mica**：遵循相同模式 — `TransparencyLevelHint="Mica"` + 透明背景 + 按透明等级切换 shell brush；不要在各视图内硬编码半透明色模拟材质。
 
 ## 包与框架版本
 

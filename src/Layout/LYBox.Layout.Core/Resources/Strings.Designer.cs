@@ -108,6 +108,7 @@ public static class Strings
     public static string TOOLTIP_SETTINGS => ResourceManager.GetString(nameof(TOOLTIP_SETTINGS), Culture)!;
     public static string TOOLTIP_PLUGIN_MANAGEMENT => ResourceManager.GetString(nameof(TOOLTIP_PLUGIN_MANAGEMENT), Culture)!;
     public static string TOOLTIP_TOGGLE_SIDEBAR => ResourceManager.GetString(nameof(TOOLTIP_TOGGLE_SIDEBAR), Culture)!;
+    public static string TOOLTIP_TOGGLE_NAV => ResourceManager.GetString(nameof(TOOLTIP_TOGGLE_NAV), Culture)!;
     public static string WINDOW_TITLE => ResourceManager.GetString(nameof(WINDOW_TITLE), Culture)!;
     public static string SPLASH_STARTING => ResourceManager.GetString(nameof(SPLASH_STARTING), Culture)!;
     public static string SPLASH_TITLE => ResourceManager.GetString(nameof(SPLASH_TITLE), Culture)!;
@@ -124,3 +125,5 @@ public static class Strings
     public static string SETTING_APP_MINIMIZE_TO_TRAY_DESC => ResourceManager.GetString(nameof(SETTING_APP_MINIMIZE_TO_TRAY_DESC), Culture)!;
     public static string RESTART_REQUIRED => ResourceManager.GetString(nameof(RESTART_REQUIRED), Culture)!;
 }
+
+

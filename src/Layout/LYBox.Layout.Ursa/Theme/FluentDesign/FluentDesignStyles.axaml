@@ -177,27 +177,45 @@
         <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
     </Style>
 
-    <!-- 搜索框 — 圆角输入框，导航栏内嵌 -->
+    <!-- 搜索框 — 圆角输入框，导航栏内嵌（WinUI AutoSuggestBox 风格）。
+         默认/悬浮用 CardStroke 边框，聚焦时切换为 accent 2px 边框，
+         内边距同步收缩 1px（12->11 / 7->6）以抵消边框增厚，避免内容跳动。 -->
     <Style Selector="TextBox.FluentSearchBox">
-        <Setter Property="Background" Value="{DynamicResource FluentSubtleBrush}" />
+        <Setter Property="Background" Value="{DynamicResource FluentSearchBoxBackgroundBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="4" />
-        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="Padding" Value="12,7" />
         <Setter Property="FontSize" Value="13" />
         <Setter Property="MinHeight" Value="32" />
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+                </Transitions>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style Selector="TextBox.FluentSearchBox:pointerover">
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentColorBorder}" />
+    </Style>
+    <Style Selector="TextBox.FluentSearchBox:focus">
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="Padding" Value="11,6" />
     </Style>
 
-    <!-- 汉堡菜单按钮 — 48x48 透明按钮 -->
+    <!-- 汉堡菜单按钮 — 40x40 透明按钮（WinUI 标准标题栏按钮尺寸，光标反馈 Subtle） -->
     <Style Selector="Button.FluentHamburger">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="CornerRadius" Value="4" />
         <Setter Property="Padding" Value="0" />
-        <Setter Property="Width" Value="48" />
-        <Setter Property="Height" Value="48" />
+        <Setter Property="Width" Value="40" />
+        <Setter Property="Height" Value="40" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Transitions">
             <Setter.Value>
                 <Transitions>
@@ -775,23 +793,31 @@
         <Setter Property="Background" Value="{DynamicResource FluentColorBackground1}" />
         <Setter Property="BorderBrush" Value="{DynamicResource FluentShellContentBorderBrush}" />
         <Setter Property="BorderThickness" Value="0,1,0,0" />
-        <Setter Property="MinHeight" Value="40" />
-        <Setter Property="Padding" Value="16,0" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="Padding" Value="16,0,24,0" />
     </Style>
+    <!-- 状态文本项：次级文字，统一行高并垂直居中基线 -->
     <Style Selector="TextBlock.FluentStatusItem">
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Foreground" Value="{DynamicResource FluentColorText2}" />
+        <Setter Property="LineHeight" Value="16" />
+        <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
+    <!-- 主状态项：SemiBold 强调，如"就绪" -->
     <Style Selector="TextBlock.FluentStatusItemStrong">
         <Setter Property="FontSize" Value="12" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Foreground" Value="{DynamicResource FluentColorText1}" />
+        <Setter Property="LineHeight" Value="16" />
+        <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
+    <!-- 分隔竖线：语义化 Divider，与状态栏同层色对视 -->
     <Style Selector="Border.FluentStatusBarSeparator">
         <Setter Property="Width" Value="1" />
-        <Setter Property="Height" Value="14" />
-        <Setter Property="Background" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="Height" Value="12" />
+        <Setter Property="Background" Value="{DynamicResource FluentDividerBrush}" />
         <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0" />
     </Style>
 
     <!-- ============================================================
@@ -1067,4 +1093,144 @@
         <Setter Property="BoxShadow" Value="0 1 2 0 #0A000000" />
     </Style>
 
+    <!-- ============================================================
+         WinUI 3 控件补充样式（ComboBox / ListViewItem / ToolTip /
+         ContextMenu / MenuItem / TabView）— 对齐 WinUI 3 控件规格：
+         控件圆角 4px、弹层圆角 8px、Subtle hover、Accent 选中态
+         ============================================================ -->
+
+    <!-- ===== FluentComboBox（WinUI 3 ComboBox 风格） ===== -->
+    <Style Selector="ComboBox.FluentComboBox">
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.083" />
+                </Transitions>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style Selector="ComboBox.FluentComboBox:pointerover /template/ Border#Background">
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentPointeroverBrush}" />
+    </Style>
+    <Style Selector="ComboBox.FluentComboBox:focus /template/ Border#Background">
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
+    </Style>
+    <!-- 下拉弹层 — WinUI 3 Flyout 规格：8px 圆角 + elevation 阴影（阴影允许字面量） -->
+    <Style Selector="ComboBox.FluentComboBox /template/ Border#PopupBorder">
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Background" Value="{DynamicResource FluentCardBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="BoxShadow" Value="0 8 16 0 #14000000" />
+    </Style>
+
+    <!-- ===== FluentListItem（WinUI 3 ListViewItem 风格） ===== -->
+    <Style Selector="ListBoxItem.FluentListItem">
+        <Setter Property="Padding" Value="12,6" />
+        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.083" />
+                </Transitions>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style Selector="ListBoxItem.FluentListItem:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
+    </Style>
+    <Style Selector="ListBoxItem.FluentListItem:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
+    </Style>
+    <!-- WinUI 3 选中态：Accent 填充 + 反色文字 + SemiBold -->
+    <Style Selector="ListBoxItem.FluentListItem:selected /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource FluentAccentBrush}" />
+        <Setter Property="TextBlock.Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="ListBoxItem.FluentListItem:selected /template/ Border#PART_SelectedItemBorder">
+        <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="ListBoxItem.FluentListItem:selected:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource FluentAccentPressedBrush}" />
+    </Style>
+
+    <!-- ===== FluentToolTip（WinUI 3 ToolTip 风格） ===== -->
+    <Style Selector="ToolTip.FluentToolTip">
+        <Setter Property="Background" Value="{DynamicResource FluentCardBackgroundBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ControlElevationBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="8,5" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <!-- ===== FluentContextMenu / FluentMenuItem（WinUI 3 MenuFlyout 风格） ===== -->
+    <Style Selector="ContextMenu.FluentContextMenu">
+        <Setter Property="Background" Value="{DynamicResource FluentCardBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentCardStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="4" />
+    </Style>
+    <Style Selector="MenuItem.FluentMenuItem">
+        <Setter Property="Padding" Value="12,6" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.083" />
+                </Transitions>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style Selector="MenuItem.FluentMenuItem:pointerover /template/ Border#PART_LayoutRoot">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtleHoverBrush}" />
+    </Style>
+    <Style Selector="MenuItem.FluentMenuItem:pressed /template/ Border#PART_LayoutRoot">
+        <Setter Property="Background" Value="{DynamicResource FluentSubtlePressedBrush}" />
+    </Style>
+    <Style Selector="MenuItem.FluentMenuItem:disabled">
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText2}" />
+    </Style>
+
+    <!-- ===== FluentTabView / FluentTabItem（WinUI 3 TabView 下划线风格） ===== -->
+    <Style Selector="TabControl.FluentTabView">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+    <!-- 基础态保持 3px 底边（透明）避免选中时布局跳动；选中态点亮 accent 下划线 -->
+    <Style Selector="TabItem.FluentTabItem">
+        <Setter Property="Padding" Value="12,6" />
+        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="CornerRadius" Value="4,4,0,0" />
+        <Setter Property="BorderThickness" Value="0,0,0,3" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText1}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.083" />
+                    <BrushTransition Property="Foreground" Duration="0:0:0.083" />
+                </Transitions>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style Selector="TabItem.FluentTabItem:pointerover">
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
+    </Style>
+    <Style Selector="TabItem.FluentTabItem:selected">
+        <Setter Property="BorderBrush" Value="{DynamicResource FluentAccentBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource FluentColorText0}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
 </Styles>

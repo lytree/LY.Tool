@@ -231,7 +231,7 @@ jobs:
       - name: Zip published output
         shell: pwsh
         run: |
-          Compress-Archive -Path 'artifacts/publish/launcher/desktop/${{ matrix.rid }}/*' -DestinationPath '${{ env.MAIN_PROJECT_NAME }}-${{ matrix.rid }}-${{ needs.resolve_context.outputs.version }}.zip' -Force
+          Compress-Archive -Path 'artifacts/publish/launcher/${{ matrix.rid }}/*' -DestinationPath '${{ env.MAIN_PROJECT_NAME }}-${{ matrix.rid }}-${{ needs.resolve_context.outputs.version }}.zip' -Force
 
       - name: Verify zip
         shell: pwsh

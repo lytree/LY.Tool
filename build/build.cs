@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Xml.Linq;
@@ -50,9 +51,6 @@ Task("Clean")
         CleanDirectoryIfExists(c, buildContext.NuGetPackagesDir);
         CleanDirectoryIfExists(c, buildContext.LauncherPublishDir);
         CleanDirectoryIfExists(c, buildContext.LegacyPackageDir);
-
-        CleanDirectoryIfExists(c, buildContext.DesktopPublishDir);
-        CleanDirectoryIfExists(c, buildContext.ConsolePublishDir);
     }
 
     if (t.HasFlag(BuildTarget.Tool))
@@ -80,17 +78,39 @@ Task("Clean")
 
     static void CleanDirectoryIfExists(ICakeContext ctx, string dir)
     {
-        if (Directory.Exists(dir))
+        // Defensive clean: a held-open file (Defender, indexer, a stale
+        // Cake/dotnet child, or a hung publish) makes Directory.Delete throw
+        // UnauthorizedAccessException; a transient sharing violation surfaces
+        // as IOException. Retry briefly, then warn and continue so the rest
+        // of the build can run and overwrite outputs downstream.
+        if (!Directory.Exists(dir)) return;
+
+        const int MaxAttempts = 4;
+        Exception? lastError = null;
+        for (var attempt = 1; attempt <= MaxAttempts; attempt++)
         {
             try
             {
                 ctx.CleanDirectory(dir);
+                return;
             }
-            catch (DirectoryNotFoundException ex)
+            catch (Exception ex) when (
+                ex is IOException
+                || ex is UnauthorizedAccessException
+                || ex is DirectoryNotFoundException)
             {
-                ctx.Log.Warning("CleanDirectory skipped due to inaccessible path: {0}", ex.Message);
+                lastError = ex;
             }
+
+            Thread.Sleep(150 * attempt);
         }
+
+        ctx.Log.Warning(
+            "Clean skipped after " + MaxAttempts + " attempts for '" + dir +
+            "'. Files are still in use (likely Defender / indexer scanning " +
+            "outputs, or a stale build/publish process). The build will " +
+            "continue and downstream targets will overwrite outputs. Last " +
+            "error: " + (lastError?.Message ?? "(unknown)"));
     }
 });
 
@@ -226,13 +246,15 @@ Task("PackBin")
     .WithCriteria(c => buildContext.Target.HasFlag(BuildTarget.Bin))
     .Does(c =>
 {
-    // 发布宿主 launcher（GUI 版）
-    c.EnsureDirectoryExists(buildContext.DesktopPublishDir);
+    // 统一发布目录：GUI 启动器（WinExe，LYBox.Launcher.Desktop.exe）与控制台调试版（Exe，LYBox.Launcher.Console.exe）
+    // 都发布到 HostPublishDir。两者共享大部分依赖，dotnet publish 会按文件归并，最终目录里同时包含两份 .exe。
+    c.EnsureDirectoryExists(buildContext.HostPublishDir);
 
+    // GUI 启动器
     var settings = new DotNetPublishSettings
     {
         Configuration = buildContext.BuildConfiguration,
-        OutputDirectory = buildContext.DesktopPublishDir,
+        OutputDirectory = buildContext.HostPublishDir,
         NoRestore = true,
         NoBuild = true,
     };
@@ -240,7 +262,6 @@ Task("PackBin")
     if (!string.IsNullOrEmpty(buildContext.RuntimeIdentifier))
     {
         settings.Runtime = buildContext.RuntimeIdentifier;
-        settings.OutputDirectory = Path.Combine(buildContext.DesktopPublishDir, buildContext.RuntimeIdentifier);
         // Build 未按 RID 编译，publish 需要重新构建 RID 产物
         settings.NoBuild = false;
         settings.NoRestore = false;
@@ -253,11 +274,11 @@ Task("PackBin")
 
     c.DotNetPublish(buildContext.LauncherProject, settings);
 
-    // 同时发布控制台调试版（LYBox.Launcher.Console.exe），两个可执行文件共用同一套启动逻辑
+    // 控制台调试版（与 GUI 版共用同一套启动逻辑，输出 LYBox.Launcher.Console.exe）
     var consoleSettings = new DotNetPublishSettings
     {
         Configuration = buildContext.BuildConfiguration,
-        OutputDirectory = buildContext.ConsolePublishDir,
+        OutputDirectory = buildContext.HostPublishDir,
         NoRestore = true,
         NoBuild = true,
     };
@@ -265,7 +286,6 @@ Task("PackBin")
     if (!string.IsNullOrEmpty(buildContext.RuntimeIdentifier))
     {
         consoleSettings.Runtime = buildContext.RuntimeIdentifier;
-        consoleSettings.OutputDirectory = Path.Combine(buildContext.ConsolePublishDir, buildContext.RuntimeIdentifier);
         consoleSettings.NoBuild = false;
         consoleSettings.NoRestore = false;
     }
@@ -277,8 +297,11 @@ Task("PackBin")
 
     c.DotNetPublish(buildContext.ConsoleProject, consoleSettings);
 
-    c.Log.Information("Desktop launcher published to: {0}", settings.OutputDirectory);
-    c.Log.Information("Console launcher published to: {0}", consoleSettings.OutputDirectory);
+    // 清理构建中间产物（.pdb / .xml），让最终发布目录只保留运行时必需文件。
+    // .deps.json / .runtimeconfig.json 保留：apphost 启动必需，剥离将导致双击 .exe 无法启动。
+    BuildTasks.StripLauncherIntermediates(buildContext);
+
+    c.Log.Information("Host launchers published to: {0}", buildContext.HostPublishDir);
 });
 
 Task("LocalInstall")
@@ -543,9 +566,12 @@ public class BuildContext
     public string PluginPackagesDir { get; }
     public string PluginZipPackagesDir { get; }
     public string ToolPackagesDir { get; }
-    public string DesktopPublishDir { get; }
-    public string ConsolePublishDir { get; }
     public string LegacyPackageDir { get; }
+
+    // 宿主启动器统一发布目录（GUI 版与控制台调试版共用同一套目录）。
+    // --runtime-identifier 指定时为 LauncherPublishDir/{rid}，否则为 LauncherPublishDir。
+    // 两个可执行文件与其共享依赖位于同一目录，zip/分发无需额外合并步骤。
+    public string HostPublishDir { get; }
 
     public string GeneratorsProject { get; }
     public string SharedProject { get; }
@@ -671,9 +697,13 @@ public class BuildContext
         PluginPackagesDir = Path.Combine(ArtifactsDir, "publish", "plugins");
         PluginZipPackagesDir = Path.Combine(ArtifactsDir, "packages", "plugins");
         ToolPackagesDir = Path.Combine(ArtifactsDir, "packages", "tools");
-        DesktopPublishDir = Path.Combine(LauncherPublishDir, "desktop");
-        ConsolePublishDir = Path.Combine(LauncherPublishDir, "console");
         LegacyPackageDir = Path.Combine(ArtifactsDir, "package");
+
+        // 宿主启动器统一输出目录：RID 模式下挂子目录，否则直接在 LauncherPublishDir 下。
+        // 两个启动器的产物合并到此目录，便于后续打包/分发一步完成。
+        HostPublishDir = string.IsNullOrEmpty(RuntimeIdentifier)
+            ? LauncherPublishDir
+            : Path.Combine(LauncherPublishDir, RuntimeIdentifier);
 
         GeneratorsProject = Path.Combine(RootDir, "src", "Plugin", "LYBox.Plugin.Generators", "LYBox.Plugin.Generators.csproj");
         SharedProject = Path.Combine(RootDir, "src", "Plugin", "LYBox.Plugin.Shared", "LYBox.Plugin.Shared.csproj");
@@ -1183,5 +1213,46 @@ public static class BuildTasks
         context.Log.Information("LYBox.MockServer dotnet tool packed to: {0}", context.ToolPackagesDir);
         context.Log.Information("Install with: dotnet tool install --global --add-source {0} LYBox.MockServer", context.ToolPackagesDir);
         context.Log.Information("Then run: lybox-mock --help");
+    }
+
+    /// <summary>
+    /// 清理宿主启动器统一发布目录中的构建中间产物。
+    /// 当前移除 <c>*.pdb</c> 与 <c>*.xml</c>——它们是构建产物中的调试符号与 XML 文档，
+    /// 运行时不需要，去掉后发布目录只剩可直接分发的运行时必需文件。
+    /// <para>
+    /// 故意保留 <c>*.deps.json</c> 与 <c>*.runtimeconfig.json</c>——
+    /// 它们是 apphost 启动所必需的运行时配置。剥离后双击 .exe 将无法启动，
+    /// 强行最小化的产物应通过 <c>PublishSingleFile</c> 单文件发布获得。
+    /// </para>
+    /// </summary>
+    public static void StripLauncherIntermediates(BuildContext context)
+    {
+        var dir = context.HostPublishDir;
+        if (!Directory.Exists(dir))
+        {
+            context.Log.Warning("Host publish dir not found: {0}", dir);
+            return;
+        }
+
+        string[] patterns = { "*.pdb", "*.xml" };
+        int removed = 0;
+        foreach (var pattern in patterns)
+        {
+            foreach (var file in Directory.GetFiles(dir, pattern, SearchOption.AllDirectories))
+            {
+                try
+                {
+                    File.Delete(file);
+                    removed++;
+                }
+                catch (Exception ex)
+                {
+                    context.Log.Warning("Failed to delete {0}: {1}", file, ex.Message);
+                }
+            }
+        }
+
+        context.Log.Information("Stripped {0} build intermediate file(s) (.pdb / .xml) from {1}",
+            removed, dir);
     }
 }

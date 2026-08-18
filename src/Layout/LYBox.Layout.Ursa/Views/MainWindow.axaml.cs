@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media;
+using Avalonia.Styling;
 using LYBox.Plugin.Shared;
 using LYBox.Plugin.Shared.Services;
 using LYBox.Layout.Core.Services;
@@ -20,11 +22,61 @@ public partial class MainWindow : UrsaWindow
     /// </summary>
     public static bool ForceExit { get; set; }
 
+    /// <summary>
+    /// WinUI 3 Mica 材质需换为半透明 brush 的 shell 层资源键。
+    /// 同时覆盖 Fluent* 语义键（MainView/NavPane）与 Ursa 模板静态别名键
+    /// （TitleBarBackground/WindowBackground，经 StaticResource 解析，无法级联）。
+    /// </summary>
+    private static readonly string[] s_backdropBrushKeys =
+    [
+        "FluentShellBackgroundBrush",
+        "FluentNavPaneBackgroundBrush",
+        "FluentTitleBarBackgroundBrush",
+        "TitleBarBackground",
+        "WindowBackground",
+    ];
+
     public MainWindow()
     {
         InitializeComponent();
 
         NotificationManager = new WindowNotificationManager(this) { MaxItems = 3 };
+
+        // Mica 可用性与主题切换都可能发生在窗口生命周期内，两者变化时重算 shell brush
+        PropertyChanged += (_, e) =>
+        {
+            if (e.Property == ActualTransparencyLevelProperty || e.Property == ActualThemeVariantProperty)
+                ApplyBackdropBrushes();
+        };
+    }
+
+    protected override void OnOpened(EventArgs e)
+    {
+        base.OnOpened(e);
+        // DWM 在窗口显示后才确定最终透明等级（Win11 → Mica；其余回退 None/Blur）
+        ApplyBackdropBrushes();
+    }
+
+    /// <summary>
+    /// WinUI 3 Mica 适配：ActualTransparencyLevel 达到 Mica 时将 shell 层 brush 换为
+    /// 半透明 FluentShellMicaBrush（透出桌面壁纸采样）；否则移除覆盖，
+    /// 回退主题字典中的不透明 WinUI 3 配色（Linux/macOS/低版本 Windows 路径）。
+    /// </summary>
+    private void ApplyBackdropBrushes()
+    {
+        if (ActualTransparencyLevel != WindowTransparencyLevel.Mica)
+        {
+            foreach (var key in s_backdropBrushKeys)
+                Resources.Remove(key);
+            return;
+        }
+
+        if (this.TryGetResource("FluentShellMicaBrush", ActualThemeVariant, out var mica))
+        {
+            var micaBrush = mica as IBrush ?? Brushes.Transparent;
+            foreach (var key in s_backdropBrushKeys)
+                Resources[key] = micaBrush;
+        }
     }
 
     protected override async Task<bool> CanClose()

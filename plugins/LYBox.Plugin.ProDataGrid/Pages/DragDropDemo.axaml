@@ -20,7 +20,7 @@
             <Button Content="{DynamicResource BTN_Save}" Command="{Binding SaveCommand}" />
         </StackPanel>
         <TextBlock Grid.Row="1" Text="{DynamicResource DEMO_DragDrop}" Opacity="0.6" Margin="0,0,0,8" />
-        <TextBlock Grid.Row="2" Text="{Binding DropInfo}" FontWeight="SemiBold" Foreground="{DynamicResource SemiColorSuccess}" Margin="0,0,0,8" />
+        <TextBlock Grid.Row="2" Text="{Binding DropInfo}" FontWeight="SemiBold" Foreground="{DynamicResource FluentColorSuccess}" Margin="0,0,0,8" />
         <DataGrid
             Grid.Row="3"
             ItemsSource="{Binding Tasks}"

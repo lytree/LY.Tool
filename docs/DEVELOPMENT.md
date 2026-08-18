@@ -28,6 +28,70 @@
 | `nuget` | `packages/nuget/Avalonia.Plugin.Generators.*.nupkg` 和 `packages/nuget/Avalonia.Plugin.Shared.*.nupkg` |
 | `plugin` | `packages/plugins/<PluginName>/publish` 和 `packages/plugins/zip/*.zip` |
 
+## Setting Up A New Cake.Sdk Project 构建
+
+> 注：下述入口与上文"入口为 `build/Program.cs`（Cake Frosting）"的描述不同——当前仓库实际采用 **Cake.Sdk 文件化应用**，单一 C# 文件即整个构建项目。
+
+Cake.Sdk 文件化应用是一种自引导的单文件构建：`build/build.cs` 通过 `#:sdk` 指令自动拉取运行器，无 cake.exe、无 `.cake` 脚本、无需 `.config/dotnet-tools.json` 工具清单。搭建一个新 Cake.Sdk 构建项目只需四步：
+
+### 1. 前置条件
+- .NET SDK（`global.json` 仅配置测试运行器，未锁定 SDK 版本；按需补 `<sdk><version>`）。
+- 无需安装命令行工具；`dotnet-tools.json`（根目录，`"tools": {}`）可保持为空。
+
+### 2. 新增构建脚本（最小骨架）
+```csharp
+#!/usr/bin/env dotnet
+#:sdk Cake.Sdk@6.2.0       // 运行器版本
+#:package Spectre.Console@0.57.2   // 可选附加包
+#:property PublishAot=false
+
+using Cake.Common;
+using Cake.Common.Tools.DotNet.Build;
+
+var target   = Argument("target", "Default");
+var buildNumber = Argument("build-number", 0);
+
+Task("Build")
+    .Does(ctx => {
+        ctx.DotNetBuild("./src/MyApp/MyApp.csproj",
+            new DotNetBuildSettings { Configuration = "Release" });
+    });
+
+RunTarget(target);
+```
+
+约定：
+- 用 `Argument("名称", 默认值)` 接收命令行（`--名称=值`）；复杂项目可抽一个 `BuildContext` 类缓存已解析设置，并用 `[Flags] enum` 表示多目标（如仓库内 `BuildTarget`）。
+- 任务可组合：`Task("Default")` 用 `.IsDependentOn("Build")` 串联别名。
+- 结尾必须 `RunTarget(target);` 并把 `target` 设为 `Default`。
+
+### 3. 封装启动脚本
+仓库根提供 `build.ps1`（Windows）与 `build.sh`（Linux/macOS），仅转调文件脚本并透传参数与退出码。
+
+```powershell
+# build.ps1
+Push-Location $PSScriptRoot
+try { dotnet build/build.cs -- $args; exit $LASTEXITCODE }
+finally { Pop-Location }
+```
+
+```bash
+# build.sh（Linux/macOS）
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
+exec dotnet build/build.cs -- "$@"
+```
+
+### 4. 运行
+```bash
+.\build.ps1 --build=all            # Windows
+./build.sh --build=all             # Linux/macOS
+dotnet build/build.cs -- --build=all   # 免脚本直接调用
+```
+
+关键点：`--` 之后的参数由 Cake.Sdk 原样解析为 `Argument`，与 `build.cs` 内定义的键一一对应。首次运行按 `#:sdk` 自动获取运行器（需联网还原），后续幂等。
+
 ## 本地运行和调试
 
 直接运行启动器：

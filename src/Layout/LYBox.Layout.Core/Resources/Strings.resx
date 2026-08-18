@@ -349,15 +349,14 @@
   <data name="TOOLTIP_TOGGLE_SIDEBAR" xml:space="preserve">
     <value>Toggle Sidebar</value>
   </data>
+  <data name="TOOLTIP_TOGGLE_NAV" xml:space="preserve"><value>Toggle navigation pane</value></data>
   <data name="SEARCH_PLACEHOLDER" xml:space="preserve">
     <value>Search</value>
   </data>
   <data name="SEARCH_NO_RESULTS" xml:space="preserve">
     <value>No results found</value>
   </data>
-  <data name="WINDOW_TITLE" xml:space="preserve">
-    <value>Ursa Demo</value>
-  </data>
+  <data name="WINDOW_TITLE" xml:space="preserve"><value>LYBox</value></data>
   <data name="SPLASH_STARTING" xml:space="preserve">
     <value>Starting Ursa Demo...</value>
   </data>
@@ -489,3 +488,5 @@
     <value>Select {0}</value>
   </data>
 </root>
+
+

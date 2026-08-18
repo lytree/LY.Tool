@@ -147,9 +147,10 @@
   <data name="TOOLTIP_SETTINGS" xml:space="preserve"><value>设置</value></data>
   <data name="TOOLTIP_PLUGIN_MANAGEMENT" xml:space="preserve"><value>插件管理</value></data>
   <data name="TOOLTIP_TOGGLE_SIDEBAR" xml:space="preserve"><value>切换侧边栏</value></data>
+  <data name="TOOLTIP_TOGGLE_NAV" xml:space="preserve"><value>折叠/展开导航栏</value></data>
   <data name="SEARCH_PLACEHOLDER" xml:space="preserve"><value>搜索</value></data>
   <data name="SEARCH_NO_RESULTS" xml:space="preserve"><value>未找到相关功能</value></data>
-  <data name="WINDOW_TITLE" xml:space="preserve"><value>Ursa 演示</value></data>
+  <data name="WINDOW_TITLE" xml:space="preserve"><value>LYBox 桌面</value></data>
   <data name="SPLASH_STARTING" xml:space="preserve"><value>正在启动 Ursa 演示...</value></data>
   <data name="SPLASH_TITLE" xml:space="preserve"><value>主启动窗口</value></data>
   <data name="SPLASH_SUBTITLE" xml:space="preserve"><value>二次元 JK 少女启动页</value></data>
@@ -195,3 +196,5 @@
   <data name="FMT_ExecuteFailed" xml:space="preserve"><value>执行失败: {0}</value></data>
   <data name="FMT_SelectParam" xml:space="preserve"><value>选择 {0}</value></data>
 </root>
+
+

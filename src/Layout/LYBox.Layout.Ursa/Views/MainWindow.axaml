@@ -8,7 +8,7 @@
     xmlns:viewModels="using:LYBox.Layout.Ursa.ViewModels"
     xmlns:views="clr-namespace:LYBox.Layout.Ursa.Views"
     xmlns:iri="https://irihi.tech/shared"
-    Title="{DynamicResource WINDOW_TITLE}"
+    Title=""
     d:DesignHeight="450"
     d:DesignWidth="800"
     x:CompileBindings="True"
@@ -20,12 +20,17 @@
     Icon="/Assets/lybox.ico"
     IsFullScreenButtonVisible="{OnPlatform {x:False}, Linux={x:True}}"
     IsManagedResizerVisible="{OnPlatform {x:False}, Linux={x:True}}"
-    Background="{DynamicResource FluentColorBackground0}"
+    TransparencyLevelHint="Mica"
+    Background="Transparent"
     mc:Ignorable="d">
-    <!-- 标题栏左侧：汉堡按钮（在 TitleBar 中显示，避免被 TitleBar 覆盖拦截点击） -->
+    <!-- 标题栏三段式布局（Win11 Fluent 风格）：
+           左：汉堡折叠按钮；中：搜索框；右：工具按钮（主题切换等）。
+           Title 设为空字符串，避免 WindowDrawnDecorations 的左侧标题文本与搜索框重叠。 -->
     <u:UrsaWindow.LeftContent>
         <Button
             Classes="FluentHamburger"
+            Margin="10,0,0,0"
+            VerticalAlignment="Center"
             Command="{Binding MainViewViewModel.ToggleCollapseCommand}"
             ToolTip.Tip="{DynamicResource TOOLTIP_TOGGLE_NAV}">
             <PathIcon
@@ -34,30 +39,29 @@
                 Foreground="{DynamicResource FluentColorText1}" />
         </Button>
     </u:UrsaWindow.LeftContent>
-    <!-- 标题栏中间：搜索框 -->
     <u:UrsaWindow.TitleBarContent>
-        <Grid VerticalAlignment="Center" HorizontalAlignment="Stretch">
-            <TextBox
-                Name="SearchBox"
-                Classes="FluentSearchBox"
-                Width="320"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                PlaceholderText="{DynamicResource SEARCH_PLACEHOLDER}"
-                Text="{Binding MainViewViewModel.SearchText, Mode=TwoWay}">
-                <TextBox.InnerLeftContent>
-                    <Path Width="14" Height="14"
-                        Data="{DynamicResource FluentSearch20Regular}"
-                        Fill="{DynamicResource FluentColorText2}" />
-                </TextBox.InnerLeftContent>
-            </TextBox>
-        </Grid>
+        <TextBox
+            Name="SearchBox"
+            Classes="FluentSearchBox"
+            Width="360"
+            MinWidth="240"
+            MaxWidth="480"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            PlaceholderText="{DynamicResource SEARCH_PLACEHOLDER}"
+            Text="{Binding MainViewViewModel.SearchText, Mode=TwoWay}">
+            <TextBox.InnerLeftContent>
+                <Path Width="14" Height="14"
+                    Data="{DynamicResource FluentSearch20Regular}"
+                    Fill="{DynamicResource FluentColorText2}" />
+            </TextBox.InnerLeftContent>
+        </TextBox>
     </u:UrsaWindow.TitleBarContent>
-    <!-- 标题栏右侧：操作按钮（Ursa TitleBar 会自动在右侧留出 caption buttons 空间） -->
     <u:UrsaWindow.RightContent>
         <StackPanel
             Orientation="Horizontal"
             Spacing="4"
+            Margin="0,0,10,0"
             VerticalAlignment="Center">
             <u:ThemeToggleButton
                 IsThreeState="True"

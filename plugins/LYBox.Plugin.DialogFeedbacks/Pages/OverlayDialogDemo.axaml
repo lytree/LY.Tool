@@ -114,7 +114,7 @@
                         <DataTemplate DataType="x:String">
                             <TextBlock
                                 Margin="24,24,48,24"
-                                Foreground="{DynamicResource SemiColorDanger}"
+                                Foreground="{DynamicResource FluentColorDanger}"
                                 Text="{Binding Path=.}" />
                         </DataTemplate>
                     </u:OverlayDialogHost.DialogDataTemplates>

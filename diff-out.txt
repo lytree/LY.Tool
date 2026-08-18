@@ -1,0 +1,28 @@
+=== 精确内容差异 (滤除 Fluent/Semi 约定、namespace、引号) ===
+----- LYBox.Plugin.ButtonsInputs -----
+  [DIFF] AutoCompleteBoxDemo.axaml  (up=111 tokens, plug=111 tokens, diff=6)
+      REM  plug=Spacing
+      ADD  up="Stretch"
+      REM  plug="https://irihi.tech/ursa"
+      REM  plug="https://irihi.tech/ursa"
+      ADD  up=models
+      ADD  up="clr-namespace:LYBox.Plugin.ButtonsInputs.ViewModels"
+  [DIFF] ButtonGroupDemo.axaml  (up=71 tokens, plug=73 tokens, diff=2)
+      ADD  up="20"
+      ADD  up=Spacing
+  [DIFF] ClassInputDemo.axaml  (up=58 tokens, plug=57 tokens, diff=7)
+      ADD  up=ShowProgressText
+      ADD  up="100"
+      REM  plug=Spacing
+      ADD  up="clr-namespace:LYBox.Plugin.ButtonsInputs.ViewModels"
+      REM  plug=StackPanel
+      REM  plug=StackPanel
+      REM  plug=StackPanel
+  [DIFF] EnumSelectorDemo.axaml  (up=165 tokens, plug=66 tokens, diff=99)
+System.IndexOutOfRangeException: Index was outside the bounds of the array.
+   at FSI_0001.report$cont@70(String name, String[] a, String[] b, FSharpList`1 diffs, Unit unitVar) in F:\Code\Dotnet\AvaloniaTemplate\diff-pages.fsx:line 70
+   at FSI_0001.report(String plugin, String name) in F:\Code\Dotnet\AvaloniaTemplate\diff-pages.fsx:line 68
+   at <StartupCode$FSI_0001>.$FSI_0001.main@() in F:\Code\Dotnet\AvaloniaTemplate\diff-pages.fsx:line 88
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+已因出错而停止

@@ -144,6 +144,9 @@
     <SolidColorBrush x:Key="FluentShellTitleBarBorderBrush" Opacity="0.08" Color="#000000" />
     <BoxShadows x:Key="FluentPaneBoxShadow">0 0 0 0 Transparent</BoxShadows>
     <BoxShadows x:Key="FluentShellContentBoxShadow">0 1 2 0 #0A000000</BoxShadows>
+    <!-- WinUI 3 Mica 材质半透明 shell — 窗口 ActualTransparencyLevel==Mica 时由 MainWindow 运行时换入，
+         透出系统桌面壁纸采样；不满足 Mica 时回退上方不透明 brush -->
+    <SolidColorBrush x:Key="FluentShellMicaBrush" Color="#B3F3F3F3" />
     <BoxShadows x:Key="FluentCardBoxShadow">0 1 2 0 #0A000000</BoxShadows>
     <BoxShadows x:Key="FluentCardPointeroverBoxShadow">0 2 6 0 #12000000</BoxShadows>
 

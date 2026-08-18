@@ -25,8 +25,9 @@ public partial class UrsaFluentTheme : Styles
 
         // FontFamily 不支持 XAML 元素语法实例化，需在代码中注册
         // 使用跨平台回退链：Windows → macOS → Linux → 通用
+        // Segoe UI Variable / Segoe UI 为 WinUI 3 标准字体（拉丁字符优先命中，CJK 回退到雅黑/苹方）
         Resources["FluentFontFamilyRegular"] = new FontFamily(
-            "Microsoft YaHei, PingFang SC, Noto Sans CJK SC, WenQuanYi Micro Hei, sans-serif");
+            "Segoe UI Variable Text, Segoe UI, Microsoft YaHei UI, Microsoft YaHei, PingFang SC, Noto Sans CJK SC, WenQuanYi Micro Hei, sans-serif");
         Resources["CodeFontFamily"] = new FontFamily(
             "Cascadia Code, Consolas, SF Mono, Menlo, DejaVu Sans Mono, Inconsolata, monospace");
 

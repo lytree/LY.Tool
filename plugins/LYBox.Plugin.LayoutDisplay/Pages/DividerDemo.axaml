@@ -23,7 +23,7 @@
             <u:Divider Orientation="Vertical" />
             <TextBlock Text="A" />
         </StackPanel>
-        <Grid Height="100" Background="{DynamicResource SemiColorSuccess}">
+        <Grid Height="100" Background="{DynamicResource FluentColorSuccess}">
             <u:Divider HorizontalContentAlignment="Stretch">Stretch</u:Divider>
         </Grid>
     </StackPanel>
