@@ -122,6 +122,15 @@
                                  Height="80"
                                  HorizontalAlignment="Stretch" />
                     </Grid>
+                    <Border Classes="FluentSettingsCard">
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+                            <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
+                                <TextBlock Classes="FluentSettingsCardTitle" Text="{DynamicResource LBL_IgnoreSslErrors}" />
+                                <TextBlock Classes="FluentSettingsCardDescription" Text="{DynamicResource DESC_IgnoreSslErrors}" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="2" IsChecked="{Binding IgnoreSslErrors}" OnContent="{DynamicResource SW_On}" OffContent="{DynamicResource SW_Off}" />
+                        </Grid>
+                    </Border>
                     <Grid ColumnDefinitions="160,*,160,*" Margin="0 4" MinHeight="32">
                         <TextBlock Grid.Column="0" Text="{DynamicResource LBL_MaxSpeed}" VerticalAlignment="Center" />
                         <TextBox Grid.Column="1" Text="{Binding MaxSpeed}" PlaceholderText="{DynamicResource HINT_MaxSpeed}" HorizontalAlignment="Stretch" Margin="0 0 12 0" />

@@ -19,6 +19,7 @@ public class DownloadOptions
     public Dictionary<string, string> Headers { get; set; } = new();
     public string? Proxy { get; set; }                     // --custom-proxy
     public bool UseSystemProxy { get; set; } = true;
+    public bool IgnoreSslErrors { get; set; }              // -nt/--trust-ssl 跳过 HTTPS 证书校验
     public string? MaxSpeed { get; set; }                  // --max-speed, 形如 "15M" "100K"
     public string? CustomRange { get; set; }               // --custom-range
 

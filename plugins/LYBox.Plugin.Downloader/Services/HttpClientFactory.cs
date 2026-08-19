@@ -20,6 +20,14 @@ public static class HttpClientFactory
             AllowAutoRedirect = true
         };
 
+        // 跳过 HTTPS 证书校验（目标源使用自签/过期证书时）
+        if (opts.IgnoreSslErrors)
+        {
+#pragma warning disable SYSLIB0057
+            handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+#pragma warning restore SYSLIB0057
+        }
+
         // 代理：优先显式 custom-proxy，其次系统代理
         if (!string.IsNullOrWhiteSpace(opts.Proxy))
         {

@@ -27,6 +27,7 @@ public partial class VodDownloadViewModel : DownloaderViewModelBase
     [ObservableProperty] private int _retryCount = 3;
     [ObservableProperty] private int _httpRequestTimeout = 100;
     [ObservableProperty] private string _headers = string.Empty;
+    [ObservableProperty] private bool _ignoreSslErrors;
     [ObservableProperty] private string _maxSpeed = string.Empty;
     [ObservableProperty] private string _customRange = string.Empty;
 
@@ -129,6 +130,7 @@ public partial class VodDownloadViewModel : DownloaderViewModelBase
             HttpRequestTimeout = HttpRequestTimeout,
             Headers = headers,
             MaxSpeed = string.IsNullOrWhiteSpace(MaxSpeed) ? null : MaxSpeed,
+            IgnoreSslErrors = IgnoreSslErrors,
             CustomRange = string.IsNullOrWhiteSpace(CustomRange) ? null : CustomRange,
             AutoSelect = AutoSelect,
             SelectVideo = EmptyToNull(SelectVideo),

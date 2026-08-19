@@ -85,6 +85,8 @@
   <data name="LBL_RetryCount" xml:space="preserve"><value>Retry</value></data>
   <data name="LBL_HttpTimeout" xml:space="preserve"><value>Timeout(s)</value></data>
   <data name="LBL_Headers" xml:space="preserve"><value>Headers</value></data>
+  <data name="LBL_IgnoreSslErrors" xml:space="preserve"><value>Ignore SSL Errors</value></data>
+  <data name="DESC_IgnoreSslErrors" xml:space="preserve"><value>Skip HTTPS certificate validation for this source.</value></data>
   <data name="LBL_MaxSpeed" xml:space="preserve"><value>Max Speed</value></data>
   <data name="LBL_CustomRange" xml:space="preserve"><value>Custom Range</value></data>
   <data name="LBL_AutoSelect" xml:space="preserve"><value>Auto Select</value></data>

@@ -85,6 +85,8 @@
   <data name="LBL_RetryCount" xml:space="preserve"><value>重试</value></data>
   <data name="LBL_HttpTimeout" xml:space="preserve"><value>超时(秒)</value></data>
   <data name="LBL_Headers" xml:space="preserve"><value>请求头</value></data>
+  <data name="LBL_IgnoreSslErrors" xml:space="preserve"><value>忽略 SSL 证书错误</value></data>
+  <data name="DESC_IgnoreSslErrors" xml:space="preserve"><value>跳过该源的 HTTPS 证书校验（用于自签/无效证书）。</value></data>
   <data name="LBL_MaxSpeed" xml:space="preserve"><value>最大速度</value></data>
   <data name="LBL_CustomRange" xml:space="preserve"><value>自定义范围</value></data>
   <data name="LBL_AutoSelect" xml:space="preserve"><value>自动选择</value></data>
