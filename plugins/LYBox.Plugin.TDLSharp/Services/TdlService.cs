@@ -448,9 +448,8 @@ public partial class TdlService
 
     ForwardDbContext CreateForwardDbContext(long chatId)
     {
-        var dataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AvaloniaTemplate", "TDLSharp", "data");
-        Directory.CreateDirectory(dataDir);
-        return new ForwardDbContext(chatId, dataDir);
+        Directory.CreateDirectory(TdlPaths.ForwardDbDir);
+        return new ForwardDbContext(chatId, TdlPaths.ForwardDbDir);
     }
 
     /// <summary>
@@ -684,6 +683,7 @@ public partial class TdlService
     public async Task SendTagMessageAsync(long targetChatId, long messageThreadId, string tagsText, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(tagsText)) return;
+        if (ct.IsCancellationRequested) return;
 
         try
         {
@@ -723,3 +723,4 @@ public partial class TdlService
         }
     }
 }
+

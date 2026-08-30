@@ -10,7 +10,7 @@ namespace LYBox.Plugin.TDLSharp.ViewModels;
 [ViewMap(typeof(Pages.ClearMessagePage))]
 public partial class ClearMessageViewModel : TdlViewModelBase
 {
-    public override ScriptDescriptor Script => new()
+    protected override ScriptDescriptor CreateScript() => new()
     {
         Id = "clear-message",
         Name = Strings.Get("SCRIPT_ClearMessage_Name"),
@@ -26,11 +26,13 @@ public partial class ClearMessageViewModel : TdlViewModelBase
 
     protected override async Task ExecuteCoreAsync(TdlService tdlService, Dictionary<string, string> paramValues, CancellationToken ct)
     {
+        var bag = new ScriptParameterBag(paramValues);
+        paramValues.TryGetValue("channel", out var channel);
         await tdlService.ClearMessagesAsync(
-            paramValues.GetValueOrDefault("channel"),
-            paramValues.GetValueOrDefault("contains", ""),
-            bool.TryParse(paramValues.GetValueOrDefault("silent", "false"), out var silent) && silent,
-            int.TryParse(paramValues.GetValueOrDefault("limit", "0"), out var limit) ? limit : 0,
+            channel,
+            bag.GetString("contains"),
+            silent: bag.GetBool("silent"),
+            limit: bag.GetInt("limit"),
             ct);
     }
 }

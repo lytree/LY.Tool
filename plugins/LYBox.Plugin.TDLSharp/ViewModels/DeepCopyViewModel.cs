@@ -10,7 +10,7 @@ namespace LYBox.Plugin.TDLSharp.ViewModels;
 [ViewMap(typeof(Pages.DeepCopyPage))]
 public partial class DeepCopyViewModel : TdlViewModelBase
 {
-    public override ScriptDescriptor Script => new()
+    protected override ScriptDescriptor CreateScript() => new()
     {
         Id = "forward",
         Name = Strings.Get("SCRIPT_DeepCopy_Name"),
@@ -26,15 +26,15 @@ public partial class DeepCopyViewModel : TdlViewModelBase
 
     protected override async Task ExecuteCoreAsync(TdlService tdlService, Dictionary<string, string> paramValues, CancellationToken ct)
     {
-        var sourceRaw = paramValues.GetValueOrDefault("source")?.Trim();
-        var limit = int.TryParse(paramValues.GetValueOrDefault("limit", "0"), out var l) ? l : 0;
-        var comments = bool.TryParse(paramValues.GetValueOrDefault("comments", "true"), out var c) && c;
-        var maxNonShallow = int.TryParse(paramValues.GetValueOrDefault("maxNonShallow", "5000"), out var m) ? m : 5000;
+        var bag = new ScriptParameterBag(paramValues);
+        paramValues.TryGetValue("source", out var sourceRaw);
+        var sourceRawTrimmed = sourceRaw?.Trim();
+        var limit = bag.GetInt("limit");
+        var comments = bag.GetBool("comments", true);
+        var maxNonShallow = bag.GetInt("maxNonShallow", 5000);
 
-        var sources = ParseSources(sourceRaw);
-
-        if (sources.Count == 0)
-            sources.Add("");
+        var sources = ParseSources(sourceRawTrimmed);
+        if (sources.Count == 0) sources.Add("");
 
         for (int i = 0; i < sources.Count; i++)
         {
@@ -60,8 +60,7 @@ public partial class DeepCopyViewModel : TdlViewModelBase
 
     private static List<string> ParseSources(string? raw)
     {
-        if (string.IsNullOrWhiteSpace(raw))
-            return [];
+        if (string.IsNullOrWhiteSpace(raw)) return [];
 
         return raw.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
             .Select(s => s.Trim())

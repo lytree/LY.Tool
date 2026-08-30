@@ -20,7 +20,7 @@ namespace LYBox.Plugin.TDLSharp.ViewModels;
 
 public abstract partial class TdlViewModelBase : ViewModelBase
 {
-    public abstract ScriptDescriptor Script { get; }
+    private ScriptDescriptor? _script;
 
     [ObservableProperty] private ObservableCollection<ScriptParameter> _parameters = [];
     [ObservableProperty] private ObservableCollection<LogEntry> _logEntries = [];
@@ -30,6 +30,17 @@ public abstract partial class TdlViewModelBase : ViewModelBase
     [ObservableProperty] private double _logMaxHeight = 400;
 
     private CancellationTokenSource? _cts;
+
+    /// <summary>
+    /// 脚本元数据（包含参数定义）。首次访问时构造并缓存。
+    /// 注意：构造时基类会复制 <see cref="CreateScript"/> 返回的 <c>Parameters</c> 到
+    /// <see cref="Parameters"/> 集合；之后用户对 <see cref="Parameters"/> 中参数值的修改
+    /// 不会反映到 <see cref="Script"/>，也不会影响执行。
+    /// </summary>
+    public ScriptDescriptor Script => _script ??= CreateScript();
+
+    /// <summary>由子类实现：构造脚本元数据。基类只会调用一次。</summary>
+    protected abstract ScriptDescriptor CreateScript();
 
     protected TdlViewModelBase()
     {
@@ -91,11 +102,9 @@ public abstract partial class TdlViewModelBase : ViewModelBase
     {
         if (IsRunning) return;
 
-        // Check authentication before execution
         var clientManager = ServiceLocator.GetService<TdlClientManager>();
         if (clientManager == null) return;
 
-        // 1. 检查 TDL 根目录是否设置
         if (!clientManager.HasTdlRoot)
         {
             var result = await OverlayMessageBox.ShowAsync(
@@ -111,85 +120,58 @@ public abstract partial class TdlViewModelBase : ViewModelBase
             return;
         }
 
-        // 2. 确保客户端已初始化并已回报认证状态
-        //    AuthState 为 Unknown 时初始化客户端，等待 TDLib 回报首个认证状态
         await clientManager.EnsureReadyForAuthCheckAsync();
 
-        // 3. 根据认证状态判断是否需要弹出登录界面
-        //    NeedsLogin 涵盖所有 Wait* 状态及 Unknown/Closed/LoggingOut/Closing
         if (clientManager.NeedsLogin)
         {
-            // 已知具体认证状态时直接弹出登录界面（无需二次确认）
-            // 状态包括：WaitPhoneNumber / WaitCode / WaitPassword / WaitRegistration /
-            //          WaitOtherDeviceConfirmation / WaitEmailAddress / WaitEmailCode /
-            //          WaitPremiumPurchase / Unknown / Closed / LoggingOut / Closing
             await LoginDialogService.ShowLoginDialogAsync();
             return;
         }
 
         IsRunning = true;
-        StatusText = Strings.Get("STATUS_Running", Script.Name);
+        StatusText = string.Format(Strings.Get("STATUS_Running"), Script.Name);
+        _cts?.Dispose();
         _cts = new CancellationTokenSource();
 
-        var sw = Stopwatch.StartNew();
         var paramSnapshot = BuildParameterValues();
-
-        // 注册到 TaskRegistry，主程序退出时可检测
-        var taskScope = new TaskScope(Script.Name, "A1B2C3D4-E5F6-7890-ABCD-TDLSHARP00001");
-        // 将 TaskScope 的取消令牌链接到本地 CTS
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token, taskScope.Token.CancellationTokenSource.Token);
-
-        // 执行开始时即创建历史记录
-        var record = new ExecutionHistoryRecord
+        var historyRecord = new ExecutionHistoryRecord
         {
             ScriptId = Script.Id,
             ScriptName = Script.Name,
-            ParametersJson = JsonSerializer.Serialize(paramSnapshot, new JsonSerializerOptions { WriteIndented = false }),
+            ParametersJson = JsonSerializer.Serialize(paramSnapshot),
             ParameterSummary = BuildParameterSummary(paramSnapshot),
             ExecutedAt = DateTime.Now,
-            Duration = TimeSpan.Zero,
-            Status = Strings.Get("STATUS_Executing"),
-            ErrorMessage = null
+            Status = "执行中",
         };
-        await SaveExecutionHistoryRecordAsync(record);
-        Dispatcher.UIThread.Post(() =>
-        {
-            ExecutionHistoryRecords.Insert(0, record);
-            if (ExecutionHistoryRecords.Count > 200)
-                ExecutionHistoryRecords.RemoveAt(ExecutionHistoryRecords.Count - 1);
-        });
+        var historyStart = DateTime.UtcNow;
+        await SaveExecutionHistoryRecordAsync(historyRecord);
 
+        TdlService? tdlService = null;
         try
         {
-            var tdlService = CreateTdlService();
+            tdlService = CreateTdlService();
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
             await ExecuteCoreAsync(tdlService, paramSnapshot, linkedCts.Token);
-            record.Status = Strings.Get("RESULT_Success");
+            historyRecord.Status = "成功";
             StatusText = Strings.Get("STATUS_Completed");
         }
         catch (OperationCanceledException)
         {
-            record.Status = Strings.Get("STATUS_Cancelled");
+            historyRecord.Status = "已取消";
             StatusText = Strings.Get("STATUS_Cancelled");
         }
         catch (Exception ex)
         {
-            record.Status = Strings.Get("RESULT_Failed");
-            record.ErrorMessage = ex.Message;
-            AddLogEntry(new LogEntry { Message = Strings.Get("FMT_ExecuteFailed", ex.Message) });
-            StatusText = Strings.Get("STATUS_Failed");
+            historyRecord.Status = "失败";
+            historyRecord.ErrorMessage = ex.Message;
+            StatusText = $"{Strings.Get("STATUS_Failed")}: {ex.Message}";
+            Debug.WriteLine($"[TdlViewModel] 脚本执行异常: {ex}");
         }
         finally
         {
-            sw.Stop();
+            historyRecord.Duration = DateTime.UtcNow - historyStart;
+            await UpdateExecutionHistoryRecordAsync(historyRecord);
             IsRunning = false;
-            _cts?.Dispose();
-            _cts = null;
-            taskScope.Dispose();
-            OnExecutionFinished();
-
-            // 更新历史记录的最终状态
-            record.Duration = sw.Elapsed;
-            await UpdateExecutionHistoryRecordAsync(record);
         }
     }
 
@@ -200,17 +182,13 @@ public abstract partial class TdlViewModelBase : ViewModelBase
         StatusText = Strings.Get("STATUS_Cancelling");
     }
 
+    /// <summary>由子类实现：执行具体脚本逻辑。</summary>
     protected abstract Task ExecuteCoreAsync(TdlService tdlService, Dictionary<string, string> paramValues, CancellationToken ct);
 
-    protected virtual void OnExecutionFinished() { }
-
-    protected DirectUiLogger CreateUiLogger()
-    {
-        return new DirectUiLogger(
-            message => AddLogEntry(new LogEntry { Message = message }),
-            entry => AddLogEntry(entry),
-            UpdateProgressEntry);
-    }
+    protected DirectUiLogger CreateUiLogger() => new(
+        message => AddLogEntry(new LogEntry { Message = message }),
+        entry => AddLogEntry(entry),
+        UpdateProgressEntry);
 
     protected static void UpdateProgressEntry(LogEntry entry, double progressValue, string status, bool completed, bool failed)
     {
@@ -230,22 +208,16 @@ public abstract partial class TdlViewModelBase : ViewModelBase
         return new TdlService(clientManager, logger);
     }
 
-    protected Dictionary<string, string> BuildParameterValues()
-    {
-        var values = new Dictionary<string, string>();
-        foreach (var param in Parameters)
-        {
-            values[param.Key] = param.DefaultValue ?? string.Empty;
-        }
-        return values;
-    }
+    /// <summary>
+    /// 直接添加一条已构造好的日志条目（用于进度条更新等需要外部控制 LogEntry 实例的场景）。
+    /// </summary>
+    public void AddLogEntryExternally(LogEntry entry) => AddLogEntry(entry);
 
     protected void AddLogEntry(LogEntry entry)
     {
         Dispatcher.UIThread.Post(() =>
         {
             LogEntries.Add(entry);
-            // 超过上限时批量裁剪，避免每条新日志都触发 O(n) 的 RemoveAt(0) 导致 UI 抖动
             const int MaxLogEntries = 1000;
             const int TrimBatch = 100;
             if (LogEntries.Count > MaxLogEntries + TrimBatch)
@@ -255,6 +227,16 @@ public abstract partial class TdlViewModelBase : ViewModelBase
                     LogEntries.RemoveAt(0);
             }
         });
+    }
+
+    private Dictionary<string, string> BuildParameterValues()
+    {
+        var values = new Dictionary<string, string>();
+        foreach (var param in Parameters)
+        {
+            values[param.Key] = param.DefaultValue ?? string.Empty;
+        }
+        return values;
     }
 
     private void ApplyParametersFromJson(string parametersJson)
@@ -271,61 +253,51 @@ public abstract partial class TdlViewModelBase : ViewModelBase
         catch (Exception ex) { Debug.WriteLine($"[TdlViewModel] 应用参数 JSON 失败: {ex.Message}"); }
     }
 
-    private async Task LoadExecutionHistoryAsync()
+    private Task LoadExecutionHistoryAsync() => LoadExecutionHistoryCoreAsync(setCollection: true);
+
+    private void LoadExecutionHistory() => _ = LoadExecutionHistoryCoreAsync(setCollection: false);
+
+    async Task LoadExecutionHistoryCoreAsync(bool setCollection)
     {
         try
         {
             using var db = ExecutionHistoryDbContext.CreateForScript(Script.Id);
-            await db.Database.EnsureCreatedAsync();
+            await db.EnsureSchemaInitializedAsync();
             var records = await db.ExecutionRecords
                 .Where(r => r.ScriptId == Script.Id)
                 .OrderByDescending(r => r.ExecutedAt)
                 .Take(200)
                 .ToListAsync();
 
-            ExecutionHistoryRecords.Clear();
-            foreach (var r in records)
-                ExecutionHistoryRecords.Add(r);
+            void Apply()
+            {
+                ExecutionHistoryRecords.Clear();
+                foreach (var r in records)
+                    ExecutionHistoryRecords.Add(r);
+            }
+
+            if (setCollection)
+            {
+                Apply();
+            }
+            else
+            {
+                Dispatcher.UIThread.Post(Apply);
+            }
         }
         catch (Exception ex) { Debug.WriteLine($"[TdlViewModel] 加载执行历史失败: {ex.Message}"); }
     }
 
-    private string BuildParameterSummary(Dictionary<string, string> values)
+    private static string BuildParameterSummary(Dictionary<string, string> values)
     {
         var parts = new List<string>();
-        foreach (var param in Parameters)
+        foreach (var kvp in values)
         {
-            if (values.TryGetValue(param.Key, out var val) && !string.IsNullOrWhiteSpace(val))
-            {
-                var shortVal = val.Length > 40 ? val[..37] + "..." : val;
-                parts.Add($"{param.DisplayName}={shortVal}");
-            }
+            if (string.IsNullOrWhiteSpace(kvp.Value)) continue;
+            var shortVal = kvp.Value.Length > 40 ? kvp.Value[..37] + "..." : kvp.Value;
+            parts.Add($"{kvp.Key}={shortVal}");
         }
         return string.Join("; ", parts);
-    }
-
-    private void LoadExecutionHistory()
-    {
-        Task.Run(async () =>
-        {
-            try
-            {
-                using var db = ExecutionHistoryDbContext.CreateForScript(Script.Id);
-                await db.Database.EnsureCreatedAsync();
-                var records = await db.ExecutionRecords
-                    .Where(r => r.ScriptId == Script.Id)
-                    .OrderByDescending(r => r.ExecutedAt)
-                    .Take(200)
-                    .ToListAsync();
-
-                Dispatcher.UIThread.Post(() =>
-                {
-                    foreach (var r in records)
-                        ExecutionHistoryRecords.Add(r);
-                });
-            }
-            catch (Exception ex) { Debug.WriteLine($"[TdlViewModel] 后台加载执行历史失败: {ex.Message}"); }
-        });
     }
 
     private async Task SaveExecutionHistoryRecordAsync(ExecutionHistoryRecord record)
@@ -333,7 +305,7 @@ public abstract partial class TdlViewModelBase : ViewModelBase
         try
         {
             using var db = ExecutionHistoryDbContext.CreateForScript(Script.Id);
-            await db.Database.EnsureCreatedAsync();
+            await db.EnsureSchemaInitializedAsync();
             db.ExecutionRecords.Add(record);
             await db.SaveChangesAsync();
         }
@@ -345,7 +317,7 @@ public abstract partial class TdlViewModelBase : ViewModelBase
         try
         {
             using var db = ExecutionHistoryDbContext.CreateForScript(Script.Id);
-            await db.Database.EnsureCreatedAsync();
+            await db.EnsureSchemaInitializedAsync();
             db.ExecutionRecords.Update(record);
             await db.SaveChangesAsync();
         }

@@ -10,7 +10,7 @@ namespace LYBox.Plugin.TDLSharp.ViewModels;
 [ViewMap(typeof(Pages.ListChatsPage))]
 public partial class ListChatsViewModel : TdlViewModelBase
 {
-    public override ScriptDescriptor Script => new()
+    protected override ScriptDescriptor CreateScript() => new()
     {
         Id = "list-chats",
         Name = Strings.Get("SCRIPT_ListChats_Name"),
@@ -23,8 +23,7 @@ public partial class ListChatsViewModel : TdlViewModelBase
 
     protected override async Task ExecuteCoreAsync(TdlService tdlService, Dictionary<string, string> paramValues, CancellationToken ct)
     {
-        await tdlService.ListChatsAsync(
-            paramValues.GetValueOrDefault("output"),
-            ct);
+        paramValues.TryGetValue("output", out var output);
+        await tdlService.ListChatsAsync(output, ct);
     }
 }

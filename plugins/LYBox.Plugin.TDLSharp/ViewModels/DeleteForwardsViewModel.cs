@@ -10,7 +10,7 @@ namespace LYBox.Plugin.TDLSharp.ViewModels;
 [ViewMap(typeof(Pages.DeleteForwardsPage))]
 public partial class DeleteForwardsViewModel : TdlViewModelBase
 {
-    public override ScriptDescriptor Script => new()
+    protected override ScriptDescriptor CreateScript() => new()
     {
         Id = "delete-forwards",
         Name = Strings.Get("SCRIPT_DeleteForwards_Name"),
@@ -25,10 +25,9 @@ public partial class DeleteForwardsViewModel : TdlViewModelBase
 
     protected override async Task ExecuteCoreAsync(TdlService tdlService, Dictionary<string, string> paramValues, CancellationToken ct)
     {
-        await tdlService.DeleteAllForwardMessagesAsync(
-            paramValues.GetValueOrDefault("channel"),
-            paramValues.GetValueOrDefault("fromLink"),
-            int.TryParse(paramValues.GetValueOrDefault("limit", "0"), out var limit) ? limit : 0,
-            ct);
+        var bag = new ScriptParameterBag(paramValues);
+        paramValues.TryGetValue("channel", out var channel);
+        paramValues.TryGetValue("fromLink", out var fromLink);
+        await tdlService.DeleteAllForwardMessagesAsync(channel, fromLink, bag.GetInt("limit"), ct);
     }
 }

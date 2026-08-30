@@ -10,7 +10,7 @@ namespace LYBox.Plugin.TDLSharp.ViewModels;
 [ViewMap(typeof(Pages.BatchForwardToGroupPage))]
 public partial class BatchForwardToGroupViewModel : TdlViewModelBase
 {
-    public override ScriptDescriptor Script => new()
+    protected override ScriptDescriptor CreateScript() => new()
     {
         Id = "batch-forward-group",
         Name = Strings.Get("SCRIPT_BatchForwardGroup_Name"),
@@ -31,22 +31,19 @@ public partial class BatchForwardToGroupViewModel : TdlViewModelBase
 
     protected override async Task ExecuteCoreAsync(TdlService tdlService, Dictionary<string, string> paramValues, CancellationToken ct)
     {
-        var source = paramValues.GetValueOrDefault("source", "");
-        var sourceId = paramValues.GetValueOrDefault("sourceId");
-        var target = paramValues.GetValueOrDefault("target", "");
-        var fixedTopic = paramValues.GetValueOrDefault("fixedTopic");
-        var older = bool.TryParse(paramValues.GetValueOrDefault("older", "true"), out var o) && o;
-        var limit = int.TryParse(paramValues.GetValueOrDefault("limit", "0"), out var l) ? l : 0;
-        var comments = bool.TryParse(paramValues.GetValueOrDefault("comments", "true"), out var c) && c;
-        var classify = bool.TryParse(paramValues.GetValueOrDefault("classify", "false"), out var cls) && cls;
-        var tags = paramValues.GetValueOrDefault("tags");
-
-        // 群聊模式：可选固定话题（优先级高于 classify），可选按源分类
+        var bag = new ScriptParameterBag(paramValues);
+        var fixedTopic = bag.GetString("fixedTopic");
+        var tags = bag.GetString("tags");
         await tdlService.BatchForwardClassifiedAsync(
-            source, sourceId, target,
+            bag.GetString("source"),
+            bag.GetString("sourceId"),
+            bag.GetString("target"),
             fixedTopicName: string.IsNullOrWhiteSpace(fixedTopic) ? null : fixedTopic,
-            older, limit, comments,
-            classifyBySource: classify,
-            tags, ct);
+            older: bag.GetBool("older", true),
+            limit: bag.GetInt("limit"),
+            forwardComments: bag.GetBool("comments", true),
+            classifyBySource: bag.GetBool("classify"),
+            tags: string.IsNullOrEmpty(tags) ? null : tags,
+            ct);
     }
 }

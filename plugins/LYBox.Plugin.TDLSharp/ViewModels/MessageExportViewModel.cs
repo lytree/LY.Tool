@@ -10,7 +10,7 @@ namespace LYBox.Plugin.TDLSharp.ViewModels;
 [ViewMap(typeof(Pages.MessageExportPage))]
 public partial class MessageExportViewModel : TdlViewModelBase
 {
-    public override ScriptDescriptor Script => new()
+    protected override ScriptDescriptor CreateScript() => new()
     {
         Id = "message-export",
         Name = Strings.Get("SCRIPT_MessageExport_Name"),
@@ -26,11 +26,13 @@ public partial class MessageExportViewModel : TdlViewModelBase
 
     protected override async Task ExecuteCoreAsync(TdlService tdlService, Dictionary<string, string> paramValues, CancellationToken ct)
     {
+        var bag = new ScriptParameterBag(paramValues);
+        paramValues.TryGetValue("output", out var output);
         await tdlService.ExportMessagesAsync(
-            paramValues.GetValueOrDefault("channel", ""),
-            paramValues.GetValueOrDefault("output"),
-            bool.TryParse(paramValues.GetValueOrDefault("comments", "false"), out var comments) && comments,
-            int.TryParse(paramValues.GetValueOrDefault("limit", "0"), out var limit) ? limit : 0,
+            bag.GetString("channel"),
+            output,
+            exportComments: bag.GetBool("comments"),
+            limit: bag.GetInt("limit"),
             ct);
     }
 }

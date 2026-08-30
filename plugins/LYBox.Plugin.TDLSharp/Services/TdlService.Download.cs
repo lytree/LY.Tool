@@ -35,7 +35,7 @@ public partial class TdlService
 
         if (string.IsNullOrWhiteSpace(outputDir))
         {
-            outputDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "tdl", "download");
+            outputDir = TdlPaths.DefaultDownloadDir;
         }
         Directory.CreateDirectory(outputDir);
 
@@ -96,29 +96,22 @@ public partial class TdlService
                 messagesToDownload.Reverse();
             }
 
-            // Determine subfolder for this link's messages
-            string? linkSubFolder = null;
-            if (albumId.HasValue)
-            {
-                // Group download: use albumId as folder name
-                linkSubFolder = albumId.Value.ToString();
-            }
+            string? linkSubFolder = albumId?.ToString();
 
             foreach (var msg in messagesToDownload)
             {
                 ct.ThrowIfCancellationRequested();
 
-                // For non-album single messages, use filename (without ext) as subfolder
                 var subFolder = linkSubFolder;
 
-                var file = ExtractDownloadableFile(msg.Content);
+                var file = MessageContentInspector.GetDownloadableFile(msg.Content);
                 if (file == null)
                 {
                     _logger.Log($"消息中无可下载的媒体: MsgId={msg.Id}");
                     continue;
                 }
 
-                var fileName = GetFileName(msg, file);
+                var fileName = MessageContentInspector.GetFileName(msg.Content, file);
                 if (!ShouldDownloadByExtension(fileName, includeSet, excludeSet))
                 {
                     _logger.Log($"被扩展名过滤: {fileName}");
@@ -126,7 +119,6 @@ public partial class TdlService
                     continue;
                 }
 
-                // Single file without album: subfolder = filename without extension
                 if (subFolder == null)
                 {
                     subFolder = Path.GetFileNameWithoutExtension(fileName);
@@ -142,7 +134,7 @@ public partial class TdlService
                     var existingLen = new FileInfo(destPath).Length;
                     if (existingLen == file.ExpectedSize)
                     {
-                        _logger.Log($"跳过 (同名同大小): {fileName}");
+                        _logger.Log($"跳过已存在文件 (同名同大小): {fileName}");
                         skipped++;
                         continue;
                     }
@@ -158,48 +150,38 @@ public partial class TdlService
                 });
             }
 
+            if (!downloadComments) continue;
+
             // Download comments if requested
-            if (downloadComments)
+            foreach (var msg in messagesToDownload)
             {
-                foreach (var msg in messagesToDownload)
+                ct.ThrowIfCancellationRequested();
+                try
                 {
-                    ct.ThrowIfCancellationRequested();
+                    var replyInfo = msg.InteractionInfo?.ReplyInfo;
+                    if (replyInfo == null || replyInfo.ReplyCount == 0) continue;
 
-                    try
+                    var commentFolder = linkSubFolder ?? Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(MessageContentInspector.GetFileName(msg.Content, MessageContentInspector.GetDownloadableFile(msg.Content) ?? new TdApi.File { Id = 0, ExpectedSize = 0 })));
+                    var commentSubFolder = $"comments_{commentFolder}";
+
+                    long fromMsgId = 0;
+                    bool hasMoreComments = true;
+
+                    while (hasMoreComments)
                     {
-                        var comments = await client.GetMessageThreadHistoryAsync(
-                            chatId: chatId,
-                            messageId: msg.Id,
-                            fromMessageId: 0,
-                            offset: 0,
-                            limit: 100
-                        );
-
-                        if (comments.Messages_ == null || comments.Messages_.Length == 0)
-                            continue;
-
-                        _logger.Log($"消息 {msg.Id} 有 {comments.Messages_.Length} 条评论");
-
-                        // Comment files go in the message folder (same subfolder)
-                        var commentSubFolder = linkSubFolder ?? Path.GetFileNameWithoutExtension(GetFileName(msg, ExtractDownloadableFile(msg.Content) ?? new TdApi.File { Id = 0 })) ?? $"msg_{msg.Id}";
-                        if (string.IsNullOrWhiteSpace(commentSubFolder))
+                        var threadPage = await client.GetMessageThreadHistoryAsync(chatId, msg.Id, fromMsgId, 0, 100);
+                        if (threadPage.Messages_ == null || threadPage.Messages_.Length == 0)
                         {
-                            commentSubFolder = $"msg_{msg.Id}";
+                            hasMoreComments = false;
+                            break;
                         }
 
-                        foreach (var comment in comments.Messages_)
+                        foreach (var comment in threadPage.Messages_)
                         {
-                            ct.ThrowIfCancellationRequested();
-
-                            var commentFile = ExtractDownloadableFile(comment.Content);
+                            var commentFile = MessageContentInspector.GetDownloadableFile(comment.Content);
                             if (commentFile == null) continue;
-
-                            var commentFileName = GetFileName(comment, commentFile);
-                            if (!ShouldDownloadByExtension(commentFileName, includeSet, excludeSet))
-                            {
-                                skipped++;
-                                continue;
-                            }
+                            var commentFileName = MessageContentInspector.GetFileName(comment.Content, commentFile);
+                            if (!ShouldDownloadByExtension(commentFileName, includeSet, excludeSet)) continue;
 
                             var commentDestPath = Path.Combine(outputDir, commentSubFolder, commentFileName);
                             if (skipSame && File.Exists(commentDestPath))
@@ -225,10 +207,10 @@ public partial class TdlService
 
                         await Task.Delay(200, ct);
                     }
-                    catch (TdException ex)
-                    {
-                        _logger.Log($"获取评论失败: MsgId={msg.Id}, 错误: {ex.Error.Message}");
-                    }
+                }
+                catch (TdException ex)
+                {
+                    _logger.Log($"获取评论失败: MsgId={msg.Id}, 错误: {ex.Error.Message}");
                 }
             }
         }
@@ -240,14 +222,9 @@ public partial class TdlService
             return;
         }
 
-        if (sequential)
-        {
-            _logger.Log($"收集到 {filesToDownload.Count} 个文件，开始同步下载");
-        }
-        else
-        {
-            _logger.Log($"收集到 {filesToDownload.Count} 个文件，开始并发下载 (最多 {MaxConcurrentDownloads} 个同时)");
-        }
+        _logger.Log(sequential
+            ? $"收集到 {filesToDownload.Count} 个文件，开始同步下载"
+            : $"收集到 {filesToDownload.Count} 个文件，开始并发下载 (最多 {MaxConcurrentDownloads} 个同时)");
 
         // Phase 2: Download
         int downloaded = 0;
@@ -255,7 +232,6 @@ public partial class TdlService
 
         if (sequential)
         {
-            // Sequential download
             foreach (var item in filesToDownload)
             {
                 ct.ThrowIfCancellationRequested();
@@ -264,21 +240,13 @@ public partial class TdlService
                     await DownloadSingleFileWithProgressAsync(client, item, ct);
                     downloaded++;
                 }
-                catch (OperationCanceledException)
-                {
-                    throw;
-                }
-                catch (Exception)
-                {
-                    failed++;
-                }
+                catch (OperationCanceledException) { throw; }
+                catch { failed++; }
             }
         }
         else
         {
-            // Concurrent download (max 5)
             using var semaphore = new SemaphoreSlim(MaxConcurrentDownloads);
-
             var tasks = filesToDownload.Select(async item =>
             {
                 await semaphore.WaitAsync(ct);
@@ -287,18 +255,9 @@ public partial class TdlService
                     await DownloadSingleFileWithProgressAsync(client, item, ct);
                     Interlocked.Increment(ref downloaded);
                 }
-                catch (OperationCanceledException)
-                {
-                    throw;
-                }
-                catch (Exception)
-                {
-                    Interlocked.Increment(ref failed);
-                }
-                finally
-                {
-                    semaphore.Release();
-                }
+                catch (OperationCanceledException) { throw; }
+                catch { Interlocked.Increment(ref failed); }
+                finally { semaphore.Release(); }
             }).ToList();
 
             await Task.WhenAll(tasks);
@@ -356,43 +315,7 @@ public partial class TdlService
         }
     }
 
-    TdApi.File? ExtractDownloadableFile(TdApi.MessageContent content)
-    {
-        return content switch
-        {
-            TdApi.MessageContent.MessagePhoto p => p.Photo.Sizes.LastOrDefault()?.Photo,
-            TdApi.MessageContent.MessageVideo v => v.Video.Video_,
-            TdApi.MessageContent.MessageAudio a => a.Audio.Audio_,
-            TdApi.MessageContent.MessageDocument d => d.Document.Document_,
-            TdApi.MessageContent.MessageVoiceNote vn => vn.VoiceNote.Voice,
-            TdApi.MessageContent.MessageVideoNote vn => vn.VideoNote.Video,
-            TdApi.MessageContent.MessageAnimation ani => ani.Animation.Animation_,
-            TdApi.MessageContent.MessageSticker s => s.Sticker.Sticker_,
-            _ => null
-        };
-    }
-
-    string GetFileName(TdApi.Message msg, TdApi.File file)
-    {
-        var name = msg.Content switch
-        {
-            TdApi.MessageContent.MessageVideo v => v.Video.FileName,
-            TdApi.MessageContent.MessageAudio a => a.Audio.FileName,
-            TdApi.MessageContent.MessageDocument d => d.Document.FileName,
-            TdApi.MessageContent.MessageAnimation ani => ani.Animation.FileName,
-            TdApi.MessageContent.MessageSticker s => $"{s.Sticker.SetId}_{s.Sticker.Sticker_.Id}.webp",
-            _ => $"file_{file.Id}"
-        };
-
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            name = $"file_{file.Id}";
-        }
-
-        return name;
-    }
-
-    HashSet<string> ParseExtList(string? ext)
+    static HashSet<string> ParseExtList(string? ext)
     {
         if (string.IsNullOrWhiteSpace(ext)) return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         return ext.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
@@ -400,7 +323,7 @@ public partial class TdlService
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
 
-    bool ShouldDownloadByExtension(string fileName, HashSet<string> includeSet, HashSet<string> excludeSet)
+    static bool ShouldDownloadByExtension(string fileName, HashSet<string> includeSet, HashSet<string> excludeSet)
     {
         var ext = Path.GetExtension(fileName).TrimStart('.');
 

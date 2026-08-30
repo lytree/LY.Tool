@@ -10,7 +10,7 @@ namespace LYBox.Plugin.TDLSharp.ViewModels;
 [ViewMap(typeof(Pages.DownloadPage))]
 public partial class DownloadViewModel : TdlViewModelBase
 {
-    public override ScriptDescriptor Script => new()
+    protected override ScriptDescriptor CreateScript() => new()
     {
         Id = "download",
         Name = Strings.Get("SCRIPT_Download_Name"),
@@ -31,16 +31,19 @@ public partial class DownloadViewModel : TdlViewModelBase
 
     protected override async Task ExecuteCoreAsync(TdlService tdlService, Dictionary<string, string> paramValues, CancellationToken ct)
     {
+        var bag = new ScriptParameterBag(paramValues);
+        paramValues.TryGetValue("include", out var include);
+        paramValues.TryGetValue("exclude", out var exclude);
         await tdlService.DownloadFilesAsync(
-            paramValues.GetValueOrDefault("links", ""),
-            paramValues.GetValueOrDefault("output", ""),
-            paramValues.GetValueOrDefault("include"),
-            paramValues.GetValueOrDefault("exclude"),
-            bool.TryParse(paramValues.GetValueOrDefault("desc", "false"), out var desc) && desc,
-            bool.TryParse(paramValues.GetValueOrDefault("group", "true"), out var group) && group,
-            bool.TryParse(paramValues.GetValueOrDefault("skipSame", "true"), out var skipSame) && skipSame,
-            bool.TryParse(paramValues.GetValueOrDefault("downloadComments", "false"), out var downloadComments) && downloadComments,
-            bool.TryParse(paramValues.GetValueOrDefault("sequential", "false"), out var sequential) && sequential,
+            bag.GetString("links"),
+            bag.GetString("output"),
+            include,
+            exclude,
+            desc: bag.GetBool("desc"),
+            group: bag.GetBool("group", true),
+            skipSame: bag.GetBool("skipSame", true),
+            downloadComments: bag.GetBool("downloadComments"),
+            sequential: bag.GetBool("sequential"),
             ct);
     }
 }

@@ -6,6 +6,9 @@ namespace LYBox.Plugin.TDLSharp.Services;
 
 public class ExecutionHistoryDbContext : DbContext
 {
+    private static readonly SemaphoreSlim _initLock = new(1, 1);
+    private static readonly HashSet<string> _initialized = new(StringComparer.OrdinalIgnoreCase);
+
     private readonly string _dbPath;
 
     public ExecutionHistoryDbContext(string dbPath)
@@ -14,6 +17,22 @@ public class ExecutionHistoryDbContext : DbContext
     }
 
     public DbSet<ExecutionHistoryRecord> ExecutionRecords { get; set; }
+
+    /// <summary>
+    /// 仅在该 db path 第一次被访问时执行 schema 创建；后续访问跳过 EF schema 校验。
+    /// </summary>
+    public async Task EnsureSchemaInitializedAsync()
+    {
+        if (_initialized.Contains(_dbPath)) return;
+        await _initLock.WaitAsync();
+        try
+        {
+            if (_initialized.Contains(_dbPath)) return;
+            await Database.EnsureCreatedAsync();
+            _initialized.Add(_dbPath);
+        }
+        finally { _initLock.Release(); }
+    }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -37,18 +56,13 @@ public class ExecutionHistoryDbContext : DbContext
     }
 
     /// <summary>
-    /// 根据脚本ID创建独立的数据库上下文，每个脚本使用独立的db文件
+    /// 根据脚本ID创建独立的数据库上下文，每个脚本使用独立的 db 文件。
     /// </summary>
     public static ExecutionHistoryDbContext CreateForScript(string scriptId)
     {
-        var dataDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "AvaloniaTemplate", "TDLSharp", "history");
+        var dataDir = TdlPaths.HistoryDir;
         Directory.CreateDirectory(dataDir);
-
-        // 将scriptId中的特殊字符替换为下划线，确保文件名安全
-        var safeName = string.Concat(scriptId.Select(c => char.IsLetterOrDigit(c) ? c : '_'));
-        var dbPath = Path.Combine(dataDir, $"history-{safeName}.db");
+        var dbPath = Path.Combine(dataDir, $"history-{TdlPaths.SafeFileName(scriptId)}.db");
         return new ExecutionHistoryDbContext(dbPath);
     }
 }

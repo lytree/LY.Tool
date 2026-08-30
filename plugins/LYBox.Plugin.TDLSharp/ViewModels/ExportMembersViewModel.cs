@@ -10,7 +10,7 @@ namespace LYBox.Plugin.TDLSharp.ViewModels;
 [ViewMap(typeof(Pages.ExportMembersPage))]
 public partial class ExportMembersViewModel : TdlViewModelBase
 {
-    public override ScriptDescriptor Script => new()
+    protected override ScriptDescriptor CreateScript() => new()
     {
         Id = "export-members",
         Name = Strings.Get("SCRIPT_ExportMembers_Name"),
@@ -25,10 +25,12 @@ public partial class ExportMembersViewModel : TdlViewModelBase
 
     protected override async Task ExecuteCoreAsync(TdlService tdlService, Dictionary<string, string> paramValues, CancellationToken ct)
     {
+        var bag = new ScriptParameterBag(paramValues);
+        paramValues.TryGetValue("output", out var output);
         await tdlService.ExportMembersAsync(
-            paramValues.GetValueOrDefault("chat", ""),
-            paramValues.GetValueOrDefault("output"),
-            bool.TryParse(paramValues.GetValueOrDefault("raw", "false"), out var raw) && raw,
+            bag.GetString("chat"),
+            output,
+            raw: bag.GetBool("raw"),
             ct);
     }
 }

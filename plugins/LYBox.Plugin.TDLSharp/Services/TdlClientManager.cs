@@ -24,25 +24,19 @@ public class TdlClientManager : IDisposable
     public int ProxyPort { get; }
     public bool EnableProxy { get; }
 
+    public AuthStateCode AuthState => _updateHandler?.AuthState ?? AuthStateCode.Unknown;
     public bool AuthNeeded => _updateHandler?.AuthNeeded ?? false;
     public bool PasswordNeeded => _updateHandler?.PasswordNeeded ?? false;
     public bool IsReady => _ready.IsSet;
     public bool IsAuthenticated => _updateHandler?.IsAuthenticated ?? false;
-    public string AuthState => _updateHandler?.AuthState ?? "Unknown";
     public string? QrCodeLink => _updateHandler?.QrCodeLink;
 
     /// <summary>
-    /// 根据 TdlUpdateHandler 的认证状态判断是否需要弹出登录界面。
-    /// 需要登录的状态：WaitPhoneNumber / WaitCode / WaitPassword / WaitRegistration /
-    /// WaitOtherDeviceConfirmation / WaitEmailAddress / WaitEmailCode / WaitPremiumPurchase /
-    /// Unknown（未初始化）/ Closed / LoggingOut / Closing。
-    /// 不需要登录的状态：Ready（已认证）/ WaitTdlibParameters（初始化中过渡态）。
+    /// 判断是否需要弹出登录界面：所有 Wait* 状态及 Unknown / Closed / LoggingOut / Closing。
+    /// Ready 状态（已认证）以及初始化中过渡态 WaitTdlibParameters 不需要登录。
     /// </summary>
-    public bool NeedsLogin => AuthState is
-        "WaitPhoneNumber" or "WaitCode" or "WaitPassword" or
-        "WaitRegistration" or "WaitOtherDeviceConfirmation" or
-        "WaitEmailAddress" or "WaitEmailCode" or "WaitPremiumPurchase" or
-        "Unknown" or "Closed" or "LoggingOut" or "Closing";
+    public bool NeedsLogin => AuthState.NeedsLogin();
+
     public TdClient Client => _client ?? throw new InvalidOperationException("Client not initialized. Call EnsureInitializedAsync first.");
 
     public event Func<TdApi.File, Task>? FileUpdated;
@@ -113,18 +107,14 @@ public class TdlClientManager : IDisposable
 
     /// <summary>
     /// 确保 TDLib 客户端已初始化并已报告首个认证状态。
-    /// 如果 AuthState 为 Unknown（未初始化），会先初始化客户端，
-    /// 然后等待 TDLib 回报首个认证状态（Ready 或 Wait* 系列）。
+    /// 如果 AuthState 为 Unknown，会先初始化客户端，然后等待 TDLib 回报首个状态。
     /// </summary>
     public async Task EnsureReadyForAuthCheckAsync(TimeSpan? timeout = null)
     {
-        if (AuthState != "Unknown") return;
+        if (AuthState != AuthStateCode.Unknown) return;
 
         await EnsureInitializedAsync();
 
-        // 等待 TDLib 回报首个认证状态（Ready / WaitPhoneNumber / WaitCode 等）
-        // _ready 在 WaitPhoneNumber/WaitCode/WaitPassword/WaitRegistration/
-        // WaitEmailAddress/WaitEmailCode/Ready 时被 Set
         var waitTimeout = timeout ?? TimeSpan.FromSeconds(15);
         try
         {

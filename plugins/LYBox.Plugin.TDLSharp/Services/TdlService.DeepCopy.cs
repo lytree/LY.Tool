@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 using TdLib;
-using static TdLib.TdApi;
 
 namespace LYBox.Plugin.TDLSharp.Services;
 

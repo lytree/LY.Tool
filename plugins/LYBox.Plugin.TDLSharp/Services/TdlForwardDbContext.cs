@@ -36,6 +36,9 @@ public class ForwardRecord
 
 public class ForwardDbContext : DbContext
 {
+    private static readonly SemaphoreSlim _initLock = new(1, 1);
+    private static readonly HashSet<string> _initialized = new(StringComparer.OrdinalIgnoreCase);
+
     private readonly string _dbPath;
 
     public ForwardDbContext(long chatId, string tdlRoot)
@@ -50,6 +53,20 @@ public class ForwardDbContext : DbContext
 
     public DbSet<ForwardRecord> ForwardRecords { get; set; }
 
+    /// <summary>仅在该 db path 第一次被访问时执行 schema 创建；后续访问跳过 EF schema 校验。</summary>
+    public async Task EnsureSchemaInitializedAsync()
+    {
+        if (_initialized.Contains(_dbPath)) return;
+        await _initLock.WaitAsync();
+        try
+        {
+            if (_initialized.Contains(_dbPath)) return;
+            await Database.EnsureCreatedAsync();
+            _initialized.Add(_dbPath);
+        }
+        finally { _initLock.Release(); }
+    }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlite($"Data Source={_dbPath}");
@@ -59,7 +76,6 @@ public class ForwardDbContext : DbContext
     {
         modelBuilder.Entity<ForwardRecord>(entity =>
         {
-
             entity.HasKey(_ => new { _.SourceChatId, _.MessageId });
             entity.HasIndex(e => e.NewMessageId);
             entity.HasIndex(e => e.MediaAlbumId);

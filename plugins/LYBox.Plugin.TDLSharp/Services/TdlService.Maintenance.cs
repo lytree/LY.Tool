@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using TdLib;
 
 namespace LYBox.Plugin.TDLSharp.Services;
@@ -52,7 +51,7 @@ public partial class TdlService
 
                 foreach (var msg in history.Messages_)
                 {
-                    string? text = ExtractMessageText(msg);
+                    var text = MessageContentInspector.GetText(msg.Content);
                     if (text != null && text.Contains(containsText, StringComparison.OrdinalIgnoreCase))
                     {
                         matchedMessages.Add((msg.Id, text.Length > 80 ? text[..80] + "..." : text));
@@ -89,7 +88,7 @@ public partial class TdlService
 
         _logger.Log($"共找到 {matchedMessages.Count} 条匹配消息");
 
-        int batchSize = 100;
+        const int batchSize = 100;
         for (int i = 0; i < matchedMessages.Count; i += batchSize)
         {
             ct.ThrowIfCancellationRequested();
@@ -115,22 +114,5 @@ public partial class TdlService
         }
 
         return totalDeleted;
-    }
-
-    string? ExtractMessageText(TdApi.Message msg)
-    {
-        return msg.Content switch
-        {
-            TdApi.MessageContent.MessageText t => t.Text?.Text,
-            TdApi.MessageContent.MessagePhoto p => p.Caption?.Text,
-            TdApi.MessageContent.MessageVideo v => v.Caption?.Text,
-            TdApi.MessageContent.MessageAudio a => a.Caption?.Text,
-            TdApi.MessageContent.MessageDocument d => d.Caption?.Text,
-            TdApi.MessageContent.MessageVoiceNote vn => vn.Caption?.Text,
-            TdApi.MessageContent.MessageAnimation ani => ani.Caption?.Text,
-            TdApi.MessageContent.MessagePinMessage pm => $"[PinMessage] MsgId={pm.MessageId}",
-            TdApi.MessageContent.MessageUnsupported => "This channel can't be displayed",
-            _ => null
-        };
     }
 }

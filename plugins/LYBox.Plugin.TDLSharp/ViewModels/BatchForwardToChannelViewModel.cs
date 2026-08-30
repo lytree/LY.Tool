@@ -10,7 +10,7 @@ namespace LYBox.Plugin.TDLSharp.ViewModels;
 [ViewMap(typeof(Pages.BatchForwardToChannelPage))]
 public partial class BatchForwardToChannelViewModel : TdlViewModelBase
 {
-    public override ScriptDescriptor Script => new()
+    protected override ScriptDescriptor CreateScript() => new()
     {
         Id = "batch-forward-channel",
         Name = Strings.Get("SCRIPT_BatchForwardChannel_Name"),
@@ -29,20 +29,18 @@ public partial class BatchForwardToChannelViewModel : TdlViewModelBase
 
     protected override async Task ExecuteCoreAsync(TdlService tdlService, Dictionary<string, string> paramValues, CancellationToken ct)
     {
-        var source = paramValues.GetValueOrDefault("source", "");
-        var sourceId = paramValues.GetValueOrDefault("sourceId");
-        var target = paramValues.GetValueOrDefault("target", "");
-        var older = bool.TryParse(paramValues.GetValueOrDefault("older", "true"), out var o) && o;
-        var limit = int.TryParse(paramValues.GetValueOrDefault("limit", "0"), out var l) ? l : 0;
-        var comments = bool.TryParse(paramValues.GetValueOrDefault("comments", "true"), out var c) && c;
-        var tags = paramValues.GetValueOrDefault("tags");
-
-        // 频道模式：不启用固定话题、不启用按源分类
+        var bag = new ScriptParameterBag(paramValues);
+        var tags = bag.GetString("tags");
         await tdlService.BatchForwardClassifiedAsync(
-            source, sourceId, target,
+            bag.GetString("source"),
+            bag.GetString("sourceId"),
+            bag.GetString("target"),
             fixedTopicName: null,
-            older, limit, comments,
+            older: bag.GetBool("older", true),
+            limit: bag.GetInt("limit"),
+            forwardComments: bag.GetBool("comments", true),
             classifyBySource: false,
-            tags, ct);
+            tags: string.IsNullOrEmpty(tags) ? null : tags,
+            ct);
     }
 }
