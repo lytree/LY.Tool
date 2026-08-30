@@ -109,6 +109,10 @@
   <data name="PARAM_TargetDesc" xml:space="preserve"><value>目标频道/群聊链接或用户名。启用分类时目标必须为论坛超级群组</value></data>
   <data name="PARAM_TargetChannelDesc" xml:space="preserve"><value>目标频道链接或用户名</value></data>
   <data name="PARAM_TargetGroupDesc" xml:space="preserve"><value>目标群聊链接或用户名。启用固定话题或分类时目标须为开启话题的超级群组</value></data>
+
+  <data name="PARAM_SingleForwardTargetDesc" xml:space="preserve"><value>目标频道/群聊链接或用户名。设置目标话题时目标须为开启话题的论坛超级群组</value></data>
+  <data name="PARAM_TargetTopic" xml:space="preserve"><value>目标话题</value></data>
+  <data name="PARAM_TargetTopicDesc" xml:space="preserve"><value>将消息转发到目标群聊的指定话题（不存在时自动创建）。目标须为开启话题的论坛超级群组。留空=转发到目标群聊主聊天</value></data>
   <data name="PARAM_FixedTopic" xml:space="preserve"><value>固定话题名称</value></data>
   <data name="PARAM_FixedTopicDesc" xml:space="preserve"><value>将所有消息转发到该固定话题（不存在时自动创建）。优先级高于按源分类。留空=不启用</value></data>
   <data name="PARAM_Older" xml:space="preserve"><value>向旧消息方向</value></data>

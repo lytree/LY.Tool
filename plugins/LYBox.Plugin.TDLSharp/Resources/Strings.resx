@@ -109,6 +109,10 @@
   <data name="PARAM_TargetDesc" xml:space="preserve"><value>Target channel/group link or username. Must be a forum supergroup when classify is enabled.</value></data>
   <data name="PARAM_TargetChannelDesc" xml:space="preserve"><value>Target channel link or username</value></data>
   <data name="PARAM_TargetGroupDesc" xml:space="preserve"><value>Target group link or username. Must be a forum supergroup when fixed topic or classify is enabled.</value></data>
+
+  <data name="PARAM_SingleForwardTargetDesc" xml:space="preserve"><value>Target channel/group link or username. When target topic is set, the target must be a forum supergroup with topics enabled.</value></data>
+  <data name="PARAM_TargetTopic" xml:space="preserve"><value>Target Topic</value></data>
+  <data name="PARAM_TargetTopicDesc" xml:space="preserve"><value>Forward the message to this specific forum topic in the target group (created if not exists). The target must be a forum supergroup with topics enabled. Empty=forward to the target group's main chat.</value></data>
   <data name="PARAM_FixedTopic" xml:space="preserve"><value>Fixed Topic Name</value></data>
   <data name="PARAM_FixedTopicDesc" xml:space="preserve"><value>Forward all messages to this single forum topic (created if not exists). Takes precedence over classify. Empty=disabled.</value></data>
   <data name="PARAM_Older" xml:space="preserve"><value>Towards Older Messages</value></data>

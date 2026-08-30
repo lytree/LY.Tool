@@ -10,7 +10,7 @@ namespace LYBox.Plugin.TDLSharp.ViewModels;
 [ViewMap(typeof(Pages.SingleForwardPage))]
 public partial class SingleForwardViewModel : TdlViewModelBase
 {
-    public override ScriptDescriptor Script => new()
+    protected override ScriptDescriptor CreateScript() => new()
     {
         Id = "single-forward",
         Name = Strings.Get("SCRIPT_SingleForward_Name"),
@@ -18,17 +18,21 @@ public partial class SingleForwardViewModel : TdlViewModelBase
         Parameters =
         [
             ScriptParameter.HistoryText("source", Strings.Get("PARAM_Source"), Strings.Get("PARAM_SingleSourceDesc"), required: true),
-            ScriptParameter.HistoryText("target", Strings.Get("PARAM_Target"), Strings.Get("PARAM_TargetDesc"), required: true),
+            ScriptParameter.HistoryText("target", Strings.Get("PARAM_Target"), Strings.Get("PARAM_SingleForwardTargetDesc"), required: true),
+            ScriptParameter.Text("targetTopic", Strings.Get("PARAM_TargetTopic"), Strings.Get("PARAM_TargetTopicDesc")),
             ScriptParameter.Switch("comments", Strings.Get("PARAM_ForwardComments"), Strings.Get("PARAM_ForwardCommentsDesc"), true),
         ]
     };
 
     protected override async Task ExecuteCoreAsync(TdlService tdlService, Dictionary<string, string> paramValues, CancellationToken ct)
     {
+        var bag = new ScriptParameterBag(paramValues);
+        var targetTopic = bag.GetString("targetTopic");
         await tdlService.SingleForwardAsync(
-            paramValues.GetValueOrDefault("source", ""),
-            paramValues.GetValueOrDefault("target", ""),
-            bool.TryParse(paramValues.GetValueOrDefault("comments", "true"), out var comments) && comments,
+            bag.GetString("source"),
+            bag.GetString("target"),
+            forwardComments: bag.GetBool("comments", true),
+            topicName: string.IsNullOrWhiteSpace(targetTopic) ? null : targetTopic,
             ct);
     }
 }
