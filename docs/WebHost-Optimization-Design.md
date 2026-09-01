@@ -214,7 +214,7 @@ App.Initialize()
 | BC-3 | `WebHostService.MapPluginRoot` 收缩为宿主内部 API | `WebTemplatePlugin.RegisterAsync` 中的手动调用 | 直接删除该调用（宿主统一注册） |
 | BC-4 | SDK 拆分：`LYBox.Plugin.Shared.Web` 独立包 | 12 个插件 csproj；`buildTransitive` props/targets；`plugins/nuget.config` 本地源 | 非 Web 插件无需改动（继续引用核心包）；Web 插件新增一行 PackageReference；宿主新增引用 |
 | BC-5 | `SharedAssembliesPatterns` 清单缩减（AspNetCore 条目移至 Web 包） | 所有插件的 `shared-assemblies.txt` 重新生成 | 自动（随 BC-4 重新构建） |
-| BC-6 | 浏览器模式端点合并为 `/__bridge/{pluginId}/{action}` | `ipc.js` 的 `httpRpc`/`httpEmit`；`lybox-mock` 工具；SDK `env.ts` | 同步更新三处；`lybox-mock` 发新版本 |
+| BC-6 | 浏览器模式端点合并为 `/__bridge/{pluginId}/{action}` | `ipc.js` 的 `httpRpc`/`httpEmit`；SDK `env.ts` | 同步更新两处（浏览器专用 Mock 后端 `lybox-mock` 已随工具链移除） |
 | BC-7 | `IPluginMetadata.PluginId` 等元数据改为由源生成器从 csproj 生成（消除双硬编码，见 `Plugin-Implementation-Analysis.md` O-1） | 12 个插件入口类 | 删除手写属性，源生成器接管 |
 
 ---

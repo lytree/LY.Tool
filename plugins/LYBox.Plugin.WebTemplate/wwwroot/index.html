@@ -4,25 +4,78 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LYBox Web Template</title>
+
+    <!--
+        前端 SDK 直接来自 LYBox.Plugin.Shared.Web 嵌入资源：
+        - /sdk/lybox-plugin-sdk.js     ：ES Module SDK（自动检测 WebView / 浏览器 mock）
+        - /sdk/lybox-plugin-theme.css  ：Fluent Design 主题变量（浅/深色 + 间距/圆角/阴影）
+        生产 WebHostService 与 lybox-mock 均通过 PluginWebSdkResources 提供同一份字节，
+        无需 pnpm / npm / 任何前端构建。
+    -->
+    <link rel="stylesheet" href="/sdk/lybox-plugin-theme.css" />
+    <script type="module" src="/sdk/lybox-plugin-sdk.js"></script>
+
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; padding: 24px; color: #1a1a1a; background: #fafafa; }
-        h1 { font-size: 24px; margin-bottom: 16px; }
-        h2 { font-size: 18px; margin: 20px 0 10px; color: #444; }
-        .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-        .row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-        input { padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-        button { padding: 6px 14px; background: #0078d4; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        button:hover { background: #106ebe; }
-        .result { margin-top: 8px; padding: 8px; background: #f0f6ff; border-radius: 4px; font-family: monospace; font-size: 13px; min-height: 20px; }
+        body {
+            font-family: var(--lybox-font-family, -apple-system, "Segoe UI", Roboto, sans-serif);
+            padding: var(--lybox-space-5, 24px);
+            color: var(--lybox-color-text, #1a1a1a);
+            background: var(--lybox-color-background, #fafafa);
+        }
+        h1 { font-size: 24px; margin-bottom: var(--lybox-space-3, 12px); }
+        h2 { font-size: 18px; margin: 20px 0 10px; color: var(--lybox-color-muted, #444); }
+        .card {
+            background: var(--lybox-color-surface, #fff);
+            border: 1px solid var(--lybox-color-border, #e0e0e0);
+            border-radius: var(--lybox-radius-card, 8px);
+            padding: var(--lybox-space-4, 16px);
+            margin-bottom: var(--lybox-space-4, 16px);
+            box-shadow: var(--lybox-shadow-card, 0 2px 8px rgba(0,0,0,0.04));
+        }
+        .row { display: flex; gap: var(--lybox-space-2, 8px); align-items: center; margin-bottom: var(--lybox-space-2, 8px); }
+        input {
+            padding: var(--lybox-space-2, 6px) var(--lybox-space-3, 10px);
+            border: 1px solid var(--lybox-color-border, #ccc);
+            border-radius: var(--lybox-radius-control, 4px);
+            font-size: 14px;
+            background: var(--lybox-color-surface, #fff);
+            color: var(--lybox-color-text, #1a1a1a);
+        }
+        button {
+            padding: var(--lybox-space-2, 6px) var(--lybox-space-3, 14px);
+            background: var(--lybox-color-primary, #0078d4);
+            color: var(--lybox-color-on-primary, #fff);
+            border: none;
+            border-radius: var(--lybox-radius-control, 4px);
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover { background: var(--lybox-color-primary-hover, #106ebe); }
+        .result {
+            margin-top: var(--lybox-space-2, 8px);
+            padding: var(--lybox-space-2, 8px);
+            background: var(--lybox-color-surface-alt, #f0f6ff);
+            border-radius: var(--lybox-radius-control, 4px);
+            font-family: monospace;
+            font-size: 13px;
+            min-height: 20px;
+        }
         #sse-log { max-height: 200px; overflow-y: auto; font-size: 12px; }
-        .sse-entry { padding: 2px 0; border-bottom: 1px solid #eee; }
-        .badge { display: inline-block; padding: 2px 8px; background: #0078d4; color: #fff; border-radius: 10px; font-size: 11px; }
+        .sse-entry { padding: 2px 0; border-bottom: 1px solid var(--lybox-color-border-soft, #eee); }
+        .badge {
+            display: inline-block;
+            padding: 2px var(--lybox-space-2, 8px);
+            background: var(--lybox-color-primary, #0078d4);
+            color: var(--lybox-color-on-primary, #fff);
+            border-radius: 10px;
+            font-size: 11px;
+        }
     </style>
 </head>
 <body>
     <h1>LYBox Web Template <span class="badge" id="tick-badge">0</span></h1>
-    <p>WebView + HTTP + IPC + SSE 端到端演示</p>
+    <p>WebView + HTTP + IPC + SSE 端到端演示（前端 SDK 来自 LYBox.Plugin.Shared.Web 嵌入资源，无需 npm/pnpm）</p>
 
     <div class="card">
         <h2>1. JS → C# RPC 调用</h2>
@@ -74,18 +127,13 @@
     </div>
 
     <script>
-        // 等待 __lybox 运行时就绪后注册事件监听
-        (function waitForLybox() {
-            if (window.__lybox) {
-                initListener();
-            } else {
-                setTimeout(waitForLybox, 100);
-            }
-        })();
+        // 通过嵌入式 SDK 的 ES Module 入口调用宿主 —— 浏览器模式走 lybox-mock，WebView 模式走 ipc.js。
+        // SDK 暴露全局 window.LyboxPlugin；这里直接使用其 API（也可以 import { ... } from "/sdk/lybox-plugin-sdk.js"）。
+        const { invoke: lyboxInvoke, on: lyboxOn, isLyboxBridgeAvailable } = window.LyboxPlugin;
 
         function initListener() {
             // 订阅 C# 主动推送的 tick 事件
-            window.__lybox.on('tick', function (data) {
+            lyboxOn('tick', function (data) {
                 if (!data) return;
                 var badge = document.getElementById('tick-badge');
                 badge.textContent = data.count;
@@ -98,13 +146,22 @@
             });
         }
 
+        // 等到 SDK 注入 window.LyboxPlugin 后再注册事件监听
+        if (window.LyboxPlugin) {
+            initListener();
+        } else {
+            document.addEventListener('DOMContentLoaded', () => {
+                if (window.LyboxPlugin) initListener();
+            });
+        }
+
         async function callGreet() {
             var name = document.getElementById('name-input').value;
             try {
-                var result = await window.__lybox.rpc('GreetAsync', name);
+                var result = await lyboxInvoke('GreetAsync', name);
                 document.getElementById('greet-result').textContent = result;
             } catch (e) {
-                document.getElementById('greet-result').textContent = '错误: ' + e.message;
+                document.getElementById('greet-result').textContent = '错误: ' + (e.message || e);
             }
         }
 
@@ -112,26 +169,25 @@
             var a = parseInt(document.getElementById('a-input').value, 10);
             var b = parseInt(document.getElementById('b-input').value, 10);
             try {
-                var result = await window.__lybox.rpc('AddAsync', a, b);
+                var result = await lyboxInvoke('AddAsync', a, b);
                 document.getElementById('add-result').textContent = a + ' + ' + b + ' = ' + result;
             } catch (e) {
-                document.getElementById('add-result').textContent = '错误: ' + e.message;
+                document.getElementById('add-result').textContent = '错误: ' + (e.message || e);
             }
         }
 
         async function callInfo() {
             try {
-                var result = await window.__lybox.rpc('GetPluginInfoAsync');
+                var result = await lyboxInvoke('GetPluginInfoAsync');
                 document.getElementById('info-result').textContent = JSON.stringify(result, null, 2);
             } catch (e) {
-                document.getElementById('info-result').textContent = '错误: ' + e.message;
+                document.getElementById('info-result').textContent = '错误: ' + (e.message || e);
             }
         }
 
-        // ==================== 系统 API：文件选择器 ====================
         async function callOpenFilePicker() {
             try {
-                var files = await window.__lybox.rpc('OpenFilePicker', {
+                var files = await lyboxInvoke('OpenFilePicker', {
                     title: '选择文件',
                     multiple: true,
                     filters: [
@@ -142,13 +198,13 @@
                 document.getElementById('file-picker-result').textContent =
                     '选中文件：' + JSON.stringify(files, null, 2);
             } catch (e) {
-                document.getElementById('file-picker-result').textContent = '错误: ' + e.message;
+                document.getElementById('file-picker-result').textContent = '错误: ' + (e.message || e);
             }
         }
 
         async function callSaveFilePicker() {
             try {
-                var path = await window.__lybox.rpc('SaveFilePicker', {
+                var path = await lyboxInvoke('SaveFilePicker', {
                     title: '保存文件',
                     suggestedFileName: 'untitled.txt',
                     filters: [{ name: '文本文件', extensions: ['txt'] }]
@@ -156,27 +212,26 @@
                 document.getElementById('file-picker-result').textContent =
                     '保存路径：' + (path || '（已取消）');
             } catch (e) {
-                document.getElementById('file-picker-result').textContent = '错误: ' + e.message;
+                document.getElementById('file-picker-result').textContent = '错误: ' + (e.message || e);
             }
         }
 
         async function callOpenFolderPicker() {
             try {
-                var folders = await window.__lybox.rpc('OpenFolderPicker', {
+                var folders = await lyboxInvoke('OpenFolderPicker', {
                     title: '选择文件夹',
                     multiple: false
                 });
                 document.getElementById('file-picker-result').textContent =
                     '选中文件夹：' + JSON.stringify(folders, null, 2);
             } catch (e) {
-                document.getElementById('file-picker-result').textContent = '错误: ' + e.message;
+                document.getElementById('file-picker-result').textContent = '错误: ' + (e.message || e);
             }
         }
 
-        // ==================== 系统 API：对话框 ====================
         async function callMessageBox() {
             try {
-                var result = await window.__lybox.rpc('ShowMessageBox', {
+                var result = await lyboxInvoke('ShowMessageBox', {
                     title: '消息',
                     message: '这是一条来自前端的系统消息框测试。',
                     button: 'OK',
@@ -184,13 +239,13 @@
                 });
                 document.getElementById('dialog-result').textContent = '按钮结果：' + result;
             } catch (e) {
-                document.getElementById('dialog-result').textContent = '错误: ' + e.message;
+                document.getElementById('dialog-result').textContent = '错误: ' + (e.message || e);
             }
         }
 
         async function callConfirmDialog() {
             try {
-                var confirmed = await window.__lybox.rpc('ShowConfirmDialog', {
+                var confirmed = await lyboxInvoke('ShowConfirmDialog', {
                     title: '确认',
                     message: '确定要执行此操作吗？',
                     icon: 'warning'
@@ -198,7 +253,7 @@
                 document.getElementById('dialog-result').textContent =
                     '用户确认：' + (confirmed ? '是' : '否');
             } catch (e) {
-                document.getElementById('dialog-result').textContent = '错误: ' + e.message;
+                document.getElementById('dialog-result').textContent = '错误: ' + (e.message || e);
             }
         }
     </script>

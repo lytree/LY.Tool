@@ -303,6 +303,21 @@ public sealed class WebHostService : IAsyncDisposable
             await ctx.Response.SendFileAsync(combined, ctx.RequestAborted).ConfigureAwait(false);
         });
 
+        // —— SDK 静态资源端点（S4）：浏览器模式下供前端 <script type="module" src="/sdk/lybox-plugin-sdk.js"> / <link href="/sdk/lybox-plugin-theme.css"> 引用 ——
+        // 资源来自 LYBox.Plugin.Shared.Web.Assets 嵌入资源（见 PluginWebSdkResources），与宿主进程同生命周期。
+        _app.MapGet("/sdk/lybox-plugin-sdk.js", (HttpContext ctx) =>
+        {
+            ctx.Response.ContentType = "text/javascript; charset=utf-8";
+            ctx.Response.Headers["Cache-Control"] = "public, max-age=300";
+            return ctx.Response.WriteAsync(PluginWebSdkResources.ReadResource(PluginWebSdkResources.SdkScriptResourceName), ctx.RequestAborted);
+        });
+        _app.MapGet("/sdk/lybox-plugin-theme.css", (HttpContext ctx) =>
+        {
+            ctx.Response.ContentType = "text/css; charset=utf-8";
+            ctx.Response.Headers["Cache-Control"] = "public, max-age=300";
+            return ctx.Response.WriteAsync(PluginWebSdkResources.ReadResource(PluginWebSdkResources.ThemeStylesheetResourceName), ctx.RequestAborted);
+        });
+
         // —— 根路径健康检查 ——
         _app.MapGet("/", () => Results.Ok(new { service = "LYBox.WebHostService", version = "1.0" }));
 

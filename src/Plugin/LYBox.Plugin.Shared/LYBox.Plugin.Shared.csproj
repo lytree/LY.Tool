@@ -62,6 +62,11 @@
 		<PackageReference Include="HarfBuzzSharp" Version="$(HarfBuzzSharpVersion)" />
 		
 
+		<!-- 控制台 CLI 基础设施（S4）：System.CommandLine + Spectre.Console。
+		     供 IPluginCommandRegistrar 与控制台启动器使用，运行时由 LYBox 宿主提供，参见 _SharedAssembliesPatterns。 -->
+		<PackageReference Include="System.CommandLine" Version="$(SystemCommandLineVersion)" />
+		<PackageReference Include="Spectre.Console" Version="$(SpectreConsoleVersion)" />
+
 		<!-- Ursa 递归依赖（Irihi.Ursa 的传递依赖） -->
 		<PackageReference Include="Irihi.Avalonia.Shared" Version="$(IrihiAvaloniaSharedVersion)" />
 	</ItemGroup>
@@ -108,3 +113,5 @@
 	</Target>
 
 </Project>
+
+

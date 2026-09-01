@@ -1,0 +1,123 @@
+/**
+ * LYBox Web 插件 Fluent 主题样式（CSS Custom Properties 桥接）
+ *
+ * 通过 CSS 变量把宿主 Fluent 设计令牌（前景/背景/边框/语义色/圆角/间距/阴影）
+ * 暴露给浏览器端的前端框架。宿主侧在导航完成 / 主题切换时调用
+ * LyboxPluginTheme.applyFromAvalonia(...) 把当前主题色板同步过来；
+ * 浏览器 mock 模式下由 lybox-mock 直接注入等价色板。
+ *
+ * 设计原则：
+ *  - 默认采用 light/dark 双主题，由 prefers-color-scheme 触发，
+ *    也可由 data-lybox-theme="dark|light" 强制覆盖（宿主注入）。
+ *  - 所有变量均有 fallback 默认值，主题注入失败时仍可正常显示。
+ *  - 圆角、间距、字号、阴影统一通过变量暴露，业务样式只引用变量不写死字面量。
+ */
+
+:root {
+  color-scheme: light dark;
+  font-family: var(--lybox-font-family, "Segoe UI Variable Text", "Segoe UI",
+    "Microsoft YaHei UI", "PingFang SC", "Noto Sans CJK SC", sans-serif);
+  font-synthesis: none;
+
+  /* —— 主题色板（来自宿主 Fluent 主题，fallback 为 LYBox 默认浅色） —— */
+  --lybox-color-background: var(--avalonia-background, #f3f3f3);
+  --lybox-color-surface:    var(--avalonia-surface,    #ffffff);
+  --lybox-color-surface-alt: var(--avalonia-surfaceAlt, #fdfdfd);
+  --lybox-color-border:     var(--avalonia-border,     rgba(0, 0, 0, 0.16));
+  --lybox-color-border-soft: var(--avalonia-borderSoft, rgba(0, 0, 0, 0.06));
+  --lybox-color-text:       var(--avalonia-text,       #1a1a1a);
+  --lybox-color-muted:      var(--avalonia-muted,      #616161);
+  --lybox-color-primary:    var(--avalonia-primary,    #005fb8);
+  --lybox-color-primary-hover:  var(--avalonia-primaryHover,  #196ec1);
+  --lybox-color-primary-active: var(--avalonia-primaryActive, #00549f);
+  --lybox-color-on-primary: var(--avalonia-onPrimary,   #ffffff);
+  --lybox-color-danger:     var(--avalonia-danger,     #c42b1c);
+  --lybox-color-success:    var(--avalonia-success,    #107c10);
+  --lybox-color-warning:    var(--avalonia-warning,    #c19c00);
+  --lybox-color-info:       var(--avalonia-info,       #0078d4);
+
+  /* —— 代码块 —— */
+  --lybox-color-code-background: var(--avalonia-codeBackground, #162033);
+  --lybox-color-code-text:       var(--avalonia-codeText,       #dbe8ff);
+
+  /* —— 间距 / 圆角 / 阴影 —— */
+  --lybox-space-1: 4px;
+  --lybox-space-2: 8px;
+  --lybox-space-3: 12px;
+  --lybox-space-4: 16px;
+  --lybox-space-5: 24px;
+  --lybox-space-6: 32px;
+  --lybox-radius-control: 4px;
+  --lybox-radius-card:    8px;
+  --lybox-shadow-card:    0 2px 8px rgba(0, 0, 0, 0.08);
+
+  color: var(--lybox-color-text);
+  background: var(--lybox-color-background);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--lybox-color-background);
+  color: var(--lybox-color-text);
+  font: inherit;
+}
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--lybox-color-primary);
+  outline-offset: 2px;
+}
+
+a { color: var(--lybox-color-primary); }
+a:hover { color: var(--lybox-color-primary-hover); }
+
+/* —— 强制深色主题（宿主深色模式或 prefers-color-scheme 暗色） —— */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-lybox-theme="light"]) {
+    --lybox-color-background: var(--avalonia-background, #202020);
+    --lybox-color-surface:    var(--avalonia-surface,    #2d2d2d);
+    --lybox-color-surface-alt: var(--avalonia-surfaceAlt, #292929);
+    --lybox-color-border:     var(--avalonia-border,     rgba(255, 255, 255, 0.16));
+    --lybox-color-border-soft: var(--avalonia-borderSoft, rgba(255, 255, 255, 0.09));
+    --lybox-color-text:       var(--avalonia-text,       #ffffff);
+    --lybox-color-muted:      var(--avalonia-muted,      rgba(255, 255, 255, 0.6));
+    --lybox-color-primary:    var(--avalonia-primary,    #60cdff);
+    --lybox-color-primary-hover:  var(--avalonia-primaryHover,  #78d4ff);
+    --lybox-color-primary-active: var(--avalonia-primaryActive, #38b0f0);
+    --lybox-color-on-primary: var(--avalonia-onPrimary,   #000000);
+    --lybox-color-danger:     var(--avalonia-danger,     #ff99a4);
+    --lybox-color-success:    var(--avalonia-success,    #6ccb5f);
+    --lybox-color-warning:    var(--avalonia-warning,    #fce100);
+    --lybox-color-info:       var(--avalonia-info,       #60cdff);
+    --lybox-color-code-background: var(--avalonia-codeBackground, #0d1117);
+    --lybox-color-code-text:       var(--avalonia-codeText,       #e6edf3);
+  }
+}
+
+/* —— 浅色强制（data-lybox-theme="light"） —— */
+:root[data-lybox-theme="light"] {
+  --lybox-color-background: var(--avalonia-background, #f3f3f3);
+  --lybox-color-surface:    var(--avalonia-surface,    #ffffff);
+  --lybox-color-text:       var(--avalonia-text,       #1a1a1a);
+}
+
+/* —— 减少动画偏好 —— */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+}

@@ -77,6 +77,10 @@ Microsoft.EntityFrameworkCore.*
 ProDataGrid
 System.Net.Http
 System.Security.Cryptography.*
+System.CommandLine
+System.CommandLine.*
+Spectre.Console
+Spectre.Console.*
 </_SharedAssembliesPatterns>
   </PropertyGroup>
 </Project>

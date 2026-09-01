@@ -1,6 +1,6 @@
 ---
 name: lybox-web-plugin
-description: "LYBox Web 插件开发规范：PluginKind 声明与 Web 描述符、wwwroot 静态资源、WebHostService 懒启动、WebView IPC（RPC/事件/Channel/SSE）、会话与 origin 约束、前端 @lytree/sdk 与统一脚手架 create-lybox、lybox-mock 浏览器开发模式。新建或修改 plugins/ 下含 WebView/wwwroot 前端页面的插件时使用。"
+description: "LYBox Web 插件开发规范：PluginKind 声明与 Web 描述符、wwwroot 静态资源、WebHostService 懒启动、WebView IPC（RPC/事件/Channel/SSE）、会话与 origin 约束、前端 @lytree/sdk 与统一脚手架 create-lybox。新建或修改 plugins/ 下含 WebView/wwwroot 前端页面的插件时使用。"
 risk: unknown
 source: project
 date_added: "2026-08-16"
@@ -139,7 +139,7 @@ const greeting = await rpc<string>('GreetAsync', 'world');
 const off = on('EventName', (data) => { /* ... */ });
 ```
 
-- 模板已配置 Vite 代理（`/__bridge` `/sse` → lybox-mock）并内置类型化 RPC（`createRpcClient<Methods>()`）示例；
+- 模板已配置 Vite 代理（`/__bridge` `/sse`）并内置类型化 RPC（`createRpcClient<Methods>()`）示例；
 - 构建产物 `dist/` 需放入插件 `wwwroot/`（现状手动拷贝）；
 - 主题：`data-theme` 属性 + `localStorage`，CSS 变量 `--lybox-*`。
 
@@ -159,13 +159,7 @@ const off = on('EventName', (data) => { /* ... */ });
 
 ### 浏览器开发模式（脱离宿主）
 
-```bash
-dotnet tool install --global lybox-mock   # 或本地构建
-lybox-mock --port 5173 --wwwroot ./dist
-pnpm dev                                   # Vite 5174，代理到 mock
-```
-
-Mock 数据：前端项目 `src/.lybox/mock.json`。详见 `docs/LYBox-MockServer-Guide.md`。
+宿主 WebView 是前端运行验证的唯一入口。前端开发时通过宿主调试配置在 WebView 内加载插件页面（见 `docs/WebView-IPC-Guide.md`），Mock 数据声明于前端项目 `src/.lybox/mock.json`。
 
 ---
 

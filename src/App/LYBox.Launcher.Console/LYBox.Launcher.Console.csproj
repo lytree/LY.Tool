@@ -16,5 +16,19 @@
   <ItemGroup>
     <!-- 复用 GUI 版启动逻辑（App / AppBuilder / DI / 插件加载），仅入口输出类型不同 -->
     <ProjectReference Include="..\LYBox.Launcher.Desktop\LYBox.Launcher.Desktop.csproj" />
+    <!-- CLI 依赖：System.CommandLine（命令解析）+ Spectre.Console（富文本输出）。
+         与 LYBox.Plugin.Shared 共用版本（Directory.Packages.props 集中管理），运行时由宿主提供。 -->
+    <ProjectReference Include="..\..\Plugin\LYBox.Plugin.Shared\LYBox.Plugin.Shared.csproj" />
+    <ProjectReference Include="..\..\Layout\LYBox.Layout.Core\LYBox.Layout.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="$(SystemCommandLineVersion)" />
+    <PackageReference Include="Spectre.Console" Version="$(SpectreConsoleVersion)" />
+  </ItemGroup>
+
+  <!-- 测试可见性（S4）：PluginCommandRegistry / ConsoleApplication 的 internal 成员需对 LYBox.Tests 可见 -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="LYBox.Tests" />
   </ItemGroup>
 </Project>

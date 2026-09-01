@@ -53,11 +53,6 @@ Task("Clean")
         CleanDirectoryIfExists(c, buildContext.LegacyPackageDir);
     }
 
-    if (t.HasFlag(BuildTarget.Tool))
-    {
-        CleanDirectoryIfExists(c, buildContext.ToolPackagesDir);
-    }
-
     if (t.HasFlag(BuildTarget.Plugin))
     {
         CleanDirectoryIfExists(c, buildContext.PluginPackagesDir);
@@ -186,24 +181,6 @@ Task("Build")
             Configuration = buildContext.BuildConfiguration,
             MSBuildSettings = hostSettings
         });
-    }
-
-    // Tool 独立 dotnet tool 项目构建（lybox-mock 前端调试 Mock 后端）
-    if (buildContext.Target.HasFlag(BuildTarget.Tool))
-    {
-        if (File.Exists(buildContext.ToolProject))
-        {
-            c.DotNetBuild(buildContext.ToolProject, new DotNetBuildSettings
-            {
-                Configuration = buildContext.BuildConfiguration,
-                MSBuildSettings = hostSettings
-            });
-            c.Log.Information("Tool project built.");
-        }
-        else
-        {
-            c.Log.Warning("Tool project not found at {0}, skipping", buildContext.ToolProject);
-        }
     }
 
     // 插件层：各插件用自己的 PluginVersion（不再被 PackageVersion 覆盖）
@@ -486,16 +463,10 @@ Task("PackPlugins")
     }
 });
 
-Task("PackTool")
-    .IsDependentOn("Build")
-    .WithCriteria(c => buildContext.Target.HasFlag(BuildTarget.Tool))
-    .Does(c => BuildTasks.PackTool(buildContext));
-
 Task("Default")
     .IsDependentOn("PackBin")
     .IsDependentOn("PackNuGet")
     .IsDependentOn("PackPlugins")
-    .IsDependentOn("PackTool")
     .IsDependentOn("PublishNuGet");
 
 //////////////////////////////////////////////////////////////////////
@@ -520,9 +491,7 @@ public enum BuildTarget
     Plugin = 4,
     // NuGetPublish：推送 bin/nuget/ 下的 SDK 包到 NuGet 源
     NuGetPublish = 8,
-    // Tool：打包 LYBox.MockServer dotnet tool（lybox-mock）
-    Tool = 16,
-    All = Bin | NuGet | Plugin | Tool
+    All = Bin | NuGet | Plugin
 }
 
 /// <summary>
@@ -565,7 +534,6 @@ public class BuildContext
     public string LauncherPublishDir { get; }
     public string PluginPackagesDir { get; }
     public string PluginZipPackagesDir { get; }
-    public string ToolPackagesDir { get; }
     public string LegacyPackageDir { get; }
 
     // 宿主启动器统一发布目录（GUI 版与控制台调试版共用同一套目录）。
@@ -578,7 +546,6 @@ public class BuildContext
     public string WebSharedProject { get; }
     public string LauncherProject { get; }
     public string ConsoleProject { get; }
-    public string ToolProject { get; }
     public IReadOnlyList<PluginProjectInfo> PluginProjects { get; }
 
     // 宿主版本覆盖（优先级：--host-version > --package-version > csproj 真相源 HostVersion）
@@ -696,7 +663,6 @@ public class BuildContext
         LauncherPublishDir = Path.Combine(ArtifactsDir, "publish", "launcher");
         PluginPackagesDir = Path.Combine(ArtifactsDir, "publish", "plugins");
         PluginZipPackagesDir = Path.Combine(ArtifactsDir, "packages", "plugins");
-        ToolPackagesDir = Path.Combine(ArtifactsDir, "packages", "tools");
         LegacyPackageDir = Path.Combine(ArtifactsDir, "package");
 
         // 宿主启动器统一输出目录：RID 模式下挂子目录，否则直接在 LauncherPublishDir 下。
@@ -710,7 +676,6 @@ public class BuildContext
         WebSharedProject = Path.Combine(RootDir, "src", "Plugin", "LYBox.Plugin.Shared.Web", "LYBox.Plugin.Shared.Web.csproj");
         LauncherProject = Path.Combine(RootDir, "src", "App", "LYBox.Launcher.Desktop", "LYBox.Launcher.Desktop.csproj");
         ConsoleProject = Path.Combine(RootDir, "src", "App", "LYBox.Launcher.Console", "LYBox.Launcher.Console.csproj");
-        ToolProject = Path.Combine(RootDir, "tools", "LYBox.MockServer", "LYBox.MockServer.csproj");
 
         var discoveredPlugins = DiscoverPlugins(RootDir);
         PluginProjects = SelectPluginFilters(Target, PluginFilter, discoveredPlugins);
@@ -792,9 +757,8 @@ public class BuildContext
                 "bin" => BuildTarget.Bin,
                 "nuget" => BuildTarget.NuGet,
                 "plugin" => BuildTarget.Plugin,
-                "tool" => BuildTarget.Tool,
                 "publish-nuget" or "nuget-publish" or "push-nuget" => BuildTarget.NuGetPublish,
-                _ => throw new ArgumentException($"Unknown build target: '{part}'. Valid values: all, bin, nuget, plugin, tool, publish-nuget")
+                _ => throw new ArgumentException($"Unknown build target: '{part}'. Valid values: all, bin, nuget, plugin, publish-nuget")
             };
         }
         return result == BuildTarget.None ? BuildTarget.All : result;
@@ -829,7 +793,6 @@ public class BuildContext
                     BuildTarget.Bin,
                     BuildTarget.NuGet,
                     BuildTarget.Plugin,
-                    BuildTarget.Tool,
                     BuildTarget.NuGetPublish));
 
         var combined = selectedTargets.Aggregate(BuildTarget.None, (acc, item) => acc | item);
@@ -843,7 +806,6 @@ public class BuildContext
             BuildTarget.Bin => "宿主启动器 (bin)",
             BuildTarget.NuGet => "SDK NuGet 包 (nuget)",
             BuildTarget.Plugin => "插件包 (plugin)",
-            BuildTarget.Tool => "CLI 工具 (tool)",
             BuildTarget.NuGetPublish => "打包并发布 NuGet (publish-nuget)",
             _ => target.ToString(),
         };
@@ -1182,37 +1144,6 @@ public static class BuildTasks
         }
 
         context.Log.Information("NuGet packages pushed to: {0}", context.NuGetSource);
-    }
-
-    public static void PackTool(BuildContext context)
-    {
-        if (!File.Exists(context.ToolProject))
-        {
-            context.Log.Warning("Tool project not found at {0}, skipping PackTool", context.ToolProject);
-            return;
-        }
-
-        context.EnsureDirectoryExists(context.ToolPackagesDir);
-        var hostSettings = context.CreateHostMSBuildSettings();
-
-        // PackAsTool 生成可安装的 nupkg（NoBuild=true 复用 Build 任务结果）
-        context.DotNetPack(context.ToolProject, new DotNetPackSettings
-        {
-            Configuration = context.BuildConfiguration,
-            OutputDirectory = context.ToolPackagesDir,
-            NoRestore = true,
-            NoBuild = true,
-            MSBuildSettings = hostSettings
-        });
-
-        foreach (var pkg in context.GetFiles(Path.Combine(context.ToolPackagesDir, "*.nupkg")))
-        {
-            context.Log.Information("  Tool NuGet: {0}", pkg.GetFilename());
-        }
-
-        context.Log.Information("LYBox.MockServer dotnet tool packed to: {0}", context.ToolPackagesDir);
-        context.Log.Information("Install with: dotnet tool install --global --add-source {0} LYBox.MockServer", context.ToolPackagesDir);
-        context.Log.Information("Then run: lybox-mock --help");
     }
 
     /// <summary>

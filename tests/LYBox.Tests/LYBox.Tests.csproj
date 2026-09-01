@@ -20,6 +20,8 @@
     <!-- WebViewIpcHost / WebHostService 位于 LYBox.Plugin.Shared.Web 包（S3 拆分），测试直接引用。 -->
     <ProjectReference Include="..\..\src\Plugin\LYBox.Plugin.Shared\LYBox.Plugin.Shared.csproj" />
     <ProjectReference Include="..\..\src\Plugin\LYBox.Plugin.Shared.Web\LYBox.Plugin.Shared.Web.csproj" />
+    <!-- 控制台 CLI 单元测试（S4）：IPluginCommandRegistrar 与插件命令注册逻辑 -->
+    <ProjectReference Include="..\..\src\App\LYBox.Launcher.Console\LYBox.Launcher.Console.csproj" />
   </ItemGroup>
 
 </Project>

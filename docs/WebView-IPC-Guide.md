@@ -21,7 +21,7 @@ LYBox WebView IPC 是一套基于 `Avalonia.Controls.WebView` 的双向通讯框
   - [`Channel<T>` 流式通道](#channelt-流式通道)
   - [系统级命令（SystemCommands）](#系统级命令systemcommands)
 - [前端 JS API](#前端-js-api)
-- [前端 SDK（@lytree/sdk）](#前端-sdklyboxsdk)
+- [前端 SDK（嵌入式）](#前端-sdk嵌入式)
 - [源生成器](#源生成器)
 - [消息协议](#消息协议)
 - [完整示例](#完整示例)
@@ -501,18 +501,18 @@ const confirmed = await window.__lybox.rpc('ShowConfirmDialog', {
 // confirmed: true 或 false
 ```
 
-**TypeScript SDK（推荐）**：
+**嵌入式 SDK（推荐，零构建）**：
 
 ```typescript
-import { openFilePicker, saveFilePicker, showConfirmDialog } from '@lytree/sdk';
+import { invoke } from '/sdk/lybox-plugin-sdk.js';
 
-const files = await openFilePicker({
+const files = await invoke('System.OpenFilePicker', {
   title: '选择文件',
   multiple: true,
   filters: [{ name: '文本', extensions: ['txt', 'md'] }]
 });
 
-const confirmed = await showConfirmDialog({ message: '确定删除？' });
+const confirmed = await invoke('System.ShowConfirmDialog', { message: '确定删除？' });
 if (confirmed) {
   // 执行删除
 }
@@ -585,230 +585,155 @@ window.__lybox.on('__lybox:ready', async () => {
 
 ---
 
-## 前端 SDK（@lytree/sdk）
 
-**路径**：[frontend/packages/sdk](../frontend/packages/sdk)
+## 前端 SDK（嵌入式）
 
-`@lytree/sdk` 是官方 TypeScript SDK，为 Vue3/React 项目提供类型安全的 IPC 封装、Fluent Design 主题与调试工具。通过 pnpm monorepo 管理，构建产物发布到 npm。
+**来源**：[`src/Plugin/LYBox.Plugin.Shared.Web/Assets/lybox-plugin-sdk.js`](../src/Plugin/LYBox.Plugin.Shared.Web/Assets/lybox-plugin-sdk.js)
 
-### 安装
+LYBox 不再依赖 npm / pnpm / 任何前端构建工具。前端 SDK 与主题 CSS 直接以 **嵌入资源** 形式打包在 `LYBox.Plugin.Shared.Web` 中，由宿主 `WebHostService`（宿主内嵌 Kestrel）在 `/sdk/` 路径下提供。
 
-```bash
-# 在插件前端项目中
-npm install @lytree/sdk
-# 或
-pnpm add @lytree/sdk
+### 引入方式
+
+```html
+<!-- 在插件 wwwroot/index.html 中 -->
+<link rel="stylesheet" href="/sdk/lybox-plugin-theme.css" />
+<script type="module" src="/sdk/lybox-plugin-sdk.js"></script>
 ```
 
-### 包结构
+加载后 SDK 自动把 `window.LyboxPlugin` 挂到全局。两种导入方式：
 
-```
-frontend/packages/sdk/
-├── src/
-│   ├── index.ts              # 主入口
-│   ├── rpc.ts                # RPC 调用（rpc<T>）
-│   ├── events.ts             # 事件订阅（on/off/emit）
-│   ├── channel.ts            # 流式 Channel
-│   ├── env.ts                # 环境检测（isWebView/isBrowser）
-│   ├── debug.ts              # 调试面板（mountDebugPanel）
-│   ├── system.ts             # 系统 API（文件选择器 + 对话框）
-│   └── theme/                # Fluent Design 主题（合并自 @lytree/sdk/theme）
-│       ├── index.ts
-│       ├── lybox-theme.css   # CSS 变量定义
-│       ├── theme-switcher.ts # setTheme/getTheme/restoreTheme
-│       ├── tokens.json       # 设计令牌
-│       └── types.ts
-├── package.json
-└── tsup.config.ts
+```javascript
+// 方式 A：从全局命名空间直接调用
+const greeting = await window.LyboxPlugin.invoke('GreetAsync', 'World');
+
+// 方式 B：ES Module 导入（仅当构建工具支持相对路径 / SDK 已在同源）
+import { invoke, on, request, getJson } from '/sdk/lybox-plugin-sdk.js';
 ```
 
-### 子路径导出
+### 端点
 
-| 导入路径 | 用途 |
-|---------|------|
-| `@lytree/sdk` | IPC + 事件 + Channel + 环境检测 + 调试 + 主题 + 系统 API（全部能力） |
-| `@lytree/sdk/theme` | 仅主题子模块（按需引入，减小打包体积） |
-| `@lytree/sdk/css` | Fluent Design CSS 变量（`import '@lytree/sdk/css'`） |
-| `@lytree/sdk/tokens` | 设计令牌 JSON（`import tokens from '@lytree/sdk/tokens'`） |
+| 路径 | 提供者 | 用途 |
+|------|--------|------|
+| `/sdk/lybox-plugin-sdk.js` | `WebHostService`（宿主内嵌 Kestrel） | 浏览器端 SDK（ES Module） |
+| `/sdk/lybox-plugin-theme.css` | 同上 | Fluent Design 主题 CSS 变量 |
+| `/__lybox/ipc.js` | 由 `WebViewIpcHost` 注入页面 | WebView IPC 引导脚本（`window.__lybox`） |
+| `/__bridge/{pluginId}/rpc` | 宿主 | RPC（POST） |
+| `/__bridge/{pluginId}/emit` | 宿主 | 事件 emit（POST） |
+| `/__bridge/{pluginId}/channel-close` | 宿主 | 通道关闭（POST） |
+| `/sse/{pluginId}` | 宿主 | SSE 事件推送（GET） |
+| `/{pluginId}/{**path}` | 宿主（`wwwroot`） | 静态资源 |
+
+所有端点由宿主 `LYBox.Plugin.Shared.Web` 内的 Kestrel 应用统一注册。
 
 ### 核心 API
 
 #### RPC 调用
 
-```typescript
-import { rpc, rpcChannel } from '@lytree/sdk';
+```javascript
+import { invoke } from '/sdk/lybox-plugin-sdk.js';
 
-// 调用宿主命令（类型安全）
-const greeting = await rpc<string>('GreetAsync', 'World');
-const sum = await rpc<number>('AddAsync', 3, 5);
+// 简单调用
+const greeting = await invoke('GreetAsync', 'World');
+const sum = await invoke('AddAsync', 3, 5);
 
-// 通过 Channel 接收流式数据
-const ch = await rpcChannel<number>('StartProgress');
-const unsub = ch.on(progress => {
-  console.log('进度:', progress);
-  if (progress >= 100) unsub();
-});
+// 返回结构化数据
+const info = await invoke('GetPluginInfo');
+console.log(info.version);
 ```
 
-#### 事件订阅
+`invoke` 会按下列顺序检测可用通道：
 
-```typescript
-import { on, emit, whenReady } from '@lytree/sdk';
+1. `window.__lybox.rpc`（WebView 内）→ 原生 Promise 通道
+2. `window.__lyboxRuntime.mockBaseUrl`（mock 模式）→ HTTP `POST /__lybox/ipc`
+3. `mockRegistry[method]`（纯本地 mock）→ 在浏览器中注册的内置 handler
 
-// 等待运行时就绪
-await whenReady();
+#### 事件订阅（SSE）
 
-// 订阅 C# 推送的事件
-const unsubscribe = on<{ count: number; time: string }>('tick', (data) => {
-  console.log(`[${data.time}] #${data.count}`);
+```javascript
+import { on } from '/sdk/lybox-plugin-sdk.js';
+
+// 订阅宿主推送的事件
+const unsubscribe = on('tick', (data) => {
+    console.log(`[${data.time}] #${data.count} ${data.message}`);
 });
+
 // 取消订阅
 unsubscribe();
+```
 
-// 向 C# 发送事件
-emit('user.click', { x: 100, y: 200 });
+WebView 模式下事件经 `window.__lybox.onPluginEvent(...)` 派发；mock 模式下 SDK 自动建立 `EventSource` 到 `/sse/{pluginId}`。
+
+#### HTTP 请求
+
+```javascript
+import { request, getJson } from '/sdk/lybox-plugin-sdk.js';
+
+// 自定义请求（带 method / headers / body）
+const response = await request('/custom-endpoint', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ foo: 'bar' })
+});
+
+// 便捷方法：GET + 自动 JSON 解析
+const data = await getJson('/api/list');
 ```
 
 #### 环境检测
 
-```typescript
-import { isWebView, isBrowser, getEnvironment } from '@lytree/sdk';
+```javascript
+import { isLyboxBridgeAvailable } from '/sdk/lybox-plugin-sdk.js';
 
-if (isWebView()) {
-  // 运行在 Avalonia WebView 内，使用原生 IPC
-} else if (isBrowser()) {
-  // 运行在浏览器中（调试模式），使用 HTTP 传输
+if (isLyboxBridgeAvailable()) {
+    // WebView 环境（原生 IPC 可用）
+} else {
+    // 浏览器环境（走 mock HTTP / SSE）
 }
-
-const env = getEnvironment();
-console.log(env.platform); // 'webview' | 'browser'
 ```
 
-#### 系统级 API
+### 主题变量
 
-```typescript
-import {
-  openFilePicker,
-  saveFilePicker,
-  openFolderPicker,
-  showMessageBox,
-  showConfirmDialog
-} from '@lytree/sdk';
-
-// 文件选择器
-const files = await openFilePicker({
-  title: '选择图片',
-  multiple: true,
-  filters: [{ name: '图片', extensions: ['png', 'jpg'] }]
-});
-
-const savePath = await saveFilePicker({
-  suggestedFileName: 'output.txt'
-});
-
-const folders = await openFolderPicker({ title: '选择目录' });
-
-// 对话框
-const result = await showMessageBox({
-  message: '操作完成',
-  icon: 'success'
-});
-
-const confirmed = await showConfirmDialog({
-  message: '确定删除？',
-  icon: 'warning'
-});
-```
-
-#### 主题管理
-
-```typescript
-// main.ts / main.tsx
-import '@lytree/sdk/css';          // 引入 CSS 变量
-import { restoreTheme } from '@lytree/sdk';
-
-restoreTheme();  // 恢复上次保存的主题（从 localStorage）
-
-// 运行时切换
-import { setTheme, getTheme, toggleTheme } from '@lytree/sdk';
-
-setTheme('dark');         // 切换到深色
-console.log(getTheme());  // 'dark'
-toggleTheme();            // 切换回 'light'
-```
-
-CSS 变量与宿主 Avalonia `FluentDesign/Light.axaml` 和 `Dark.axaml` 完全一致：
+`lybox-plugin-theme.css` 暴露 `--lybox-*` CSS 变量，与宿主 `Theme/FluentDesign/Light.axaml` / `Dark.axaml` 完全一致：
 
 ```css
 :root {
   --lybox-color-primary: #0078D4;
-  --lybox-color-text-0: #1A1A1A;
-  --lybox-card-background: #FFFFFF;
+  --lybox-color-text:    #1A1A1A;
+  --lybox-color-surface: #FFFFFF;
   /* ... */
 }
 
-:root[data-theme="dark"] {
-  --lybox-color-primary: #60CDFF;
-  --lybox-color-text-0: #FFFFFF;
-  --lybox-card-background: #2C2C2C;
-  /* ... */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-lybox-theme="light"]) {
+    --lybox-color-primary: #60CDFF;
+    --lybox-color-text:    #FFFFFF;
+    --lybox-color-surface: #2C2C2C;
+    /* ... */
+  }
 }
 ```
 
-#### 调试面板
+宿主运行时可通过 `WebHostService` 在导航完成 / 主题切换时把当前主题色板注入页面 CSS 变量。
 
-```typescript
-import { mountDebugPanel } from '@lytree/sdk';
+### 完整 demo
 
-// 挂载浮动调试面板（仅开发环境）
-const unmount = mountDebugPanel({
-  position: 'bottom-right',
-  // 显示已注册的 RPC 命令、SSE 事件流
-});
-
-// 卸载
-unmount();
-```
-
-### 项目模板
-
-提供脚手架包 `create-lybox`，一键创建集成 SDK 的前端项目（React / Vue3 二选一）：
-
-```bash
-# 统一入口，--template 指定 react | vue3（缺省 react）
-npm create lybox my-plugin -- --template vue3
-npm create lybox my-plugin -- --template react
-
-# 兼容薄封装（固定模板，等价于上面带 --template 的写法）
-npm create lybox-vue3 my-plugin    # 固定 Vue3
-npm create lybox-react my-plugin   # 固定 React
-```
-
-模板特性：
-- 预配置 `@lytree/sdk` 依赖与 CSS 引入
-- Vite 开发代理到 `lybox-mock`（`/__bridge`、`/sse` 等）
-- 内置类型化 RPC（`createRpcClient`）、SSE 订阅、主题切换示例
-- `mock.json` 已配置好 mock 响应
+参考 [`plugins/LYBox.Plugin.WebTemplate/wwwroot/index.html`](../plugins/LYBox.Plugin.WebTemplate/wwwroot/index.html)——它是一个零依赖的 vanilla HTML/JS 演示，覆盖 RPC、SSE、文件选择器、对话框等所有 API。
 
 ### 调试流程
 
+无需启动 Vite / pnpm / 任何前端 dev server。
+
+#### Avalonia WebView 生产模式
+
+```powershell
+dotnet run --project src/App/LYBox.Launcher.Desktop
+```
+
+`WebViewIpcHost` 启动时会自动把 `ipc.js`（嵌入资源 `LYBox.Plugin.Shared.Web.Rpc.Assets.ipc.js`）注入到每个 WebView 页面，挂上 `window.__lybox`。前端再按上面“引入方式”加载 SDK 即可。
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ 开发模式（浏览器 + Mock Server）                              │
-│                                                             │
-│  Vite Dev Server (5174)  ──proxy──►  lybox-mock (5173)     │
-│       │                                    │                 │
-│       │ import '@lytree/sdk/css'            │ mock.json       │
-│       │ rpc() → fetch /__bridge/{id}/rpc   │ SSE /sse/{id}   │
-│       │ on()  → EventSource                │                 │
-│       └────────────────────────────────────────────────────┘ │
-│                                                             │
-│  启动：lybox-mock --port 5173                                │
-│       cd my-plugin && pnpm dev  # Vite 5174                 │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│ 生产模式（Avalonia WebView）                                 │
+│ 生产模式（Avalonia WebView）                                  │
 │                                                             │
 │  WebView ←── ipc.js 注入 ── Host (WebViewIpcHost)           │
 │       │                                    │                 │
@@ -819,7 +744,6 @@ npm create lybox-react my-plugin   # 固定 React
 │  启动：dotnet run（宿主加载插件）                              │
 └─────────────────────────────────────────────────────────────┘
 ```
-
 ---
 
 ## 源生成器
@@ -861,7 +785,7 @@ public partial class CounterService : global::LYBox.Plugin.Shared.Web.Rpc.IRpcBi
 }
 ```
 
-> 命令名使用**短名**（方法名，如 `AddAsync`）注册，前端经 `window.__lybox.rpc('AddAsync', ...)` 调用。源生成器不再产出 TypeScript 声明代码——前端类型安全由 `@lytree/sdk` 的 `createRpcClient<Methods>()` 方法表客户端在编译期提供。
+> 命令名使用**短名**（方法名，如 `AddAsync`）注册，前端经 `window.__lybox.rpc('AddAsync', ...)` 调用。前端类型安全由插件作者在自己的前端代码中维护一份 TypeScript 方法表客户端即可（任何方式：手写 interface、JSDoc、生成器均自由）。
 
 ### 生成器约束
 
@@ -1132,28 +1056,29 @@ Assert.Contains(transport.ExecutedScripts, s => s.Contains("resolve") && s.Conta
 - [Wails v2 传输模型](https://wails.io/docs/howdoesitwork#the-binding)
 - [Tauri Channel](https://tauri.app/v1/guides/features/command/#accessing-raw-ipc)
 # 生产宿主安全边界
-桌面宿主与 `lybox-mock` 的 HTTP 行为刻意不同：
+桌面宿主统一遵循以下安全约束：
 
 - 生产宿主的 RPC 统一入口为 `POST /__bridge/{pluginId}/rpc`，命令处理器按插件隔离，不允许不同插件通过同名命令相互覆盖或调用。`/__emit`、`/__channel/close` 旧端点已合并为 `/__bridge/{pluginId}/{action}`（`action = emit | channel-close`，返回 202）。
 - RPC、SSE、emit 与 channel-close 均要求宿主为当前可信 WebView 文档生成的短期 session token。
 - session 与 `pluginId` 绑定；页面导航、WebView 卸载或重建后立即撤销，旧页面正在执行的 RPC 也会收到取消信号。
 - 请求带有 `Origin` 时，只接受当前 loopback 宿主的 Origin（或 `WebHostService` 构造函数注入的 `AllowedOrigins` 白名单）。
 - session 由 `WebPluginView` 在可信导航完成后注入，插件页面不应自行保存、转发或拼接该 token。
-- `lybox-mock` 保留无 token 的 `/__bridge/{pluginId}/rpc`，仅用于独立前端开发，不代表生产宿主协议。
 
-## 方法表类型客户端
+## 类型化客户端（推荐）
 
-`rpc<TResult>()` 只约束单次调用的返回值。需要同时约束命令名、参数和返回类型时，可使用方法表客户端：
+`invoke()` 只约束单次调用的返回值。需要在编译期同时约束命令名、参数与返回类型时，可在插件前端代码中维护一份 TypeScript 接口 + 包装方法（手写 / JSDoc / 自建生成器均可）。LYBox 不再发布独立 npm 包——所有 SDK 直接来自嵌入资源。
 
 ```ts
-import { createRpcClient } from '@lytree/sdk';
+import { invoke } from '/sdk/lybox-plugin-sdk.js';
 
 interface Methods {
-  GreetAsync: { args: [name: string]; result: string };
-  AddAsync: { args: [left: number, right: number]; result: number };
+  GreetAsync: (name: string) => Promise<string>;
+  AddAsync: (left: number, right: number) => Promise<number>;
 }
 
-const client = createRpcClient<Methods>();
-const greeting = await client.invoke('GreetAsync', 'LYBox');
-const total = await client.invoke('AddAsync', 2, 3);
+const client = { invoke: <K extends keyof Methods>(method: K, ...args: Parameters<Methods[K]>) =>
+                  invoke<Awaited<ReturnType<Methods[K]>>>(method as string, args[0]) } as { invoke: Methods };
+
+const greeting = await client.invoke.GreetAsync('LYBox');
+const total = await client.invoke.AddAsync(2, 3);
 ```

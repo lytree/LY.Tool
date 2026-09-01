@@ -42,5 +42,12 @@
         <AvaloniaControlsWebView>12.0.1</AvaloniaControlsWebView>
         <!-- ASP.NET Core：通过 FrameworkReference 引用 Microsoft.AspNetCore.App 共享框架，
              不再使用独立 NuGet 包（Kestrel/StaticFiles 自 .NET Core 3+ 起不再发布为独立包） -->
+        <!-- 控制台 CLI 与插件命令注册基础设施（S4 引入）。
+             System.CommandLine：CLI 解析（与 .NET 团队维护的 System.CommandLine 2.0.x 一致）。
+             Spectre.Console：富文本终端输出（表格/Markup/ANSI），与 windit-toolbox CLI 输出风格一致。 -->
+        <SystemCommandLineVersion>2.0.11</SystemCommandLineVersion>
+        <SpectreConsoleVersion>0.57.2</SpectreConsoleVersion>
     </PropertyGroup>
 </Project>
+
+
