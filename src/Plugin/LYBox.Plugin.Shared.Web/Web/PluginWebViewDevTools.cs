@@ -35,8 +35,8 @@ internal static class PluginWebViewDevTools
         // 候选路径必须位于授权基路径之下（或相等）
         var candidatePath = NormalizePath(candidate.AbsolutePath);
         var basePath = NormalizePath(authorizedBaseUri.AbsolutePath);
-        return candidatePath.Equals(basePath, StringComparison.OrdinalIgnoreCase)
-            || candidatePath.StartsWith(basePath.TrimEnd('/') + "/", StringComparison.OrdinalIgnoreCase)
+        return candidatePath.Equals(basePath, StringComparison.Ordinal)
+            || candidatePath.StartsWith(basePath.TrimEnd('/') + "/", StringComparison.Ordinal)
             || basePath is "/" or "";
     }
 
@@ -55,7 +55,7 @@ internal static class PluginWebViewDevTools
         if (normalizedRoute == "/")
             return path.TrimEnd('/');
 
-        return path.EndsWith(normalizedRoute, StringComparison.OrdinalIgnoreCase)
+        return path.EndsWith(normalizedRoute, StringComparison.Ordinal)
             ? path[..^normalizedRoute.Length].TrimEnd('/')
             : string.Empty;
     }
@@ -68,7 +68,7 @@ internal static class PluginWebViewDevTools
 
         var path = uri.AbsolutePath;
         if (!string.IsNullOrEmpty(routeBasePath)
-            && path.StartsWith(routeBasePath, StringComparison.OrdinalIgnoreCase))
+            && path.StartsWith(routeBasePath, StringComparison.Ordinal))
         {
             path = path[routeBasePath.Length..];
         }

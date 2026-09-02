@@ -1,5 +1,8 @@
+using System.Collections.Immutable;
+using System.Globalization;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
@@ -7,45 +10,55 @@ using Microsoft.CodeAnalysis.Text;
 [Generator]
 public class MetadataGenerator : IIncrementalGenerator
 {
+    private const string GenerateMetadataAttributeName =
+        "LYBox.Plugin.Shared.Attributes.GenerateMetadataAttribute";
+    private const string ViewMapAttributeName =
+        "LYBox.Plugin.Shared.Attributes.ViewMapAttribute";
+    private const string NavigationItemAttributeName =
+        "LYBox.Plugin.Shared.Attributes.NavigationItemAttribute";
+    private const string MenuAttributeName =
+        "LYBox.Plugin.Shared.Attributes.MenuAttribute";
+    private const string RpcCommandAttributeName =
+        "LYBox.Plugin.Shared.Attributes.RpcCommandAttribute";
+    private const string CommandRegistrarInterfaceName =
+        "LYBox.Plugin.Shared.CommandLine.IPluginCommandRegistrar";
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // 单次收集所有类声明（含符号语义信息），为后续 O(N) 索引复用。
-        // 避免对每个 [GenerateMetadata] 类重复遍历整个 Compilation 造成 O(N²)。
-        var allClasses = context.SyntaxProvider
-            .CreateSyntaxProvider(
-                predicate: (node, _) => node is ClassDeclarationSyntax,
-                transform: (ctx, _) =>
-                {
-                    var classDecl = (ClassDeclarationSyntax)ctx.Node;
-                    var symbol = ctx.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
-                    return symbol is null
-                        ? (FullName: (string?)null, Decl: (ClassDeclarationSyntax?)null)
-                        : (FullName: (string?)symbol.ToDisplayString(), Decl: (ClassDeclarationSyntax?)classDecl);
-                })
-            .Where(x => x.Decl is not null)
-            .Select((x, _) => (FullName: x.FullName!, Decl: x.Decl!))
-            .Collect();
+        var targetClasses = context.SyntaxProvider.ForAttributeWithMetadataName(
+            GenerateMetadataAttributeName,
+            static (node, _) => node is ClassDeclarationSyntax,
+            static (attributeContext, _) => CreateTarget(attributeContext));
 
-        var targetClasses = context.SyntaxProvider
-            .CreateSyntaxProvider(
-                predicate: (node, _) => node is ClassDeclarationSyntax,
-                transform: (ctx, _) =>
-                {
-                    var classDecl = (ClassDeclarationSyntax)ctx.Node;
-                    var hasGenerateMetadata = classDecl.AttributeLists
-                        .SelectMany(al => al.Attributes)
-                        .Any(a => a.Name.ToString().Contains("GenerateMetadata"));
-                    return hasGenerateMetadata
-                        ? (Name: classDecl.Identifier.Text, Namespace: GetNamespace(classDecl))
-                        : (Name: "", Namespace: "");
-                })
-            .Where(x => x.Name.Length > 0)
-            .Select((x, _) => x);
+        var viewDefinitions = context.SyntaxProvider.ForAttributeWithMetadataName(
+            ViewMapAttributeName,
+            static (node, _) => node is ClassDeclarationSyntax,
+            static (attributeContext, _) => CreateViewDefinition(attributeContext));
 
-        // 从 MSBuild 注入的 csproj 属性读取插件元数据（单一事实来源，见 O-1/O-8）。
-        // 属性经 LYBox.Plugin.Shared.props 中的 <CompilerVisibleProperty> 暴露为 build_property.*。
+        var navigationItems = context.SyntaxProvider.ForAttributeWithMetadataName(
+            NavigationItemAttributeName,
+            static (node, _) => node is ClassDeclarationSyntax,
+            static (attributeContext, _) => CreateNavigationItem(attributeContext));
+
+        var menuItems = context.SyntaxProvider.ForAttributeWithMetadataName(
+            MenuAttributeName,
+            static (node, _) => node is ClassDeclarationSyntax,
+            static (attributeContext, _) => CreateMenuItem(attributeContext));
+
+        var rpcBindingTypes = context.SyntaxProvider.ForAttributeWithMetadataName(
+            RpcCommandAttributeName,
+            static (node, _) => node is MethodDeclarationSyntax,
+            static (attributeContext, _) => ((IMethodSymbol)attributeContext.TargetSymbol)
+                .ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+
+        var cliRegistrarTypes = context.SyntaxProvider.CreateSyntaxProvider(
+                static (node, _) => node is ClassDeclarationSyntax { BaseList: not null },
+                static (syntaxContext, _) => GetCliRegistrarType(syntaxContext))
+            .Where(static typeName => typeName is not null)
+            .Select(static (typeName, _) => typeName!);
+
         var metadata = context.AnalyzerConfigOptionsProvider
-            .Select((provider, _) => new PluginMetadataInfo(
+            .Select(static (provider, _) => new PluginMetadataInfo(
                 GetMsBuildProperty(provider, "PluginName"),
                 GetMsBuildProperty(provider, "PluginVersion"),
                 GetMsBuildProperty(provider, "PluginAuthor"),
@@ -56,62 +69,38 @@ public class MetadataGenerator : IIncrementalGenerator
                 GetMsBuildProperty(provider, "PluginWwwroot"),
                 GetMsBuildProperty(provider, "PluginEntryPage")));
 
-        var combined = targetClasses.Combine(allClasses).Combine(metadata);
+        var generationInputs = targetClasses
+            .Combine(viewDefinitions.Collect())
+            .Combine(navigationItems.Collect())
+            .Combine(menuItems.Collect())
+            .Combine(rpcBindingTypes.Collect())
+            .Combine(cliRegistrarTypes.Collect())
+            .Combine(metadata)
+            .Select(static (data, _) => new GeneratorData(
+                data.Left.Left.Left.Left.Left.Left,
+                data.Left.Left.Left.Left.Left.Right,
+                data.Left.Left.Left.Left.Right,
+                data.Left.Left.Left.Right,
+                data.Left.Left.Right,
+                data.Left.Right,
+                data.Right));
 
-        context.RegisterSourceOutput(combined, (ctx, data) =>
+        context.RegisterSourceOutput(generationInputs, static (sourceContext, data) =>
         {
-            var ((target, allClassInfos), meta) = data;
-
-            // 建立全限定名 → 类声明的索引，供 GetFullTypeName 精确匹配。
-            var fullNameToClass = new Dictionary<string, ClassDeclarationSyntax>(StringComparer.Ordinal);
-            foreach (var c in allClassInfos)
-            {
-                fullNameToClass.TryAdd(c.FullName, c.Decl);
-            }
-
-            var viewLines = new StringBuilder();
-            var navLines = new StringBuilder();
-            var menuData = new List<(string Header, string Key, string? Parent, string? IconName, string? Status, int Order)>();
-
-            foreach (var c in allClassInfos)
-            {
-                var cls = c.Decl;
-                var vmName = cls.Identifier.Text;
-                var vmNs = GetNamespace(cls);
-                var fullVmName = $"{vmNs}.{vmName}";
-
-                if (TryGetAttr(cls, "ViewMap", out var vAttr))
-                {
-                    var vTypeShort = GetArg(vAttr!, 0);
-                    var vTypeFull = GetFullTypeName(vTypeShort, fullNameToClass);
-                    viewLines.AppendLine($"        yield return new KeyValuePair<Type, ViewFactory>(typeof({fullVmName}), () => new {vTypeFull}());");
-                }
-
-                if (TryGetAttr(cls, "NavigationItem", out var nAttr))
-                {
-                    var navKey = GetArg(nAttr!, 0);
-                    navLines.AppendLine($"        {{ {navKey}, () => new {fullVmName}() }},");
-                }
-
-                if (TryGetAttr(cls, "Menu", out var mAttr))
-                {
-                    menuData.Add(ParseMenu(mAttr!));
-                }
-            }
-
-            var ns = target.Namespace;
-            var className = target.Name;
-            var menuAddLines = GenerateMenuAddStatements(menuData);
+            var viewLines = GenerateViewLines(data.ViewDefinitions);
+            var navLines = GenerateNavigationLines(data.NavigationItems);
+            var menuAddLines = GenerateMenuAddStatements(data.MenuItems);
+            var meta = data.Metadata;
+            var target = data.Target;
 
             var metaLines = new StringBuilder();
-            metaLines.AppendLine($"        public string Name => {Str(meta.Name ?? className)};");
+            metaLines.AppendLine($"        public string Name => {Str(meta.Name ?? target.ClassName)};");
             metaLines.AppendLine($"        public string Version => {Str(meta.Version ?? "1.0.0")};");
             metaLines.AppendLine($"        public string Author => {Str(meta.Author ?? string.Empty)};");
             metaLines.AppendLine($"        public string Description => {Str(meta.Description ?? string.Empty)};");
-            metaLines.AppendLine($"        public string PluginId => {Str(meta.PluginId ?? className)};");
+            metaLines.AppendLine($"        public string PluginId => {Str(meta.PluginId ?? target.ClassName)};");
             metaLines.AppendLine($"        public string MinPluginSdkVersion => {Str(meta.MinSdkVersion ?? "0.0.0")};");
 
-            // 仅 Web 插件（csproj PluginKind=Web）生成 IWebPlugin.Web 描述符（S2 BC-2）。
             var baseInterfaces = "IPlugin, IPluginMetadata";
             var webLines = new StringBuilder();
             var webUsing = string.Empty;
@@ -119,7 +108,7 @@ public class MetadataGenerator : IIncrementalGenerator
             {
                 baseInterfaces += ", IWebPlugin";
                 webUsing = "using LYBox.Plugin.Shared.Web;\r\n";
-                webLines.AppendLine($"        public IWebPluginDescriptor Web => new WebPluginDescriptor(");
+                webLines.AppendLine("        public IWebPluginDescriptor Web => new WebPluginDescriptor(");
                 webLines.AppendLine($"            {Str(meta.Wwwroot ?? "wwwroot")}, {Str(meta.EntryPage ?? "index.html")});");
             }
 
@@ -132,9 +121,9 @@ using LYBox.Plugin.Shared;
 using LYBox.Plugin.Shared.ViewModels;
 {webUsing}using Microsoft.Extensions.DependencyInjection;
 
-namespace {ns}
+namespace {target.Namespace}
 {{
-    public partial class {className} : {baseInterfaces}
+    public partial class {target.ClassName} : {baseInterfaces}
     {{
 {metaLines}
 {webLines}        public IEnumerable<KeyValuePair<Type, ViewFactory>> GetViewDefinitions()
@@ -155,149 +144,335 @@ namespace {ns}
         }}
     }}
 }}";
-            ctx.AddSource($"{className}.g.cs", SourceText.From(source, Encoding.UTF8));
+
+            sourceContext.AddSource(
+                $"{target.ClassName}.g.cs",
+                SourceText.From(source, Encoding.UTF8));
+            sourceContext.AddSource(
+                $"{target.ClassName}.Module.g.cs",
+                SourceText.From(GenerateModule(data), Encoding.UTF8));
         });
     }
 
-    private static string GenerateMenuAddStatements(List<(string Header, string Key, string? Parent, string? IconName, string? Status, int Order)> data)
+    private static string GenerateModule(GeneratorData data)
     {
-        var sb = new StringBuilder();
-        foreach (var d in data)
+        var target = data.Target;
+        var pluginType = $"global::{target.Namespace}.{target.ClassName}";
+        var moduleName = $"__Generated{target.ClassName}Module";
+        var rpcTypes = data.RpcBindingTypes
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(static value => value, StringComparer.Ordinal)
+            .ToArray();
+        var cliTypes = data.CliRegistrarTypes
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(static value => value, StringComparer.Ordinal)
+            .ToArray();
+        var isWeb = string.Equals(data.Metadata.Kind, "Web", StringComparison.OrdinalIgnoreCase);
+        var interfaces = new List<string>
         {
-            var iconNameProp = d.IconName != null ? $", MenuIconName = {d.IconName}" : "";
-            sb.AppendLine($@"            allItems.Add(({d.Parent ?? "null"}, new MenuItemViewModel {{ MenuHeader = {d.Header}, Key = {d.Key}{iconNameProp}, Status = {d.Status ?? "null"}, Order = {d.Order} }}, {d.Order}));");
+            "global::LYBox.Plugin.Shared.Generated.IGeneratedPluginModule"
+        };
+
+        if (isWeb)
+            interfaces.Add("global::LYBox.Plugin.Shared.Web.IGeneratedPluginWebModule");
+        if (cliTypes.Length > 0)
+            interfaces.Add("global::LYBox.Plugin.Shared.CommandLine.IGeneratedPluginCliModule");
+
+        var builder = new StringBuilder();
+        builder.AppendLine("// <auto-generated />");
+        builder.AppendLine("#nullable enable");
+        builder.AppendLine($"[assembly: global::LYBox.Plugin.Shared.Generated.GeneratedPluginModuleAttribute(typeof(global::{target.Namespace}.{moduleName}))]");
+        builder.AppendLine();
+        builder.AppendLine($"namespace {target.Namespace}");
+        builder.AppendLine("{");
+        builder.AppendLine($"    internal sealed class {moduleName} : {string.Join(", ", interfaces)}");
+        builder.AppendLine("    {");
+        builder.AppendLine($"        private readonly {pluginType} _plugin = new {pluginType}();");
+        builder.AppendLine($"        public global::System.Type PluginType => typeof({pluginType});");
+        builder.AppendLine("        public global::LYBox.Plugin.Shared.IPlugin CreatePlugin() => _plugin;");
+        builder.AppendLine("        public global::LYBox.Plugin.Shared.IPluginMetadata Metadata => _plugin;");
+        builder.AppendLine("        public global::LYBox.Plugin.Shared.Generated.GeneratedPluginUiDescriptor Ui { get; } =");
+        builder.AppendLine("            new global::LYBox.Plugin.Shared.Generated.GeneratedPluginUiDescriptor(");
+        AppendViewDescriptors(builder, data.ViewDefinitions);
+        AppendNavigationDescriptors(builder, data.NavigationItems);
+        AppendMenuDescriptors(builder, data.MenuItems);
+        builder.AppendLine("            );");
+
+        if (isWeb)
+        {
+            builder.AppendLine();
+            builder.AppendLine("        public void RegisterRpcBindings(global::LYBox.Plugin.Shared.Rpc.IRpcHost host, global::System.IServiceProvider services)");
+            builder.AppendLine("        {");
+            foreach (var rpcType in rpcTypes)
+            {
+                var identifier = SanitizeIdentifier(rpcType);
+                builder.AppendLine($"            var binding_{identifier} = services.GetService(typeof({rpcType})) as global::LYBox.Plugin.Shared.Rpc.IRpcBindingSource");
+                builder.AppendLine($"                ?? global::System.Activator.CreateInstance(typeof({rpcType})) as global::LYBox.Plugin.Shared.Rpc.IRpcBindingSource;");
+                builder.AppendLine($"            binding_{identifier}?.RegisterBindings(host);");
+            }
+            builder.AppendLine("        }");
         }
-        return sb.ToString();
+
+        if (cliTypes.Length > 0)
+        {
+            builder.AppendLine();
+            builder.AppendLine("        public global::System.Collections.Generic.IReadOnlyList<global::LYBox.Plugin.Shared.CommandLine.PluginCliRegistrarDescriptor> CliRegistrars { get; } =");
+            builder.AppendLine("            new global::LYBox.Plugin.Shared.CommandLine.PluginCliRegistrarDescriptor[]");
+            builder.AppendLine("            {");
+            foreach (var cliType in cliTypes)
+            {
+                builder.AppendLine("                new global::LYBox.Plugin.Shared.CommandLine.PluginCliRegistrarDescriptor(");
+                builder.AppendLine($"                    typeof({cliType}), services => (global::LYBox.Plugin.Shared.CommandLine.IPluginCommandRegistrar)(services.GetService(typeof({cliType})) ?? global::System.Activator.CreateInstance(typeof({cliType}))!)),");
+            }
+            builder.AppendLine("            };");
+        }
+
+        builder.AppendLine("    }");
+        builder.AppendLine("}");
+        return builder.ToString();
     }
 
-    private static bool TryGetAttr(ClassDeclarationSyntax cls, string attrName, out AttributeSyntax? attr)
+    private static void AppendViewDescriptors(
+        StringBuilder builder,
+        ImmutableArray<ViewDefinitionData> definitions)
     {
-        attr = cls.AttributeLists
-            .SelectMany(al => al.Attributes)
-            .FirstOrDefault(a => a.Name.ToString().Contains(attrName));
-
-        return attr != null;
+        builder.AppendLine("                new global::LYBox.Plugin.Shared.Generated.GeneratedViewDescriptor[]");
+        builder.AppendLine("                {");
+        foreach (var definition in definitions)
+        {
+            builder.AppendLine("                    new global::LYBox.Plugin.Shared.Generated.GeneratedViewDescriptor(");
+            builder.AppendLine($"                        typeof({definition.ViewModelType}), typeof({definition.ViewType}), services => (global::Avalonia.Controls.Control)(services.GetService(typeof({definition.ViewType})) ?? new {definition.ViewType}())),");
+        }
+        builder.AppendLine("                },");
     }
 
-    private static string GetArg(AttributeSyntax attr, int index)
+    private static void AppendNavigationDescriptors(
+        StringBuilder builder,
+        ImmutableArray<NavigationItemData> items)
     {
-        if (attr.ArgumentList == null || attr.ArgumentList.Arguments.Count <= index)
-            return "null";
-
-        var arg = attr.ArgumentList.Arguments[index].Expression;
-
-        if (arg is TypeOfExpressionSyntax typeofExp)
-            return typeofExp.Type.ToString();
-
-        return arg.ToString();
+        builder.AppendLine("                new global::LYBox.Plugin.Shared.Generated.GeneratedNavigationDescriptor[]");
+        builder.AppendLine("                {");
+        foreach (var item in items)
+        {
+            builder.AppendLine("                    new global::LYBox.Plugin.Shared.Generated.GeneratedNavigationDescriptor(");
+            builder.AppendLine($"                        {item.Key}, typeof({item.ViewModelType}), services => services.GetService(typeof({item.ViewModelType})) ?? new {item.ViewModelType}()),");
+        }
+        builder.AppendLine("                },");
     }
 
-    private static string GetNamespace(ClassDeclarationSyntax cls) =>
-        (cls.Ancestors().OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault()?.Name.ToString()) ?? "Global";
+    private static void AppendMenuDescriptors(
+        StringBuilder builder,
+        ImmutableArray<MenuItemData> items)
+    {
+        builder.AppendLine("                new global::LYBox.Plugin.Shared.Generated.GeneratedMenuDescriptor[]");
+        builder.AppendLine("                {");
+        foreach (var item in items)
+        {
+            builder.AppendLine(
+                $"                    new global::LYBox.Plugin.Shared.Generated.GeneratedMenuDescriptor({item.Header}, {item.Key}, {item.Parent}, {item.IconName ?? "null"}, {item.Status}, {item.Order}),");
+        }
+        builder.AppendLine("                }");
+    }
+
+    private static string? GetCliRegistrarType(GeneratorSyntaxContext context)
+    {
+        var declaration = (ClassDeclarationSyntax)context.Node;
+        if (context.SemanticModel.GetDeclaredSymbol(declaration) is not INamedTypeSymbol type || type.IsAbstract)
+            return null;
+
+        return type.AllInterfaces.Any(static interfaceType =>
+                interfaceType.ToDisplayString() == CommandRegistrarInterfaceName)
+            ? type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+            : null;
+    }
+
+    private static string SanitizeIdentifier(string value)
+    {
+        var builder = new StringBuilder(value.Length);
+        foreach (var character in value)
+            builder.Append(char.IsLetterOrDigit(character) ? character : '_');
+        return builder.ToString();
+    }
+
+    private static TargetData CreateTarget(GeneratorAttributeSyntaxContext context)
+    {
+        var target = (INamedTypeSymbol)context.TargetSymbol;
+        var targetNamespace = target.ContainingNamespace.IsGlobalNamespace
+            ? "Global"
+            : target.ContainingNamespace.ToDisplayString();
+        return new TargetData(targetNamespace, target.Name);
+    }
+
+    private static ViewDefinitionData CreateViewDefinition(GeneratorAttributeSyntaxContext context)
+    {
+        var viewModelType = ((INamedTypeSymbol)context.TargetSymbol)
+            .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        var viewType = context.Attributes[0].ConstructorArguments[0].Value as ITypeSymbol;
+        return new ViewDefinitionData(
+            viewModelType,
+            viewType?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) ?? "object");
+    }
+
+    private static NavigationItemData CreateNavigationItem(GeneratorAttributeSyntaxContext context)
+    {
+        var viewModelType = ((INamedTypeSymbol)context.TargetSymbol)
+            .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        return new NavigationItemData(
+            viewModelType,
+            ToSourceExpression(context.Attributes[0].ConstructorArguments[0]));
+    }
+
+    private static MenuItemData CreateMenuItem(GeneratorAttributeSyntaxContext context)
+    {
+        var attribute = context.Attributes[0];
+        var header = GetConstructorArgument(attribute, 0, "null");
+        var key = GetConstructorArgument(attribute, 1, "null");
+        var parent = GetConstructorArgument(attribute, 2, "null");
+        string? iconName = null;
+        var status = "null";
+        var order = 100;
+
+        foreach (var argument in attribute.NamedArguments)
+        {
+            switch (argument.Key)
+            {
+                case "Header": header = ToSourceExpression(argument.Value); break;
+                case "Key": key = ToSourceExpression(argument.Value); break;
+                case "ParentKey": parent = ToSourceExpression(argument.Value); break;
+                case "IconName": iconName = ToSourceExpression(argument.Value); break;
+                case "Status": status = ToSourceExpression(argument.Value); break;
+                case "Order" when argument.Value.Value is int value: order = value; break;
+            }
+        }
+
+        return new MenuItemData(header, key, parent, iconName, status, order);
+    }
+
+    private static string GenerateViewLines(ImmutableArray<ViewDefinitionData> definitions)
+    {
+        var builder = new StringBuilder();
+        foreach (var definition in definitions)
+        {
+            builder.AppendLine(
+                $"        yield return new KeyValuePair<Type, ViewFactory>(typeof({definition.ViewModelType}), () => new {definition.ViewType}());");
+        }
+        return builder.ToString();
+    }
+
+    private static string GenerateNavigationLines(ImmutableArray<NavigationItemData> items)
+    {
+        var builder = new StringBuilder();
+        foreach (var item in items)
+            builder.AppendLine($"        {{ {item.Key}, () => new {item.ViewModelType}() }},");
+        return builder.ToString();
+    }
+
+    private static string GenerateMenuAddStatements(ImmutableArray<MenuItemData> items)
+    {
+        var builder = new StringBuilder();
+        foreach (var item in items)
+        {
+            var iconNameProperty = item.IconName is null ? string.Empty : $", MenuIconName = {item.IconName}";
+            builder.AppendLine(
+                $"            allItems.Add(({item.Parent}, new MenuItemViewModel {{ MenuHeader = {item.Header}, Key = {item.Key}{iconNameProperty}, Status = {item.Status}, Order = {item.Order} }}, {item.Order}));");
+        }
+        return builder.ToString();
+    }
+
+    private static string GetConstructorArgument(AttributeData attribute, int index, string fallback) =>
+        attribute.ConstructorArguments.Length > index
+            ? ToSourceExpression(attribute.ConstructorArguments[index])
+            : fallback;
+
+    private static string ToSourceExpression(TypedConstant constant)
+    {
+        if (constant.IsNull) return "null";
+        return constant.Value switch
+        {
+            string value => SymbolDisplay.FormatLiteral(value, quote: true),
+            char value => SymbolDisplay.FormatLiteral(value, quote: true),
+            bool value => value ? "true" : "false",
+            IFormattable value => value.ToString(null, CultureInfo.InvariantCulture),
+            _ => constant.Value?.ToString() ?? "null"
+        };
+    }
 
     private static string? GetMsBuildProperty(AnalyzerConfigOptionsProvider provider, string name) =>
         provider.GlobalOptions.TryGetValue($"build_property.{name}", out var value) ? value : null;
 
-    private static string Str(string value)
+    private static string Str(string value) => SymbolDisplay.FormatLiteral(value, quote: true);
+
+    private readonly struct GeneratorData(
+        TargetData target,
+        ImmutableArray<ViewDefinitionData> viewDefinitions,
+        ImmutableArray<NavigationItemData> navigationItems,
+        ImmutableArray<MenuItemData> menuItems,
+        ImmutableArray<string> rpcBindingTypes,
+        ImmutableArray<string> cliRegistrarTypes,
+        PluginMetadataInfo metadata)
     {
-        var sb = new StringBuilder("\"");
-        foreach (var c in value)
-        {
-            switch (c)
-            {
-                case '\\': sb.Append("\\\\"); break;
-                case '"': sb.Append("\\\""); break;
-                case '\r': sb.Append("\\r"); break;
-                case '\n': sb.Append("\\n"); break;
-                case '\t': sb.Append("\\t"); break;
-                default: sb.Append(c); break;
-            }
-        }
-        sb.Append('"');
-        return sb.ToString();
+        public TargetData Target { get; } = target;
+        public ImmutableArray<ViewDefinitionData> ViewDefinitions { get; } = viewDefinitions;
+        public ImmutableArray<NavigationItemData> NavigationItems { get; } = navigationItems;
+        public ImmutableArray<MenuItemData> MenuItems { get; } = menuItems;
+        public ImmutableArray<string> RpcBindingTypes { get; } = rpcBindingTypes;
+        public ImmutableArray<string> CliRegistrarTypes { get; } = cliRegistrarTypes;
+        public PluginMetadataInfo Metadata { get; } = metadata;
     }
 
-    private sealed class PluginMetadataInfo
+    private readonly struct TargetData(string targetNamespace, string className)
     {
-        public PluginMetadataInfo(string? name, string? version, string? author, string? description, string? pluginId, string? minSdkVersion, string? kind, string? wwwroot, string? entryPage)
-        {
-            Name = name;
-            Version = version;
-            Author = author;
-            Description = description;
-            PluginId = pluginId;
-            MinSdkVersion = minSdkVersion;
-            Kind = kind;
-            Wwwroot = wwwroot;
-            EntryPage = entryPage;
-        }
-
-        public string? Name { get; }
-        public string? Version { get; }
-        public string? Author { get; }
-        public string? Description { get; }
-        public string? PluginId { get; }
-        public string? MinSdkVersion { get; }
-        public string? Kind { get; }
-        public string? Wwwroot { get; }
-        public string? EntryPage { get; }
+        public string Namespace { get; } = targetNamespace;
+        public string ClassName { get; } = className;
     }
 
-    private static string GetFullTypeName(string shortName, Dictionary<string, ClassDeclarationSyntax> fullNameToClass)
+    private readonly struct ViewDefinitionData(string viewModelType, string viewType)
     {
-        // 优先精确匹配全限定名，避免跨命名空间同名类误配。
-        foreach (var (fullName, cls) in fullNameToClass)
-        {
-            if (cls.Identifier.Text == shortName)
-            {
-                return $"{GetNamespace(cls)}.{shortName}";
-            }
-        }
-        return shortName;
+        public string ViewModelType { get; } = viewModelType;
+        public string ViewType { get; } = viewType;
     }
 
-    private static (string Header, string Key, string? Parent, string? IconName, string? Status, int Order)
-    ParseMenu(AttributeSyntax attr)
+    private readonly struct NavigationItemData(string viewModelType, string key)
     {
-        string header = "null";
-        string key = "null";
-        string? parent = "null";
-        string? iconName = null;
-        string? status = "null";
-        int order = 100;
+        public string ViewModelType { get; } = viewModelType;
+        public string Key { get; } = key;
+    }
 
-        if (attr.ArgumentList != null)
-        {
-            var args = attr.ArgumentList.Arguments;
+    private readonly struct MenuItemData(
+        string header,
+        string key,
+        string parent,
+        string? iconName,
+        string status,
+        int order)
+    {
+        public string Header { get; } = header;
+        public string Key { get; } = key;
+        public string Parent { get; } = parent;
+        public string? IconName { get; } = iconName;
+        public string Status { get; } = status;
+        public int Order { get; } = order;
+    }
 
-            if (args.Count >= 1 && args[0].NameEquals == null)
-                header = args[0].Expression.ToString();
-
-            if (args.Count >= 2 && args[1].NameEquals == null)
-                key = args[1].Expression.ToString();
-
-            if (args.Count >= 3 && args[2].NameEquals == null)
-                parent = args[2].Expression.ToString();
-
-            foreach (var arg in args.Where(a => a.NameEquals != null))
-            {
-                var name = arg.NameEquals!.Name.Identifier.Text;
-                var expression = arg.Expression.ToString();
-
-                switch (name)
-                {
-                    case "Header": header = expression; break;
-                    case "Key": key = expression; break;
-                    case "ParentKey": parent = expression; break;
-                    case "IconName": iconName = expression; break;
-                    case "Status": status = expression; break;
-                    case "Order":
-                        if (!int.TryParse(expression, out order)) order = 100;
-                        break;
-                }
-            }
-        }
-
-        return (header, key, parent, iconName, status, order);
+    private readonly struct PluginMetadataInfo(
+        string? name,
+        string? version,
+        string? author,
+        string? description,
+        string? pluginId,
+        string? minSdkVersion,
+        string? kind,
+        string? wwwroot,
+        string? entryPage)
+    {
+        public string? Name { get; } = name;
+        public string? Version { get; } = version;
+        public string? Author { get; } = author;
+        public string? Description { get; } = description;
+        public string? PluginId { get; } = pluginId;
+        public string? MinSdkVersion { get; } = minSdkVersion;
+        public string? Kind { get; } = kind;
+        public string? Wwwroot { get; } = wwwroot;
+        public string? EntryPage { get; } = entryPage;
     }
 }

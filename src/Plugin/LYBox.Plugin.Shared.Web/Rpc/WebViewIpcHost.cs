@@ -24,13 +24,12 @@ namespace LYBox.Plugin.Shared.Rpc;
 /// 不注入则保持原有 <c>InvokeScript</c> 行为，向后兼容。
 /// </para>
 /// </remarks>
-public sealed class WebViewIpcHost : IRpcHost, IDisposable
+public sealed class WebViewIpcHost : IRpcHost, ICanonicalRpcHost, IDisposable
 {
     private readonly IRpcTransport _transport;
     private readonly IEventPusher? _eventPusher;
     private readonly string? _pluginId;
-    private readonly WebHostService? _webHost;
-    private readonly ConcurrentDictionary<string, RpcCommandHandler> _commands = new();
+    private readonly PluginRpcDispatcher _dispatcher;
     private readonly ConcurrentDictionary<string, Channel> _channels = new();
     private readonly ConcurrentDictionary<string, List<Action<JsonElement?>>> _eventListeners = new();
     private TaskCompletionSource _readyTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -51,7 +50,7 @@ public sealed class WebViewIpcHost : IRpcHost, IDisposable
         _transport = transport;
         _eventPusher = eventPusher;
         _pluginId = pluginId;
-        _webHost = webHost;
+        _dispatcher = webHost?.RpcDispatcher ?? new PluginRpcDispatcher();
         _transport.MessageReceived += OnMessage;
         _bootstrapJs = LoadBootstrap();
     }
@@ -73,7 +72,7 @@ public sealed class WebViewIpcHost : IRpcHost, IDisposable
     /// </summary>
     public async Task InjectBindingsAsync(CancellationToken cancellationToken = default)
     {
-        var manifest = _commands.Keys.Select(name => new { name });
+        var manifest = _dispatcher.GetMethods(_pluginId).Select(name => new { name });
         var json = JsonSerializer.Serialize(manifest, RpcEnvelope.JsonOptions);
         // JS 端 setBindings 已改为 noop（仅保存 manifest 供调试工具读取）
         var js = $"window.__lybox && window.__lybox.setBindings({JsonSerializer.Serialize(json)});";
@@ -86,9 +85,17 @@ public sealed class WebViewIpcHost : IRpcHost, IDisposable
     /// </summary>
     public void RegisterCommand(string name, RpcCommandHandler handler)
     {
-        _commands[name] = handler;
-        if (_webHost is not null && _pluginId is not null)
-            _webHost.RegisterRpcHandler(_pluginId, name, handler);
+        _dispatcher.RegisterLegacy(RequirePluginId(), name, handler);
+    }
+
+    public void RegisterPayloadCommand(string name, RpcPayloadCommandHandler handler)
+    {
+        _dispatcher.RegisterPayload(RequirePluginId(), name, handler);
+    }
+
+    public void RegisterClientArtifact(RpcClientArtifact artifact)
+    {
+        _dispatcher.RegisterArtifact(RequirePluginId(), artifact);
     }
 
     public async Task EmitEventAsync(string name, object? data, CancellationToken cancellationToken = default)
@@ -152,37 +159,53 @@ public sealed class WebViewIpcHost : IRpcHost, IDisposable
 
         if (msg.Name == ReadyEvent) return; // 握手由事件路径处理
 
-        if (!_commands.TryGetValue(msg.Name, out var handler))
-        {
-            await ResolveAsync(msg.CallbackId, $"命令未注册: {msg.Name}", null);
-            return;
-        }
-
         var documentVersion = _documentVersion;
         var documentToken = _documentLifetime.Token;
-        try
+        var requestId = msg.IsCanonical ? msg.Id ?? msg.CallbackId : msg.CallbackId;
+        var method = msg.IsCanonical ? msg.Method ?? msg.Name : msg.Name;
+        PluginRpcResult result;
+        if (msg.IsCanonical)
         {
-            var result = await handler(msg.Args, documentToken);
-            if (documentToken.IsCancellationRequested || documentVersion != _documentVersion)
-                return;
-            if (result is Channel ch)
+            if (!string.IsNullOrEmpty(msg.PluginId)
+                && !string.Equals(msg.PluginId, _pluginId, StringComparison.Ordinal))
             {
-                var itemType = ch.GetType().IsGenericType
-                    ? ch.GetType().GetGenericArguments()[0].Name
-                    : "any";
-                var descriptor = new { __channel = true, id = ch.Id, itemType };
-                await ResolveAsync(msg.CallbackId, null, descriptor);
+                result = new PluginRpcResult(
+                    requestId,
+                    false,
+                    Error: new PluginRpcError(
+                        PluginRpcErrorCodes.PluginMismatch,
+                        "RPC plugin does not match the active document."));
             }
             else
             {
-                await ResolveAsync(msg.CallbackId, null, result);
+                result = await _dispatcher.InvokePayloadAsync(
+                    new PluginRpcCall(requestId, RequirePluginId(), method, msg.Payload ?? RpcJson.Null),
+                    documentToken).ConfigureAwait(false);
             }
         }
-        catch (Exception ex)
+        else
         {
-            if (!documentToken.IsCancellationRequested && documentVersion == _documentVersion)
-                await ResolveAsync(msg.CallbackId, ex.Message, null);
+            result = await _dispatcher.InvokeLegacyAsync(
+                requestId,
+                RequirePluginId(),
+                method,
+                msg.Args,
+                documentToken).ConfigureAwait(false);
         }
+
+        if (documentToken.IsCancellationRequested || documentVersion != _documentVersion)
+            return;
+
+        var responsePayload = result.Payload;
+        if (responsePayload is Channel channel)
+        {
+            var itemType = channel.GetType().IsGenericType
+                ? channel.GetType().GetGenericArguments()[0].Name
+                : "any";
+            responsePayload = new { __channel = true, id = channel.Id, itemType };
+        }
+
+        await ResolveAsync(requestId, result.Error, responsePayload).ConfigureAwait(false);
     }
 
     /// <summary>清除上一文档的信任与运行状态，并取消其所有正在执行的 RPC。</summary>
@@ -244,14 +267,19 @@ public sealed class WebViewIpcHost : IRpcHost, IDisposable
         }
     }
 
-    private async Task ResolveAsync(string callbackId, string? err, object? result)
+    private async Task ResolveAsync(string callbackId, PluginRpcError? error, object? result)
     {
-        var errJson = err is null ? "null" : JsonSerializer.Serialize(err, RpcEnvelope.JsonOptions);
+        var errJson = error is null ? "null" : JsonSerializer.Serialize(error, RpcEnvelope.JsonOptions);
         var resultJson = result is null ? "null" : JsonSerializer.Serialize(result, RpcEnvelope.JsonOptions);
         var js = $"window.__lybox && window.__lybox.resolve({JsonSerializer.Serialize(callbackId)},{errJson},{resultJson});";
         try { await _transport.ExecuteScriptAsync(js); }
         catch { /* 页面已销毁等，忽略 */ }
     }
+
+    private string RequirePluginId() =>
+        !string.IsNullOrWhiteSpace(_pluginId)
+            ? _pluginId
+            : throw new InvalidOperationException("A pluginId is required for RPC registration.");
 
     private static string LoadBootstrap()
     {

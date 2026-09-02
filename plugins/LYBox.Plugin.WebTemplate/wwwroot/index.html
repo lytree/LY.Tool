@@ -13,7 +13,6 @@
         无需 pnpm / npm / 任何前端构建。
     -->
     <link rel="stylesheet" href="/sdk/lybox-plugin-theme.css" />
-    <script type="module" src="/sdk/lybox-plugin-sdk.js"></script>
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -126,10 +125,11 @@
         <div class="result" id="dialog-result">（等待调用）</div>
     </div>
 
-    <script>
-        // 通过嵌入式 SDK 的 ES Module 入口调用宿主 —— 浏览器模式走 lybox-mock，WebView 模式走 ipc.js。
-        // SDK 暴露全局 window.LyboxPlugin；这里直接使用其 API（也可以 import { ... } from "/sdk/lybox-plugin-sdk.js"）。
-        const { invoke: lyboxInvoke, on: lyboxOn, isLyboxBridgeAvailable } = window.LyboxPlugin;
+    <script type="module">
+        import { createLyboxClient, invoke as lyboxInvoke, on as lyboxOn } from "/sdk/lybox-plugin-sdk.js";
+        import { createGreetCommandsClient } from "./.lybox/GreetCommands.client.js";
+
+        const greetCommands = createGreetCommandsClient(createLyboxClient());
 
         function initListener() {
             // 订阅 C# 主动推送的 tick 事件
@@ -146,19 +146,10 @@
             });
         }
 
-        // 等到 SDK 注入 window.LyboxPlugin 后再注册事件监听
-        if (window.LyboxPlugin) {
-            initListener();
-        } else {
-            document.addEventListener('DOMContentLoaded', () => {
-                if (window.LyboxPlugin) initListener();
-            });
-        }
-
         async function callGreet() {
             var name = document.getElementById('name-input').value;
             try {
-                var result = await lyboxInvoke('GreetAsync', name);
+                var result = await greetCommands.greet({ name });
                 document.getElementById('greet-result').textContent = result;
             } catch (e) {
                 document.getElementById('greet-result').textContent = '错误: ' + (e.message || e);
@@ -169,7 +160,7 @@
             var a = parseInt(document.getElementById('a-input').value, 10);
             var b = parseInt(document.getElementById('b-input').value, 10);
             try {
-                var result = await lyboxInvoke('AddAsync', a, b);
+                var result = await greetCommands.add({ left: a, right: b });
                 document.getElementById('add-result').textContent = a + ' + ' + b + ' = ' + result;
             } catch (e) {
                 document.getElementById('add-result').textContent = '错误: ' + (e.message || e);
@@ -178,7 +169,7 @@
 
         async function callInfo() {
             try {
-                var result = await lyboxInvoke('GetPluginInfoAsync');
+                var result = await greetCommands.getPluginInfo();
                 document.getElementById('info-result').textContent = JSON.stringify(result, null, 2);
             } catch (e) {
                 document.getElementById('info-result').textContent = '错误: ' + (e.message || e);
@@ -256,6 +247,19 @@
                 document.getElementById('dialog-result').textContent = '错误: ' + (e.message || e);
             }
         }
+
+        Object.assign(window, {
+            callGreet,
+            callAdd,
+            callInfo,
+            callOpenFilePicker,
+            callSaveFilePicker,
+            callOpenFolderPicker,
+            callMessageBox,
+            callConfirmDialog
+        });
+
+        initListener();
     </script>
 </body>
 </html>

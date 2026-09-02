@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <LYBoxPluginCommandLineExclusionsEnabled Condition="'$(LYBoxPluginCommandLineExclusionsEnabled)' == ''">true</LYBoxPluginCommandLineExclusionsEnabled>
+    <GeneratePluginCliIndex Condition="'$(GeneratePluginCliIndex)' == ''">false</GeneratePluginCliIndex>
+    <PluginCliRuntimeProfile Condition="'$(PluginCliRuntimeProfile)' == ''">selected</PluginCliRuntimeProfile>
+    <PluginCliOutputModes Condition="'$(PluginCliOutputModes)' == ''">text</PluginCliOutputModes>
+    <PluginCliDescription Condition="'$(PluginCliDescription)' == ''">$(PluginDescription)</PluginCliDescription>
+    <_LYBoxPluginCommandLineSharedAssembliesPatterns>LYBox.Plugin.CommandLine
+System.CommandLine
+System.CommandLine.*
+Spectre.Console
+Spectre.Console.*
+</_LYBoxPluginCommandLineSharedAssembliesPatterns>
+    <_SharedAssembliesPatterns>$(_SharedAssembliesPatterns)$(_LYBoxPluginCommandLineSharedAssembliesPatterns)</_SharedAssembliesPatterns>
+  </PropertyGroup>
+</Project>

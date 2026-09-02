@@ -51,6 +51,9 @@ jobs:
       - name: Test core
         run: dotnet test tests/LYBox.Tests/LYBox.Tests.csproj -c Release --results-directory artifacts/test-results
 
+      - name: Test Web SDK
+        run: node --test tests/WebSdk/*.test.mjs
+
       - name: Verify artifacts
         run: |
           echo "=== SDK NuGet packages ==="

@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IsPluginSdkProject>true</IsPluginSdkProject>
+    <PackageId>LYBox.Plugin.CommandLine</PackageId>
+    <Version>$(HostVersion)</Version>
+    <Description>Command-line contracts for LYBox plugins, including System.CommandLine registration and Spectre.Console output context.</Description>
+    <Authors>LYBoxPlugin</Authors>
+    <PackageTags>avalonia;plugin;command-line;cli;system-commandline;spectre-console</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/lytree/LY.Tool</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lytree/LY.Tool</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="$(SystemCommandLineVersion)" />
+    <PackageReference Include="Spectre.Console" Version="$(SpectreConsoleVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="buildTransitive\LYBox.Plugin.CommandLine.props" Pack="true" PackagePath="buildTransitive\netstandard2.1\LYBox.Plugin.CommandLine.props" />
+    <None Include="buildTransitive\LYBox.Plugin.CommandLine.targets" Pack="true" PackagePath="buildTransitive\netstandard2.1\LYBox.Plugin.CommandLine.targets" />
+  </ItemGroup>
+
+</Project>

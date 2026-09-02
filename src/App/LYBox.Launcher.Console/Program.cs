@@ -24,6 +24,15 @@ internal static class Program
     private static Task<int> Main(string[] args)
     {
         ArgumentNullException.ThrowIfNull(args);
-        return new ConsoleApplication(AnsiConsole.Console).RunAsync(args);
+        var errorConsole = AnsiConsole.Create(new AnsiConsoleSettings
+        {
+            Out = new AnsiConsoleOutput(System.Console.Error)
+        });
+        return new ConsoleApplication(
+            AnsiConsole.Console,
+            startDesktop: null,
+            errorConsole: errorConsole,
+            standardOutput: System.Console.Out,
+            standardError: System.Console.Error).RunAsync(args);
     }
 }

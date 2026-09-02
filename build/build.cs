@@ -120,8 +120,14 @@ Task("Build")
     var needSdk = buildContext.Target.HasFlag(BuildTarget.Bin) || buildContext.Target.HasFlag(BuildTarget.NuGet);
     if (needSdk)
     {
-        // SDK 层：Generators + Shared
+        // SDK layer: Generators + CommandLine + Shared + Shared.Web
         c.DotNetBuild(buildContext.GeneratorsProject, new DotNetBuildSettings
+        {
+            Configuration = buildContext.BuildConfiguration,
+            MSBuildSettings = hostSettings
+        });
+
+        c.DotNetBuild(buildContext.CommandLineProject, new DotNetBuildSettings
         {
             Configuration = buildContext.BuildConfiguration,
             MSBuildSettings = hostSettings
@@ -145,6 +151,14 @@ Task("Build")
         // SDK NuGet 打包（NoBuild=true 复用上一步构建结果，输出到 artifacts/packages/sdk）
         c.EnsureDirectoryExists(buildContext.NuGetPackagesDir);
         c.DotNetPack(buildContext.GeneratorsProject, new DotNetPackSettings
+        {
+            Configuration = buildContext.BuildConfiguration,
+            OutputDirectory = buildContext.NuGetPackagesDir,
+            NoRestore = true,
+            NoBuild = true,
+            MSBuildSettings = hostSettings
+        });
+        c.DotNetPack(buildContext.CommandLineProject, new DotNetPackSettings
         {
             Configuration = buildContext.BuildConfiguration,
             OutputDirectory = buildContext.NuGetPackagesDir,
@@ -542,6 +556,7 @@ public class BuildContext
     public string HostPublishDir { get; }
 
     public string GeneratorsProject { get; }
+    public string CommandLineProject { get; }
     public string SharedProject { get; }
     public string WebSharedProject { get; }
     public string LauncherProject { get; }
@@ -672,6 +687,7 @@ public class BuildContext
             : Path.Combine(LauncherPublishDir, RuntimeIdentifier);
 
         GeneratorsProject = Path.Combine(RootDir, "src", "Plugin", "LYBox.Plugin.Generators", "LYBox.Plugin.Generators.csproj");
+        CommandLineProject = Path.Combine(RootDir, "src", "Plugin", "LYBox.Plugin.CommandLine", "LYBox.Plugin.CommandLine.csproj");
         SharedProject = Path.Combine(RootDir, "src", "Plugin", "LYBox.Plugin.Shared", "LYBox.Plugin.Shared.csproj");
         WebSharedProject = Path.Combine(RootDir, "src", "Plugin", "LYBox.Plugin.Shared.Web", "LYBox.Plugin.Shared.Web.csproj");
         LauncherProject = Path.Combine(RootDir, "src", "App", "LYBox.Launcher.Desktop", "LYBox.Launcher.Desktop.csproj");
@@ -1069,6 +1085,15 @@ public static class BuildTasks
         var sdkSettings = context.CreateSdkMSBuildSettings();
 
         context.DotNetPack(context.GeneratorsProject, new DotNetPackSettings
+        {
+            Configuration = context.BuildConfiguration,
+            OutputDirectory = context.NuGetPackagesDir,
+            NoRestore = true,
+            NoBuild = true,
+            MSBuildSettings = sdkSettings
+        });
+
+        context.DotNetPack(context.CommandLineProject, new DotNetPackSettings
         {
             Configuration = context.BuildConfiguration,
             OutputDirectory = context.NuGetPackagesDir,

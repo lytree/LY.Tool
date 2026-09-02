@@ -1,4 +1,5 @@
 using LYBox.Plugin.Shared.Models;
+using LYBox.Plugin.Shared.Generated;
 
 namespace LYBox.Plugin.Shared.Services;
 
@@ -10,6 +11,7 @@ public interface IPluginLoader
     Task LoadAllPluginsAsync();
     IPlugin? GetLoadedPlugin(string pluginId);
     IPluginMetadata? GetLoadedMetadata(string pluginId);
+    IGeneratedPluginModule? GetGeneratedModule(string pluginId);
     void RegisterPlugin(PluginInfo pluginInfo);
     void UnregisterPlugin(string pluginId);
     void EnablePlugin(string pluginId);
@@ -48,5 +50,6 @@ public class PluginLoadResult
     public string? ErrorMessage { get; set; }
     public IPlugin? Plugin { get; set; }
     public IPluginMetadata? Metadata { get; set; }
+    public IGeneratedPluginModule? GeneratedModule { get; set; }
     public PluginInfo? PluginInfo { get; set; }
 }

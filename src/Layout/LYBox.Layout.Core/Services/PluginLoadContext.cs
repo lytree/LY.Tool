@@ -23,6 +23,11 @@ internal class PluginLoadContext : AssemblyLoadContext
         "HarfBuzzSharp.*",
         
         "LYBox.Plugin.Shared",
+        "LYBox.Plugin.CommandLine",
+        "System.CommandLine",
+        "System.CommandLine.*",
+        "Spectre.Console",
+        "Spectre.Console.*",
         "CommunityToolkit.*",
         "Microsoft.Extensions.DependencyInjection",
         "Microsoft.Extensions.DependencyInjection.Abstractions",

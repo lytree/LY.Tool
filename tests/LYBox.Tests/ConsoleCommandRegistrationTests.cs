@@ -52,6 +52,98 @@ public class ConsoleCommandRegistrationTests
     }
 
     [Test]
+    public async Task ConsoleApplication_LightCommands_DoNotCreatePluginHost()
+    {
+        var hostCreations = 0;
+        var desktopStarted = false;
+        var console = CreateConsole(out _);
+        var application = new ConsoleApplication(
+            console,
+            _ => desktopStarted = true,
+            Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")),
+            (_, _, _) =>
+            {
+                hostCreations++;
+                return Task.FromResult<IPluginCliHost>(new FakePluginCliHost(console));
+            });
+
+        await application.RunAsync(["version"]);
+        await application.RunAsync(["--help"]);
+        await application.RunAsync(["plugins", "list"]);
+        await application.RunAsync(["gui"]);
+        await application.RunAsync(["plugin", "--help"]);
+        await application.RunAsync(["plugin", "run", "--help"]);
+
+        await Assert.That(hostCreations).IsEqualTo(0);
+        await Assert.That(desktopStarted).IsTrue();
+    }
+
+    [Test]
+    public async Task ConsoleApplication_PluginRun_LoadsHostAndInvokesRegisteredCommand()
+    {
+        var hostCreations = 0;
+        var console = CreateConsole(out var output);
+        var application = new ConsoleApplication(
+            console,
+            _ => { },
+            createPluginHost: (_, _, _) =>
+            {
+                hostCreations++;
+                return Task.FromResult<IPluginCliHost>(new FakePluginCliHost(console));
+            });
+
+        var exitCode = await application.RunAsync(["plugin", "run", "sample", "echo"]);
+
+        await Assert.That(exitCode).IsEqualTo(0);
+        await Assert.That(hostCreations).IsEqualTo(1);
+        await Assert.That(output.ToString()).Contains("fake plugin command");
+    }
+
+    [Test]
+    public async Task ConsoleApplication_LegacyPluginSyntax_RemainsSupported()
+    {
+        var console = CreateConsole(out var output);
+        var application = new ConsoleApplication(
+            console,
+            _ => { },
+            createPluginHost: (_, _, _) =>
+                Task.FromResult<IPluginCliHost>(new FakePluginCliHost(console)));
+
+        var exitCode = await application.RunAsync(["plugin", "sample", "echo"]);
+
+        await Assert.That(exitCode).IsEqualTo(0);
+        await Assert.That(output.ToString()).Contains("fake plugin command");
+    }
+
+    [Test]
+    public async Task ConsoleApplication_PluginHostCreationFailure_IsCaught()
+    {
+        var console = CreateConsole(out var output);
+        var application = new ConsoleApplication(
+            console,
+            _ => { },
+            createPluginHost: (_, _, _) =>
+                throw new InvalidOperationException("host creation failed"));
+
+        var exitCode = await application.RunAsync(["plugin", "sample", "echo"]);
+
+        await Assert.That(exitCode).IsEqualTo(1);
+        await Assert.That(output.ToString()).Contains("host creation failed");
+    }
+
+    [Test]
+    public async Task PluginCliHost_ConfigureServices_RegistersAnsiConsole()
+    {
+        var console = CreateConsole(out _);
+        var services = new ServiceCollection();
+
+        PluginCliHost.ConfigureServices(services, console);
+        await using var provider = services.BuildServiceProvider();
+
+        await Assert.That(provider.GetRequiredService<IAnsiConsole>()).IsSameReferenceAs(console);
+    }
+
+    [Test]
     public async Task PluginCommandRegistry_NormalizesCommandName_LowercasesAndTrims()
     {
         var normalized = PluginCommandRegistry.NormalizeCommandName("  Sample-CLI  ");
@@ -167,5 +259,31 @@ public class ConsoleCommandRegistrationTests
             });
             context.Command.Subcommands.Add(echo);
         }
+    }
+
+    private sealed class FakePluginCliHost : IPluginCliHost
+    {
+        private readonly IAnsiConsole _console;
+
+        public FakePluginCliHost(IAnsiConsole console)
+        {
+            _console = console;
+        }
+
+        public int RegisterCommands(Command pluginCommand)
+        {
+            var sample = new Command("sample");
+            var echo = new Command("echo");
+            echo.SetAction(_ =>
+            {
+                _console.WriteLine("fake plugin command");
+                return 0;
+            });
+            sample.Subcommands.Add(echo);
+            pluginCommand.Subcommands.Add(sample);
+            return 1;
+        }
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 }

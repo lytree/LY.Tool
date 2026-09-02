@@ -12,6 +12,7 @@
     <Version>$(PluginVersion)</Version>
     <MinPluginSdkVersion>2.0.0</MinPluginSdkVersion>
     <!-- S1/S2：声明 Web 插件类别，构建期写入 plugin.json（kind/web），宿主据此统一注册 -->
+    <IsPluginProject>true</IsPluginProject>
     <PluginKind>Web</PluginKind>
     <PluginWwwroot>wwwroot</PluginWwwroot>
     <PluginEntryPage>index.html</PluginEntryPage>

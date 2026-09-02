@@ -12,6 +12,12 @@
     <PluginVersion>1.0.0-preview.1</PluginVersion>
     <Version>$(PluginVersion)</Version>
     <MinPluginSdkVersion>2.0.0</MinPluginSdkVersion>
+    <IsPluginProject>true</IsPluginProject>
+    <GeneratePluginCliIndex>true</GeneratePluginCliIndex>
+    <PluginCliAlias>template</PluginCliAlias>
+    <PluginCliDescription>Create a greeting from the template plugin.</PluginCliDescription>
+    <PluginCliRuntimeProfile>selected</PluginCliRuntimeProfile>
+    <PluginCliOutputModes>text;json</PluginCliOutputModes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +30,7 @@
 
   <ItemGroup>
     <PackageReference Include="LYBox.Plugin.Generators" Version="$(PluginSdkVersion)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <PackageReference Include="LYBox.Plugin.CommandLine" Version="$(PluginSdkVersion)" PrivateAssets="all" />
     <PackageReference Include="LYBox.Plugin.Shared" Version="$(PluginSdkVersion)" PrivateAssets="all" />
   </ItemGroup>
 </Project>

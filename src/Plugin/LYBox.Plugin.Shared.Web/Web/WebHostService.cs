@@ -38,7 +38,7 @@ public sealed class WebHostService : IAsyncDisposable
 {
     private WebApplication? _app;
     private readonly ConcurrentDictionary<string, string> _pluginRoots = new();
-    private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, RpcCommandHandler>> _rpcHandlers = new();
+    private readonly PluginRpcDispatcher _rpcDispatcher = new();
     private readonly ConcurrentDictionary<string, WebSession> _sessions = new(StringComparer.Ordinal);
     private readonly SseEventPusher _ssePusher = new();
     private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
@@ -73,6 +73,9 @@ public sealed class WebHostService : IAsyncDisposable
     /// <summary>SSE 推送器（供 <c>WebViewIpcHost</c> 注入）。</summary>
     public IEventPusher EventPusher => _ssePusher;
 
+    /// <summary>Single RPC registry used by both the WebView and HTTP transports.</summary>
+    public PluginRpcDispatcher RpcDispatcher => _rpcDispatcher;
+
     /// <summary>
     /// 注册一个插件范围内的 RPC 命令处理器。生产 HTTP 桥要求 pluginId 与短期会话同时匹配。
     /// </summary>
@@ -85,7 +88,7 @@ public sealed class WebHostService : IAsyncDisposable
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentNullException.ThrowIfNull(handler);
 
-        _rpcHandlers.GetOrAdd(pluginId, _ => new(StringComparer.Ordinal))[name] = handler;
+        _rpcDispatcher.RegisterLegacy(pluginId, name, handler);
     }
 
     /// <summary>为一个可信 WebView 文档创建短期会话。会话只允许访问指定插件的 RPC 与 SSE。</summary>
@@ -109,7 +112,7 @@ public sealed class WebHostService : IAsyncDisposable
 
     /// <summary>获取所有已注册 RPC 命令名（供调试面板展示）。</summary>
     public IReadOnlyCollection<string> GetRegisteredRpcCommands() =>
-        _rpcHandlers.SelectMany(pair => pair.Value.Keys.Select(name => $"{pair.Key}:{name}")).ToArray();
+        _rpcDispatcher.GetMethods();
 
     /// <summary>
     /// 注册一个 Web 插件的静态资源根目录。
@@ -204,24 +207,16 @@ public sealed class WebHostService : IAsyncDisposable
             ctx.Response.Headers["Connection"] = "keep-alive";
             ctx.Response.Headers["X-Accel-Buffering"] = "no"; // 禁用 Nginx 缓冲（兼容反向代理场景）
 
-            // 先发 ready 事件让前端确认连接已建立
-            var readyPayload = $"{{\"pluginId\":\"{pluginId}\"}}";
-            await ctx.Response.WriteAsync($"event: ready\ndata: {readyPayload}\n\n", ctx.RequestAborted).ConfigureAwait(false);
-            await ctx.Response.Body.FlushAsync(ctx.RequestAborted).ConfigureAwait(false);
-
-            var client = new SseClient(ctx.Response.Body);
+            using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(
+                ctx.RequestAborted,
+                session.CancellationToken);
+            await using var client = new SseClient(ctx.Response.Body, lifetime.Token);
             _ssePusher.Subscribe(pluginId, client);
             try
             {
-                // 页面断开或宿主撤销文档会话时结束连接
-                using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(
-                    ctx.RequestAborted,
-                    session.CancellationToken);
-                await Task.Delay(Timeout.Infinite, lifetime.Token).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                // 客户端断开连接，正常退出
+                var readyPayload = JsonSerializer.Serialize(new { pluginId }, RpcEnvelope.JsonOptions);
+                client.TryEnqueue("ready", readyPayload);
+                await client.Completion.ConfigureAwait(false);
             }
             finally
             {
@@ -260,6 +255,20 @@ public sealed class WebHostService : IAsyncDisposable
                     ctx.Response.StatusCode = StatusCodes.Status404NotFound;
                     break;
             }
+        });
+
+        // Generated clients are registered by source-generated bindings before the WebView navigates.
+        // They live under the plugin path so every plugin can use a relative module import.
+        _app.MapGet("/{pluginId}/.lybox/{artifact}", (string pluginId, string artifact, HttpContext ctx) =>
+        {
+            if (!_pluginRoots.ContainsKey(pluginId)
+                || !_rpcDispatcher.TryGetArtifact(pluginId, artifact, out var generated))
+            {
+                return Results.NotFound();
+            }
+
+            ctx.Response.Headers["Cache-Control"] = "no-cache";
+            return Results.Content(generated.Content, generated.ContentType);
         });
 
         // —— 调试面板端点（仅 Debug 配置启用）——
@@ -344,32 +353,60 @@ public sealed class WebHostService : IAsyncDisposable
             await ctx.Response.WriteAsJsonAsync(new { error = "请求体无效：需 JSON 格式 {name, args, callbackId?}" }, ctx.RequestAborted).ConfigureAwait(false);
             return;
         }
-        if (body is null || string.IsNullOrEmpty(body.Name))
+        if (body is null)
         {
             ctx.Response.StatusCode = StatusCodes.Status400BadRequest;
-            await ctx.Response.WriteAsJsonAsync(new { error = "name 字段不能为空" }, ctx.RequestAborted).ConfigureAwait(false);
+            await ctx.Response.WriteAsJsonAsync(
+                new PluginRpcResult(
+                    string.Empty,
+                    false,
+                    Error: new PluginRpcError(PluginRpcErrorCodes.InvalidRequest, "RPC request is empty.")),
+                RpcEnvelope.JsonOptions,
+                cancellationToken: ctx.RequestAborted).ConfigureAwait(false);
             return;
         }
 
-        if (!_rpcHandlers.TryGetValue(pluginId, out var pluginHandlers)
-            || !pluginHandlers.TryGetValue(body.Name, out var handler))
+        var requestId = body.Id ?? body.CallbackId ?? Guid.NewGuid().ToString("N");
+        PluginRpcResult result;
+        if (body.IsCanonical)
         {
-            ctx.Response.StatusCode = StatusCodes.Status404NotFound;
-            await ctx.Response.WriteAsJsonAsync(new { error = $"命令未注册: {body.Name}" }, ctx.RequestAborted).ConfigureAwait(false);
-            return;
+            if (!string.IsNullOrEmpty(body.PluginId)
+                && !string.Equals(body.PluginId, pluginId, StringComparison.Ordinal))
+            {
+                result = new PluginRpcResult(
+                    requestId,
+                    false,
+                    Error: new PluginRpcError(
+                        PluginRpcErrorCodes.PluginMismatch,
+                        "RPC plugin does not match the request route."));
+            }
+            else
+            {
+                result = await _rpcDispatcher.InvokePayloadAsync(
+                    new PluginRpcCall(
+                        requestId,
+                        pluginId,
+                        body.Method ?? body.Name,
+                        body.Payload ?? RpcJson.Null,
+                        body.TraceId),
+                    ctx.RequestAborted).ConfigureAwait(false);
+            }
+        }
+        else
+        {
+            result = await _rpcDispatcher.InvokeLegacyAsync(
+                requestId,
+                pluginId,
+                body.Name,
+                body.Args ?? Array.Empty<JsonElement>(),
+                ctx.RequestAborted).ConfigureAwait(false);
         }
 
-        try
-        {
-            var args = body.Args ?? Array.Empty<JsonElement>();
-            var result = await handler(args, ctx.RequestAborted).ConfigureAwait(false);
-            await ctx.Response.WriteAsJsonAsync(new { result }, RpcEnvelope.JsonOptions, cancellationToken: ctx.RequestAborted).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            ctx.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            await ctx.Response.WriteAsJsonAsync(new { error = ex.Message }, RpcEnvelope.JsonOptions, cancellationToken: ctx.RequestAborted).ConfigureAwait(false);
-        }
+        ctx.Response.StatusCode = GetRpcStatusCode(result);
+        await ctx.Response.WriteAsJsonAsync(
+            result,
+            RpcEnvelope.JsonOptions,
+            cancellationToken: ctx.RequestAborted).ConfigureAwait(false);
     }
 
     private bool TryAuthorize(
@@ -455,6 +492,18 @@ public sealed class WebHostService : IAsyncDisposable
         }
         return "application/octet-stream";
     }
+
+    private static int GetRpcStatusCode(PluginRpcResult result) => result.Error?.Code switch
+    {
+        null => StatusCodes.Status200OK,
+        PluginRpcErrorCodes.InvalidRequest or PluginRpcErrorCodes.InvalidPayload => StatusCodes.Status400BadRequest,
+        PluginRpcErrorCodes.MethodNotFound => StatusCodes.Status404NotFound,
+        PluginRpcErrorCodes.PluginMismatch => StatusCodes.Status403Forbidden,
+        PluginRpcErrorCodes.Cancelled => 499,
+        PluginRpcErrorCodes.Timeout => StatusCodes.Status408RequestTimeout,
+        PluginRpcErrorCodes.Busy => StatusCodes.Status429TooManyRequests,
+        _ => StatusCodes.Status500InternalServerError,
+    };
 }
 
 internal sealed class WebSession(string pluginId) : IDisposable
@@ -475,6 +524,27 @@ internal sealed class WebSession(string pluginId) : IDisposable
 /// <summary>POST /__rpc 请求体。callbackId 在浏览器模式下由 ipc.js 内部使用，HTTP 响应直接返回 result。</summary>
 internal sealed class HttpRequestRpcBody
 {
+    [System.Text.Json.Serialization.JsonPropertyName("version")]
+    public int Version { get; set; }
+
+    [System.Text.Json.Serialization.JsonPropertyName("kind")]
+    public string? Kind { get; set; }
+
+    [System.Text.Json.Serialization.JsonPropertyName("id")]
+    public string? Id { get; set; }
+
+    [System.Text.Json.Serialization.JsonPropertyName("pluginId")]
+    public string? PluginId { get; set; }
+
+    [System.Text.Json.Serialization.JsonPropertyName("method")]
+    public string? Method { get; set; }
+
+    [System.Text.Json.Serialization.JsonPropertyName("payload")]
+    public JsonElement? Payload { get; set; }
+
+    [System.Text.Json.Serialization.JsonPropertyName("traceId")]
+    public string? TraceId { get; set; }
+
     [System.Text.Json.Serialization.JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
@@ -483,4 +553,7 @@ internal sealed class HttpRequestRpcBody
 
     [System.Text.Json.Serialization.JsonPropertyName("callbackId")]
     public string? CallbackId { get; set; }
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool IsCanonical => Version == 2 || string.Equals(Kind, "plugin-rpc-call", StringComparison.Ordinal);
 }

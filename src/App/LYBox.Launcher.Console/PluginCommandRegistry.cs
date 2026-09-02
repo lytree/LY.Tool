@@ -21,7 +21,9 @@ internal static class PluginCommandRegistry
     public static int RegisterCommands(
         System.CommandLine.Command pluginCommand,
         IServiceProvider services,
-        IAnsiConsole console)
+        IAnsiConsole console,
+        IEnumerable<IGeneratedPluginCliModule> modules,
+        string? targetPluginId = null)
     {
         ArgumentNullException.ThrowIfNull(pluginCommand);
         ArgumentNullException.ThrowIfNull(services);
@@ -31,7 +33,15 @@ internal static class PluginCommandRegistry
         var pluginIds = new HashSet<string>(StringComparer.Ordinal);
         var registered = 0;
 
-        foreach (var registrar in services.GetServices<IPluginCommandRegistrar>())
+        var generated = modules.SelectMany(module => module.CliRegistrars)
+            .Select(descriptor => descriptor.CreateRegistrar(services));
+        var registeredServices = services.GetServices<IPluginCommandRegistrar>();
+
+        foreach (var registrar in generated.Concat(registeredServices)
+                     .GroupBy(value => value.GetType())
+                     .Select(group => group.First())
+                     .Where(value => targetPluginId is null
+                         || string.Equals(value.PluginId, targetPluginId, StringComparison.Ordinal)))
         {
             if (!pluginIds.Add(registrar.PluginId))
             {
@@ -54,6 +64,12 @@ internal static class PluginCommandRegistry
 
         return registered;
     }
+
+    public static int RegisterCommands(
+        System.CommandLine.Command pluginCommand,
+        IServiceProvider services,
+        IAnsiConsole console) =>
+        RegisterCommands(pluginCommand, services, console, []);
 
     /// <summary>把命令名归一化为小写 trim，校验字符白名单。</summary>
     internal static string NormalizeCommandName(string commandName)
