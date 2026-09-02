@@ -1,5 +1,6 @@
 <Solution>
     <Folder Name="/src/Plugin/">
+        <Project Path="src/Plugin/LYBox.Plugin.CommandLine/LYBox.Plugin.CommandLine.csproj" />
         <Project Path="src/Plugin/LYBox.Plugin.Shared.Web/LYBox.Plugin.Shared.Web.csproj" />
     </Folder>
     <Folder Name="/plugins/">

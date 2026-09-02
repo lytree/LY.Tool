@@ -51,7 +51,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(LYBoxPluginSharedExclusionsEnabled)' == 'true'">
-    <_SharedAssembliesPatterns>System.*
+    <_SharedAssembliesPatterns>$(_SharedAssembliesPatterns)System.*
 System.Private.Uri
 System.Reactive
 Microsoft.Bcl.AsyncInterfaces
@@ -77,10 +77,6 @@ Microsoft.EntityFrameworkCore.*
 ProDataGrid
 System.Net.Http
 System.Security.Cryptography.*
-System.CommandLine
-System.CommandLine.*
-Spectre.Console
-Spectre.Console.*
 </_SharedAssembliesPatterns>
   </PropertyGroup>
 </Project>

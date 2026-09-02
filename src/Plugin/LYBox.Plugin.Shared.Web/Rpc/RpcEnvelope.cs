@@ -32,6 +32,7 @@ public static class RpcEnvelope
     public static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = null,
+        PropertyNameCaseInsensitive = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         // IPC 跨语言序列化：不转义非 ASCII（中文/emoji 等），让 JS 侧调试时可读。
         // 浏览器 JSON.parse 对原文与 \uXXXX 转义等价，但原文更省带宽、更易排查。
@@ -43,9 +44,18 @@ public static class RpcEnvelope
 /// <summary>JS→C# 调用消息。</summary>
 public sealed record CallMessage
 {
+    [JsonPropertyName("version")] public int Version { get; init; }
+    [JsonPropertyName("kind")] public string? Kind { get; init; }
+    [JsonPropertyName("id")] public string? Id { get; init; }
+    [JsonPropertyName("pluginId")] public string? PluginId { get; init; }
+    [JsonPropertyName("method")] public string? Method { get; init; }
+    [JsonPropertyName("payload")] public JsonElement? Payload { get; init; }
     [JsonPropertyName("name")] public string Name { get; init; } = "";
     [JsonPropertyName("args")] public JsonElement[] Args { get; init; } = Array.Empty<JsonElement>();
     [JsonPropertyName("callbackId")] public string CallbackId { get; init; } = "";
+
+    [JsonIgnore]
+    public bool IsCanonical => Version == 2 || string.Equals(Kind, "plugin-rpc-call", StringComparison.Ordinal);
 }
 
 /// <summary>JS→C# 事件消息。</summary>

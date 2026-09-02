@@ -1,82 +1,73 @@
 using System.Collections.Concurrent;
 using System.Text;
+using System.Text.Json;
 
 namespace LYBox.Plugin.Shared.Rpc;
 
-/// <summary>
-/// <see cref="IEventPusher"/> 的默认实现：在内存中维护每个 pluginId 的 SSE 客户端列表，
-/// <see cref="PushAsync"/> 时遍历所有客户端把消息写入对应的 HTTP 响应流。
-/// </summary>
-/// <remarks>
-/// 线程安全：<see cref="_clients"/> 使用 <see cref="ConcurrentDictionary{TKey, TValue}"/>，
-/// 每个 pluginId 的客户端列表使用 <see cref="List{T}"/> + lock 保护订阅 / 退订 / 遍历。
-/// 客户端连接断开时（<see cref="SseClient.WriteAsync"/> 抛异常）自动从列表移除。
-/// </remarks>
+/// <summary>Fan-out pusher backed by one bounded queue and writer loop per SSE client.</summary>
 public sealed class SseEventPusher : IEventPusher
 {
     private readonly ConcurrentDictionary<string, ClientList> _clients = new();
 
-    /// <summary>
-    /// 订阅：把一个 SSE 客户端加入 pluginId 的分发列表。
-    /// 由 <c>WebHostService</c> 在 SSE 请求处理中调用。
-    /// </summary>
     public void Subscribe(string pluginId, SseClient client)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(pluginId);
+        ArgumentNullException.ThrowIfNull(client);
         var list = _clients.GetOrAdd(pluginId, _ => new ClientList());
-        lock (list.Lock) list.Clients.Add(client);
+        lock (list.Lock)
+            list.Clients.Add(client);
     }
 
-    /// <summary>
-    /// 退订：连接断开时调用，从分发列表移除客户端。
-    /// </summary>
     public void Unsubscribe(string pluginId, SseClient client)
     {
         if (!_clients.TryGetValue(pluginId, out var list)) return;
-        lock (list.Lock) list.Clients.Remove(client);
+        lock (list.Lock)
+            list.Clients.Remove(client);
     }
 
-    /// <inheritdoc />
-    public async Task PushAsync(string pluginId, string eventType, string json, CancellationToken cancellationToken = default)
+    public Task PushAsync(
+        string pluginId,
+        string eventType,
+        string json,
+        CancellationToken cancellationToken = default)
     {
-        if (!_clients.TryGetValue(pluginId, out var list) || list.Clients.Count == 0) return;
-
-        // SSE 消息格式：event: <type>\ndata: <json>\n\n
-        var message = $"event: {eventType}\ndata: {json}\n\n";
-        var bytes = Encoding.UTF8.GetBytes(message);
+        cancellationToken.ThrowIfCancellationRequested();
+        if (!_clients.TryGetValue(pluginId, out var list))
+            return Task.CompletedTask;
 
         List<SseClient> snapshot;
-        lock (list.Lock) snapshot = list.Clients.ToList();
+        lock (list.Lock)
+            snapshot = list.Clients.ToList();
 
-        List<SseClient>? dead = null;
-        foreach (var c in snapshot)
-        {
-            try
-            {
-                await c.WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
-            }
-            catch
-            {
-                // 客户端连接已断开 / 写入失败，加入待移除列表
-                dead ??= new List<SseClient>();
-                dead.Add(c);
-            }
-        }
+        foreach (var client in snapshot)
+            client.TryEnqueue(eventType, json);
 
-        if (dead is not null)
-        {
-            lock (list.Lock)
-            {
-                foreach (var c in dead) list.Clients.Remove(c);
-            }
-        }
+        return Task.CompletedTask;
     }
 
-    /// <summary>获取指定插件的当前订阅客户端数（主要供测试断言使用）。</summary>
     public int GetSubscriberCount(string pluginId)
-        => _clients.TryGetValue(pluginId, out var list) ? list.Clients.Count : 0;
+    {
+        if (!_clients.TryGetValue(pluginId, out var list)) return 0;
+        lock (list.Lock)
+            return list.Clients.Count;
+    }
 
-    /// <summary>清空所有订阅（宿主停机时调用，确保 SSE 连接先于 Kestrel 关闭）。</summary>
-    public void Clear() => _clients.Clear();
+    public void Clear()
+    {
+        foreach (var pair in _clients)
+        {
+            List<SseClient> snapshot;
+            lock (pair.Value.Lock)
+            {
+                snapshot = pair.Value.Clients.ToList();
+                pair.Value.Clients.Clear();
+            }
+
+            foreach (var client in snapshot)
+                client.Dispose();
+        }
+        _clients.Clear();
+    }
 
     private sealed class ClientList
     {
@@ -85,21 +76,197 @@ public sealed class SseEventPusher : IEventPusher
     }
 }
 
-/// <summary>
-/// 单个 SSE 客户端：包装 HTTP 响应流，提供异步写入消息的方法。
-/// 由 <c>WebHostService</c> 在处理 <c>GET /sse/{pluginId}</c> 时创建，
-/// 把 <see cref="SseEventPusher.PushAsync"/> 写出的 SSE 字节透传给浏览器。
-/// </summary>
-public sealed class SseClient
+/// <summary>Bounded SSE client queue. Events drop oldest; channels fail explicitly on overflow.</summary>
+public sealed class SseClient : IDisposable, IAsyncDisposable
 {
+    public const int DefaultMaxFrames = 256;
+    public const int DefaultMaxBytes = 1024 * 1024;
+
+    private static readonly TimeSpan KeepAliveInterval = TimeSpan.FromSeconds(15);
     private readonly Stream _stream;
+    private readonly int _maxFrames;
+    private readonly int _maxBytes;
+    private readonly Queue<byte[]> _queue = new();
+    private readonly SemaphoreSlim _signal = new(0, 1);
+    private readonly CancellationTokenSource _lifetime;
+    private readonly Task _writer;
+    private readonly object _gate = new();
+    private int _queuedBytes;
+    private bool _completeAfterDrain;
+    private bool _disposed;
 
-    public SseClient(Stream stream) => _stream = stream;
-
-    /// <summary>写入一条完整的 SSE 消息（已编码为 UTF-8 字节）。</summary>
-    public async Task WriteAsync(byte[] bytes, CancellationToken cancellationToken = default)
+    public SseClient(
+        Stream stream,
+        CancellationToken cancellationToken = default,
+        int maxFrames = DefaultMaxFrames,
+        int maxBytes = DefaultMaxBytes)
     {
-        await _stream.WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
-        await _stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+        ArgumentNullException.ThrowIfNull(stream);
+        if (maxFrames < 2) throw new ArgumentOutOfRangeException(nameof(maxFrames));
+        if (maxBytes < 1024) throw new ArgumentOutOfRangeException(nameof(maxBytes));
+
+        _stream = stream;
+        _maxFrames = maxFrames;
+        _maxBytes = maxBytes;
+        _lifetime = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        _writer = RunWriterAsync();
+    }
+
+    public Task Completion => _writer;
+
+    public bool TryEnqueue(string eventType, string json)
+    {
+        var frame = Encode(eventType, json);
+        lock (_gate)
+        {
+            if (_disposed || _completeAfterDrain) return false;
+
+            if (string.Equals(eventType, "channel-data", StringComparison.Ordinal)
+                && WouldOverflow(frame.Length))
+            {
+                FailSlowChannel(json);
+                SignalWriter();
+                return false;
+            }
+
+            while (_queue.Count > 0 && WouldOverflow(frame.Length))
+                RemoveOldest();
+
+            if (frame.Length > _maxBytes)
+                return false;
+
+            Enqueue(frame);
+            SignalWriter();
+            return true;
+        }
+    }
+
+    private async Task RunWriterAsync()
+    {
+        var cancellationToken = _lifetime.Token;
+        try
+        {
+            while (true)
+            {
+                byte[]? frame = null;
+                var complete = false;
+                lock (_gate)
+                {
+                    if (_queue.Count > 0)
+                    {
+                        frame = _queue.Dequeue();
+                        _queuedBytes -= frame.Length;
+                    }
+                    else
+                    {
+                        complete = _completeAfterDrain;
+                    }
+                }
+
+                if (frame is not null)
+                {
+                    await _stream.WriteAsync(frame, cancellationToken).ConfigureAwait(false);
+                    await _stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+                    continue;
+                }
+
+                if (complete) break;
+
+                if (!await _signal.WaitAsync(KeepAliveInterval, cancellationToken).ConfigureAwait(false))
+                {
+                    var keepAlive = Encoding.UTF8.GetBytes(": keep-alive\n\n");
+                    await _stream.WriteAsync(keepAlive, cancellationToken).ConfigureAwait(false);
+                    await _stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+                }
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+        }
+        catch (IOException)
+        {
+        }
+        finally
+        {
+            lock (_gate)
+                _disposed = true;
+        }
+    }
+
+    private void FailSlowChannel(string channelJson)
+    {
+        var channelId = ReadChannelId(channelJson);
+        _queue.Clear();
+        _queuedBytes = 0;
+
+        var error = JsonSerializer.Serialize(
+            new
+            {
+                id = channelId,
+                error = new PluginRpcError(
+                    PluginRpcErrorCodes.SlowConsumer,
+                    "Channel closed because the client could not keep up."),
+            },
+            RpcEnvelope.JsonOptions);
+        Enqueue(Encode("channel-error", error));
+        Enqueue(Encode("channel-close", JsonSerializer.Serialize(new { id = channelId }, RpcEnvelope.JsonOptions)));
+        _completeAfterDrain = true;
+    }
+
+    private bool WouldOverflow(int nextBytes) =>
+        _queue.Count >= _maxFrames || _queuedBytes + nextBytes > _maxBytes;
+
+    private void Enqueue(byte[] frame)
+    {
+        _queue.Enqueue(frame);
+        _queuedBytes += frame.Length;
+    }
+
+    private void RemoveOldest()
+    {
+        var removed = _queue.Dequeue();
+        _queuedBytes -= removed.Length;
+    }
+
+    private void SignalWriter()
+    {
+        if (_signal.CurrentCount == 0)
+            _signal.Release();
+    }
+
+    private static byte[] Encode(string eventType, string json) =>
+        Encoding.UTF8.GetBytes($"event: {eventType}\ndata: {json}\n\n");
+
+    private static string ReadChannelId(string json)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(json);
+            return document.RootElement.TryGetProperty("id", out var id)
+                ? id.GetString() ?? string.Empty
+                : string.Empty;
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+
+    public void Dispose()
+    {
+        lock (_gate)
+        {
+            if (_disposed) return;
+            _disposed = true;
+        }
+        _lifetime.Cancel();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Dispose();
+        await _writer.ConfigureAwait(false);
+        _signal.Dispose();
+        _lifetime.Dispose();
     }
 }

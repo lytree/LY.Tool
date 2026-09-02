@@ -18,6 +18,11 @@
 		<RepositoryUrl>https://github.com/example/AvaloniaTemplate</RepositoryUrl>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<!-- P1: the CLI contracts live in their own package; pack converts this to a same-version NuGet dependency. -->
+		<ProjectReference Include="../LYBox.Plugin.CommandLine/LYBox.Plugin.CommandLine.csproj" />
+	</ItemGroup>
+
 	<!--
 		SDK 依赖分为两层：
 		1. 顶级依赖：SDK 直接引用的包，其类型出现在 SDK 公共 API 中（或 SDK 决定向插件
@@ -61,11 +66,6 @@
 		<PackageReference Include="SkiaSharp" Version="$(SkiaSharpVersion)" />
 		<PackageReference Include="HarfBuzzSharp" Version="$(HarfBuzzSharpVersion)" />
 		
-
-		<!-- 控制台 CLI 基础设施（S4）：System.CommandLine + Spectre.Console。
-		     供 IPluginCommandRegistrar 与控制台启动器使用，运行时由 LYBox 宿主提供，参见 _SharedAssembliesPatterns。 -->
-		<PackageReference Include="System.CommandLine" Version="$(SystemCommandLineVersion)" />
-		<PackageReference Include="Spectre.Console" Version="$(SpectreConsoleVersion)" />
 
 		<!-- Ursa 递归依赖（Irihi.Ursa 的传递依赖） -->
 		<PackageReference Include="Irihi.Avalonia.Shared" Version="$(IrihiAvaloniaSharedVersion)" />

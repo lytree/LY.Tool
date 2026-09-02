@@ -35,7 +35,7 @@ OpenCode 智能体在本仓库工作时的精简指南。
 
   - **插件版本独立**：插件版本由各插件 csproj 内 `<PluginVersion>` 各自声明与维护，不受 `version.props` 控制。
 
-- **构建顺序很重要**：`--build=bin` 必须先于 `--build=plugin` 运行（或直接使用 `--build=all`），因为 `--build=bin` 会打包 SDK NuGet 包，而插件依赖本地构建的 `LYBox.Plugin.Generators` + `LYBox.Plugin.Shared` NuGet 包。
+- **构建顺序很重要**：`--build=bin` 必须先于 `--build=plugin` 运行（或直接使用 `--build=all`），因为 `--build=bin` 会打包 Generators、CommandLine、Shared 与 Shared.Web SDK NuGet 包。
 
 - **直接** **`dotnet build`** 可用于单个项目，但若未预先构建本地 NuGet 包，插件可能还原失败（使用 `--build=bin` 或确保 `artifacts/packages/sdk/` 下有 `.nupkg` 文件）。`--build=nuget` 保留为 `--build=bin` 的兼容别名。
 
@@ -124,7 +124,7 @@ dotnet build/build.cs -- --build=all   # 免脚本直接调用
 ```text
 src/App/        Launcher.Desktop + Launcher.Console
 src/Layout/     Layout.Core + Layout.Ursa
-src/Plugin/     Plugin.Generators + Plugin.Shared
+src/Plugin/     Plugin.Generators + Plugin.CommandLine + Plugin.Shared + Plugin.Shared.Web
 src/Platforms/  Platforms.Abstractions + 平台实现
 artifacts/bin/、obj/、publish/、packages/、test-results/
 ```
@@ -135,14 +135,15 @@ artifacts/bin/、obj/、publish/、packages/、test-results/
 
 | 解决方案           | 内容                                                                 |
 | -------------- | ------------------------------------------------------------------ |
-| `Core.slnx`    | 宿主：Generators、Shared、Shared.Web、UI、Launcher、Platforms.Abstractions |
-| `Plugins.slnx` | Generators、Shared、Shared.Web、所有 `plugins/*` 项目（12 个插件）             |
+| `Core.slnx`    | 宿主：Generators、CommandLine、Shared、Shared.Web、UI、Launcher、Platforms.Abstractions |
+| `Plugins.slnx` | CommandLine、Shared.Web、所有 `plugins/*` 项目（12 个插件）                         |
 
 ### 项目分层（src/）
 
 ```
 LYBox.Plugin.Generators/        Roslyn 增量源生成器（netstandard2.1，IsRoslynComponent）
-LYBox.Plugin.Shared/            共享契约（核心包）：IPlugin、IPluginMetadata、ViewLocator、ServiceLocator、特性、控件（不含 Web 依赖）
+LYBox.Plugin.CommandLine/       CLI 契约（netstandard2.1）：IPluginCommandRegistrar、注册上下文与 CLI 依赖裁剪规则
+LYBox.Plugin.Shared/            共享契约（核心包）：IPlugin、IPluginMetadata、ViewLocator、ServiceLocator、特性、控件；通过 TypeForwardedTo 兼容旧 CLI 二进制
 LYBox.Plugin.Shared.Web/        Web 包：Rpc/（IRpcHost、WebViewIpcHost、Channel、SseEventPusher）、Web/（WebHostService、SystemCommands、WebPluginView）、嵌入式 ipc.js
 LYBox.Platforms.Abstractions/   跨平台抽象基类（仅空 README）
 LYBox.Layout.Core/              宿主布局核心（ViewModels、Services、Resources 等共享布局基础设施）
@@ -171,6 +172,8 @@ LYBox.Launcher.Desktop/         桌面入口（Program.cs → App.axaml.cs）。
 <PluginDescription>...</PluginDescription>
 <PluginVersion>1.0.0</PluginVersion>  <!-- 可选，缺省回退到 <Version> -->
 ```
+
+新增 CLI 功能时直接引用 `LYBox.Plugin.CommandLine`，但继续使用兼容 namespace `LYBox.Plugin.Shared.CommandLine`。`LYBox.Plugin.Shared` 对两个旧类型保留同版本包依赖与程序集类型转发，禁止在 Shared 中重新引入 `System.CommandLine` 或 `Spectre.Console` 的直接 PackageReference。
 
 12 个插件：ButtonsInputs、DateTime、DialogFeedbacks、Downloader、LayoutDisplay、NavigationMenus、ProDataGrid、ScottPlot、TDLSharp、Template、BTSou、WebTemplate。
 
@@ -426,7 +429,7 @@ Program.cs → App.Initialize()
 
 - SkiaSharp: `3.119.4`（锁定 3.x，Avalonia 12.x 与 ScottPlot 5.1.x 均依赖）
 
-- 插件 NuGet 包：`LYBox.Plugin.Generators` + `LYBox.Plugin.Shared`，版本与宿主一致（唯一真相源 `version.props` 的 `<LyboxVersion>`），本地构建到 `artifacts/packages/sdk/`
+- 插件 NuGet 包：`LYBox.Plugin.Generators` + `LYBox.Plugin.CommandLine` + `LYBox.Plugin.Shared` + `LYBox.Plugin.Shared.Web`，版本与宿主一致（唯一真相源 `version.props` 的 `<LyboxVersion>`），本地构建到 `artifacts/packages/sdk/`
 
 ## NuGet 配置
 
@@ -490,6 +493,8 @@ Program.cs → App.Initialize()
     <PackageReference Include="LYBox.Plugin.Generators" Version="1.0.0"
       OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <PackageReference Include="LYBox.Plugin.Shared" Version="1.0.0" PrivateAssets="all" />
+    <!-- 仅实现 CLI 命令的插件需要 -->
+    <PackageReference Include="LYBox.Plugin.CommandLine" Version="1.0.0" PrivateAssets="all" />
   </ItemGroup>
 </Project>
 ```
@@ -586,7 +591,7 @@ Program.cs → App.Initialize()
 
 - 构建脚本（`build/build.cs`）通过扫描 `plugins/` 下所有 `*.csproj` 发现插件 — `PluginId` 等从 .csproj XML 读取
 
-- `Core.slnx` 和 `Plugins.slnx` 共享 `src/Plugin/LYBox.Plugin.Generators` 和 `src/Plugin/LYBox.Plugin.Shared`
+- `Core.slnx` 与 `Plugins.slnx` 都包含 `src/Plugin/LYBox.Plugin.CommandLine`；Generator 继续固定为 `netstandard2.1`
 
 - 插件 NuGet 包必须在还原插件前本地构建。先用 `.\build.ps1 --build=bin` 构建；包输出到 `artifacts/packages/sdk/`。`plugins/nuget.config` 将此目录添加为本地源。
 
@@ -594,7 +599,7 @@ Program.cs → App.Initialize()
 
 - `src/` 下的 `Directory.Build.props` 导入 `Environment.props` 并设置默认 `TargetFramework=net10.0`（按平台覆盖）
 
-- Generators 项目目标为 `netstandard2.1`（Roslyn 源生成器约束），其余项目均为 `net10.0`
+- Generators 与 CommandLine 契约项目目标为 `netstandard2.1`；宿主、Shared、Shared.Web 与插件项目为 `net10.0`
 
 - 仓库中无 `opencode.json` 或 `CLAUDE.md` — 本 `AGENTS.md` 是唯一的指令文件
 

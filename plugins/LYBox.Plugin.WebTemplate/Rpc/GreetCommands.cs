@@ -9,12 +9,12 @@ namespace LYBox.Plugin.WebTemplate.Rpc;
 public partial class GreetCommands
 {
     [RpcCommand]
-    public Task<string> GreetAsync(string name)
-        => Task.FromResult($"Hello, {name}! 这是来自 C# 的问候。");
+    public Task<string> GreetAsync(GreetRequest request, CancellationToken cancellationToken)
+        => Task.FromResult($"Hello, {request.Name}! 这是来自 C# 的问候。");
 
     [RpcCommand]
-    public Task<int> AddAsync(int a, int b)
-        => Task.FromResult(a + b);
+    public Task<int> AddAsync(AddRequest request, CancellationToken cancellationToken)
+        => Task.FromResult(request.Left + request.Right);
 
     [RpcCommand]
     public Task<object> GetPluginInfoAsync()
@@ -26,3 +26,7 @@ public partial class GreetCommands
             serverTime = DateTime.Now.ToString("o")
         });
 }
+
+public sealed record GreetRequest(string Name);
+
+public sealed record AddRequest(int Left, int Right);

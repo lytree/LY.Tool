@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Text.Json;
 using LYBox.Plugin.Shared;
+using LYBox.Plugin.Shared.Generated;
 using LYBox.Plugin.Shared.Models;
 using LYBox.Plugin.Shared.Services;
 using LYBox.Plugin.Shared.Web;
@@ -18,6 +19,8 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
     private readonly Dictionary<string, PluginEntry> _entries = [];
     private readonly string _pluginsDirectory;
     private readonly string? _extraPluginPath;
+    private readonly bool _loadExtraPlugins;
+    private readonly bool _persistManifestChanges;
     private readonly object _sync = new();
     private List<PluginInfo>? _cachedPluginList;
     private static ILogger _logger = NullLogger<PluginLoader>.Instance;
@@ -27,9 +30,35 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
     public event EventHandler<PluginInfo>? PluginStateChanged;
 
     public PluginLoader(string? pluginsDirectory = null)
+        : this(pluginsDirectory, seedPlugins: null, loadExtraPlugins: true, persistManifestChanges: true)
+    {
+    }
+
+    private PluginLoader(
+        string? pluginsDirectory,
+        IEnumerable<PluginInfo>? seedPlugins,
+        bool loadExtraPlugins,
+        bool persistManifestChanges)
     {
         _pluginsDirectory = pluginsDirectory ?? Path.Combine(AppContext.BaseDirectory, "plugins");
-        _extraPluginPath = Environment.GetEnvironmentVariable(ExtraPluginEnvironmentVariableName);
+        _loadExtraPlugins = loadExtraPlugins;
+        _persistManifestChanges = persistManifestChanges;
+        _extraPluginPath = loadExtraPlugins
+            ? Environment.GetEnvironmentVariable(ExtraPluginEnvironmentVariableName)
+            : null;
+
+        if (seedPlugins is not null)
+        {
+            foreach (var plugin in seedPlugins)
+            {
+                if (string.IsNullOrWhiteSpace(plugin.PluginId))
+                    throw new ArgumentException("Transient plugins must have a non-empty PluginId.", nameof(seedPlugins));
+                if (!_entries.TryAdd(plugin.PluginId, new PluginEntry { Info = plugin }))
+                    throw new ArgumentException($"Duplicate transient plugin id '{plugin.PluginId}'.", nameof(seedPlugins));
+            }
+            return;
+        }
+
         Directory.CreateDirectory(_pluginsDirectory);
         // 顺序：先迁移待升级（可能覆盖 plugins/{PluginId}/ 整个目录），再处理待卸载，
         // 最后扫描 manifests。任何 .pending 目录都不应被后续两步误识别为插件目录
@@ -38,6 +67,23 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
         ProcessPendingUninstalls();
         LoadAllPluginManifests();
         RestorePendingUpgradeStates();
+    }
+
+    /// <summary>
+    /// Creates an in-memory loader for an already resolved plugin dependency closure.
+    /// It does not create directories, scan manifests, process pending operations, load
+    /// extra plugins, or persist runtime state back to plugin.json.
+    /// </summary>
+    public static PluginLoader CreateTransient(
+        IEnumerable<PluginInfo> plugins,
+        string? pluginsDirectory = null)
+    {
+        ArgumentNullException.ThrowIfNull(plugins);
+        return new PluginLoader(
+            pluginsDirectory,
+            plugins,
+            loadExtraPlugins: false,
+            persistManifestChanges: false);
     }
 
     /// <summary>
@@ -92,7 +138,8 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
         // 修复：原在 lock(_sync) 内调用同步的 LoadExtraPlugins()，其内部又通过
         // DiscoverPluginAssemblyAsync(...).GetAwaiter().GetResult() 实现 sync-over-async，
         // 在 UI 线程上易导致死锁。改为在锁外异步等待。
-        await LoadExtraPluginsAsync();
+        if (_loadExtraPlugins)
+            await LoadExtraPluginsAsync();
     }
 
     /// <summary>
@@ -245,7 +292,8 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
                 {
                     Success = true,
                     Plugin = existing.Plugin,
-                    Metadata = existing.Plugin as IPluginMetadata
+                    Metadata = existing.Metadata,
+                    GeneratedModule = existing.Module
                 };
             }
 
@@ -299,30 +347,38 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
         AssemblyLoadContext loadContext;
         IPlugin? plugin = null;
         IPluginMetadata? metadata = null;
+        IGeneratedPluginModule? generatedModule = null;
 
         try
         {
             loadContext = new PluginLoadContext(pluginInfo.AssemblyPath, pluginInfo.SharedAssemblies);
             var assembly = loadContext.LoadFromAssemblyPath(pluginInfo.AssemblyPath);
-
-            foreach (var type in assembly.GetExportedTypes())
+            generatedModule = GeneratedPluginModuleResolver.Resolve(assembly);
+            if (generatedModule is not null)
             {
-                if (type.IsAbstract || type.IsInterface) continue;
-
-                if (typeof(IPlugin).IsAssignableFrom(type) && plugin == null)
+                plugin = generatedModule.CreatePlugin();
+                metadata = generatedModule.Metadata;
+                if (plugin.GetType() != generatedModule.PluginType)
+                    throw new InvalidOperationException("Generated plugin module returned an unexpected plugin type.");
+            }
+            else
+            {
+                foreach (var type in assembly.GetExportedTypes())
                 {
-                    plugin = (IPlugin)Activator.CreateInstance(type)!;
-                    // 入口类由 [GenerateMetadata] 同时实现 IPlugin 与 IPluginMetadata，
-                    // 复用同一实例，避免对同一类型创建两份引用（O-11 PluginEntry 收敛）。
-                    if (metadata == null && plugin is IPluginMetadata pluginAsMeta)
-                        metadata = pluginAsMeta;
-                }
-                else if (metadata == null && typeof(IPluginMetadata).IsAssignableFrom(type))
-                {
-                    metadata = (IPluginMetadata)Activator.CreateInstance(type)!;
-                }
+                    if (type.IsAbstract || type.IsInterface) continue;
 
-                if (plugin != null && metadata != null) break;
+                    if (plugin is null && typeof(IPlugin).IsAssignableFrom(type))
+                    {
+                        plugin = (IPlugin)Activator.CreateInstance(type)!;
+                        metadata ??= plugin as IPluginMetadata;
+                    }
+                    else if (metadata is null && typeof(IPluginMetadata).IsAssignableFrom(type))
+                    {
+                        metadata = (IPluginMetadata)Activator.CreateInstance(type)!;
+                    }
+
+                    if (plugin is not null && metadata is not null) break;
+                }
             }
         }
         catch (Exception ex)
@@ -366,6 +422,8 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
             var entry = GetOrCreateEntry(pluginInfo.PluginId);
             entry.Context = loadContext;
             entry.Plugin = plugin;
+            entry.Metadata = metadata;
+            entry.Module = generatedModule;
             if (metadata != null)
             {
                 pluginInfo = pluginInfo.WithMetadata(true);
@@ -377,7 +435,7 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
             SavePluginManifest(pluginInfo);
             InvalidateSnapshot();
 
-            return new PluginLoadResult { Success = true, Plugin = plugin, Metadata = metadata, PluginInfo = pluginInfo };
+            return new PluginLoadResult { Success = true, Plugin = plugin, Metadata = metadata, GeneratedModule = generatedModule, PluginInfo = pluginInfo };
         }
     }
 
@@ -561,7 +619,15 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
     {
         lock (_sync)
         {
-            return _entries.TryGetValue(pluginId, out var entry) ? entry.Plugin as IPluginMetadata : null;
+            return _entries.TryGetValue(pluginId, out var entry) ? entry.Metadata : null;
+        }
+    }
+
+    public IGeneratedPluginModule? GetGeneratedModule(string pluginId)
+    {
+        lock (_sync)
+        {
+            return _entries.TryGetValue(pluginId, out var entry) ? entry.Module : null;
         }
     }
 
@@ -1163,6 +1229,8 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
 
     private void SavePluginManifest(PluginInfo pluginInfo)
     {
+        if (!_persistManifestChanges) return;
+
         try
         {
             var pluginDir = pluginInfo.InstallPath;
@@ -1208,6 +1276,7 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
 
     private void DeletePluginManifest(string pluginId)
     {
+        if (!_persistManifestChanges) return;
         if (!_entries.TryGetValue(pluginId, out var entry)) return;
 
         try
@@ -1237,6 +1306,7 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
             pluginsToShutdown = _entries.Values
                 .Where(e => e.Plugin is not null && e.Info.State == PluginState.Loaded)
                 .Select(e => e.Plugin!)
+                .Reverse()
                 .ToList();
         }
 
@@ -1350,6 +1420,8 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
     {
         public PluginInfo Info { get; set; } = new();
         public IPlugin? Plugin { get; set; }
+        public IPluginMetadata? Metadata { get; set; }
+        public IGeneratedPluginModule? Module { get; set; }
         public AssemblyLoadContext? Context { get; set; }
         public bool IsInitialized { get; set; }
     }

@@ -52,13 +52,18 @@
     fetch(bridge('rpc'), {
       method: 'POST',
       headers: httpHeaders(),
-      body: JSON.stringify({ name: msg.name, args: msg.args || [], callbackId: msg.callbackId })
+      body: JSON.stringify(msg)
     }).then(function (r) { return r.json(); })
       .then(function (r) {
-        // 复用 resolve 机制回推 Promise
-        resolve(msg.callbackId, r.error || null, r.result);
+        resolve(
+          msg.id || msg.callbackId,
+          r.ok === false ? r.error : (r.error || null),
+          Object.prototype.hasOwnProperty.call(r, 'payload') ? r.payload : r.result);
       })['catch'](function (e) {
-        resolve(msg.callbackId, e.message, null);
+        resolve(msg.id || msg.callbackId, {
+          code: 'transport_error',
+          message: e && e.message ? e.message : String(e)
+        }, null);
       });
   }
 
@@ -68,13 +73,58 @@
     return headers;
   }
 
-  // JS → C#：发起 RPC 调用，返回 Promise。统一入口。
-  function invoke(name) {
+  // Canonical single-payload API.
+  function invoke(name, payload, options) {
+    return createInvocation(name, {
+      version: 2,
+      kind: 'plugin-rpc-call',
+      pluginId: runtimePluginId,
+      method: name,
+      payload: payload === undefined ? null : payload
+    }, options);
+  }
+
+  // Legacy positional arguments API.
+  function invokeLegacy(name) {
     var args = Array.prototype.slice.call(arguments, 1);
+    return createInvocation(name, { name: name, args: args }, null);
+  }
+
+  function createInvocation(name, message, options) {
     return new Promise(function (resolve, reject) {
       var id = name + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
-      callbacks.set(id, { resolve: resolve, reject: reject });
-      send('C' + JSON.stringify({ name: name, args: args, callbackId: id }));
+      var timeoutId = null;
+      var abortHandler = null;
+      var finish = function () {
+        if (timeoutId !== null) clearTimeout(timeoutId);
+        if (options && options.signal && abortHandler)
+          options.signal.removeEventListener('abort', abortHandler);
+      };
+      callbacks.set(id, { resolve: resolve, reject: reject, finish: finish });
+
+      if (options && Number.isFinite(options.timeout) && options.timeout > 0) {
+        timeoutId = setTimeout(function () {
+          callbacks.delete(id);
+          finish();
+          reject(toError({ code: 'timeout', message: 'RPC call timed out.' }));
+        }, options.timeout);
+      }
+      if (options && options.signal) {
+        abortHandler = function () {
+          callbacks.delete(id);
+          finish();
+          reject(toError({ code: 'cancelled', message: 'RPC call was cancelled.' }));
+        };
+        if (options.signal.aborted) {
+          abortHandler();
+          return;
+        }
+        options.signal.addEventListener('abort', abortHandler, { once: true });
+      }
+
+      message.id = id;
+      message.callbackId = id;
+      send('C' + JSON.stringify(message));
     });
   }
 
@@ -83,8 +133,9 @@
     var cb = callbacks.get(id);
     if (!cb) return;
     callbacks.delete(id);
+    if (cb.finish) cb.finish();
     if (err) {
-      cb.reject(new Error(err));
+      cb.reject(toError(err));
     } else if (result && typeof result === 'object' && result.__channel) {
       cb.resolve(makeChannel(result.id, result.itemType));
     } else {
@@ -174,6 +225,13 @@
           channelOnClose(msg.id);
         } catch (err) { console.error('[__lybox] SSE channel-close 解析失败', err); }
       });
+      es.addEventListener('channel-error', function (e) {
+        try {
+          var msg = JSON.parse(e.data);
+          var set = channelListeners[msg.id];
+          if (set) set.forEach(function (cb) { try { cb(null, true, toError(msg.error)); } catch (err) { console.error(err); } });
+        } catch (err) { console.error('[__lybox] SSE channel-error parse failed', err); }
+      });
       es.onerror = function () { /* 浏览器会自动重连，无需处理 */ };
     } catch (e) {
       console.error('[__lybox] SSE 初始化失败', e);
@@ -183,8 +241,9 @@
   }
 
   window.__lybox = {
-    rpc: invoke,           // 统一 RPC 入口：rpc(name, ...args) => Promise<T>
-    invoke: invoke,        // 别名（向后兼容）
+    invoke: invoke,
+    rpc: invokeLegacy,
+    invokeLegacy: invokeLegacy,
     resolve: resolve,
     on: on,
     off: off,
@@ -199,6 +258,17 @@
 
   if (typeof window.dispatchEvent === 'function' && typeof CustomEvent === 'function') {
     window.dispatchEvent(new CustomEvent('lybox:bridge-ready', { detail: window.__lybox }));
+  }
+
+  function toError(value) {
+    var detail = value && typeof value === 'object'
+      ? value
+      : { code: 'handler_error', message: String(value || 'RPC call failed.') };
+    var error = new Error(detail.message || 'RPC call failed.');
+    error.code = detail.code || 'handler_error';
+    if (detail.details !== undefined) error.details = detail.details;
+    if (detail.traceId) error.traceId = detail.traceId;
+    return error;
   }
 
   // 通知宿主运行时就绪（WebView 模式握手；浏览器模式无监听者，无副作用）。

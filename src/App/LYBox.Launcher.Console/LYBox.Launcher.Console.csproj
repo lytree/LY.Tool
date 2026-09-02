@@ -16,8 +16,8 @@
   <ItemGroup>
     <!-- 复用 GUI 版启动逻辑（App / AppBuilder / DI / 插件加载），仅入口输出类型不同 -->
     <ProjectReference Include="..\LYBox.Launcher.Desktop\LYBox.Launcher.Desktop.csproj" />
-    <!-- CLI 依赖：System.CommandLine（命令解析）+ Spectre.Console（富文本输出）。
-         与 LYBox.Plugin.Shared 共用版本（Directory.Packages.props 集中管理），运行时由宿主提供。 -->
+    <!-- CLI contracts are split from the core Shared SDK; the host still supplies their runtime dependencies. -->
+    <ProjectReference Include="..\..\Plugin\LYBox.Plugin.CommandLine\LYBox.Plugin.CommandLine.csproj" />
     <ProjectReference Include="..\..\Plugin\LYBox.Plugin.Shared\LYBox.Plugin.Shared.csproj" />
     <ProjectReference Include="..\..\Layout\LYBox.Layout.Core\LYBox.Layout.Core.csproj" />
   </ItemGroup>

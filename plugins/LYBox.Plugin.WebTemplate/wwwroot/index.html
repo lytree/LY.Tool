@@ -126,7 +126,10 @@
     </div>
 
     <script type="module">
-        import { invoke as lyboxInvoke, on as lyboxOn } from "/sdk/lybox-plugin-sdk.js";
+        import { createLyboxClient, invoke as lyboxInvoke, on as lyboxOn } from "/sdk/lybox-plugin-sdk.js";
+        import { createGreetCommandsClient } from "./.lybox/GreetCommands.client.js";
+
+        const greetCommands = createGreetCommandsClient(createLyboxClient());
 
         function initListener() {
             // 订阅 C# 主动推送的 tick 事件
@@ -146,7 +149,7 @@
         async function callGreet() {
             var name = document.getElementById('name-input').value;
             try {
-                var result = await lyboxInvoke('GreetAsync', name);
+                var result = await greetCommands.greet({ name });
                 document.getElementById('greet-result').textContent = result;
             } catch (e) {
                 document.getElementById('greet-result').textContent = '错误: ' + (e.message || e);
@@ -157,7 +160,7 @@
             var a = parseInt(document.getElementById('a-input').value, 10);
             var b = parseInt(document.getElementById('b-input').value, 10);
             try {
-                var result = await lyboxInvoke('AddAsync', a, b);
+                var result = await greetCommands.add({ left: a, right: b });
                 document.getElementById('add-result').textContent = a + ' + ' + b + ' = ' + result;
             } catch (e) {
                 document.getElementById('add-result').textContent = '错误: ' + (e.message || e);
@@ -166,7 +169,7 @@
 
         async function callInfo() {
             try {
-                var result = await lyboxInvoke('GetPluginInfoAsync');
+                var result = await greetCommands.getPluginInfo();
                 document.getElementById('info-result').textContent = JSON.stringify(result, null, 2);
             } catch (e) {
                 document.getElementById('info-result').textContent = '错误: ' + (e.message || e);

@@ -1,0 +1,139 @@
+<Project>
+  <UsingTask TaskName="WriteLYBoxPluginCliIndex"
+             TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <OutputPath ParameterType="System.String" Required="true" />
+      <PluginId ParameterType="System.String" Required="true" />
+      <PluginVersion ParameterType="System.String" Required="true" />
+      <Alias ParameterType="System.String" Required="true" />
+      <Description ParameterType="System.String" Required="false" />
+      <RuntimeProfile ParameterType="System.String" Required="true" />
+      <OutputModes ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Linq" />
+      <Using Namespace="System.Text" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        static string JsonString(string value)
+        {
+            var escaped = new StringBuilder(value.Length + 2).Append('"');
+            foreach (var character in value)
+            {
+                switch (character)
+                {
+                    case '"': escaped.Append("\\\""); break;
+                    case '\\': escaped.Append("\\\\"); break;
+                    case '\b': escaped.Append("\\b"); break;
+                    case '\f': escaped.Append("\\f"); break;
+                    case '\n': escaped.Append("\\n"); break;
+                    case '\r': escaped.Append("\\r"); break;
+                    case '\t': escaped.Append("\\t"); break;
+                    default:
+                        if (character < ' ')
+                            escaped.Append("\\u").Append(((int)character).ToString("x4"));
+                        else
+                            escaped.Append(character);
+                        break;
+                }
+            }
+            return escaped.Append('"').ToString();
+        }
+
+        var modes = OutputModes.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(value => value.Trim().ToLowerInvariant())
+            .Where(value => value.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        if (modes.Length == 0) modes = new[] { "text" };
+
+        var json = new StringBuilder()
+            .AppendLine("{")
+            .AppendLine("  \"schemaVersion\": 1,")
+            .Append("  \"pluginId\": ").Append(JsonString(PluginId)).AppendLine(",")
+            .Append("  \"pluginVersion\": ").Append(JsonString(PluginVersion)).AppendLine(",")
+            .Append("  \"alias\": ").Append(JsonString(Alias)).AppendLine(",")
+            .Append("  \"description\": ").Append(JsonString(Description ?? string.Empty)).AppendLine(",")
+            .Append("  \"runtimeProfile\": ").Append(JsonString(RuntimeProfile.ToLowerInvariant())).AppendLine(",")
+            .Append("  \"outputModes\": [")
+            .Append(string.Join(", ", modes.Select(JsonString)))
+            .AppendLine("],")
+            .AppendLine("  \"commands\": []")
+            .AppendLine("}");
+        var directory = Path.GetDirectoryName(OutputPath);
+        if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
+        File.WriteAllText(OutputPath, json.ToString(), new UTF8Encoding(false));
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <PropertyGroup>
+    <_PluginCliId Condition="'$(PluginId)' != ''">$(PluginId)</_PluginCliId>
+    <_PluginCliId Condition="'$(_PluginCliId)' == ''">$(AssemblyName)</_PluginCliId>
+    <_PluginCliVersion Condition="'$(PackageVersion)' != ''">$(PackageVersion)</_PluginCliVersion>
+    <_PluginCliVersion Condition="'$(_PluginCliVersion)' == '' And '$(Version)' != ''">$(Version)</_PluginCliVersion>
+    <_PluginCliVersion Condition="'$(_PluginCliVersion)' == ''">1.0.0</_PluginCliVersion>
+  </PropertyGroup>
+
+  <Target Name="ValidatePluginCliIndex"
+          BeforeTargets="GeneratePluginCliIndexFile"
+          Condition="'$(IsPluginProject)' == 'true' And '$(GeneratePluginCliIndex)' == 'true'">
+    <Error Condition="'$(PluginCliAlias)' == ''" Text="LYBOXCLI001: PluginCliAlias is required when GeneratePluginCliIndex=true." />
+    <Error Condition="'$(PluginCliRuntimeProfile)' != 'selected' And '$(PluginCliRuntimeProfile)' != 'data'"
+           Text="LYBOXCLI002: PluginCliRuntimeProfile must be 'selected' or 'data'." />
+  </Target>
+
+  <Target Name="GeneratePluginCliIndexFile"
+          AfterTargets="Build"
+          Condition="'$(IsPluginProject)' == 'true' And '$(GeneratePluginCliIndex)' == 'true'">
+    <WriteLYBoxPluginCliIndex OutputPath="$(OutDir)plugin.cli.json"
+                              PluginId="$(_PluginCliId)"
+                              PluginVersion="$(_PluginCliVersion)"
+                              Alias="$(PluginCliAlias)"
+                              Description="$(PluginCliDescription)"
+                              RuntimeProfile="$(PluginCliRuntimeProfile)"
+                              OutputModes="$(PluginCliOutputModes)" />
+  </Target>
+
+  <Target Name="GeneratePublishedPluginCliIndexFile"
+          AfterTargets="Publish"
+          Condition="'$(IsPluginProject)' == 'true' And '$(GeneratePluginCliIndex)' == 'true'">
+    <WriteLYBoxPluginCliIndex OutputPath="$(PublishDir)plugin.cli.json"
+                              PluginId="$(_PluginCliId)"
+                              PluginVersion="$(_PluginCliVersion)"
+                              Alias="$(PluginCliAlias)"
+                              Description="$(PluginCliDescription)"
+                              RuntimeProfile="$(PluginCliRuntimeProfile)"
+                              OutputModes="$(PluginCliOutputModes)" />
+  </Target>
+
+  <Target Name="ExcludePluginCommandLineAssembliesFromCopyLocal"
+          AfterTargets="ResolveAssemblyReferences"
+          Condition="'$(IsPluginProject)' == 'true' And '$(LYBoxPluginCommandLineExclusionsEnabled)' == 'true'">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'LYBox.Plugin.CommandLine'" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'System.CommandLine'" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('System.CommandLine.'))" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'Spectre.Console'" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('Spectre.Console.'))" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="CleanPublishedPluginCommandLineAssemblies"
+          AfterTargets="Publish"
+          Condition="'$(IsPluginProject)' == 'true' And '$(LYBoxPluginCommandLineExclusionsEnabled)' == 'true'">
+    <ItemGroup>
+      <_PluginCommandLinePublishedFiles Include="$(PublishDir)**\*.dll" />
+      <_PluginCommandLinePublishedFiles Include="$(PublishDir)**\*.pdb" />
+      <_PluginCommandLinePublishedFiles Include="$(PublishDir)**\*.xml" />
+      <_ExcludedPluginCommandLinePublished Include="@(_PluginCommandLinePublishedFiles)" Condition="'%(Filename)' == 'LYBox.Plugin.CommandLine'" />
+      <_ExcludedPluginCommandLinePublished Include="@(_PluginCommandLinePublishedFiles)" Condition="'%(Filename)' == 'System.CommandLine'" />
+      <_ExcludedPluginCommandLinePublished Include="@(_PluginCommandLinePublishedFiles)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('System.CommandLine.'))" />
+      <_ExcludedPluginCommandLinePublished Include="@(_PluginCommandLinePublishedFiles)" Condition="'%(Filename)' == 'Spectre.Console'" />
+      <_ExcludedPluginCommandLinePublished Include="@(_PluginCommandLinePublishedFiles)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('Spectre.Console.'))" />
+    </ItemGroup>
+    <Delete Files="@(_ExcludedPluginCommandLinePublished)" />
+  </Target>
+</Project>

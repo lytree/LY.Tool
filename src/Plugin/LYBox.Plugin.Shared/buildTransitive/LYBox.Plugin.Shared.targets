@@ -16,8 +16,6 @@
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('CommunityToolkit.'))" />
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('Irihi.'))" />
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.EntityFrameworkCore.'))" />
-      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('System.CommandLine.'))" />
-      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('Spectre.Console.'))" />
 
       <!-- Exact matches: remove these specific assemblies -->
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'Avalonia'" />
@@ -35,8 +33,6 @@
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'Semi.Avalonia'" />
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'Microsoft.EntityFrameworkCore'" />
       <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'ProDataGrid'" />
-      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'System.CommandLine'" />
-      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'Spectre.Console'" />
     </ItemGroup>
   </Target>
 
@@ -60,8 +56,6 @@
       <_ExcludedPublished Include="@(_PublishedFiles)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('CommunityToolkit.'))" />
       <_ExcludedPublished Include="@(_PublishedFiles)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('Irihi.'))" />
       <_ExcludedPublished Include="@(_PublishedFiles)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.EntityFrameworkCore.'))" />
-      <_ExcludedPublished Include="@(_PublishedFiles)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('System.CommandLine.'))" />
-      <_ExcludedPublished Include="@(_PublishedFiles)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('Spectre.Console.'))" />
 
       <!-- Exact matches -->
       <_ExcludedPublished Include="@(_PublishedFiles)" Condition="'%(Filename)' == 'Avalonia'" />

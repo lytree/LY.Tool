@@ -208,10 +208,10 @@ public partial class WebPluginView : UserControl
         if (_host is null) return;
         if (!ServiceLocator.TryGetService<IPluginLoader>(out var loader) || loader is null) return;
 
-        var plugin = loader.GetLoadedPlugin(pluginId) as IWebPlugin;
-        if (plugin is null) return;
+        if (loader.GetGeneratedModule(pluginId) is not IGeneratedPluginWebModule module)
+            return;
 
-        WebPluginBindings.Register(_host, plugin);
+        WebPluginBindings.Register(_host, module, ServiceLocator.GetServiceProvider());
     }
 
     // ==================== 展示层（移植自 PluginWebViewPage） ====================

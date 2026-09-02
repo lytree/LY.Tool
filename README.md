@@ -52,7 +52,7 @@ Linux/macOS 用 `./build.sh` 替代 `.\build.ps1`。
   .\build.ps1 --nuget-api-key=<KEY>          # 推送包到 nuget.org
   ```
 
-- **构建顺序很重要**：`--build=bin` 必须先于 `--build=plugin` 运行（或直接使用 `--build=all`），因为 `--build=bin` 会打包 SDK NuGet 包，而插件依赖本地构建的 `LYBox.Plugin.Generators` + `LYBox.Plugin.Shared` NuGet 包。
+- **构建顺序很重要**：`--build=bin` 必须先于 `--build=plugin` 运行（或直接使用 `--build=all`），因为 `--build=bin` 会打包 `LYBox.Plugin.Generators`、`LYBox.Plugin.CommandLine`、`LYBox.Plugin.Shared` 与 `LYBox.Plugin.Shared.Web` SDK NuGet 包。
 - **直接 `dotnet build`** 可用于单个项目，但若未预先构建本地 NuGet 包，插件可能还原失败（使用 `--build=bin` 或确保 `artifacts/packages/sdk/` 下有 `.nupkg` 文件）。`--build=nuget` 保留为 `--build=bin` 的兼容别名。
 - **运行启动器**：`dotnet run --project src/App/LYBox.Launcher.Desktop`
 - **运行控制台 CLI**：
@@ -93,16 +93,16 @@ artifacts/
 
 | 解决方案 | 内容 |
 |----------|------|
-| `Core.slnx` | 宿主：Generators、Shared、UI、Launcher、Platforms.Abstractions |
-| `Plugins.slnx` | Generators、Shared、所有 `plugins/*` 项目（12 个插件） |
+| `Core.slnx` | 宿主：Generators、CommandLine、Shared、Shared.Web、UI、Launcher、Platforms.Abstractions |
+| `Plugins.slnx` | CommandLine、Shared.Web、所有 `plugins/*` 项目（12 个插件） |
 
 ### 项目分层（src/）
 
 ```
 LYBox.Plugin.Generators/        Roslyn 增量源生成器（netstandard2.1，IsRoslynComponent）
-LYBox.Plugin.Shared/            共享契约：IPlugin、IPluginMetadata、ViewLocator、ServiceLocator、特性、控件
-LYBox.Plugin.Shared.Chart/      图表类插件共享契约与辅助（配合 ScottPlot 插件）
-LYBox.Plugin.Shared.ProDataGrid/ 数据网格类插件共享契约与辅助（配合 ProDataGrid 插件）
+LYBox.Plugin.CommandLine/       CLI 契约（netstandard2.1）：IPluginCommandRegistrar、注册上下文
+LYBox.Plugin.Shared/            共享契约：IPlugin、IPluginMetadata、ViewLocator、ServiceLocator、特性、控件；转发旧 CLI 类型
+LYBox.Plugin.Shared.Web/        WebView、Kestrel、RPC、Event、Channel 与浏览器 SDK
 LYBox.Platforms.Abstractions/   跨平台抽象基类（仅空 README）
 LYBox.Layout.Core/              宿主布局核心（ViewModels、Services、Resources 等共享布局基础设施）
 LYBox.Layout.Ursa/                       宿主应用：ViewModels、Views、Services（EF Core、导航、菜单、本地化、ZLogger）
@@ -128,6 +128,8 @@ LYBox.Launcher.Desktop/         桌面入口（Program.cs → App.axaml.cs）。
 <PluginVersion>1.0.0</PluginVersion>  <!-- 可选，缺省回退到 <Version> -->
 <MinPluginSdkVersion>2.1.0</MinPluginSdkVersion>  <!-- 可选，缺省 "0.0.0" 无约束 -->
 ```
+
+提供 CLI 命令的新插件应额外直接引用 `LYBox.Plugin.CommandLine`。契约 namespace 仍为 `LYBox.Plugin.Shared.CommandLine`；既有源码无需修改。`LYBox.Plugin.Shared` 保留同版本 NuGet 依赖与 `TypeForwardedTo`，因此只引用旧 Shared 包编译出的插件二进制仍可由新宿主加载。
 
 12 个内置示例插件：ButtonsInputs、DateTime、DialogFeedbacks、Downloader、LayoutDisplay、NavigationMenus、ProDataGrid、ScottPlot、TDLSharp、Template、WebTemplate。
 
@@ -231,6 +233,8 @@ Program.cs → App.Initialize()
     <PackageReference Include="LYBox.Plugin.Generators" Version="1.0.0"
       OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <PackageReference Include="LYBox.Plugin.Shared" Version="1.0.0" PrivateAssets="all" />
+    <!-- 仅 CLI 插件需要；namespace 仍为 LYBox.Plugin.Shared.CommandLine -->
+    <PackageReference Include="LYBox.Plugin.CommandLine" Version="1.0.0" PrivateAssets="all" />
   </ItemGroup>
 </Project>
 ```
@@ -426,6 +430,7 @@ if (result.Success)
 | **构建系统** | [build/build.cs](build/build.cs)、[Directory.Build.props](Directory.Build.props)、[build.ps1](build.ps1) |
 | **应用入口** | [src/App/LYBox.Launcher.Desktop/Program.cs](src/App/LYBox.Launcher.Desktop/Program.cs)、[App.axaml.cs](src/App/LYBox.Launcher.Desktop/App.axaml.cs) |
 | **插件契约** | [src/Plugin/LYBox.Plugin.Shared/IPlugin.cs](src/Plugin/LYBox.Plugin.Shared/IPlugin.cs)、[IPluginMetadata.cs](src/Plugin/LYBox.Plugin.Shared/IPluginMetadata.cs)、[PluginSdkContract.cs](src/Plugin/LYBox.Plugin.Shared/PluginSdkContract.cs) |
+| **CLI 契约** | [src/Plugin/LYBox.Plugin.CommandLine/IPluginCommandRegistrar.cs](src/Plugin/LYBox.Plugin.CommandLine/IPluginCommandRegistrar.cs)、[类型转发](src/Plugin/LYBox.Plugin.Shared/CommandLine/TypeForwards.cs) |
 | **插件加载** | [src/Layout/LYBox.Layout.Ursa/Services/PluginLoader.cs](src/Layout/LYBox.Layout.Ursa/Services/PluginLoader.cs)、[PluginLoadContext.cs](src/Layout/LYBox.Layout.Ursa/Services/PluginLoadContext.cs) |
 | **插件安装** | [src/Layout/LYBox.Layout.Ursa/Services/PluginInstallationManager.cs](src/Layout/LYBox.Layout.Ursa/Services/PluginInstallationManager.cs) |
 | **导航与菜单** | [src/Layout/LYBox.Layout.Ursa/Services/NavigationService.cs](src/Layout/LYBox.Layout.Ursa/Services/NavigationService.cs)、[MenuConfigurationService.cs](src/Layout/LYBox.Layout.Ursa/Services/MenuConfigurationService.cs) |
