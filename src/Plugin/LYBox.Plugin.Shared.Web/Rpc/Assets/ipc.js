@@ -69,11 +69,12 @@
   }
 
   // JS → C#：发起 RPC 调用，返回 Promise。统一入口。
-  function invoke(name, args) {
+  function invoke(name) {
+    var args = Array.prototype.slice.call(arguments, 1);
     return new Promise(function (resolve, reject) {
       var id = name + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
       callbacks.set(id, { resolve: resolve, reject: reject });
-      send('C' + JSON.stringify({ name: name, args: args || [], callbackId: id }));
+      send('C' + JSON.stringify({ name: name, args: args, callbackId: id }));
     });
   }
 
@@ -137,20 +138,24 @@
   // —— SSE 监听器（C# → JS 主动推送）——
   // WebView 模式由宿主在 ipc.js 注入完成后显式调用 startSse(pluginId) 启动。
   // 浏览器模式自动启动（mock-server 或 Avalonia Kestrel 均提供 /sse/{pluginId}）。
-  var sseStarted = false;
+  var eventSource = null;
+  var activeSseUrl = null;
   function configureRuntime(pluginId, sessionToken) {
     runtimePluginId = pluginId || runtimePluginId;
     runtimeSession = sessionToken || runtimeSession;
   }
 
   function startSse(pluginId, sessionToken) {
-    if (sseStarted) return;
     if (!pluginId || typeof EventSource === 'undefined') return;
     try {
-      sseStarted = true;
       configureRuntime(pluginId, sessionToken);
       var suffix = runtimeSession ? '?session=' + encodeURIComponent(runtimeSession) : '';
-      var es = new EventSource('/sse/' + encodeURIComponent(pluginId) + suffix);
+      var url = '/sse/' + encodeURIComponent(pluginId) + suffix;
+      if (eventSource && activeSseUrl === url) return;
+      if (eventSource) eventSource.close();
+      var es = new EventSource(url);
+      eventSource = es;
+      activeSseUrl = url;
       es.addEventListener('dispatch', function (e) {
         try {
           var msg = JSON.parse(e.data);
@@ -172,7 +177,8 @@
       es.onerror = function () { /* 浏览器会自动重连，无需处理 */ };
     } catch (e) {
       console.error('[__lybox] SSE 初始化失败', e);
-      sseStarted = false;
+      eventSource = null;
+      activeSseUrl = null;
     }
   }
 
@@ -191,9 +197,8 @@
     isWebView: isWebView   // 供前端检测当前环境
   };
 
-  // 浏览器模式：自动启动 SSE（用 mock-plugin 作为默认 pluginId，可被后续 startSse 覆盖）
-  if (!isWebView) {
-    startSse('mock-plugin');
+  if (typeof window.dispatchEvent === 'function' && typeof CustomEvent === 'function') {
+    window.dispatchEvent(new CustomEvent('lybox:bridge-ready', { detail: window.__lybox }));
   }
 
   // 通知宿主运行时就绪（WebView 模式握手；浏览器模式无监听者，无副作用）。

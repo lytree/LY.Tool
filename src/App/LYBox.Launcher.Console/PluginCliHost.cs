@@ -11,6 +11,16 @@ using SpectreMarkup = Spectre.Console.Markup;
 
 namespace LYBox.Launcher.Console;
 
+internal delegate Task<IPluginCliHost> PluginCliHostFactory(
+    IAnsiConsole console,
+    string? pluginsDirectory,
+    CancellationToken cancellationToken);
+
+internal interface IPluginCliHost : IAsyncDisposable
+{
+    int RegisterCommands(System.CommandLine.Command pluginCommand);
+}
+
 /// <summary>
 /// 插件 CLI 宿主：构建 ServiceProvider、加载已安装插件、把 <see cref="IPluginCommandRegistrar"/>
 /// 注册到根 <c>plugin</c> 子命令下，最后负责释放插件与服务。
@@ -26,7 +36,7 @@ namespace LYBox.Launcher.Console;
 ///       防止 TdLib / Kestrel 等原生资源泄漏。</item>
 /// </list>
 /// </summary>
-internal sealed class PluginCliHost : IAsyncDisposable
+internal sealed class PluginCliHost : IPluginCliHost
 {
     private readonly IAnsiConsole _console;
     private readonly PluginLoader _pluginLoader;
@@ -50,8 +60,7 @@ internal sealed class PluginCliHost : IAsyncDisposable
         ArgumentNullException.ThrowIfNull(console);
 
         var services = new ServiceCollection();
-        // 复用宿主 GUI 启动器的所有 DI 注册：日志、EF Core、本地化、设置、任务注册表。
-        services.AddAvaloniaServices();
+        ConfigureServices(services, console);
 
         var loader = new PluginLoader(pluginsDirectory);
         ServiceProvider? provider = null;
@@ -97,6 +106,18 @@ internal sealed class PluginCliHost : IAsyncDisposable
             loader.Dispose();
             throw;
         }
+    }
+
+    internal static void ConfigureServices(
+        IServiceCollection services,
+        IAnsiConsole console)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(console);
+
+        // 复用宿主 GUI 启动器的核心 DI，并让插件 CLI 服务获得同一输出端。
+        services.AddAvaloniaServices();
+        services.AddSingleton<IAnsiConsole>(console);
     }
 
     /// <summary>

@@ -7,19 +7,23 @@
  *   - 浏览器模式：window.__lybox.rpc 不存在 → 通过 HTTP 桥接（POST /__bridge/{pluginId}/{action}）
  *     与 SSE（EventSource /sse/{pluginId}）访问宿主
  *
- * 调用统一走 lyboxInvoke(method, payload): Promise<T>。
+ * 调用统一走 lyboxInvoke(method, ...args): Promise<T>。
  * 事件订阅走 lyboxOn(eventName, handler): unsubscribe。
  * HTTP 请求走 lyboxRequest(path, options) / lyboxGetJson(path, options)。
  */
 
 const REQUEST_KIND = "lybox-ipc-request";
 const RESPONSE_KIND = "lybox-ipc-response";
+const BRIDGE_READY_EVENT = "lybox:bridge-ready";
 
 let runtimeConfig = globalThis.window?.__lyboxRuntime;
 let mockRegistry = Object.create(null);
 const eventListeners = new Map();
+const bridgeSubscriptions = new Map();
+const eventSourceEventNames = new Set();
 let eventSource;
 let activeEventStreamUrl;
+let bridgeReadyListenerInstalled = false;
 
 /**
  * 安装 LYBox 运行时配置（mock 模式下由 lybox-mock 注入）。
@@ -29,7 +33,8 @@ export function installLyboxRuntime(config) {
   validateRuntimeConfig(config);
   runtimeConfig = Object.freeze({ ...config });
   if (typeof window !== "undefined" && !window.__lyboxRuntime) window.__lyboxRuntime = runtimeConfig;
-  configureEventStream();
+  installBridgeReadyListener();
+  configureEventTransport();
   return runtimeConfig;
 }
 
@@ -59,20 +64,20 @@ export function registerLyboxMocks(mocks) {
  * 调用宿主注册的 RPC 命令。WebView 模式走 window.__lybox.rpc（Promise），
  * 浏览器模式走 HTTP 桥接或本地 mock。
  */
-export async function lyboxInvoke(method, payload) {
+export async function lyboxInvoke(method, ...args) {
   if (typeof method !== "string" || !method.trim()) {
     throw structuredError("invalid_method", "IPC method must not be empty.");
   }
   const lybox = globalThis.window?.__lybox;
   if (lybox && typeof lybox.rpc === "function") {
-    return await lybox.rpc(method, payload);
+    return await lybox.rpc(method, ...args);
   }
   const config = getLyboxRuntime();
   if (config?.mockBaseUrl) {
-    return await invokeMockHttp(config, method, payload);
+    return await invokeMockHttp(config, method, args);
   }
   const mock = mockRegistry[method];
-  if (mock) return await mock(payload);
+  if (mock) return await mock(...args);
   throw structuredError("bridge_unavailable", "LYBox WebView IPC bridge is unavailable.");
 }
 
@@ -97,9 +102,13 @@ export function lyboxOn(eventName, handler) {
   const listeners = eventListeners.get(eventName) ?? new Set();
   listeners.add(handler);
   eventListeners.set(eventName, listeners);
+  configureEventTransport();
   return () => {
     listeners.delete(handler);
-    if (listeners.size === 0) eventListeners.delete(eventName);
+    if (listeners.size === 0) {
+      eventListeners.delete(eventName);
+      unbindBridgeEvent(eventName);
+    }
   };
 }
 
@@ -109,6 +118,10 @@ export function lyboxOff(eventName, handler) {
   if (!listeners) return;
   if (handler) listeners.delete(handler);
   else listeners.clear();
+  if (listeners.size === 0) {
+    eventListeners.delete(eventName);
+    unbindBridgeEvent(eventName);
+  }
 }
 
 /** 发送 HTTP 请求到宿主 apiBaseUrl。 */
@@ -129,13 +142,14 @@ export async function lyboxGetJson(path, options) {
   return await response.json();
 }
 
-async function invokeMockHttp(config, method, payload) {
+async function invokeMockHttp(config, method, args) {
   const request = {
     kind: REQUEST_KIND,
     id: createRequestId(),
     pluginKey: config.pluginKey,
     method,
-    payload: payload === undefined ? null : payload,
+    args,
+    payload: args.length <= 1 ? (args[0] ?? null) : args,
   };
   let response;
   try {
@@ -157,19 +171,64 @@ async function invokeMockHttp(config, method, payload) {
   throw value.error ?? structuredError("ipc_error", "Mock IPC request failed.");
 }
 
+function installBridgeReadyListener() {
+  if (bridgeReadyListenerInstalled || typeof window === "undefined" || typeof window.addEventListener !== "function") return;
+  bridgeReadyListenerInstalled = true;
+  window.addEventListener(BRIDGE_READY_EVENT, configureEventTransport);
+}
+
+function configureEventTransport() {
+  installBridgeReadyListener();
+  if (isLyboxBridgeAvailable()) {
+    closeEventStream();
+    for (const eventName of eventListeners.keys()) bindBridgeEvent(eventName);
+    return;
+  }
+  configureEventStream();
+}
+
+function bindBridgeEvent(eventName) {
+  const bridge = globalThis.window?.__lybox;
+  if (!bridge || typeof bridge.on !== "function" || bridgeSubscriptions.has(eventName)) return false;
+  const unsubscribe = bridge.on(eventName, data => dispatchPluginEvent({ eventName, data }));
+  bridgeSubscriptions.set(eventName, typeof unsubscribe === "function" ? unsubscribe : () => {});
+  return true;
+}
+
+function unbindBridgeEvent(eventName) {
+  const unsubscribe = bridgeSubscriptions.get(eventName);
+  bridgeSubscriptions.delete(eventName);
+  try { unsubscribe?.(); } catch { }
+}
+
+function closeEventStream() {
+  eventSource?.close();
+  eventSource = undefined;
+  activeEventStreamUrl = undefined;
+  eventSourceEventNames.clear();
+}
+
 function configureEventStream() {
   const nextUrl = getLyboxRuntime()?.sseUrl ?? undefined;
   if (nextUrl === activeEventStreamUrl) return;
-  eventSource?.close();
-  eventSource = undefined;
+  closeEventStream();
   activeEventStreamUrl = nextUrl;
-  if (!nextUrl || isLyboxBridgeAvailable() || typeof EventSource !== "function") return;
+  if (!nextUrl || typeof EventSource !== "function") return;
   eventSource = new EventSource(nextUrl);
   eventSource.onmessage = event => dispatchPluginEvent({ eventName: "message", data: parseData(event.data) });
+  eventSource.addEventListener("dispatch", event => {
+    const value = parseData(event.data);
+    dispatchPluginEvent({ eventName: value?.name, data: value?.data });
+  });
   for (const eventName of eventListeners.keys()) {
-    if (eventName === "message") continue;
-    eventSource.addEventListener(eventName, event => dispatchPluginEvent({ eventName, data: parseData(event.data) }));
+    ensureEventSourceListener(eventName);
   }
+}
+
+function ensureEventSourceListener(eventName) {
+  if (!eventSource || eventName === "message" || eventSourceEventNames.has(eventName)) return;
+  eventSourceEventNames.add(eventName);
+  eventSource.addEventListener(eventName, event => dispatchPluginEvent({ eventName, data: parseData(event.data) }));
 }
 
 function dispatchPluginEvent(value) {
@@ -238,8 +297,17 @@ const api = Object.freeze({
 });
 
 if (typeof window !== "undefined") {
+  installBridgeReadyListener();
   window.LyboxPlugin = api;
   if (window.__lyboxRuntime) installLyboxRuntime(window.__lyboxRuntime);
 }
+
+export {
+  lyboxInvoke as invoke,
+  lyboxOn as on,
+  lyboxOff as off,
+  lyboxRequest as request,
+  lyboxGetJson as getJson,
+};
 
 export default api;

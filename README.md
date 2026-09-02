@@ -55,6 +55,16 @@ Linux/macOS 用 `./build.sh` 替代 `.\build.ps1`。
 - **构建顺序很重要**：`--build=bin` 必须先于 `--build=plugin` 运行（或直接使用 `--build=all`），因为 `--build=bin` 会打包 SDK NuGet 包，而插件依赖本地构建的 `LYBox.Plugin.Generators` + `LYBox.Plugin.Shared` NuGet 包。
 - **直接 `dotnet build`** 可用于单个项目，但若未预先构建本地 NuGet 包，插件可能还原失败（使用 `--build=bin` 或确保 `artifacts/packages/sdk/` 下有 `.nupkg` 文件）。`--build=nuget` 保留为 `--build=bin` 的兼容别名。
 - **运行启动器**：`dotnet run --project src/App/LYBox.Launcher.Desktop`
+- **运行控制台 CLI**：
+
+  ```powershell
+  dotnet run --project src/App/LYBox.Launcher.Console -- version
+  dotnet run --project src/App/LYBox.Launcher.Console -- plugins list
+  dotnet run --project src/App/LYBox.Launcher.Console -- plugin run sample echo
+  dotnet run --project src/App/LYBox.Launcher.Console -- plugin sample echo
+  ```
+
+  `plugin run <name> ...` 与旧 `plugin <name> ...` 语法同时支持。`version`、`gui` 和 `plugins` 命令不会预先创建完整插件 CLI Host。
 - **VS Code 调试**：使用 "Debug Plugin - {Name}" 启动配置 — 每个配置将 `AVALONIA_EXTRA_PLUGINS_PATH` 指向 `artifacts/bin/{ProjectName}/debug`，用于开发期实时加载。
 - **测试与 CI**：已有 `tests/LYBox.Tests`（TUnit 测试框架）与 `.github/workflows/` 下的 CI 工作流（`ci.yml`、`release-host.yml`、`release-plugins.yml`）。
 
@@ -125,6 +135,15 @@ LYBox.Launcher.Desktop/         桌面入口（Program.cs → App.axaml.cs）。
 ### WebView 插件与嵌入式 SDK
 
 `WebTemplate` 为 **WebView 插件**：宿主通过 WebView 承载前端页面。**不再依赖 pnpm / npm / 任何前端构建工具**——前端所需的 SDK（`lybox-plugin-sdk.js`）与主题 CSS（`lybox-plugin-theme.css`）直接以嵌入资源形式打包在 `LYBox.Plugin.Shared.Web` 中，由宿主 `WebHostService` 在 `/sdk/` 路径下提供，前端在 WebView 中即可联调。
+
+```js
+import { invoke, on } from "/sdk/lybox-plugin-sdk.js";
+
+const sum = await invoke("AddAsync", 3, 5);
+const off = on("tick", data => console.log(data));
+```
+
+所有 Web 插件共用一个 loopback 端口，静态资源、RPC、SSE 和 session 继续按 `pluginId` 路径注册。
 
 - SDK 资源契约与可用 API 见 [LYBox.Plugin.Shared.Web/PluginWebSdkResources.cs](src/Plugin/LYBox.Plugin.Shared.Web/PluginWebSdkResources.cs)。
 - WebView IPC 接入指南见 [docs/WebView-IPC-Guide.md](docs/WebView-IPC-Guide.md)。

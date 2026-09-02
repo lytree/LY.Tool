@@ -19,6 +19,7 @@ internal sealed class ConsoleApplication
     private readonly IAnsiConsole _console;
     private readonly Action<string[]> _startDesktop;
     private readonly string? _pluginsDirectory;
+    private readonly PluginCliHostFactory _createPluginHost;
 
     /// <summary>
     /// 默认构造函数（生产代码使用）：桌面启动器为
@@ -36,11 +37,13 @@ internal sealed class ConsoleApplication
     public ConsoleApplication(
         IAnsiConsole console,
         Action<string[]>? startDesktop,
-        string? pluginsDirectory = null)
+        string? pluginsDirectory = null,
+        PluginCliHostFactory? createPluginHost = null)
     {
         _console = console ?? throw new ArgumentNullException(nameof(console));
         _startDesktop = startDesktop ?? DesktopLauncher.StartWithConsole;
         _pluginsDirectory = pluginsDirectory;
+        _createPluginHost = createPluginHost ?? CreatePluginHostAsync;
     }
 
     /// <summary>解析并执行 CLI 命令，返回进程退出码。</summary>
@@ -48,20 +51,29 @@ internal sealed class ConsoleApplication
     {
         ArgumentNullException.ThrowIfNull(args);
 
-        if (args.Length == 0)
-        {
-            // 向后兼容：旧版 LYBox.Launcher.Console 直接走 GUI 模式。
-            _startDesktop([]);
-            return 0;
-        }
-
-        await using var pluginHost = await PluginCliHost.CreateAsync(_console, _pluginsDirectory)
-            .ConfigureAwait(false);
-
         try
         {
-            var rootCommand = CreateRootCommand(pluginHost);
-            return rootCommand.Parse(args).Invoke();
+            if (args.Length == 0)
+            {
+                // 向后兼容：旧版 LYBox.Launcher.Console 直接走 GUI 模式。
+                _startDesktop([]);
+                return 0;
+            }
+
+            if (!RequiresPluginHost(args))
+            {
+                var commandTree = CreateRootCommand(pluginHost: null);
+                return commandTree.Root.Parse(args).Invoke();
+            }
+
+            await using var pluginHost = await _createPluginHost(
+                _console,
+                _pluginsDirectory,
+                CancellationToken.None).ConfigureAwait(false);
+
+            var loadedTree = CreateRootCommand(pluginHost);
+            var invocation = NormalizePluginRunInvocation(args, loadedTree.Plugin);
+            return loadedTree.Root.Parse(invocation).Invoke();
         }
         catch (Exception exception)
         {
@@ -70,7 +82,18 @@ internal sealed class ConsoleApplication
         }
     }
 
-    private RootCommand CreateRootCommand(PluginCliHost pluginHost)
+    private static async Task<IPluginCliHost> CreatePluginHostAsync(
+        IAnsiConsole console,
+        string? pluginsDirectory,
+        CancellationToken cancellationToken)
+    {
+        return await PluginCliHost.CreateAsync(
+            console,
+            pluginsDirectory,
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    private (RootCommand Root, Command Plugin) CreateRootCommand(IPluginCliHost? pluginHost)
     {
         var root = new RootCommand("LYBox 桌面启动器与插件命令宿主")
         {
@@ -82,10 +105,54 @@ internal sealed class ConsoleApplication
         root.Subcommands.Add(CreatePluginsCommand());
 
         var pluginCommand = new Command("plugin", "执行已安装插件显式注册的 CLI 子命令。");
-        pluginHost.RegisterCommands(pluginCommand);
+        if (pluginHost is null)
+            pluginCommand.Subcommands.Add(new Command("run", "运行插件提供的 CLI 命令。"));
+        else
+            pluginHost.RegisterCommands(pluginCommand);
         root.Subcommands.Add(pluginCommand);
-        return root;
+        return (root, pluginCommand);
     }
+
+    internal static bool RequiresPluginHost(string[] args)
+    {
+        ArgumentNullException.ThrowIfNull(args);
+        if (args.Length == 0
+            || !string.Equals(args[0], "plugin", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (args.Length == 1 || IsHelpOption(args[1]))
+            return false;
+
+        if (string.Equals(args[1], "run", StringComparison.OrdinalIgnoreCase))
+            return args.Length >= 3 && !IsHelpOption(args[2]);
+
+        return true;
+    }
+
+    internal static string[] NormalizePluginRunInvocation(string[] args, Command pluginCommand)
+    {
+        ArgumentNullException.ThrowIfNull(args);
+        ArgumentNullException.ThrowIfNull(pluginCommand);
+
+        if (args.Length < 3
+            || !string.Equals(args[0], "plugin", StringComparison.OrdinalIgnoreCase)
+            || !string.Equals(args[1], "run", StringComparison.OrdinalIgnoreCase))
+        {
+            return args;
+        }
+
+        if (pluginCommand.Subcommands.Any(command =>
+                string.Equals(command.Name, "run", StringComparison.OrdinalIgnoreCase)))
+        {
+            return args;
+        }
+
+        return [args[0], .. args[2..]];
+    }
+
+    private static bool IsHelpOption(string value) => value is "--help" or "-h" or "-?";
 
     private Command CreateGuiCommand()
     {

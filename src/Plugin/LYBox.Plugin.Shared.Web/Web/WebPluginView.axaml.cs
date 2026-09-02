@@ -174,15 +174,19 @@ public partial class WebPluginView : UserControl
         // 3b. 注册系统级命令（文件选择器 + 对话框），所有 web 插件共享
         SystemCommands.Register(_host, () => TopLevel.GetTopLevel(this));
 
+        var pluginSegment = Uri.EscapeDataString(pluginId);
+        var pluginBaseUri = new Uri(
+            $"{webHost.BaseUrl.TrimEnd('/')}/{pluginSegment}/",
+            UriKind.Absolute);
+        _targetUri = new Uri(pluginBaseUri, "index.html");
+
         // 3c. 展示层：开发工具栏 + 导航信任校验 + 开发错误页
-        InitializeDevTools(webView, webHost.BaseUrl, pluginId);
+        InitializeDevTools(webView, pluginBaseUri);
 
         // 4. 订阅 NavigationCompleted 注入引导脚本
         webView.NavigationCompleted += OnNavigationCompleted;
 
         // 5. 导航到插件入口页
-        var url = $"{webHost.BaseUrl}/{pluginId}/index.html";
-        _targetUri = new Uri(url);
         webView.Source = _targetUri;
     }
 
@@ -212,9 +216,10 @@ public partial class WebPluginView : UserControl
 
     // ==================== 展示层（移植自 PluginWebViewPage） ====================
 
-    private void InitializeDevTools(NativeWebView webView, string baseUrl, string pluginId)
+    private void InitializeDevTools(NativeWebView webView, Uri pluginBaseUri)
     {
-        _authorizedBaseUri = new Uri(baseUrl);
+        _authorizedBaseUri = pluginBaseUri;
+        _routeBasePath = pluginBaseUri.AbsolutePath.TrimEnd('/');
 
         if (ShowDevelopmentToolbar)
         {
@@ -232,8 +237,6 @@ public partial class WebPluginView : UserControl
             if (_statusText is not null)
                 _statusText.Text = "Idle";
 
-            if (_targetUri is not null)
-                _routeBasePath = PluginWebViewDevTools.GetRouteBasePath(_targetUri, $"/{pluginId}/index.html");
             if (_routeText is not null && _targetUri is not null)
                 _routeText.Text = PluginWebViewDevTools.GetRouteText(_targetUri, _routeBasePath);
         }
