@@ -11,10 +11,10 @@ namespace LYBox.Plugin.Downloader.Services;
 /// </summary>
 public class DownloadOrchestrator
 {
-    private readonly DirectUiLogger _logger;
+    private readonly DirectLogger _logger;
     private readonly DownloadOptions _opts;
 
-    public DownloadOrchestrator(DirectUiLogger logger, DownloadOptions opts)
+    public DownloadOrchestrator(DirectLogger logger, DownloadOptions opts)
     {
         _logger = logger;
         _opts = opts;

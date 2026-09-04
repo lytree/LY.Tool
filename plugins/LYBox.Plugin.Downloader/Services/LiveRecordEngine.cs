@@ -11,7 +11,7 @@ namespace LYBox.Plugin.Downloader.Services;
 public class LiveRecordEngine
 {
     private readonly HttpClient _client;
-    private readonly DirectUiLogger _logger;
+    private readonly DirectLogger _logger;
     private readonly DownloadEngine _engine;
     private readonly IDecryptionProvider? _decryptor;
 
@@ -19,7 +19,7 @@ public class LiveRecordEngine
     private int _segmentIndex;
     private long _totalBytes;
 
-    public LiveRecordEngine(HttpClient client, DirectUiLogger logger, DownloadEngine engine, IDecryptionProvider? decryptor)
+    public LiveRecordEngine(HttpClient client, DirectLogger logger, DownloadEngine engine, IDecryptionProvider? decryptor)
     {
         _client = client;
         _logger = logger;

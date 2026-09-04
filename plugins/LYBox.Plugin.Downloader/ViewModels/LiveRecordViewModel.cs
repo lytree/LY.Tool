@@ -99,7 +99,7 @@ public partial class LiveRecordViewModel : DownloaderViewModelBase
         };
         ApplyBinaryConfig(opts);
 
-        var logger = CreateUiLogger();
+        var logger = CreateLogger();
         var orchestrator = new DownloadOrchestrator(logger, opts);
         await orchestrator.ExecuteAsync(ct);
     }

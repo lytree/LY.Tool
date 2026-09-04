@@ -10,10 +10,10 @@ namespace LYBox.Plugin.Downloader.Services;
 public class DownloadEngine
 {
     private readonly HttpClient _client;
-    private readonly DirectUiLogger _logger;
+    private readonly DirectLogger _logger;
     private readonly BandwidthThrottle? _throttle;
 
-    public DownloadEngine(HttpClient client, DirectUiLogger logger, BandwidthThrottle? throttle = null)
+    public DownloadEngine(HttpClient client, DirectLogger logger, BandwidthThrottle? throttle = null)
     {
         _client = client;
         _logger = logger;

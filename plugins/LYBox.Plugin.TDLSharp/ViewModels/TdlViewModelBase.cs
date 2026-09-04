@@ -185,7 +185,7 @@ public abstract partial class TdlViewModelBase : ViewModelBase
     /// <summary>由子类实现：执行具体脚本逻辑。</summary>
     protected abstract Task ExecuteCoreAsync(TdlService tdlService, Dictionary<string, string> paramValues, CancellationToken ct);
 
-    protected DirectUiLogger CreateUiLogger() => new(
+    protected DirectLogger CreateLogger() => new(
         message => AddLogEntry(new LogEntry { Message = message }),
         entry => AddLogEntry(entry),
         UpdateProgressEntry);
@@ -204,7 +204,7 @@ public abstract partial class TdlViewModelBase : ViewModelBase
     protected TdlService CreateTdlService()
     {
         var clientManager = ServiceLocator.GetService<TdlClientManager>();
-        var logger = CreateUiLogger();
+        var logger = CreateLogger();
         return new TdlService(clientManager, logger);
     }
 

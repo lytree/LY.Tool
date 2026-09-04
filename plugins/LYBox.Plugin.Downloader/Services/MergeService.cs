@@ -12,10 +12,10 @@ namespace LYBox.Plugin.Downloader.Services;
 /// </summary>
 public class MergeService
 {
-    private readonly DirectUiLogger _logger;
+    private readonly DirectLogger _logger;
     private readonly string _ffmpegPath;
 
-    public MergeService(DirectUiLogger logger, string ffmpegPath)
+    public MergeService(DirectLogger logger, string ffmpegPath)
     {
         _logger = logger;
         _ffmpegPath = ffmpegPath;

@@ -2,13 +2,13 @@ using LYBox.Plugin.TDLSharp.Models;
 
 namespace LYBox.Plugin.TDLSharp.Services;
 
-public class DirectUiLogger
+public class DirectLogger
 {
     private readonly Action<string> _onLog;
     private readonly Action<LogEntry> _onAddEntry;
     private readonly Action<LogEntry, double, string, bool, bool> _onUpdateProgress;
 
-    public DirectUiLogger(
+    public DirectLogger(
         Action<string> onLog,
         Action<LogEntry> onAddEntry,
         Action<LogEntry, double, string, bool, bool> onUpdateProgress)

@@ -9,7 +9,7 @@ namespace LYBox.Plugin.TDLSharp.Services;
 public partial class TdlService
 {
     readonly TdlClientManager _clientManager;
-    readonly DirectUiLogger _logger;
+    readonly DirectLogger _logger;
 
     readonly Dictionary<long, TaskCompletionSource<TdApi.Error?>> _pendingSends = new();
     readonly object _pendingLock = new();
@@ -22,7 +22,7 @@ public partial class TdlService
     readonly Dictionary<long, long> _localToServerMsgId = new();
     readonly object _msgIdMapLock = new();
 
-    public TdlService(TdlClientManager clientManager, DirectUiLogger logger)
+    public TdlService(TdlClientManager clientManager, DirectLogger logger)
     {
         _clientManager = clientManager;
         _logger = logger;

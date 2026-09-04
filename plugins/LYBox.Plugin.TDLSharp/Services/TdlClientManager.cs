@@ -54,7 +54,7 @@ public class TdlClientManager : IDisposable
         }
     }
 
-    public DirectUiLogger? FileUpdateLogger { get; set; }
+    public DirectLogger? FileUpdateLogger { get; set; }
 
     public TdlClientManager(ILogger<TdlClientManager> logger, string apiId, string apiHash,
         string proxyServer = "127.0.0.1", int proxyPort = 7897, bool enableProxy = true, string? tdlRootPath = null)

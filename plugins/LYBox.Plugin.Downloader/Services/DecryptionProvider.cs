@@ -15,14 +15,14 @@ namespace LYBox.Plugin.Downloader.Services;
 /// </summary>
 public class DecryptionProvider : IDecryptionProvider
 {
-    private readonly DirectUiLogger _logger;
+    private readonly DirectLogger _logger;
     private readonly DownloadOptions _opts;
     private readonly byte[]? _overrideKey;
     private readonly byte[]? _overrideIv;
 
     public bool NeedsFileBasedDecryption => _opts.Encryption?.Method is "CENC";
 
-    public DecryptionProvider(DirectUiLogger logger, DownloadOptions opts)
+    public DecryptionProvider(DirectLogger logger, DownloadOptions opts)
     {
         _logger = logger;
         _opts = opts;

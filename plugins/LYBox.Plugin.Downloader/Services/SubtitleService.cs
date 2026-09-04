@@ -12,7 +12,7 @@ namespace LYBox.Plugin.Downloader.Services;
 public static class SubtitleService
 {
     /// <summary>合并多个 VTT 分片为一个完整 VTT 文本（带累计时间戳偏移）</summary>
-    public static string MergeVttSegments(IEnumerable<string> segmentFiles, DirectUiLogger? logger = null)
+    public static string MergeVttSegments(IEnumerable<string> segmentFiles, DirectLogger? logger = null)
     {
         var sb = new StringBuilder();
         sb.AppendLine("WEBVTT");
