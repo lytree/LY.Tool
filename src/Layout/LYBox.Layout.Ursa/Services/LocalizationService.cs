@@ -30,36 +30,40 @@ public sealed class LocalizationService : ILocalizationService
 
     public string GetString(string key)
     {
-        var cache = _stringCache;
-        if (cache is not null && cache.TryGetValue(key, out var cached))
-            return cached;
-
-        foreach (var (_, (lookupPrefix, manager)) in _resourceManagers)
-        {
-            var lookupKey = string.IsNullOrEmpty(lookupPrefix) ? key : $"{lookupPrefix}_{key}";
-            var value = manager.GetString(lookupKey, _currentCulture);
-            if (value is not null)
-                return value;
-        }
-
+        if (TryGetString(key, out var value))
+            return value;
         return key;
     }
 
     public string GetString(string key, string fallback)
     {
+        if (TryGetString(key, out var value))
+            return value;
+        return fallback;
+    }
+
+    private bool TryGetString(string key, out string value)
+    {
         var cache = _stringCache;
         if (cache is not null && cache.TryGetValue(key, out var cached))
-            return cached;
+        {
+            value = cached;
+            return true;
+        }
 
         foreach (var (_, (lookupPrefix, manager)) in _resourceManagers)
         {
             var lookupKey = string.IsNullOrEmpty(lookupPrefix) ? key : $"{lookupPrefix}_{key}";
-            var value = manager.GetString(lookupKey, _currentCulture);
-            if (value is not null)
-                return value;
+            var found = manager.GetString(lookupKey, _currentCulture);
+            if (found is not null)
+            {
+                value = found;
+                return true;
+            }
         }
 
-        return fallback;
+        value = null!;
+        return false;
     }
 
     public string GetString(string key, params object[] args)

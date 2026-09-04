@@ -14,14 +14,14 @@ public class PluginManagementServiceTests
     private const string AssemblyName = "Management.Test.dll";
 
     [Test]
-    public async Task CreateDetachedAsync_PendingUninstall_DoesNotRunDesktopStartupCleanup()
+    public async Task CreateDetached_PendingUninstall_DoesNotRunDesktopStartupCleanup()
     {
         using var workspace = new PluginWorkspace();
         var pluginDirectory = await workspace.WriteInstalledPluginAsync(
             PluginId,
             PluginState.PendingUninstall);
 
-        using var service = await PluginManagementService.CreateDetachedAsync(workspace.PluginsDirectory);
+        using var service = PluginManagementService.CreateDetached(workspace.PluginsDirectory);
 
         await Assert.That(Directory.Exists(pluginDirectory)).IsTrue();
         await Assert.That(service.GetPlugin(PluginId)?.State).IsEqualTo(PluginState.PendingUninstall);
@@ -68,7 +68,7 @@ public class PluginManagementServiceTests
 
     [Test]
     [NotInParallel]
-    public async Task CreateDetachedAsync_ExternalPlugin_IsReadOnly()
+    public async Task CreateDetached_ExternalPlugin_IsReadOnly()
     {
         using var workspace = new PluginWorkspace();
         var externalRoot = Path.Combine(workspace.RootDirectory, "external");
@@ -80,7 +80,7 @@ public class PluginManagementServiceTests
 
         try
         {
-            using var service = await PluginManagementService.CreateDetachedAsync(workspace.PluginsDirectory);
+            using var service = PluginManagementService.CreateDetached(workspace.PluginsDirectory);
             await using var package = await workspace.CreatePackageAsync(PluginId, "2.0.0");
 
             var install = await service.InstallFromFileAsync(await workspace.SavePackageAsync(package));

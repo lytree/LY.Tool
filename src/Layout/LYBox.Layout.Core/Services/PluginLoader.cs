@@ -542,13 +542,15 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
 
     #endregion
 
-    public void DisablePlugin(string pluginId)
+    /// <summary>将插件标记为禁用并持久化。返回是否真正改变了禁用状态（插件不存在或已禁用时返回 false）。</summary>
+    public bool DisablePlugin(string pluginId)
     {
         PluginInfo? info = null;
 
         lock (_sync)
         {
-            if (!_entries.TryGetValue(pluginId, out var entry)) return;
+            if (!_entries.TryGetValue(pluginId, out var entry)) return false;
+            if (entry.Info.State == PluginState.Disabled) return false;
 
             info = entry.Info.WithState(PluginState.Disabled);
             entry.Info = info;
@@ -558,9 +560,10 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
 
         PluginUnloaded?.Invoke(this, info);
         PluginStateChanged?.Invoke(this, info);
+        return true;
     }
 
-    public void EnablePlugin(string pluginId)
+    public bool EnablePlugin(string pluginId)
     {
         // 与 DisablePlugin 对称：仅修改状态字段并持久化到 manifest，下次启动时按新状态加载。
         // AGENTS.md 声明"当前项目不支持运行时插件增删"，热加载会违反约束且导航/菜单/视图不会被注册。
@@ -568,8 +571,8 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
 
         lock (_sync)
         {
-            if (!_entries.TryGetValue(pluginId, out var entry)) return;
-            if (entry.Info.State != PluginState.Disabled) return;
+            if (!_entries.TryGetValue(pluginId, out var entry)) return false;
+            if (entry.Info.State != PluginState.Disabled) return false;
 
             info = entry.Info.WithState(PluginState.Installed);
             entry.Info = info;
@@ -581,6 +584,7 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
         {
             PluginStateChanged?.Invoke(this, info);
         }
+        return true;
     }
 
     public void MarkForUninstall(string pluginId)

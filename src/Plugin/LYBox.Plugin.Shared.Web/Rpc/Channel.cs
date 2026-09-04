@@ -20,12 +20,15 @@ public sealed class Channel<T> : Channel, IAsyncDisposable
     private readonly IEventPusher? _eventPusher;
     private readonly string? _pluginId;
     private readonly CancellationTokenSource _cts = new();
+    // Id 固定不变，构造时一次性序列化，避免高频推送路径每次重复序列化
+    private readonly string _idJson;
 
     internal Channel(string id, IRpcTransport transport, IEventPusher? eventPusher = null, string? pluginId = null) : base(id)
     {
         _transport = transport;
         _eventPusher = eventPusher;
         _pluginId = pluginId;
+        _idJson = JsonSerializer.Serialize(id, RpcEnvelope.JsonOptions);
     }
 
     /// <summary>向前端推送一条数据。</summary>
@@ -33,20 +36,19 @@ public sealed class Channel<T> : Channel, IAsyncDisposable
     {
         if (_cts.IsCancellationRequested) return;
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token, cancellationToken);
-        var idJson = JsonSerializer.Serialize(Id, RpcEnvelope.JsonOptions);
         var dataJson = JsonSerializer.Serialize(item, RpcEnvelope.JsonOptions);
 
         // 优先走 SSE（高频推送场景）
         if (_eventPusher is not null && _pluginId is not null)
         {
             // SSE 负载格式：{"id":"...","data":...}
-            var payload = $"{{\"id\":{idJson},\"data\":{dataJson}}}";
+            var payload = $"{{\"id\":{_idJson},\"data\":{dataJson}}}";
             try { await _eventPusher.PushAsync(_pluginId, "channel-data", payload, linked.Token).ConfigureAwait(false); }
             catch (OperationCanceledException) { }
             return;
         }
 
-        var js = $"window.__lybox.channel.onData({idJson},{dataJson});";
+        var js = $"window.__lybox.channel.onData({_idJson},{dataJson});";
         try { await _transport.ExecuteScriptAsync(js, linked.Token).ConfigureAwait(false); }
         catch (OperationCanceledException) { }
     }
@@ -56,19 +58,18 @@ public sealed class Channel<T> : Channel, IAsyncDisposable
     {
         if (Closed) return;
         _cts.Cancel();
-        var idJson = JsonSerializer.Serialize(Id, RpcEnvelope.JsonOptions);
 
         // 优先走 SSE
         if (_eventPusher is not null && _pluginId is not null)
         {
-            var payload = $"{{\"id\":{idJson}}}";
+            var payload = $"{{\"id\":{_idJson}}}";
             try { await _eventPusher.PushAsync(_pluginId, "channel-close", payload, CancellationToken.None).ConfigureAwait(false); }
             catch { }
             MarkClosed();
             return;
         }
 
-        var js = $"window.__lybox.channel.onClose({idJson});";
+        var js = $"window.__lybox.channel.onClose({_idJson});";
         try { await _transport.ExecuteScriptAsync(js, CancellationToken.None).ConfigureAwait(false); }
         catch { }
         MarkClosed();

@@ -14,13 +14,13 @@ internal sealed class ConsoleCommandFactory
 {
     private readonly IAnsiConsole _console;
     private readonly Action<string[]> _startDesktop;
-    private readonly Func<CancellationToken, Task<IPluginManagementService>> _getPluginManagementService;
+    private readonly Func<CancellationToken, IPluginManagementService> _getPluginManagementService;
     private readonly Func<CliOutputFormat, CliOutput> _createOutput;
 
     public ConsoleCommandFactory(
         IAnsiConsole console,
         Action<string[]> startDesktop,
-        Func<CancellationToken, Task<IPluginManagementService>> getPluginManagementService,
+        Func<CancellationToken, IPluginManagementService> getPluginManagementService,
         Func<CliOutputFormat, CliOutput> createOutput)
     {
         _console = console;
@@ -172,8 +172,8 @@ internal sealed class ConsoleCommandFactory
     private Command CreatePluginsListCommand(Option<CliOutputFormat> output)
     {
         var command = new Command("list", "List installed plugins.");
-        command.SetAction((parseResult, cancellationToken) =>
-            ListPluginsAsync(parseResult.GetValue(output), cancellationToken));
+        command.SetAction(parseResult =>
+            ListPlugins(parseResult.GetValue(output), CancellationToken.None));
         return command;
     }
 
@@ -185,10 +185,10 @@ internal sealed class ConsoleCommandFactory
         };
         var command = new Command("info", "Display one installed plugin.");
         command.Arguments.Add(pluginId);
-        command.SetAction((parseResult, cancellationToken) => ShowPluginAsync(
+        command.SetAction(parseResult => ShowPlugin(
             parseResult.GetRequiredValue(pluginId),
             parseResult.GetValue(output),
-            cancellationToken));
+            CancellationToken.None));
         return command;
     }
 
@@ -224,12 +224,12 @@ internal sealed class ConsoleCommandFactory
         return command;
     }
 
-    private async Task<int> ListPluginsAsync(
+    private int ListPlugins(
         CliOutputFormat outputFormat,
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var plugins = (await _getPluginManagementService(cancellationToken).ConfigureAwait(false))
+        var plugins = _getPluginManagementService(cancellationToken)
             .GetInstalledPlugins();
         var output = _createOutput(outputFormat);
         if (outputFormat == CliOutputFormat.Json)
@@ -267,13 +267,13 @@ internal sealed class ConsoleCommandFactory
         return PluginCliExitCodes.Success;
     }
 
-    private async Task<int> ShowPluginAsync(
+    private int ShowPlugin(
         string pluginId,
         CliOutputFormat outputFormat,
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var plugin = (await _getPluginManagementService(cancellationToken).ConfigureAwait(false))
+        var plugin = _getPluginManagementService(cancellationToken)
             .GetPlugin(pluginId);
         if (plugin is null)
         {
@@ -311,7 +311,7 @@ internal sealed class ConsoleCommandFactory
         CliOutputFormat outputFormat,
         CancellationToken cancellationToken)
     {
-        var result = await (await _getPluginManagementService(cancellationToken).ConfigureAwait(false))
+        var result = await _getPluginManagementService(cancellationToken)
             .InstallFromFileAsync(packagePath, cancellationToken: cancellationToken)
             .ConfigureAwait(false);
         if (!result.Success || result.PluginInfo is null)
@@ -351,7 +351,7 @@ internal sealed class ConsoleCommandFactory
         CliOutputFormat outputFormat,
         CancellationToken cancellationToken)
     {
-        var result = await (await _getPluginManagementService(cancellationToken).ConfigureAwait(false))
+        var result = await _getPluginManagementService(cancellationToken)
             .UninstallAsync(pluginId, cancellationToken)
             .ConfigureAwait(false);
         if (!result.Success || result.PluginInfo is null)

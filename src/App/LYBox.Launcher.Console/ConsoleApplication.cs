@@ -32,7 +32,7 @@ internal sealed class ConsoleApplication
             startDesktop ?? DesktopLauncher.StartWithConsole,
             pluginsDirectory,
             createPluginHost ?? CreatePluginHostAsync,
-            createPluginManagementService ?? CreatePluginManagementServiceAsync);
+            createPluginManagementService ?? CreatePluginManagementService);
     }
 
     public Task<int> RunAsync(string[] args)
@@ -48,12 +48,11 @@ internal sealed class ConsoleApplication
         await PluginCliHost.CreateAsync(console, pluginsDirectory, cancellationToken)
             .ConfigureAwait(false);
 
-    private static async Task<LYBox.Layout.Core.Services.IPluginManagementService>
-        CreatePluginManagementServiceAsync(
-            string? pluginsDirectory,
-            CancellationToken cancellationToken) =>
-        await LYBox.Layout.Core.Services.PluginManagementService.CreateDetachedAsync(
-                pluginsDirectory,
-                cancellationToken)
-            .ConfigureAwait(false);
+    private static LYBox.Layout.Core.Services.IPluginManagementService CreatePluginManagementService(
+        string? pluginsDirectory,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return LYBox.Layout.Core.Services.PluginManagementService.CreateDetached(pluginsDirectory);
+    }
 }

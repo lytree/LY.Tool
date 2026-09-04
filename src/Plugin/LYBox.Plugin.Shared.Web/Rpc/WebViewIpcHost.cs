@@ -74,8 +74,8 @@ public sealed class WebViewIpcHost : IRpcHost, ICanonicalRpcHost, IDisposable
     {
         var manifest = _dispatcher.GetMethods(_pluginId).Select(name => new { name });
         var json = JsonSerializer.Serialize(manifest, RpcEnvelope.JsonOptions);
-        // JS 端 setBindings 已改为 noop（仅保存 manifest 供调试工具读取）
-        var js = $"window.__lybox && window.__lybox.setBindings({JsonSerializer.Serialize(json)});";
+        // 直接把 JSON 对象拼进脚本，避免对序列化结果二次序列化变成带引号的字符串字面量
+        var js = $"window.__lybox && window.__lybox.setBindings({json});";
         await _transport.ExecuteScriptAsync(js, cancellationToken);
     }
 

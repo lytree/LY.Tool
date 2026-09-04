@@ -156,7 +156,7 @@ public class ConsoleCommandRuntimeTests
             console,
             _ => { },
             Path.Combine(Path.GetTempPath(), "LYBox.Tests", Guid.NewGuid().ToString("N")),
-            createPluginManagementService: (_, _) => Task.FromResult(service),
+            createPluginManagementService: (_, _) => service,
             standardOutput: standardOutput,
             standardError: new StringWriter());
     }

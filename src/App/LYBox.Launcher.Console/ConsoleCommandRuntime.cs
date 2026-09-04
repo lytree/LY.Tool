@@ -10,7 +10,7 @@ using SpectreMarkup = Spectre.Console.Markup;
 
 namespace LYBox.Launcher.Console;
 
-internal delegate Task<IPluginManagementService> PluginManagementServiceFactory(
+internal delegate IPluginManagementService PluginManagementServiceFactory(
     string? pluginsDirectory,
     CancellationToken cancellationToken);
 
@@ -56,7 +56,7 @@ internal sealed class ConsoleCommandRuntime
             var factory = new ConsoleCommandFactory(
                 _console,
                 _startDesktop,
-                GetPluginManagementServiceAsync,
+                GetPluginManagementService,
                 CreateOutput);
             var bootstrapTree = factory.CreateBootstrapCommandTree();
             var bootstrapResult = bootstrapTree.Root.Parse(args);
@@ -203,13 +203,12 @@ internal sealed class ConsoleCommandRuntime
         }
     }
 
-    private async Task<IPluginManagementService> GetPluginManagementServiceAsync(
+    private IPluginManagementService GetPluginManagementService(
         CancellationToken cancellationToken)
     {
-        _pluginManagementService ??= await _createPluginManagementService(
+        _pluginManagementService ??= _createPluginManagementService(
                 _pluginsDirectory,
-                cancellationToken)
-            .ConfigureAwait(false);
+                cancellationToken);
         return _pluginManagementService;
     }
 

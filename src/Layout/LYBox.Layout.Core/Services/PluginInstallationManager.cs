@@ -46,13 +46,7 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
                 "Package file not found");
         }
 
-        if (!packageFilePath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
-        {
-            return PluginInstallResult.Failed(
-                PluginManagementErrorCode.InvalidPackage,
-                "Only .zip plugin packages are supported");
-        }
-
+        // .zip 扩展名校验统一由 InstallFromStreamAsync 处理（该方法是公共入口，需自行校验）
         await using var stream = new FileStream(
             packageFilePath,
             FileMode.Open,
@@ -190,10 +184,11 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
             var installDir = GetPluginDirectory(pluginInfo.PluginId);
             Directory.CreateDirectory(installDir);
 
-            var totalFiles = Directory.GetFiles(tempDir, "*", SearchOption.AllDirectories).Length;
+            var files = Directory.GetFiles(tempDir, "*", SearchOption.AllDirectories);
+            var totalFiles = files.Length;
             var copiedFiles = 0;
 
-            foreach (var file in Directory.GetFiles(tempDir, "*", SearchOption.AllDirectories))
+            foreach (var file in files)
             {
                 var relativePath = Path.GetRelativePath(tempDir, file);
                 var destPath = Path.GetFullPath(Path.Combine(installDir, relativePath));
@@ -383,14 +378,12 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
 
     public Task<bool> EnablePluginAsync(string pluginId)
     {
-        _pluginLoader.EnablePlugin(pluginId);
-        return Task.FromResult(true);
+        return Task.FromResult(_pluginLoader.EnablePlugin(pluginId));
     }
 
     public Task<bool> DisablePluginAsync(string pluginId)
     {
-        _pluginLoader.DisablePlugin(pluginId);
-        return Task.FromResult(true);
+        return Task.FromResult(_pluginLoader.DisablePlugin(pluginId));
     }
 
     private async Task<PluginInfo?> ParsePluginManifestAsync(string directory)
@@ -402,21 +395,10 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
             var manifest = JsonSerializer.Deserialize<PluginManifest>(json, PluginUtilities.JsonOptions);
             if (manifest != null)
             {
-                return new PluginInfo
-                {
-                    PluginId = manifest.PluginId ?? string.Empty,
-                    Name = manifest.Name ?? string.Empty,
-                    Version = manifest.Version ?? "1.0.0",
-                    Author = manifest.Author ?? string.Empty,
-                    Description = manifest.Description ?? string.Empty,
-                    Dependencies = manifest.Dependencies ?? [],
-                    SharedAssemblies = manifest.SharedAssemblies ?? [],
-                    AssemblyPath = manifest.Assembly ?? string.Empty,
-                    HasMetadata = !string.IsNullOrEmpty(manifest.PluginId),
-                    MinPluginSdkVersion = manifest.MinPluginSdkVersion,
-                    Kind = string.IsNullOrWhiteSpace(manifest.Kind) ? "Avalonia" : manifest.Kind,
-                    Web = manifest.Web
-                };
+                return PluginManifestMapper.FromManifest(
+                    manifest,
+                    manifest.Assembly ?? string.Empty,
+                    hasMetadata: !string.IsNullOrWhiteSpace(manifest.PluginId));
             }
         }
 
@@ -426,15 +408,13 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
             try
             {
                 var assemblyName = System.Reflection.AssemblyName.GetAssemblyName(dll);
-                return new PluginInfo
-                {
-                    PluginId = assemblyName.Name ?? Guid.NewGuid().ToString("N"),
-                    Name = assemblyName.Name ?? "Unknown",
-                    Version = assemblyName.Version?.ToString() ?? "1.0.0",
-                    Author = "Unknown",
-                    Description = string.Empty,
-                    AssemblyPath = Path.GetRelativePath(directory, dll)
-                };
+                return PluginManifestMapper.FromAssembly(
+                    assemblyName,
+                    Path.GetRelativePath(directory, dll),
+                    pluginIdFallback: Guid.NewGuid().ToString("N"),
+                    name: assemblyName.Name ?? "Unknown",
+                    versionFallback: "1.0.0",
+                    author: "Unknown");
             }
             catch
             {

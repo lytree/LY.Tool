@@ -14,8 +14,10 @@ public interface IPluginLoader
     IGeneratedPluginModule? GetGeneratedModule(string pluginId);
     void RegisterPlugin(PluginInfo pluginInfo);
     void UnregisterPlugin(string pluginId);
-    void EnablePlugin(string pluginId);
-    void DisablePlugin(string pluginId);
+    /// <summary>启用插件（仅改动状态并持久化，重启生效）。返回是否真正改变了状态。</summary>
+    bool EnablePlugin(string pluginId);
+    /// <summary>禁用插件（仅改动状态并持久化，重启生效）。返回是否真正改变了状态。</summary>
+    bool DisablePlugin(string pluginId);
     void MarkForUninstall(string pluginId);
 
     /// <summary>

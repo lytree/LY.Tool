@@ -1,3 +1,4 @@
+using LYBox.Plugin.Shared.Models;
 using LYBox.Plugin.Shared.Services;
 using LYBox.Layout.Core.Data;
 using Microsoft.EntityFrameworkCore;
@@ -49,16 +50,23 @@ public static class ServiceCollectionExtensions
         // PluginLoader 由 App.Initialize() 提前实例化（阶段1/2需要 DI 尚未构建时使用），
         // 随后通过 services.AddSingleton(pluginLoader) 注入，此处不再注册以避免产生未使用的孤立实例。
 
+        // 外部只读插件清单只会被扫描一次，供安装管理与插件管理共享，避免重复扫描 manifest。
+        services.AddSingleton(
+            _ => (IReadOnlyDictionary<string, PluginInfo>)PluginInventoryCatalog.ReadExternalPlugins());
         services.AddSingleton<IPluginInstallationManager>(serviceProvider =>
         {
-            var externalPluginIds = PluginInventoryCatalog.ReadExternalPlugins()
+            var externalPluginIds = serviceProvider
+                .GetRequiredService<IReadOnlyDictionary<string, PluginInfo>>()
                 .Keys
                 .ToHashSet(StringComparer.Ordinal);
             return new PluginInstallationManager(
                 serviceProvider.GetRequiredService<IPluginLoader>(),
                 readOnlyPluginIds: externalPluginIds);
         });
-        services.AddSingleton<IPluginManagementService, PluginManagementService>();
+        services.AddSingleton<IPluginManagementService>(serviceProvider => new PluginManagementService(
+            serviceProvider.GetRequiredService<IPluginLoader>(),
+            serviceProvider.GetRequiredService<IPluginInstallationManager>(),
+            serviceProvider.GetRequiredService<IReadOnlyDictionary<string, PluginInfo>>()));
 
         services.AddDbContextFactory<AppDbContext>(options =>
         {

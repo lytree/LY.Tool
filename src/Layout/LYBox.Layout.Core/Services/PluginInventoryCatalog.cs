@@ -87,25 +87,13 @@ internal static class PluginInventoryCatalog
             if (state == PluginState.Loaded)
                 state = PluginState.Installed;
 
-            plugins.Add(manifest.PluginId, new PluginInfo
-            {
-                PluginId = manifest.PluginId,
-                Name = manifest.Name ?? manifest.PluginId,
-                Version = manifest.Version ?? "1.0.0",
-                Author = manifest.Author ?? string.Empty,
-                Description = manifest.Description ?? string.Empty,
-                Dependencies = manifest.Dependencies ?? [],
-                SharedAssemblies = manifest.SharedAssemblies ?? [],
-                InstallPath = Path.GetFullPath(directory),
-                AssemblyPath = assemblyPath,
-                State = state,
-                InstallTime = manifest.InstallTime,
-                IsBuiltIn = manifest.IsBuiltIn,
-                HasMetadata = true,
-                MinPluginSdkVersion = manifest.MinPluginSdkVersion,
-                Kind = string.IsNullOrWhiteSpace(manifest.Kind) ? "Avalonia" : manifest.Kind,
-                Web = manifest.Web
-            });
+            plugins.Add(manifest.PluginId, PluginManifestMapper.FromManifest(
+                manifest,
+                assemblyPath,
+                hasMetadata: true,
+                installPath: Path.GetFullPath(directory),
+                state: state,
+                isBuiltIn: manifest.IsBuiltIn));
             return true;
         }
         catch (Exception exception) when (
@@ -127,16 +115,12 @@ internal static class PluginInventoryCatalog
             if (string.IsNullOrWhiteSpace(pluginId) || plugins.ContainsKey(pluginId))
                 return;
 
-            plugins.Add(pluginId, new PluginInfo
-            {
-                PluginId = pluginId,
-                Name = pluginId,
-                Version = assemblyName.Version?.ToString() ?? "0.0.0",
-                InstallPath = Path.GetDirectoryName(Path.GetFullPath(assemblyPath)) ?? string.Empty,
-                AssemblyPath = Path.GetFullPath(assemblyPath),
-                State = PluginState.Installed,
-                HasMetadata = false
-            });
+            plugins.Add(pluginId, PluginManifestMapper.FromAssembly(
+                assemblyName,
+                Path.GetFullPath(assemblyPath),
+                pluginIdFallback: Path.GetFileNameWithoutExtension(assemblyPath),
+                name: pluginId,
+                installPath: Path.GetDirectoryName(Path.GetFullPath(assemblyPath)) ?? string.Empty));
         }
         catch (Exception exception) when (
             exception is IOException or UnauthorizedAccessException or BadImageFormatException)
