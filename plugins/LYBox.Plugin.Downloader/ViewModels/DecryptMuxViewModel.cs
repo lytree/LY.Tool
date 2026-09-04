@@ -147,7 +147,7 @@ public partial class DecryptMuxViewModel : DownloaderViewModelBase
         };
         ApplyBinaryConfig(opts);
 
-        var logger = CreateUiLogger();
+        var logger = CreateLogger();
         var orchestrator = new DownloadOrchestrator(logger, opts);
         await orchestrator.ExecuteAsync(ct);
     }
@@ -172,7 +172,7 @@ public partial class DecryptMuxViewModel : DownloaderViewModelBase
 
         var cfg = BinaryConfig;
         var muxer = new MuxService(
-            CreateUiLogger(),
+            CreateLogger(),
             string.IsNullOrWhiteSpace(cfg.FfmpegPath) ? "ffmpeg" : cfg.FfmpegPath,
             string.IsNullOrWhiteSpace(cfg.MkvmergePath) ? "mkvmerge" : cfg.MkvmergePath);
 

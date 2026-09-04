@@ -1,6 +1,8 @@
 using System.CommandLine;
+using System.Text.Json;
 using LYBox.Launcher.Console;
 using LYBox.Plugin.Shared.CommandLine;
+using LYBox.Plugin.Shared.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using TUnit.Core;
@@ -81,18 +83,20 @@ public class ConsoleCommandRegistrationTests
     [Test]
     public async Task ConsoleApplication_PluginRun_LoadsHostAndInvokesRegisteredCommand()
     {
+        using var workspace = await PluginCatalogWorkspace.CreateAsync();
         var hostCreations = 0;
         var console = CreateConsole(out var output);
         var application = new ConsoleApplication(
             console,
             _ => { },
+            workspace.PluginsDirectory,
             createPluginHost: (_, _, _) =>
             {
                 hostCreations++;
                 return Task.FromResult<IPluginCliHost>(new FakePluginCliHost(console));
             });
 
-        var exitCode = await application.RunAsync(["plugin", "run", "sample", "echo"]);
+        var exitCode = await application.RunAsync(["plugin", "run", "sample.plugin", "echo"]);
 
         await Assert.That(exitCode).IsEqualTo(0);
         await Assert.That(hostCreations).IsEqualTo(1);
@@ -102,10 +106,12 @@ public class ConsoleCommandRegistrationTests
     [Test]
     public async Task ConsoleApplication_LegacyPluginSyntax_RemainsSupported()
     {
+        using var workspace = await PluginCatalogWorkspace.CreateAsync();
         var console = CreateConsole(out var output);
         var application = new ConsoleApplication(
             console,
             _ => { },
+            workspace.PluginsDirectory,
             createPluginHost: (_, _, _) =>
                 Task.FromResult<IPluginCliHost>(new FakePluginCliHost(console)));
 
@@ -118,16 +124,18 @@ public class ConsoleCommandRegistrationTests
     [Test]
     public async Task ConsoleApplication_PluginHostCreationFailure_IsCaught()
     {
+        using var workspace = await PluginCatalogWorkspace.CreateAsync();
         var console = CreateConsole(out var output);
         var application = new ConsoleApplication(
             console,
             _ => { },
+            workspace.PluginsDirectory,
             createPluginHost: (_, _, _) =>
                 throw new InvalidOperationException("host creation failed"));
 
         var exitCode = await application.RunAsync(["plugin", "sample", "echo"]);
 
-        await Assert.That(exitCode).IsEqualTo(1);
+        await Assert.That(exitCode).IsEqualTo(PluginCliExitCodes.HostFailure);
         await Assert.That(output.ToString()).Contains("host creation failed");
     }
 
@@ -270,20 +278,94 @@ public class ConsoleCommandRegistrationTests
             _console = console;
         }
 
-        public int RegisterCommands(Command pluginCommand)
+        public int RegisterCommands(
+            Command pluginCommand,
+            Command runCommand,
+            PluginInvocationRoute route)
         {
-            var sample = new Command("sample");
             var echo = new Command("echo");
             echo.SetAction(_ =>
             {
                 _console.WriteLine("fake plugin command");
                 return 0;
             });
-            sample.Subcommands.Add(echo);
-            pluginCommand.Subcommands.Add(sample);
+
+            if (route == PluginInvocationRoute.Explicit)
+            {
+                runCommand.Subcommands.Add(echo);
+            }
+            else
+            {
+                var sample = new Command("sample");
+                sample.Subcommands.Add(echo);
+                pluginCommand.Subcommands.Add(sample);
+            }
+
             return 1;
         }
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    }
+
+    private sealed class PluginCatalogWorkspace : IDisposable
+    {
+        private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+        private readonly string _rootDirectory;
+
+        private PluginCatalogWorkspace(string rootDirectory)
+        {
+            _rootDirectory = rootDirectory;
+            PluginsDirectory = Path.Combine(rootDirectory, "plugins");
+        }
+
+        public string PluginsDirectory { get; }
+
+        public static async Task<PluginCatalogWorkspace> CreateAsync()
+        {
+            var root = Path.Combine(Path.GetTempPath(), "LYBox.Tests", Guid.NewGuid().ToString("N"));
+            var workspace = new PluginCatalogWorkspace(root);
+            var pluginDirectory = Path.Combine(workspace.PluginsDirectory, "sample.plugin");
+            Directory.CreateDirectory(pluginDirectory);
+            const string assemblyName = "Sample.Plugin.dll";
+            File.Copy(
+                typeof(ConsoleCommandRegistrationTests).Assembly.Location,
+                Path.Combine(pluginDirectory, assemblyName));
+
+            await WriteJsonAsync(
+                Path.Combine(pluginDirectory, "plugin.json"),
+                new PluginManifest
+                {
+                    PluginId = "sample.plugin",
+                    Name = "Sample Plugin",
+                    Version = "1.0.0",
+                    Assembly = assemblyName,
+                    State = nameof(PluginState.Installed)
+                });
+            await WriteJsonAsync(
+                Path.Combine(pluginDirectory, "plugin.cli.json"),
+                new PluginCliIndex
+                {
+                    PluginId = "sample.plugin",
+                    PluginVersion = "1.0.0",
+                    Alias = "sample",
+                    Description = "Sample plugin commands.",
+                    RuntimeProfile = "selected",
+                    OutputModes = ["text", "json"],
+                    Commands = [new PluginCliCommandDefinition { Name = "echo", Description = "Echo." }]
+                });
+            return workspace;
+        }
+
+        public void Dispose()
+        {
+            if (Directory.Exists(_rootDirectory))
+                Directory.Delete(_rootDirectory, recursive: true);
+        }
+
+        private static async Task WriteJsonAsync<T>(string path, T value)
+        {
+            await using var stream = File.Create(path);
+            await JsonSerializer.SerializeAsync(stream, value, JsonOptions);
+        }
     }
 }

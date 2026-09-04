@@ -28,6 +28,24 @@ public interface IPluginInstallationManager
 public class PluginInstallResult
 {
     public bool Success { get; set; }
+    public PluginManagementErrorCode ErrorCode { get; set; }
     public string? ErrorMessage { get; set; }
     public PluginInfo? PluginInfo { get; set; }
+
+    public static PluginInstallResult Failed(PluginManagementErrorCode errorCode, string message) => new()
+    {
+        Success = false,
+        ErrorCode = errorCode,
+        ErrorMessage = message
+    };
+}
+
+public enum PluginManagementErrorCode
+{
+    None,
+    NotFound,
+    InvalidPackage,
+    Conflict,
+    PermissionDenied,
+    HostError
 }

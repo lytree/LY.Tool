@@ -10,11 +10,11 @@ namespace LYBox.Plugin.Downloader.Services;
 /// </summary>
 public class MuxService
 {
-    private readonly DirectUiLogger _logger;
+    private readonly DirectLogger _logger;
     private readonly string _ffmpegPath;
     private readonly string _mkvmergePath;
 
-    public MuxService(DirectUiLogger logger, string ffmpegPath, string mkvmergePath)
+    public MuxService(DirectLogger logger, string ffmpegPath, string mkvmergePath)
     {
         _logger = logger;
         _ffmpegPath = ffmpegPath;

@@ -60,11 +60,15 @@ Linux/macOS 用 `./build.sh` 替代 `.\build.ps1`。
   ```powershell
   dotnet run --project src/App/LYBox.Launcher.Console -- version
   dotnet run --project src/App/LYBox.Launcher.Console -- plugins list
+  dotnet run --project src/App/LYBox.Launcher.Console -- plugins list --output=json
+  dotnet run --project src/App/LYBox.Launcher.Console -- plugins info <plugin-id>
+  dotnet run --project src/App/LYBox.Launcher.Console -- plugins install .\LYBox.Plugin.Example-1.0.0.zip
+  dotnet run --project src/App/LYBox.Launcher.Console -- plugins uninstall <plugin-id>
   dotnet run --project src/App/LYBox.Launcher.Console -- plugin run sample echo
   dotnet run --project src/App/LYBox.Launcher.Console -- plugin sample echo
   ```
 
-  `plugin run <name> ...` 与旧 `plugin <name> ...` 语法同时支持。`version`、`gui` 和 `plugins` 命令不会预先创建完整插件 CLI Host。
+  `plugin run <name> ...` 与旧 `plugin <name> ...` 语法同时支持。命令、参数、别名、帮助和 `--output` 均由 `System.CommandLine` 解析。插件列表、详情、安装、卸载和状态变更与 GUI 共用 `IPluginManagementService`；覆盖安装与卸载需重启主体程序后生效。`version`、`gui` 和 `plugins` 命令不会预先创建完整插件 CLI Host。
 - **VS Code 调试**：使用 "Debug Plugin - {Name}" 启动配置 — 每个配置将 `AVALONIA_EXTRA_PLUGINS_PATH` 指向 `artifacts/bin/{ProjectName}/debug`，用于开发期实时加载。
 - **测试与 CI**：已有 `tests/LYBox.Tests`（TUnit 测试框架）与 `.github/workflows/` 下的 CI 工作流（`ci.yml`、`release-host.yml`、`release-plugins.yml`）。
 

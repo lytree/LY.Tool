@@ -12,6 +12,7 @@ namespace LYBox.Launcher.Console;
 /// <item>无参数 / <c>gui</c> → 启动 Avalonia 桌面应用（保持向后兼容）</item>
 /// <item><c>version</c> → 打印控制台启动器版本</item>
 /// <item><c>plugins list|info &lt;id&gt;</c> → 检查已安装插件清单（不加载程序集）</item>
+/// <item><c>plugins install|uninstall</c> → 复用 GUI 插件管理服务安装或安排卸载</item>
 /// <item><c>plugin &lt;name&gt; ...</c> → 加载已安装插件并执行由 <c>IPluginCommandRegistrar</c> 注册的子命令</item>
 /// </list>
 /// <para>

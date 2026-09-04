@@ -112,7 +112,7 @@ public partial class VodDownloadViewModel : DownloaderViewModelBase
                 AddLogEntry(new LogEntry { Message = Strings.Get("FMT_Downloading", i + 1, validTasks.Count, task.Url) });
 
             var opts = BuildOptions(task, headers, keys);
-            var logger = CreateUiLogger();
+            var logger = CreateLogger();
             var orchestrator = new DownloadOrchestrator(logger, opts);
             await orchestrator.ExecuteAsync(ct);
         }

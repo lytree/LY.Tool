@@ -33,15 +33,7 @@ internal static class PluginCommandRegistry
         var pluginIds = new HashSet<string>(StringComparer.Ordinal);
         var registered = 0;
 
-        var generated = modules.SelectMany(module => module.CliRegistrars)
-            .Select(descriptor => descriptor.CreateRegistrar(services));
-        var registeredServices = services.GetServices<IPluginCommandRegistrar>();
-
-        foreach (var registrar in generated.Concat(registeredServices)
-                     .GroupBy(value => value.GetType())
-                     .Select(group => group.First())
-                     .Where(value => targetPluginId is null
-                         || string.Equals(value.PluginId, targetPluginId, StringComparison.Ordinal)))
+        foreach (var registrar in GetRegistrars(services, modules, targetPluginId))
         {
             if (!pluginIds.Add(registrar.PluginId))
             {
@@ -50,6 +42,8 @@ internal static class PluginCommandRegistry
             }
 
             var commandName = NormalizeCommandName(registrar.CommandName);
+            if (string.Equals(commandName, "run", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("插件 CLI 命令名 'run' 为显式插件调用保留。");
             if (!commandNames.Add(commandName))
             {
                 throw new InvalidOperationException(
@@ -65,11 +59,52 @@ internal static class PluginCommandRegistry
         return registered;
     }
 
+    public static int RegisterExplicitCommands(
+        System.CommandLine.Command runCommand,
+        IServiceProvider services,
+        IAnsiConsole console,
+        IEnumerable<IGeneratedPluginCliModule> modules,
+        string targetPluginId)
+    {
+        ArgumentNullException.ThrowIfNull(runCommand);
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(console);
+        ArgumentNullException.ThrowIfNull(modules);
+        ArgumentException.ThrowIfNullOrWhiteSpace(targetPluginId);
+
+        var registrars = GetRegistrars(services, modules, targetPluginId).ToArray();
+        if (registrars.Length == 0)
+            return 0;
+        if (registrars.Length > 1)
+        {
+            throw new InvalidOperationException(
+                $"插件 '{targetPluginId}' 重复注册了 CLI 命令。每个插件只能注册一次 IPluginCommandRegistrar。");
+        }
+
+        registrars[0].RegisterCommands(
+            new PluginCommandRegistrationContext(runCommand, services, console));
+        return 1;
+    }
+
     public static int RegisterCommands(
         System.CommandLine.Command pluginCommand,
         IServiceProvider services,
         IAnsiConsole console) =>
         RegisterCommands(pluginCommand, services, console, []);
+
+    private static IEnumerable<IPluginCommandRegistrar> GetRegistrars(
+        IServiceProvider services,
+        IEnumerable<IGeneratedPluginCliModule> modules,
+        string? targetPluginId)
+    {
+        var generated = modules.SelectMany(module => module.CliRegistrars)
+            .Select(descriptor => descriptor.CreateRegistrar(services));
+        var registeredServices = services.GetServices<IPluginCommandRegistrar>();
+        return generated.Concat(registeredServices)
+            .DistinctBy(value => (value.GetType(), value.PluginId, value.CommandName))
+            .Where(value => targetPluginId is null
+                || string.Equals(value.PluginId, targetPluginId, StringComparison.Ordinal));
+    }
 
     /// <summary>把命令名归一化为小写 trim，校验字符白名单。</summary>
     internal static string NormalizeCommandName(string commandName)

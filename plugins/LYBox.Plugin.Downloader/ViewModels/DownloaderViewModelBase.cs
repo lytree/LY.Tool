@@ -125,7 +125,7 @@ public abstract partial class DownloaderViewModelBase : ViewModelBase
     /// <summary>子类实现具体执行逻辑</summary>
     protected abstract Task ExecuteCoreAsync(CancellationToken ct);
 
-    protected DirectUiLogger CreateUiLogger()
+    protected DirectLogger CreateLogger()
         => new(message => AddLogEntry(new LogEntry { Message = message }));
 
     protected void AddLogEntry(LogEntry entry)
