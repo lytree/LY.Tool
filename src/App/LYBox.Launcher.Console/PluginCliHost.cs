@@ -22,7 +22,10 @@ internal interface IPluginCliHost : IAsyncDisposable
         bool suppressConsoleLogging,
         CancellationToken cancellationToken) => Task.CompletedTask;
 
-    int RegisterCommands(System.CommandLine.Command pluginCommand);
+    int RegisterCommands(
+        System.CommandLine.Command pluginCommand,
+        System.CommandLine.Command runCommand,
+        PluginInvocationRoute route);
 }
 
 /// <summary>
@@ -124,7 +127,10 @@ internal sealed class PluginCliHost : IPluginCliHost
             services.AddLogging(builder => builder.ClearProviders());
     }
 
-    public int RegisterCommands(System.CommandLine.Command pluginCommand)
+    public int RegisterCommands(
+        System.CommandLine.Command pluginCommand,
+        System.CommandLine.Command runCommand,
+        PluginInvocationRoute route)
     {
         if (_pluginLoader is null || _serviceProvider is null || _selection is null)
             throw new InvalidOperationException("No selected plugin has been loaded.");
@@ -134,12 +140,19 @@ internal sealed class PluginCliHost : IPluginCliHost
             ? new[] { cliModule }
             : [];
 
-        return PluginCommandRegistry.RegisterCommands(
-            pluginCommand,
-            _serviceProvider,
-            _console,
-            modules,
-            _selection.Target.Info.PluginId);
+        return route == PluginInvocationRoute.Explicit
+            ? PluginCommandRegistry.RegisterExplicitCommands(
+                runCommand,
+                _serviceProvider,
+                _console,
+                modules,
+                _selection.Target.Info.PluginId)
+            : PluginCommandRegistry.RegisterCommands(
+                pluginCommand,
+                _serviceProvider,
+                _console,
+                modules,
+                _selection.Target.Info.PluginId);
     }
 
     public async ValueTask DisposeAsync()

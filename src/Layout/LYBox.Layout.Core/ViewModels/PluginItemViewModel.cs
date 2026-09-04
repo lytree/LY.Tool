@@ -18,6 +18,7 @@ public partial class PluginItemViewModel : ViewModelBase
     [ObservableProperty] private string _description = string.Empty;
     [ObservableProperty] private PluginState _state;
     [ObservableProperty] private bool _isBuiltIn;
+    [ObservableProperty] private bool _isReadOnly;
     [ObservableProperty] private string? _errorMessage;
     [ObservableProperty] private string _stateText = string.Empty;
     [ObservableProperty] private string _stateColor = "#808080";
@@ -29,13 +30,19 @@ public partial class PluginItemViewModel : ViewModelBase
 
     private ILocalizationService? _localizationService;
 
-    public PluginItemViewModel(PluginInfo info, ILocalizationService? localizationService = null)
+    public PluginItemViewModel(
+        PluginInfo info,
+        ILocalizationService? localizationService = null,
+        bool isReadOnly = false)
     {
         _localizationService = localizationService;
-        UpdateFrom(info, localizationService);
+        UpdateFrom(info, localizationService, isReadOnly);
     }
 
-    public void UpdateFrom(PluginInfo info, ILocalizationService? localizationService = null)
+    public void UpdateFrom(
+        PluginInfo info,
+        ILocalizationService? localizationService = null,
+        bool isReadOnly = false)
     {
         if (localizationService is not null)
             _localizationService = localizationService;
@@ -47,6 +54,7 @@ public partial class PluginItemViewModel : ViewModelBase
         Description = info.Description;
         State = info.State;
         IsBuiltIn = info.IsBuiltIn;
+        IsReadOnly = isReadOnly;
         ErrorMessage = info.ErrorMessage;
 
         (StateText, StateColor) = info.State switch
@@ -60,12 +68,12 @@ public partial class PluginItemViewModel : ViewModelBase
             _ => (_localizationService?.GetString("STATE_NOT_INSTALLED", "Not Installed") ?? "Not Installed", "#808080")
         };
 
-        CanEnable = info.State == PluginState.Disabled;
-        CanDisable = info.State == PluginState.Loaded || info.State == PluginState.Installed;
-        CanUninstall = !info.IsBuiltIn &&
-                       info.State != PluginState.PendingUninstall &&
-                       info.State != PluginState.PendingUpgrade;
-        CanCancelUpgrade = info.State == PluginState.PendingUpgrade;
+        CanEnable = !isReadOnly && info.State == PluginState.Disabled;
+        CanDisable = !isReadOnly && (info.State == PluginState.Loaded || info.State == PluginState.Installed);
+        CanUninstall = !isReadOnly && !info.IsBuiltIn &&
+                        info.State != PluginState.PendingUninstall &&
+                        info.State != PluginState.PendingUpgrade;
+        CanCancelUpgrade = !isReadOnly && info.State == PluginState.PendingUpgrade;
         PendingUpgradeVersion = info.State == PluginState.PendingUpgrade
             ? info.PendingUpgradeVersion
             : null;

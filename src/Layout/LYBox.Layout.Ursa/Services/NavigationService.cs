@@ -23,8 +23,7 @@ public sealed class NavigationService : INavigationService
 
     private readonly ISettingsService _settingsService;
     private readonly ILocalizationService _localizationService;
-    private readonly IPluginLoader _pluginLoader;
-    private readonly IPluginInstallationManager _pluginInstallationManager;
+    private readonly IPluginManagementService _pluginManagementService;
 
     private sealed class CacheEntry(string key, object viewModel)
     {
@@ -35,13 +34,11 @@ public sealed class NavigationService : INavigationService
     public NavigationService(
         ISettingsService settingsService,
         ILocalizationService localizationService,
-        IPluginLoader pluginLoader,
-        IPluginInstallationManager pluginInstallationManager)
+        IPluginManagementService pluginManagementService)
     {
         _settingsService = settingsService;
         _localizationService = localizationService;
-        _pluginLoader = pluginLoader;
-        _pluginInstallationManager = pluginInstallationManager;
+        _pluginManagementService = pluginManagementService;
         RegisterDefaultNavigations();
     }
 
@@ -59,7 +56,7 @@ public sealed class NavigationService : INavigationService
     {
         RegisterNavigation("Introduction", () => new IntroductionDemoViewModel());
         RegisterNavigation("Settings", () => new SettingsPageViewModel(_settingsService, _localizationService));
-        RegisterNavigation("PluginManagement", () => new PluginManagementViewModel(_pluginLoader, _pluginInstallationManager));
+        RegisterNavigation("PluginManagement", () => new PluginManagementViewModel(_pluginManagementService));
 
         ViewLocator.Register<IntroductionDemoViewModel, IntroductionDemo>();
         ViewLocator.Register<SettingsPageViewModel, SettingsPage>();

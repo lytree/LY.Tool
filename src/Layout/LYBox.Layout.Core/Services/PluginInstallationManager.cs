@@ -9,37 +9,57 @@ namespace LYBox.Layout.Core.Services;
 
 public sealed class PluginInstallationManager : IPluginInstallationManager
 {
+    private const int MaxPackageEntries = 4096;
+    private const long MaxPackageUncompressedBytes = 256L * 1024 * 1024;
+
     private readonly IPluginLoader _pluginLoader;
     private readonly string _pluginsDirectory;
+    private readonly IReadOnlySet<string> _readOnlyPluginIds;
 
     public event EventHandler<PluginInfo>? PluginInstalled;
     public event EventHandler<PluginInfo>? PluginUninstalled;
     public event EventHandler<PluginInfo>? PluginUpgradeScheduled;
 
-    public PluginInstallationManager(IPluginLoader pluginLoader, string? pluginsDirectory = null)
+    public PluginInstallationManager(
+        IPluginLoader pluginLoader,
+        string? pluginsDirectory = null,
+        IReadOnlySet<string>? readOnlyPluginIds = null)
     {
         _pluginLoader = pluginLoader;
-        _pluginsDirectory = pluginsDirectory ?? Path.Combine(AppContext.BaseDirectory, "plugins");
+        _pluginsDirectory = Path.GetFullPath(
+            pluginsDirectory ?? Path.Combine(AppContext.BaseDirectory, "plugins"));
+        _readOnlyPluginIds = readOnlyPluginIds ?? new HashSet<string>(StringComparer.Ordinal);
         Directory.CreateDirectory(_pluginsDirectory);
     }
 
     public string GetPluginInstallDirectory() => _pluginsDirectory;
 
-    public string GetPluginDirectory(string pluginId) => Path.Combine(_pluginsDirectory, pluginId);
+    public string GetPluginDirectory(string pluginId) =>
+        PluginPathValidator.GetDirectChildPath(_pluginsDirectory, pluginId);
 
     public async Task<PluginInstallResult> InstallFromFileAsync(string packageFilePath, IProgress<double>? progress = null)
     {
         if (!File.Exists(packageFilePath))
         {
-            return new PluginInstallResult { Success = false, ErrorMessage = "Package file not found" };
+            return PluginInstallResult.Failed(
+                PluginManagementErrorCode.NotFound,
+                "Package file not found");
         }
 
         if (!packageFilePath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
         {
-            return new PluginInstallResult { Success = false, ErrorMessage = "Only .zip plugin packages are supported" };
+            return PluginInstallResult.Failed(
+                PluginManagementErrorCode.InvalidPackage,
+                "Only .zip plugin packages are supported");
         }
 
-        await using var stream = File.OpenRead(packageFilePath);
+        await using var stream = new FileStream(
+            packageFilePath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.Read,
+            bufferSize: 64 * 1024,
+            options: FileOptions.Asynchronous | FileOptions.SequentialScan);
         return await InstallFromStreamAsync(stream, Path.GetFileName(packageFilePath), progress);
     }
 
@@ -47,7 +67,9 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
     {
         if (!fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
         {
-            return new PluginInstallResult { Success = false, ErrorMessage = "Only .zip plugin packages are supported" };
+            return PluginInstallResult.Failed(
+                PluginManagementErrorCode.InvalidPackage,
+                "Only .zip plugin packages are supported");
         }
 
         PluginInfo? pluginInfo = null;
@@ -61,6 +83,25 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, leaveOpen: true))
             {
                 var entries = archive.Entries;
+                if (entries.Count == 0)
+                {
+                    return PluginInstallResult.Failed(
+                        PluginManagementErrorCode.InvalidPackage,
+                        "Invalid plugin package: empty archive");
+                }
+                if (entries.Count > MaxPackageEntries)
+                {
+                    return PluginInstallResult.Failed(
+                        PluginManagementErrorCode.InvalidPackage,
+                        "Invalid plugin package: too many files");
+                }
+                if (entries.Sum(entry => entry.Length) > MaxPackageUncompressedBytes)
+                {
+                    return PluginInstallResult.Failed(
+                        PluginManagementErrorCode.InvalidPackage,
+                        "Invalid plugin package: package is too large");
+                }
+
                 var totalEntries = entries.Count;
                 var processed = 0;
 
@@ -70,13 +111,11 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
 
                     var destinationPath = Path.GetFullPath(Path.Combine(tempDir, entry.FullName));
 
-                    if (!destinationPath.StartsWith(tempDir, StringComparison.OrdinalIgnoreCase))
+                    if (!PluginPathValidator.IsWithinDirectory(tempDir, destinationPath))
                     {
-                        return new PluginInstallResult
-                        {
-                            Success = false,
-                            ErrorMessage = "Security: Path traversal detected in package"
-                        };
+                        return PluginInstallResult.Failed(
+                            PluginManagementErrorCode.InvalidPackage,
+                            "Security: Path traversal detected in package");
                     }
 
                     var dir = Path.GetDirectoryName(destinationPath);
@@ -93,11 +132,17 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
 
             if (pluginInfo == null)
             {
-                return new PluginInstallResult
-                {
-                    Success = false,
-                    ErrorMessage = "Invalid plugin package: no valid plugin.json manifest found"
-                };
+                return PluginInstallResult.Failed(
+                    PluginManagementErrorCode.InvalidPackage,
+                    "Invalid plugin package: no valid plugin.json manifest found");
+            }
+
+            var validationError = ValidatePluginPackage(tempDir, pluginInfo);
+            if (validationError is not null)
+            {
+                return PluginInstallResult.Failed(
+                    PluginManagementErrorCode.InvalidPackage,
+                    validationError);
             }
 
             // 修复 #11：安装时即校验 MinPluginSdkVersion，避免安装后启动失败。
@@ -105,48 +150,41 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
             {
                 var required = string.IsNullOrWhiteSpace(pluginInfo.MinPluginSdkVersion)
                     ? "0.0.0" : pluginInfo.MinPluginSdkVersion!;
-                return new PluginInstallResult
-                {
-                    Success = false,
-                    ErrorMessage = $"Plugin requires Plugin SDK >= {required}, but host provides " +
-                                   $"{PluginSdkContract.CurrentVersion}. Update the host application " +
-                                   "or contact the plugin author."
-                };
+                return PluginInstallResult.Failed(
+                    PluginManagementErrorCode.Conflict,
+                    $"Plugin requires Plugin SDK >= {required}, but host provides " +
+                    $"{PluginSdkContract.CurrentVersion}. Update the host application " +
+                    "or contact the plugin author.");
             }
 
             var existingPlugin = _pluginLoader.GetPlugin(pluginInfo.PluginId);
+            if (_readOnlyPluginIds.Contains(pluginInfo.PluginId) &&
+                (existingPlugin is null ||
+                 string.IsNullOrWhiteSpace(existingPlugin.InstallPath) ||
+                 !PluginPathValidator.IsWithinDirectory(_pluginsDirectory, existingPlugin.InstallPath)))
+            {
+                return PluginInstallResult.Failed(
+                    PluginManagementErrorCode.Conflict,
+                    $"Plugin '{pluginInfo.PluginId}' is provided by an external read-only plugin directory.");
+            }
+            if (existingPlugin?.IsBuiltIn == true)
+            {
+                return PluginInstallResult.Failed(
+                    PluginManagementErrorCode.Conflict,
+                    "Built-in plugins cannot be replaced");
+            }
+            if (existingPlugin?.State == PluginState.PendingUninstall)
+            {
+                return PluginInstallResult.Failed(
+                    PluginManagementErrorCode.Conflict,
+                    $"Plugin '{pluginInfo.PluginId}' is pending uninstall.");
+            }
+
             if (existingPlugin != null)
             {
-                // 修复 #8 / 升级方案（docs/Plugin-Upgrade-Evaluation.md）：
-                // 本项目不支持热卸载（见 AGENTS.md）。已加载插件的 DLL 被进程锁定，
-                // 直接删除目录会失败（IOException）。改为：
-                //   - Loaded/Error：调度升级（写入 .pending/，重启时迁移），不再拒绝
-                //   - PendingUpgrade：覆盖 .pending/，更新 .upgrade.json 版本号（潜在问题 7）
-                //   - 其他状态：尝试删除旧目录后正常安装
-                if (existingPlugin.State == PluginState.Loaded ||
-                    existingPlugin.State == PluginState.Error ||
-                    existingPlugin.State == PluginState.PendingUpgrade)
-                {
-                    return await ScheduleUpgradeAsync(tempDir, pluginInfo, existingPlugin, progress);
-                }
-
-                var targetDir = GetPluginDirectory(pluginInfo.PluginId);
-                if (Directory.Exists(targetDir))
-                {
-                    try
-                    {
-                        Directory.Delete(targetDir, true);
-                    }
-                    catch (Exception ex)
-                    {
-                        return new PluginInstallResult
-                        {
-                            Success = false,
-                            ErrorMessage = $"Cannot remove previous install at '{targetDir}': {ex.Message}. " +
-                                           "Close the application and try again."
-                        };
-                    }
-                }
+                // The host has no cross-process hot-unload guarantee. Every replacement is
+                // staged and applied only by the next desktop startup.
+                return await ScheduleUpgradeAsync(tempDir, pluginInfo, existingPlugin, progress);
             }
 
             var installDir = GetPluginDirectory(pluginInfo.PluginId);
@@ -160,13 +198,11 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
                 var relativePath = Path.GetRelativePath(tempDir, file);
                 var destPath = Path.GetFullPath(Path.Combine(installDir, relativePath));
 
-                if (!destPath.StartsWith(installDir, StringComparison.OrdinalIgnoreCase))
+                if (!PluginPathValidator.IsWithinDirectory(installDir, destPath))
                 {
-                    return new PluginInstallResult
-                    {
-                        Success = false,
-                        ErrorMessage = "Security: Path traversal detected during installation"
-                    };
+                    return PluginInstallResult.Failed(
+                        PluginManagementErrorCode.InvalidPackage,
+                        "Security: Path traversal detected during installation");
                 }
 
                 var destDir = Path.GetDirectoryName(destPath);
@@ -181,7 +217,7 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
             }
 
             var mainAssembly = !string.IsNullOrEmpty(pluginInfo.AssemblyPath)
-                ? Path.Combine(installDir, pluginInfo.AssemblyPath)
+                ? Path.GetFullPath(Path.Combine(installDir, pluginInfo.AssemblyPath))
                 : Directory.GetFiles(installDir, "*.dll", SearchOption.AllDirectories)
                     .FirstOrDefault(f => !f.EndsWith(".resources.dll", StringComparison.OrdinalIgnoreCase));
 
@@ -193,9 +229,23 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
 
             return new PluginInstallResult { Success = true, PluginInfo = pluginInfo };
         }
+        catch (InvalidDataException ex)
+        {
+            return PluginInstallResult.Failed(
+                PluginManagementErrorCode.InvalidPackage,
+                $"Invalid plugin package: {ex.Message}");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return PluginInstallResult.Failed(
+                PluginManagementErrorCode.PermissionDenied,
+                $"Installation failed: {ex.Message}");
+        }
         catch (Exception ex)
         {
-            return new PluginInstallResult { Success = false, ErrorMessage = $"Installation failed: {ex.Message}" };
+            return PluginInstallResult.Failed(
+                PluginManagementErrorCode.HostError,
+                $"Installation failed: {ex.Message}");
         }
         finally
         {
@@ -212,6 +262,11 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
         if (pluginInfo == null) return Task.FromResult(false);
 
         if (pluginInfo.IsBuiltIn) return Task.FromResult(false);
+        if (_readOnlyPluginIds.Contains(pluginId) &&
+            !PluginPathValidator.IsWithinDirectory(_pluginsDirectory, pluginInfo.InstallPath))
+        {
+            return Task.FromResult(false);
+        }
 
         _pluginLoader.MarkForUninstall(pluginId);
 
@@ -243,8 +298,10 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
         var pendingDir = Path.Combine(_pluginsDirectory, ".pending");
         Directory.CreateDirectory(pendingDir);
 
+        PluginPathValidator.ValidatePluginId(newPluginInfo.PluginId);
         var newVersionDir = Path.Combine(pendingDir, $"{newPluginInfo.PluginId}.new");
         var upgradeJsonPath = Path.Combine(pendingDir, $"{newPluginInfo.PluginId}.upgrade.json");
+        var previousPendingInfo = _pluginLoader.GetPendingUpgrade(newPluginInfo.PluginId);
 
         // 潜在问题 7：覆盖已存在的 .new/（用户连续点击两次升级）
         if (Directory.Exists(newVersionDir))
@@ -252,11 +309,9 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
             try { Directory.Delete(newVersionDir, true); }
             catch (Exception ex)
             {
-                return new PluginInstallResult
-                {
-                    Success = false,
-                    ErrorMessage = $"Cannot overwrite previous pending upgrade at '{newVersionDir}': {ex.Message}"
-                };
+                return PluginInstallResult.Failed(
+                    PluginManagementErrorCode.HostError,
+                    $"Cannot overwrite previous pending upgrade at '{newVersionDir}': {ex.Message}");
             }
         }
 
@@ -275,11 +330,9 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
             }
             catch (Exception copyEx)
             {
-                return new PluginInstallResult
-                {
-                    Success = false,
-                    ErrorMessage = $"Failed to stage new version for upgrade (move: {ex.Message}; copy: {copyEx.Message})"
-                };
+                return PluginInstallResult.Failed(
+                    PluginManagementErrorCode.HostError,
+                    $"Failed to stage new version for upgrade (move: {ex.Message}; copy: {copyEx.Message})");
             }
         }
 
@@ -294,7 +347,7 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
             PreserveState = true,
             // 记录旧状态：Loaded 时迁移后应回到 Installed（不能直接 Loaded，必须重新加载）；
             // 其他状态按字面保留（仅 Disabled/Installed 合法）。
-            OldStateToPreserve = existingPlugin.State.ToString(),
+            OldStateToPreserve = previousPendingInfo?.OldStateToPreserve ?? existingPlugin.State.ToString(),
             NewVersionPath = newVersionDir
         };
 
@@ -307,11 +360,9 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
         {
             // 回滚：删除已就位的新版本目录
             try { Directory.Delete(newVersionDir, true); } catch { }
-            return new PluginInstallResult
-            {
-                Success = false,
-                ErrorMessage = $"Failed to write upgrade marker: {ex.Message}"
-            };
+            return PluginInstallResult.Failed(
+                PluginManagementErrorCode.HostError,
+                $"Failed to write upgrade marker: {ex.Message}");
         }
 
         // 让 PluginLoader 把内存中的插件状态改为 PendingUpgrade 并保存 manifest
@@ -359,9 +410,12 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
                     Author = manifest.Author ?? string.Empty,
                     Description = manifest.Description ?? string.Empty,
                     Dependencies = manifest.Dependencies ?? [],
+                    SharedAssemblies = manifest.SharedAssemblies ?? [],
                     AssemblyPath = manifest.Assembly ?? string.Empty,
                     HasMetadata = !string.IsNullOrEmpty(manifest.PluginId),
-                    MinPluginSdkVersion = manifest.MinPluginSdkVersion
+                    MinPluginSdkVersion = manifest.MinPluginSdkVersion,
+                    Kind = string.IsNullOrWhiteSpace(manifest.Kind) ? "Avalonia" : manifest.Kind,
+                    Web = manifest.Web
                 };
             }
         }
@@ -385,6 +439,46 @@ public sealed class PluginInstallationManager : IPluginInstallationManager
             catch
             {
             }
+        }
+
+        return null;
+    }
+
+    private static string? ValidatePluginPackage(string rootDirectory, PluginInfo pluginInfo)
+    {
+        try
+        {
+            PluginPathValidator.ValidatePluginId(pluginInfo.PluginId);
+        }
+        catch (ArgumentException ex)
+        {
+            return ex.Message;
+        }
+
+        if (string.IsNullOrWhiteSpace(pluginInfo.Name))
+            return "Invalid plugin package: name is required";
+        if (string.IsNullOrWhiteSpace(pluginInfo.Version))
+            return "Invalid plugin package: version is required";
+        if (string.IsNullOrWhiteSpace(pluginInfo.AssemblyPath))
+            return "Invalid plugin package: assembly is required";
+        if (Path.IsPathRooted(pluginInfo.AssemblyPath))
+            return "Invalid plugin package: assembly path must be relative";
+        if (!pluginInfo.AssemblyPath.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+            return "Invalid plugin package: assembly must be a .dll file";
+
+        var assemblyPath = Path.GetFullPath(Path.Combine(rootDirectory, pluginInfo.AssemblyPath));
+        if (!PluginPathValidator.IsWithinDirectory(rootDirectory, assemblyPath))
+            return "Security: assembly path traversal detected in manifest";
+        if (!File.Exists(assemblyPath))
+            return "Invalid plugin package: assembly file not found";
+
+        try
+        {
+            _ = System.Reflection.AssemblyName.GetAssemblyName(assemblyPath);
+        }
+        catch (Exception ex)
+        {
+            return $"Invalid plugin package: assembly is not loadable ({ex.Message})";
         }
 
         return null;

@@ -40,7 +40,8 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
         bool loadExtraPlugins,
         bool persistManifestChanges)
     {
-        _pluginsDirectory = pluginsDirectory ?? Path.Combine(AppContext.BaseDirectory, "plugins");
+        _pluginsDirectory = Path.GetFullPath(
+            pluginsDirectory ?? Path.Combine(AppContext.BaseDirectory, "plugins"));
         _loadExtraPlugins = loadExtraPlugins;
         _persistManifestChanges = persistManifestChanges;
         _extraPluginPath = loadExtraPlugins
@@ -84,6 +85,23 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
             plugins,
             loadExtraPlugins: false,
             persistManifestChanges: false);
+    }
+
+    /// <summary>
+    /// Creates a manifest-backed management loader without running desktop startup work.
+    /// Pending upgrades/uninstalls are left untouched, extra plugins are not loaded, and
+    /// management state changes are persisted to the supplied plugin manifests.
+    /// </summary>
+    public static PluginLoader CreateManagement(
+        IEnumerable<PluginInfo> plugins,
+        string? pluginsDirectory = null)
+    {
+        ArgumentNullException.ThrowIfNull(plugins);
+        return new PluginLoader(
+            pluginsDirectory,
+            plugins,
+            loadExtraPlugins: false,
+            persistManifestChanges: true);
     }
 
     /// <summary>
@@ -792,11 +810,32 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
         }
 
         var pluginId = info.PluginId;
+        try
+        {
+            PluginPathValidator.ValidatePluginId(pluginId);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError(ex, "[PluginUpgrade] Invalid plugin id in '{UpgradeJsonPath}'.", upgradeJsonPath);
+            TryDeleteFile(upgradeJsonPath);
+            return;
+        }
+
         var newVersionDir = info.NewVersionPath;
         if (string.IsNullOrEmpty(newVersionDir))
         {
             // 兼容旧字段：回退到约定路径
             newVersionDir = Path.Combine(pendingDir, $"{pluginId}.new");
+        }
+        newVersionDir = Path.GetFullPath(newVersionDir);
+        if (!PluginPathValidator.IsWithinDirectory(pendingDir, newVersionDir))
+        {
+            _logger.LogError(
+                "[PluginUpgrade] '{PluginId}': pending version path '{NewVersionDir}' escapes the pending directory.",
+                pluginId,
+                newVersionDir);
+            TryDeleteFile(upgradeJsonPath);
+            return;
         }
 
         // 潜在问题 6：.new/ 缺失 → 告警并清理 .upgrade.json
@@ -807,7 +846,7 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
             return;
         }
 
-        var targetDir = Path.Combine(_pluginsDirectory, pluginId);
+        var targetDir = PluginPathValidator.GetDirectChildPath(_pluginsDirectory, pluginId);
         var stagingDir = targetDir + ".new";
         var oldBackupDir = targetDir + ".old";
 
@@ -1038,6 +1077,7 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
 
     public void MarkPendingUpgrade(string pluginId, PendingUpgradeInfo info)
     {
+        PluginPathValidator.ValidatePluginId(pluginId);
         PluginInfo? newInfo = null;
         lock (_sync)
         {
@@ -1061,6 +1101,8 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
 
     public bool CancelPendingUpgrade(string pluginId)
     {
+        PluginPathValidator.ValidatePluginId(pluginId);
+        var pendingInfo = GetPendingUpgrade(pluginId);
         PluginInfo? restoredInfo = null;
         bool cleared;
 
@@ -1071,9 +1113,13 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
 
             // 计算恢复后的状态：升级前必然是 Loaded 或 Error（见 InstallationManager 调度条件）
             // 这里无法精确还原 Loaded（程序集仍加载中），所以统一恢复为 Installed。
+            var restoredState = Enum.TryParse<PluginState>(pendingInfo?.OldStateToPreserve, out var oldState)
+                && oldState == PluginState.Disabled
+                    ? PluginState.Disabled
+                    : PluginState.Installed;
             restoredInfo = entry.Info with
             {
-                State = PluginState.Installed,
+                State = restoredState,
                 ErrorMessage = null,
                 PendingUpgradeVersion = null
             };
@@ -1119,6 +1165,7 @@ public sealed class PluginLoader : IPluginLoader, IDisposable
 
     public PendingUpgradeInfo? GetPendingUpgrade(string pluginId)
     {
+        PluginPathValidator.ValidatePluginId(pluginId);
         var pendingDir = Path.Combine(_pluginsDirectory, ".pending");
         var upgradeJson = Path.Combine(pendingDir, $"{pluginId}.upgrade.json");
         if (!File.Exists(upgradeJson)) return null;

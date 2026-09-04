@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using LYBox.Plugin.Shared;
 using LYBox.Plugin.Shared.Models;
 using LYBox.Plugin.Shared.Services;
+using LYBox.Layout.Core.Services;
 using LYBox.Layout.Core.ViewModels;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -12,8 +13,7 @@ namespace LYBox.Layout.Ursa.ViewModels;
 
 public partial class PluginManagementViewModel : ViewModelBase
 {
-    private readonly IPluginLoader _pluginLoader;
-    private readonly IPluginInstallationManager _installationManager;
+    private readonly IPluginManagementService _pluginManagementService;
     private readonly ILocalizationService _localizationService;
 
     public ObservableCollection<PluginItemViewModel> Plugins { get; } = [];
@@ -25,16 +25,15 @@ public partial class PluginManagementViewModel : ViewModelBase
     [ObservableProperty] private bool _isInstalling;
     [ObservableProperty] private bool _needsRestart;
 
-    public PluginManagementViewModel(IPluginLoader pluginLoader, IPluginInstallationManager installationManager)
+    public PluginManagementViewModel(IPluginManagementService pluginManagementService)
     {
-        _pluginLoader = pluginLoader;
-        _installationManager = installationManager;
+        _pluginManagementService = pluginManagementService;
         _localizationService = ServiceLocator.GetService<ILocalizationService>();
 
-        _installationManager.PluginInstalled += OnPluginInstalled;
-        _installationManager.PluginUninstalled += OnPluginUninstalled;
-        _installationManager.PluginUpgradeScheduled += OnPluginUpgradeScheduled;
-        _pluginLoader.PluginStateChanged += OnPluginStateChanged;
+        _pluginManagementService.PluginInstalled += OnPluginInstalled;
+        _pluginManagementService.PluginUninstalled += OnPluginUninstalled;
+        _pluginManagementService.PluginUpgradeScheduled += OnPluginUpgradeScheduled;
+        _pluginManagementService.PluginStateChanged += OnPluginStateChanged;
 
         RefreshPlugins();
     }
@@ -43,10 +42,13 @@ public partial class PluginManagementViewModel : ViewModelBase
     private void RefreshPlugins()
     {
         Plugins.Clear();
-        var installedPlugins = _pluginLoader.GetInstalledPlugins();
+        var installedPlugins = _pluginManagementService.GetInstalledPlugins();
         foreach (var plugin in installedPlugins)
         {
-            Plugins.Add(new PluginItemViewModel(plugin, _localizationService));
+            Plugins.Add(new PluginItemViewModel(
+                plugin,
+                _localizationService,
+                _pluginManagementService.IsReadOnly(plugin.PluginId)));
         }
 
         NeedsRestart = installedPlugins.Any(p =>
@@ -85,7 +87,7 @@ public partial class PluginManagementViewModel : ViewModelBase
         InstallProgress = 0;
 
         var progress = new Progress<double>(p => InstallProgress = p * 100);
-        var result = await _installationManager.InstallFromFileAsync(filePath, progress);
+        var result = await _pluginManagementService.InstallFromFileAsync(filePath, progress);
 
         IsInstalling = false;
 
@@ -122,12 +124,20 @@ public partial class PluginManagementViewModel : ViewModelBase
     [RelayCommand]
     private async Task UninstallPluginAsync(PluginItemViewModel? pluginItem)
     {
-        if (pluginItem == null || pluginItem.IsBuiltIn) return;
+        if (pluginItem == null || !_pluginManagementService.CanUninstall(pluginItem.PluginId)) return;
 
-        var success = await _installationManager.UninstallAsync(pluginItem.PluginId);
-        if (success)
+        var result = await _pluginManagementService.UninstallAsync(pluginItem.PluginId);
+        if (result.Success)
         {
-            pluginItem.UpdateFrom(_pluginLoader.GetPlugin(pluginItem.PluginId) ?? new PluginInfo { PluginId = pluginItem.PluginId, Name = pluginItem.Name, State = PluginState.PendingUninstall }, _localizationService);
+            pluginItem.UpdateFrom(
+                result.PluginInfo ?? new PluginInfo
+                {
+                    PluginId = pluginItem.PluginId,
+                    Name = pluginItem.Name,
+                    State = PluginState.PendingUninstall
+                },
+                _localizationService,
+                isReadOnly: false);
             StatusMessage = _localizationService.GetString("PLUGIN_UNINSTALL_AFTER_RESTART", "Plugin '{0}' will be uninstalled after restart", pluginItem.Name);
             NeedsRestart = true;
         }
@@ -138,13 +148,16 @@ public partial class PluginManagementViewModel : ViewModelBase
     {
         if (pluginItem == null) return;
 
-        var success = await _installationManager.CancelUpgradeAsync(pluginItem.PluginId);
+        var success = await _pluginManagementService.CancelUpgradeAsync(pluginItem.PluginId);
         if (success)
         {
-            var updated = _pluginLoader.GetPlugin(pluginItem.PluginId);
+            var updated = _pluginManagementService.GetPlugin(pluginItem.PluginId);
             if (updated != null)
             {
-                pluginItem.UpdateFrom(updated, _localizationService);
+                pluginItem.UpdateFrom(
+                    updated,
+                    _localizationService,
+                    _pluginManagementService.IsReadOnly(updated.PluginId));
             }
             StatusMessage = _localizationService.GetString(
                 "PLUGIN_UPGRADE_CANCELLED",
@@ -152,7 +165,7 @@ public partial class PluginManagementViewModel : ViewModelBase
                 pluginItem.Name);
 
             // 取消后可能不再需要重启
-            var installed = _pluginLoader.GetInstalledPlugins();
+            var installed = _pluginManagementService.GetInstalledPlugins();
             NeedsRestart = installed.Any(p =>
                 p.State == PluginState.PendingUninstall ||
                 p.State == PluginState.PendingUpgrade ||
@@ -164,7 +177,7 @@ public partial class PluginManagementViewModel : ViewModelBase
     private void EnablePlugin(PluginItemViewModel? pluginItem)
     {
         if (pluginItem == null) return;
-        _ = _installationManager.EnablePluginAsync(pluginItem.PluginId);
+        _ = _pluginManagementService.EnablePluginAsync(pluginItem.PluginId);
         StatusMessage = _localizationService.GetString("PLUGIN_ENABLE_RESTART", "Plugin '{0}' will be enabled after restart", pluginItem.Name);
         NeedsRestart = true;
     }
@@ -173,7 +186,7 @@ public partial class PluginManagementViewModel : ViewModelBase
     private void DisablePlugin(PluginItemViewModel? pluginItem)
     {
         if (pluginItem == null) return;
-        _ = _installationManager.DisablePluginAsync(pluginItem.PluginId);
+        _ = _pluginManagementService.DisablePluginAsync(pluginItem.PluginId);
         StatusMessage = _localizationService.GetString("PLUGIN_DISABLE_RESTART", "Plugin '{0}' will be disabled after restart", pluginItem.Name);
         NeedsRestart = true;
     }
@@ -185,11 +198,14 @@ public partial class PluginManagementViewModel : ViewModelBase
             var existing = Plugins.FirstOrDefault(p => p.PluginId == e.PluginId);
             if (existing != null)
             {
-                existing.UpdateFrom(e, _localizationService);
+                existing.UpdateFrom(e, _localizationService, _pluginManagementService.IsReadOnly(e.PluginId));
             }
             else
             {
-                Plugins.Add(new PluginItemViewModel(e, _localizationService));
+                Plugins.Add(new PluginItemViewModel(
+                    e,
+                    _localizationService,
+                    _pluginManagementService.IsReadOnly(e.PluginId)));
             }
         });
     }
@@ -201,10 +217,13 @@ public partial class PluginManagementViewModel : ViewModelBase
             var item = Plugins.FirstOrDefault(p => p.PluginId == e.PluginId);
             if (item != null)
             {
-                var updatedInfo = _pluginLoader.GetPlugin(e.PluginId);
+                var updatedInfo = _pluginManagementService.GetPlugin(e.PluginId);
                 if (updatedInfo != null)
                 {
-                    item.UpdateFrom(updatedInfo, _localizationService);
+                    item.UpdateFrom(
+                        updatedInfo,
+                        _localizationService,
+                        _pluginManagementService.IsReadOnly(updatedInfo.PluginId));
                 }
             }
             NeedsRestart = true;
@@ -218,11 +237,14 @@ public partial class PluginManagementViewModel : ViewModelBase
             var item = Plugins.FirstOrDefault(p => p.PluginId == e.PluginId);
             if (item != null)
             {
-                item.UpdateFrom(e, _localizationService);
+                item.UpdateFrom(e, _localizationService, _pluginManagementService.IsReadOnly(e.PluginId));
             }
             else
             {
-                Plugins.Add(new PluginItemViewModel(e, _localizationService));
+                Plugins.Add(new PluginItemViewModel(
+                    e,
+                    _localizationService,
+                    _pluginManagementService.IsReadOnly(e.PluginId)));
             }
         });
     }
@@ -234,7 +256,7 @@ public partial class PluginManagementViewModel : ViewModelBase
             var item = Plugins.FirstOrDefault(p => p.PluginId == e.PluginId);
             if (item != null)
             {
-                item.UpdateFrom(e, _localizationService);
+                item.UpdateFrom(e, _localizationService, _pluginManagementService.IsReadOnly(e.PluginId));
             }
             NeedsRestart = true;
         });
@@ -242,10 +264,10 @@ public partial class PluginManagementViewModel : ViewModelBase
 
     public override void Dispose()
     {
-        _installationManager.PluginInstalled -= OnPluginInstalled;
-        _installationManager.PluginUninstalled -= OnPluginUninstalled;
-        _installationManager.PluginUpgradeScheduled -= OnPluginUpgradeScheduled;
-        _pluginLoader.PluginStateChanged -= OnPluginStateChanged;
+        _pluginManagementService.PluginInstalled -= OnPluginInstalled;
+        _pluginManagementService.PluginUninstalled -= OnPluginUninstalled;
+        _pluginManagementService.PluginUpgradeScheduled -= OnPluginUpgradeScheduled;
+        _pluginManagementService.PluginStateChanged -= OnPluginStateChanged;
         base.Dispose();
     }
 }

@@ -1,5 +1,4 @@
 using System.Text.Json;
-using LYBox.Plugin.Shared.CommandLine;
 using Spectre.Console;
 using SpectreMarkup = Spectre.Console.Markup;
 
@@ -13,7 +12,12 @@ internal enum CliOutputFormat
 
 internal sealed class CliFailureException : Exception
 {
-    public CliFailureException(int exitCode, string code, string message, object? details = null, Exception? innerException = null)
+    public CliFailureException(
+        int exitCode,
+        string code,
+        string message,
+        object? details = null,
+        Exception? innerException = null)
         : base(message, innerException)
     {
         ExitCode = exitCode;
@@ -54,8 +58,8 @@ internal sealed class CliOutput
 
     public void WriteSuccess(string command, object? data = null)
     {
-        if (Format != CliOutputFormat.Json) return;
-        WriteJson(new { schemaVersion = 1, ok = true, command, data });
+        if (Format == CliOutputFormat.Json)
+            WriteJson(new { schemaVersion = 1, ok = true, command, data });
     }
 
     public void WriteFailure(string command, CliFailureException failure)
@@ -81,84 +85,12 @@ internal sealed class CliOutput
         _errorConsole.MarkupLine($"[red]{SpectreMarkup.Escape(failure.Message)}[/]");
     }
 
-    public void WriteDiagnostic(string message)
-    {
+    public void WriteDiagnostic(string message) =>
         _errorConsole.MarkupLine($"[yellow]{SpectreMarkup.Escape(message)}[/]");
-    }
 
     private void WriteJson(object value)
     {
         _standardOutput.WriteLine(JsonSerializer.Serialize(value, JsonOptions));
         _standardOutput.Flush();
     }
-}
-
-internal static class CliArguments
-{
-    public static (CliOutputFormat Format, string[] Arguments) ExtractOutput(string[] args)
-    {
-        var format = CliOutputFormat.Text;
-        var remaining = new List<string>(args.Length);
-
-        for (var index = 0; index < args.Length; index++)
-        {
-            var value = args[index];
-            string? requested = null;
-            if (string.Equals(value, "--output", StringComparison.OrdinalIgnoreCase))
-            {
-                if (++index >= args.Length)
-                    throw Usage("--output requires 'text' or 'json'.");
-                requested = args[index];
-            }
-            else if (value.StartsWith("--output=", StringComparison.OrdinalIgnoreCase))
-            {
-                requested = value[9..];
-            }
-            else
-            {
-                remaining.Add(value);
-            }
-
-            if (requested is null) continue;
-            format = requested.ToLowerInvariant() switch
-            {
-                "text" => CliOutputFormat.Text,
-                "json" => CliOutputFormat.Json,
-                _ => throw Usage($"Unsupported output mode '{requested}'. Use 'text' or 'json'.")
-            };
-        }
-
-        return (format, remaining.ToArray());
-    }
-
-    private static CliFailureException Usage(string message) =>
-        new(PluginCliExitCodes.Usage, "invalid_arguments", message);
-}
-
-internal static class CliInvocationClassifier
-{
-    public static PluginCliExecutionProfile Classify(string[] args)
-    {
-        if (args.Length == 0) return PluginCliExecutionProfile.Desktop;
-
-        var first = args[0];
-        if (string.Equals(first, "gui", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(first, "desktop", StringComparison.OrdinalIgnoreCase))
-        {
-            return PluginCliExecutionProfile.Desktop;
-        }
-
-        if (string.Equals(first, "plugins", StringComparison.OrdinalIgnoreCase))
-            return PluginCliExecutionProfile.CatalogOnly;
-
-        if (!string.Equals(first, "plugin", StringComparison.OrdinalIgnoreCase))
-            return PluginCliExecutionProfile.None;
-
-        if (args.Length == 1 || args.Skip(1).Any(IsHelpOption))
-            return PluginCliExecutionProfile.CatalogOnly;
-
-        return PluginCliExecutionProfile.SelectedPlugin;
-    }
-
-    public static bool IsHelpOption(string value) => value is "--help" or "-h" or "-?";
 }

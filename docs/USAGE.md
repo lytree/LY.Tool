@@ -35,6 +35,19 @@ dotnet run --project src/App/LYBox.Launcher.Desktop
 - 安装后未重启时，插件可能已经进入待生效状态，但菜单和页面不一定立即可用。
 - 如果插件状态显示异常，优先检查 zip 包是否来自当前版本构建输出，以及插件依赖是否已经随主程序一起发布。
 
+### 使用命令行管理插件
+
+控制台启动器与 GUI 共用同一套插件管理服务。可在自动化部署或无图形界面的环境中执行：
+
+```powershell
+dotnet run --project src/App/LYBox.Launcher.Console -- plugins list
+dotnet run --project src/App/LYBox.Launcher.Console -- plugins info <plugin-id>
+dotnet run --project src/App/LYBox.Launcher.Console -- plugins install .\LYBox.Plugin.Example-1.0.0.zip
+dotnet run --project src/App/LYBox.Launcher.Console -- plugins uninstall <plugin-id>
+```
+
+`install` 的别名为 `add`，`uninstall` 的别名为 `remove`。所有插件管理命令支持 `--output=json`，详细参数可通过 `--help` 查看。外部开发目录中的插件为只读状态，不能通过 GUI 或 CLI 覆盖、卸载、启用或禁用。
+
 ## 插件覆盖安装与升级
 
 插件系统不支持热卸载。已加载插件的 DLL 会被当前进程锁定，因此运行中不能直接覆盖正式插件目录。
